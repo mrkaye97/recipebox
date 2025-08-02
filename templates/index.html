@@ -330,6 +330,12 @@
                         <i data-lucide="chef-hat" class="w-4 h-4"></i>
                         <span class="font-medium text-teal-700" x-text="recipe.cuisine"></span>
                       </div>
+                      <div x-show="recipe.time_estimate_minutes" class="flex items-center space-x-2">
+                        <i data-lucide="clock" class="w-4 h-4"></i>
+                        <span class="font-medium text-gray-600">
+                          <span x-text="recipe.time_estimate_minutes"></span>min
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div class="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity ml-4">
@@ -404,6 +410,18 @@
                     Cuisine
                   </span>
                   <span class="font-medium text-gray-900" x-text="randomRecipe?.cuisine"></span>
+                </div>
+              </div>
+
+              <div x-show="randomRecipe?.time_estimate_minutes" class="bg-white rounded-lg p-4 shadow-sm">
+                <div class="flex justify-between items-center text-sm">
+                  <span class="text-gray-600 flex items-center">
+                    <i data-lucide="clock" class="w-4 h-4 mr-2"></i>
+                    Estimated Time
+                  </span>
+                  <span class="font-medium text-gray-900">
+                    <span x-text="randomRecipe?.time_estimate_minutes"></span> minutes
+                  </span>
                 </div>
               </div>
 
@@ -537,6 +555,13 @@
                 </div>
 
                 <div>
+                  <label class="form-label">Estimated Time (minutes)</label>
+                  <input type="number" x-model="newRecipe.timeEstimateMinutes" min="1" step="1"
+                         class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="e.g., 30, 45, 60" />
+                  <p class="text-xs text-gray-500 mt-1">How long does this recipe take to prepare and cook?</p>
+                </div>
+
+                <div>
                   <label class="form-label">Tags</label>
                   <input type="text" x-model="newRecipe.tagsInput"
                          class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="Comma-separated tags (e.g., vegetarian, quick, healthy)" />
@@ -632,6 +657,13 @@
                 </div>
 
                 <div>
+                  <label class="form-label">Estimated Time (minutes)</label>
+                  <input type="number" x-model="editingRecipe.timeEstimateMinutes" min="1" step="1"
+                         class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="e.g., 30, 45, 60">
+                  <p class="text-xs text-gray-500 mt-1">How long does this recipe take to prepare and cook?</p>
+                </div>
+
+                <div>
                   <label class="form-label">Tags</label>
                   <input type="text" x-model="editingRecipe.tagsInput"
                          class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="Comma-separated tags">
@@ -696,6 +728,18 @@
                     Cuisine
                   </span>
                   <span class="font-medium text-gray-900" x-text="viewingRecipe?.cuisine"></span>
+                </div>
+              </div>
+
+              <div x-show="viewingRecipe?.time_estimate_minutes" class="bg-white rounded-lg p-4 shadow-sm">
+                <div class="flex justify-between items-center text-sm">
+                  <span class="text-gray-600 flex items-center">
+                    <i data-lucide="clock" class="w-4 h-4 mr-2"></i>
+                    Estimated Time
+                  </span>
+                  <span class="font-medium text-gray-900">
+                    <span x-text="viewingRecipe?.time_estimate_minutes"></span> minutes
+                  </span>
                 </div>
               </div>
 
@@ -806,6 +850,7 @@
             cuisine: '',
             tagsInput: '',
             dietaryRestrictions: [],
+            timeEstimateMinutes: null,
             location: {
               location: 'online',
               url: '',
@@ -850,6 +895,7 @@
                 tags: tags,
                 location: { location: location },
                 dietary_restrictions_met: this.newRecipe.dietaryRestrictions || [],
+                time_estimate_minutes: this.newRecipe.timeEstimateMinutes ? parseInt(this.newRecipe.timeEstimateMinutes) : null,
                 notes: this.newRecipe.notes || null,
                 saved_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
@@ -870,6 +916,7 @@
                   cuisine: '',
                   tagsInput: '',
                   dietaryRestrictions: [],
+                  timeEstimateMinutes: null,
                   location: {
                     location: 'online',
                     url: '',
@@ -891,7 +938,8 @@
             this.editingRecipe = {
               ...recipe,
               tagsInput: recipe.tags.join(', '),
-              dietaryRestrictions: recipe.dietary_restrictions_met || []
+              dietaryRestrictions: recipe.dietary_restrictions_met || [],
+              timeEstimateMinutes: recipe.time_estimate_minutes
             };
             this.viewingRecipe = null;
             this.activeTab = 'edit';
@@ -920,6 +968,7 @@
                 cuisine: this.editingRecipe.cuisine,
                 tags: tags,
                 dietary_restrictions_met: this.editingRecipe.dietaryRestrictions || [],
+                time_estimate_minutes: this.editingRecipe.timeEstimateMinutes ? parseInt(this.editingRecipe.timeEstimateMinutes) : null,
                 notes: this.editingRecipe.notes
               };
 
