@@ -303,7 +303,7 @@
          class="h-screen flex overflow-hidden w-full">
     <div class="flex-1 flex flex-col bg-white">
       <div class="px-6 py-6 border-b border-gray-200">
-        <div class="flex space-x-4">
+        <div class="flex space-x-4 mb-4">
           <input
             type="text"
             x-model="searchTerm"
@@ -313,6 +313,47 @@
           <button @click="activeTab = 'add'" class="btn-primary inline-flex items-center">
             <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
             Add Recipe
+          </button>
+        </div>
+        <div class="flex flex-wrap gap-4 items-center">
+          <div class="flex items-center space-x-2">
+            <label class="text-sm font-medium text-gray-700">Cuisine:</label>
+            <select x-model="filters.cuisine" class="px-3 py-2 form-input rounded-lg text-sm">
+              <option value="">All Cuisines</option>
+              <template x-for="cuisine in uniqueCuisines" :key="cuisine">
+                <option :value="cuisine" x-text="cuisine"></option>
+              </template>
+            </select>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <label class="text-sm font-medium text-gray-700">Dietary:</label>
+            <select x-model="filters.dietaryRestriction" class="px-3 py-2 form-input rounded-lg text-sm">
+              <option value="">All Diets</option>
+              <option value="Vegetarian">Vegetarian</option>
+              <option value="Vegan">Vegan</option>
+              <option value="Pescatarian">Pescatarian</option>
+              <option value="Gluten Free">Gluten Free</option>
+              <option value="Dairy Free">Dairy Free</option>
+              <option value="Nut Free">Nut Free</option>
+            </select>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <label class="text-sm font-medium text-gray-700">Max Time:</label>
+            <select x-model="filters.maxTime" class="px-3 py-2 form-input rounded-lg text-sm">
+              <option value="">Any Time</option>
+              <option value="15">≤ 15 min</option>
+              <option value="30">≤ 30 min</option>
+              <option value="45">≤ 45 min</option>
+              <option value="60">≤ 1 hour</option>
+              <option value="120">≤ 2 hours</option>
+            </select>
+          </div>
+
+          <button @click="clearFilters()" x-show="hasActiveFilters" class="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors hover:cursor-pointer">
+            <i data-lucide="x-circle" class="w-4 h-4 inline mr-1"></i>
+            Clear Filters
           </button>
         </div>
       </div>
@@ -383,9 +424,9 @@
             <i data-lucide="search" class="w-16 h-16 mx-auto"></i>
           </div>
           <h3 class="font-medium text-gray-900 mb-2">No matches found</h3>
-          <p class="text-gray-600 mb-6">Try adjusting your search terms</p>
-          <button @click="searchTerm = ''" class="px-4 py-2 bg-teal-700 text-white rounded-lg hover:bg-teal-800 hover:cursor-pointer">
-            Clear Search
+          <p class="text-gray-600 mb-6">Try adjusting your search terms or filters</p>
+          <button @click="clearFilters()" class="px-4 py-2 bg-teal-700 text-white rounded-lg hover:bg-teal-800 hover:cursor-pointer">
+            Clear All Filters
           </button>
         </div>
       </div>
@@ -845,6 +886,11 @@
           editingRecipe: null,
           randomRecipe: null,
           viewingRecipe: null,
+          filters: {
+            cuisine: '',
+            dietaryRestriction: '',
+            maxTime: ''
+          },
           newRecipe: {
             name: '',
             cuisine: '',
@@ -864,15 +910,47 @@
             this.getRandomRecipe();
           },
 
+          get uniqueCuisines() {
+            const cuisines = [...new Set(this.recipes.map(recipe => recipe.cuisine))];
+            return cuisines.sort();
+          },
+
+          get hasActiveFilters() {
+            return this.filters.cuisine || this.filters.dietaryRestriction || this.filters.maxTime || this.searchTerm;
+          },
+
           get filteredRecipes() {
-            if (!this.searchTerm) return this.recipes;
-            const term = this.searchTerm.toLowerCase();
-            return this.recipes.filter(recipe =>
-              recipe.name.toLowerCase().includes(term) ||
-              recipe.cuisine.toLowerCase().includes(term) ||
-              recipe.tags.some(tag => tag.toLowerCase().includes(term)) ||
-              (recipe.dietary_restrictions_met && recipe.dietary_restrictions_met.some(restriction => restriction.toLowerCase().includes(term)))
-            );
+            let filtered = this.recipes;
+
+            if (this.searchTerm) {
+              const term = this.searchTerm.toLowerCase();
+              filtered = filtered.filter(recipe =>
+                recipe.name.toLowerCase().includes(term) ||
+                recipe.cuisine.toLowerCase().includes(term) ||
+                recipe.tags.some(tag => tag.toLowerCase().includes(term)) ||
+                (recipe.dietary_restrictions_met && recipe.dietary_restrictions_met.some(restriction => restriction.toLowerCase().includes(term)))
+              );
+            }
+
+            if (this.filters.cuisine) {
+              filtered = filtered.filter(recipe => recipe.cuisine === this.filters.cuisine);
+            }
+
+            if (this.filters.dietaryRestriction) {
+              filtered = filtered.filter(recipe =>
+                recipe.dietary_restrictions_met &&
+                recipe.dietary_restrictions_met.includes(this.filters.dietaryRestriction)
+              );
+            }
+
+            if (this.filters.maxTime) {
+              const maxTime = parseInt(this.filters.maxTime);
+              filtered = filtered.filter(recipe =>
+                recipe.time_estimate_minutes && recipe.time_estimate_minutes <= maxTime
+              );
+            }
+
+            return filtered;
           },
 
           async addRecipe() {
@@ -1050,6 +1128,13 @@
               return `${location.location.cookbook_name}, p. ${location.location.page_number}`;
             }
             return 'Unknown';
+          },
+
+          clearFilters() {
+            this.filters.cuisine = '';
+            this.filters.dietaryRestriction = '';
+            this.filters.maxTime = '';
+            this.searchTerm = '';
           },
 
           formatDate(dateString) {
