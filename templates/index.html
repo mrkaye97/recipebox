@@ -317,7 +317,6 @@
         </div>
         <div class="flex flex-wrap gap-4 items-center">
           <div class="flex items-center space-x-2">
-            <label class="text-sm font-medium text-gray-700">Cuisine:</label>
             <select x-model="filters.cuisine" class="px-3 py-2 form-input rounded-lg text-sm">
               <option value="">All Cuisines</option>
               <template x-for="cuisine in uniqueCuisines" :key="cuisine">
@@ -327,20 +326,24 @@
           </div>
 
           <div class="flex items-center space-x-2">
-            <label class="text-sm font-medium text-gray-700">Dietary:</label>
+            <select x-model="filters.author" class="px-3 py-2 form-input rounded-lg text-sm">
+              <option value="">All Authors</option>
+              <template x-for="author in uniqueAuthors" :key="author">
+                <option :value="author" x-text="author"></option>
+              </template>
+            </select>
+          </div>
+
+          <div class="flex items-center space-x-2">
             <select x-model="filters.dietaryRestriction" class="px-3 py-2 form-input rounded-lg text-sm">
               <option value="">All Diets</option>
               <option value="Vegetarian">Vegetarian</option>
               <option value="Vegan">Vegan</option>
               <option value="Pescatarian">Pescatarian</option>
-              <option value="Gluten Free">Gluten Free</option>
-              <option value="Dairy Free">Dairy Free</option>
-              <option value="Nut Free">Nut Free</option>
             </select>
           </div>
 
           <div class="flex items-center space-x-2">
-            <label class="text-sm font-medium text-gray-700">Max Time:</label>
             <select x-model="filters.maxTime" class="px-3 py-2 form-input rounded-lg text-sm">
               <option value="">Any Time</option>
               <option value="15">≤ 15 min</option>
@@ -367,6 +370,10 @@
                   <div class="flex-1">
                     <h3 class="text-xl font-semibold text-gray-900 mb-1" x-text="recipe.name"></h3>
                     <div class="flex items-center space-x-4 text-sm">
+                      <div class="flex items-center space-x-2">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                        <span class="font-medium text-purple-700" x-text="recipe.author"></span>
+                      </div>
                       <div class="flex items-center space-x-2">
                         <i data-lucide="chef-hat" class="w-4 h-4"></i>
                         <span class="font-medium text-teal-700" x-text="recipe.cuisine"></span>
@@ -444,6 +451,16 @@
             </div>
 
             <div x-show="randomRecipe" class="flex-1 overflow-y-auto space-y-4 mt-6">
+              <div class="bg-white rounded-lg p-4 shadow-sm">
+                <div class="flex justify-between items-center text-sm">
+                  <span class="text-gray-600 flex items-center">
+                    <i data-lucide="user" class="w-4 h-4 mr-2"></i>
+                    Author
+                  </span>
+                  <span class="font-medium text-gray-900" x-text="randomRecipe?.author"></span>
+                </div>
+              </div>
+
               <div class="bg-white rounded-lg p-4 shadow-sm">
                 <div class="flex justify-between items-center text-sm">
                   <span class="text-gray-600 flex items-center">
@@ -590,6 +607,12 @@
                 </div>
 
                 <div>
+                  <label class="form-label">Author</label>
+                  <input type="text" x-model="newRecipe.author" required
+                         class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="e.g., Julia Child, Gordon Ramsay" />
+                </div>
+
+                <div>
                   <label class="form-label">Cuisine</label>
                   <input type="text" x-model="newRecipe.cuisine" required
                          class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="e.g., Italian, Mexican, Thai" />
@@ -612,7 +635,7 @@
                 <div>
                   <label class="form-label">Dietary Restrictions Met</label>
                   <div class="space-y-2">
-                    <template x-for="restriction in ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten Free', 'Dairy Free', 'Nut Free']" :key="restriction">
+                    <template x-for="restriction in ['Vegetarian', 'Vegan', 'Pescatarian']" :key="restriction">
                       <label class="flex items-center">
                         <input type="checkbox" :value="restriction" x-model="newRecipe.dietaryRestrictions" class="mr-2 rounded border-gray-300 text-teal-600 focus:ring-teal-500">
                         <span class="text-sm text-gray-700" x-text="restriction"></span>
@@ -692,6 +715,12 @@
                 </div>
 
                 <div>
+                  <label class="form-label">Author</label>
+                  <input type="text" x-model="editingRecipe.author" required
+                         class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="e.g., Julia Child, Gordon Ramsay">
+                </div>
+
+                <div>
                   <label class="form-label">Cuisine</label>
                   <input type="text" x-model="editingRecipe.cuisine" required
                          class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="e.g., Italian, Mexican, Thai">
@@ -714,7 +743,7 @@
                 <div>
                   <label class="form-label">Dietary Restrictions Met</label>
                   <div class="space-y-2">
-                    <template x-for="restriction in ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten Free', 'Dairy Free', 'Nut Free']" :key="restriction">
+                    <template x-for="restriction in ['Vegetarian', 'Vegan', 'Pescatarian']" :key="restriction">
                       <label class="flex items-center">
                         <input type="checkbox" :value="restriction" x-model="editingRecipe.dietaryRestrictions" class="mr-2 rounded border-gray-300 text-teal-600 focus:ring-teal-500">
                         <span class="text-sm text-gray-700" x-text="restriction"></span>
@@ -762,6 +791,16 @@
             </div>
 
             <div class="flex-1 overflow-y-auto space-y-4 mt-6">
+              <div class="bg-white rounded-lg p-4 shadow-sm">
+                <div class="flex justify-between items-center text-sm">
+                  <span class="text-gray-600 flex items-center">
+                    <i data-lucide="user" class="w-4 h-4 mr-2"></i>
+                    Author
+                  </span>
+                  <span class="font-medium text-gray-900" x-text="viewingRecipe?.author"></span>
+                </div>
+              </div>
+
               <div class="bg-white rounded-lg p-4 shadow-sm">
                 <div class="flex justify-between items-center text-sm">
                   <span class="text-gray-600 flex items-center">
@@ -888,11 +927,13 @@
           viewingRecipe: null,
           filters: {
             cuisine: '',
+            author: '',
             dietaryRestriction: '',
             maxTime: ''
           },
           newRecipe: {
             name: '',
+            author: '',
             cuisine: '',
             tagsInput: '',
             dietaryRestrictions: [],
@@ -915,8 +956,13 @@
             return cuisines.sort();
           },
 
+          get uniqueAuthors() {
+            const authors = [...new Set(this.recipes.map(recipe => recipe.author))];
+            return authors.sort();
+          },
+
           get hasActiveFilters() {
-            return this.filters.cuisine || this.filters.dietaryRestriction || this.filters.maxTime || this.searchTerm;
+            return this.filters.cuisine || this.filters.author || this.filters.dietaryRestriction || this.filters.maxTime || this.searchTerm;
           },
 
           get filteredRecipes() {
@@ -926,6 +972,7 @@
               const term = this.searchTerm.toLowerCase();
               filtered = filtered.filter(recipe =>
                 recipe.name.toLowerCase().includes(term) ||
+                recipe.author.toLowerCase().includes(term) ||
                 recipe.cuisine.toLowerCase().includes(term) ||
                 recipe.tags.some(tag => tag.toLowerCase().includes(term)) ||
                 (recipe.dietary_restrictions_met && recipe.dietary_restrictions_met.some(restriction => restriction.toLowerCase().includes(term)))
@@ -934,6 +981,10 @@
 
             if (this.filters.cuisine) {
               filtered = filtered.filter(recipe => recipe.cuisine === this.filters.cuisine);
+            }
+
+            if (this.filters.author) {
+              filtered = filtered.filter(recipe => recipe.author === this.filters.author);
             }
 
             if (this.filters.dietaryRestriction) {
@@ -969,6 +1020,7 @@
 
               const recipeData = {
                 name: this.newRecipe.name,
+                author: this.newRecipe.author,
                 cuisine: this.newRecipe.cuisine,
                 tags: tags,
                 location: { location: location },
@@ -991,6 +1043,7 @@
 
                 this.newRecipe = {
                   name: '',
+                  author: '',
                   cuisine: '',
                   tagsInput: '',
                   dietaryRestrictions: [],
@@ -1043,6 +1096,7 @@
 
               const updateData = {
                 name: this.editingRecipe.name,
+                author: this.editingRecipe.author,
                 cuisine: this.editingRecipe.cuisine,
                 tags: tags,
                 dietary_restrictions_met: this.editingRecipe.dietaryRestrictions || [],
@@ -1132,6 +1186,7 @@
 
           clearFilters() {
             this.filters.cuisine = '';
+            this.filters.author = '';
             this.filters.dietaryRestriction = '';
             this.filters.maxTime = '';
             this.searchTerm = '';

@@ -26,13 +26,11 @@ class DietaryRestriction(str, Enum):
     VEGETARIAN = "Vegetarian"
     VEGAN = "Vegan"
     PESCATARIAN = "Pescatarian"
-    GLUTEN_FREE = "Gluten Free"
-    DAIRY_FREE = "Dairy Free"
-    NUT_FREE = "Nut Free"
 
 
 class RecipeCreate(BaseModel):
     name: str
+    author: str
     cuisine: str
     tags: list[str]
     location: RecipeLocation
@@ -49,6 +47,7 @@ class Recipe(RecipeCreate):
 
 class RecipePatch(BaseModel):
     name: str | None = None
+    author: str | None = None
     cuisine: str | None = None
     tags: list[str] | None = None
     location: RecipeLocation | None = None

@@ -1,6 +1,7 @@
 CREATE TABLE recipe (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
+    author TEXT NOT NULL,
     cuisine TEXT NOT NULL,
     tags JSONB NOT NULL DEFAULT '[]',
     location TEXT NOT NULL,

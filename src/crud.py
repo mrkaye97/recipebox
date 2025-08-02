@@ -6,19 +6,20 @@ from src.recipe import Recipe, RecipeCreate, RecipeLocation, RecipePatch
 
 
 def to_recipe(
-    row: tuple[int, str, str, str, str, str, int, str, datetime, datetime],
+    row: tuple[int, str, str, str, str, str, str, int, str, datetime, datetime],
 ) -> Recipe:
     return Recipe(
         id=row[0],
         name=row[1],
-        cuisine=row[2],
-        tags=json.loads(row[3]),
-        location=RecipeLocation.model_validate_json(row[4]),
-        dietary_restrictions_met=json.loads(row[5]),
-        time_estimate_minutes=row[6],
-        notes=row[7],
-        saved_at=row[8],
-        updated_at=row[9],
+        author=row[2],
+        cuisine=row[3],
+        tags=json.loads(row[4]),
+        location=RecipeLocation.model_validate_json(row[5]),
+        dietary_restrictions_met=json.loads(row[6]),
+        time_estimate_minutes=row[7],
+        notes=row[8],
+        saved_at=row[9],
+        updated_at=row[10],
     )
 
 
@@ -27,6 +28,7 @@ def create_recipe(db: Connection, recipe: RecipeCreate) -> Recipe:
         """
         INSERT INTO recipe (
             name,
+            author,
             cuisine,
             tags,
             location,
@@ -34,11 +36,12 @@ def create_recipe(db: Connection, recipe: RecipeCreate) -> Recipe:
             time_estimate_minutes,
             notes
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         RETURNING *;
         """,
         (
             recipe.name,
+            recipe.author,
             recipe.cuisine,
             json.dumps(recipe.tags),
             recipe.location.model_dump_json(),
@@ -76,6 +79,7 @@ def update_recipe_by_id(db: Connection, id: int, body: RecipePatch) -> Recipe | 
         UPDATE recipe
         SET
             name = COALESCE(?, name),
+            author = COALESCE(?, author),
             cuisine = COALESCE(?, cuisine),
             tags = COALESCE(?, tags),
             location = COALESCE(?, location),
@@ -88,6 +92,7 @@ def update_recipe_by_id(db: Connection, id: int, body: RecipePatch) -> Recipe | 
         """,
         (
             body.name,
+            body.author,
             body.cuisine,
             json.dumps(body.tags) if body.tags is not None else None,
             body.location.model_dump_json() if body.location is not None else None,
