@@ -230,11 +230,19 @@
       <div class="flex-1 overflow-y-auto">
         <div class="divide-y divide-gray-100">
           <template x-for="recipe in filteredRecipes" :key="recipe.id">
-            <div class="recipe-card group p-8">
+            <div class="recipe-card group p-6">
               <div class="space-y-4">
                 <div class="flex justify-between items-start">
-                  <h3 class="text-lg font-medium text-gray-900" x-text="recipe.name"></h3>
-                  <div class="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div class="flex-1">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-1" x-text="recipe.name"></h3>
+                    <div class="flex items-center space-x-4 text-sm">
+                      <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-teal-500 rounded-full"></div>
+                        <span class="font-medium text-teal-700" x-text="recipe.cuisine"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity ml-4">
                     <button @click.stop="editRecipe(recipe)" class="p-2 text-gray-400 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors hover:cursor-pointer">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -248,27 +256,52 @@
                   </div>
                 </div>
 
-                <div class="flex items-center space-x-6 text-sm text-gray-600">
-                  <div class="flex items-center space-x-2">
-                    <div class="w-2 h-2 bg-teal-500 rounded-full"></div>
-                    <span x-text="recipe.cuisine"></span>
-                  </div>
-                  <div class="flex items-center space-x-2">
-                    <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    <span class="text-gray-500 italic" x-text="getLocationText(recipe.location)"></span>
-                  </div>
-                </div>
-
                 <div x-show="recipe.tags && recipe.tags.length > 0" class="flex flex-wrap gap-2">
                   <template x-for="tag in recipe.tags" :key="tag">
-                    <span class="px-3 py-1 bg-teal-50 text-teal-800 text-xs rounded-full border border-teal-200" x-text="tag"></span>
+                    <span class="inline-flex items-center px-3 py-1 bg-teal-50 text-teal-800 text-sm font-medium rounded-full border border-teal-200" x-text="tag"></span>
                   </template>
                 </div>
 
-                <div x-show="recipe.notes" class="text-sm text-gray-600 border-t border-gray-100 pt-4">
+                <div class="bg-slate-50 rounded-lg p-3 border border-slate-200">
+                  <div class="flex items-center space-x-2 mb-2">
+                    <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span class="text-sm font-medium text-slate-700">Recipe Location</span>
+                  </div>
+                  <div class="text-sm text-slate-600">
+                    <template x-if="recipe.location?.location?.location === 'online'">
+                      <div class="flex items-center space-x-2">
+                        <svg class="w-3 h-3 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-1M10 6V4a2 2 0 112 2v2M10 6h4a2 2 0 012 2v1M4 11h16M12 16l4-4m0 0l-4-4m4 4H8" />
+                        </svg>
+                        <span class="font-medium">Online:</span>
+                        <a :href="recipe.location.location.url" target="_blank" class="text-cyan-600 hover:text-cyan-700 underline break-all" x-text="recipe.location.location.url"></a>
+                      </div>
+                    </template>
+                    <template x-if="recipe.location?.location?.location === 'cookbook'">
+                      <div class="flex items-center space-x-2">
+                        <svg class="w-3 h-3 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        <span class="font-medium">Cookbook:</span>
+                        <span x-text="recipe.location.location.cookbook_name"></span>
+                        <span class="text-slate-400">•</span>
+                        <span>Page <span x-text="recipe.location.location.page_number"></span></span>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+
+                <!-- Notes -->
+                <div x-show="recipe.notes" class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div class="flex items-center space-x-2 mb-3">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    <span class="text-sm font-medium text-gray-700">Notes</span>
+                  </div>
                   <div x-init="
                     $nextTick(async () => {
                       const mdBlock = document.createElement('md-block');
@@ -282,14 +315,22 @@
                         }
                       }, 100);
                     });
-                  " class="markdown-content"></div>
+                  " class="markdown-content text-sm text-gray-700"></div>
                 </div>
 
-                <div class="text-xs text-gray-400 border-t border-gray-100 pt-3">
-                  Added: <span x-text="formatDate(recipe.saved_at)"></span>
-                  <span x-show="recipe.updated_at !== recipe.saved_at">
-                    • Updated: <span x-text="formatDate(recipe.updated_at)"></span>
-                  </span>
+                <div class="flex justify-between items-center text-xs text-gray-400 pt-2 border-t border-gray-100">
+                  <div class="flex items-center space-x-2">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    <span>Added <span x-text="formatDate(recipe.saved_at)"></span></span>
+                  </div>
+                  <div x-show="recipe.updated_at !== recipe.saved_at" class="flex items-center space-x-2">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span>Updated <span x-text="formatDate(recipe.updated_at)"></span></span>
+                  </div>
                 </div>
               </div>
             </div>
