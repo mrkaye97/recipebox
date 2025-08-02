@@ -1,16 +1,47 @@
-from src.recipe import Recipe
-from src.settings import settings
+import json
+from datetime import datetime
+from sqlite3 import Connection
+
+from src.recipe import Recipe, RecipeLocation
 
 
-def create_recipe(recipe: Recipe) -> None:
-    with open(settings.db_file_path, "a") as file:
-        file.write(recipe.model_dump_json() + "\n")
+def to_recipe(row: tuple[int, str, str, str, str, datetime, datetime]) -> Recipe:
+    return Recipe(
+        id=row[0],
+        name=row[1],
+        cuisine=row[2],
+        tags=json.loads(row[3]) if row[3] else [],
+        location=RecipeLocation.model_validate_json(row[4]),
+        saved_at=row[5],
+        updated_at=row[6],
+    )
 
 
-def list_recipes() -> list[Recipe]:
-    with open(settings.db_file_path) as file:
-        return [
-            Recipe.model_validate_json(line.strip())
-            for line in file.readlines()
-            if line.strip()
-        ]
+def create_recipe(db: Connection, recipe: Recipe) -> None:
+    db.execute(
+        "INSERT INTO recipe (name, cuisine, tags, location) VALUES (?, ?, ?, ?)",
+        (
+            recipe.name,
+            recipe.cuisine,
+            json.dumps(recipe.tags),
+            recipe.location.model_dump_json(),
+        ),
+    )
+    db.commit()
+
+
+def list_recipes(db: Connection) -> list[Recipe]:
+    res = db.execute("SELECT * FROM recipe")
+    rows = res.fetchall()
+
+    return [to_recipe(row) for row in rows]
+
+
+def get_recipe_by_id(db: Connection, id: int) -> Recipe | None:
+    res = db.execute("SELECT * FROM recipe WHERE id = ?", (id,))
+    row = res.fetchone()
+
+    if row is None:
+        return None
+
+    return to_recipe(row)

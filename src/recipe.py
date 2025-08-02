@@ -1,6 +1,5 @@
 from datetime import datetime
 from typing import Literal
-from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
@@ -23,7 +22,7 @@ class RecipeLocation(BaseModel):
 
 
 class Recipe(BaseModel):
-    id: UUID = Field(default_factory=uuid4)
+    id: int
     name: str
     cuisine: str
     tags: list[str]

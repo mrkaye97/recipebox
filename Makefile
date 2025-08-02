@@ -7,3 +7,6 @@ lint:
 	poetry run isort .
 	poetry run ruff check --fix
 	poetry run mypy .
+
+migrate:
+	sqlite3 recipebox.db < db/schema.sql
