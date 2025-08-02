@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RecipeBox - Your Digital Recipe Collection</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  </head>
+  <body class="bg-gray-50 min-h-screen" x-data="recipeApp()">
+    <header class="bg-white shadow-sm border-b">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-6">
+          <div class="flex items-center">
+            <i class="fas fa-utensils text-2xl text-orange-500 mr-3"></i>
+            <h1 class="text-3xl font-bold text-gray-900">RecipeBox</h1>
+          </div>
+          <div class="flex space-x-4">
+            <button
+              @click="showAddForm = true"
+              class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+            >
+              <i class="fas fa-plus"></i>
+              <span>Add Recipe</span>
+            </button>
+            <button
+              @click="getRandomRecipe()"
+              class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+            >
+              <i class="fas fa-dice"></i>
+              <span>Random Recipe</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="mb-8" x-show="!showAddForm && !editingRecipe">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-search text-gray-400"></i>
+          </div>
+          <input
+            type="text"
+            x-model="searchTerm"
+            placeholder="Search recipes by name, cuisine, or tags..."
+            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" x-show="!showAddForm && !editingRecipe">
+        <template x-for="recipe in filteredRecipes" :key="recipe.id">
+          <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200">
+            <div class="p-6">
+              <div class="flex justify-between items-start mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 line-clamp-2" x-text="recipe.name"></h3>
+                <div class="flex space-x-2">
+                  <button
+                    @click="editRecipe(recipe)"
+                    class="text-blue-500 hover:text-blue-700 transition-colors"
+                    title="Edit Recipe"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button
+                    @click="deleteRecipe(recipe.id)"
+                    class="text-red-500 hover:text-red-700 transition-colors"
+                    title="Delete Recipe"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <div class="flex items-center text-gray-600">
+                  <i class="fas fa-globe-americas w-5 text-center mr-2"></i>
+                  <span class="text-sm" x-text="recipe.cuisine"></span>
+                </div>
+
+                <div class="flex items-center text-gray-600">
+                  <i class="fas fa-map-marker-alt w-5 text-center mr-2"></i>
+                  <span class="text-sm" x-text="getLocationText(recipe.location)"></span>
+                </div>
+
+                <div x-show="recipe.tags && recipe.tags.length > 0">
+                  <div class="flex flex-wrap gap-1 mt-2">
+                    <template x-for="tag in recipe.tags" :key="tag">
+                      <span class="inline-block bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full" x-text="tag"></span>
+                    </template>
+                  </div>
+                </div>
+
+                <div x-show="recipe.notes" class="mt-3">
+                  <p class="text-sm text-gray-600 italic" x-text="recipe.notes"></p>
+                </div>
+
+                <div class="text-xs text-gray-400 mt-4">
+                  <div>Added: <span x-text="formatDate(recipe.saved_at)"></span></div>
+                  <div x-show="recipe.updated_at !== recipe.saved_at">
+                    Updated: <span x-text="formatDate(recipe.updated_at)"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <div x-show="filteredRecipes.length === 0 && !showAddForm && !editingRecipe" class="text-center py-12">
+        <i class="fas fa-utensils text-6xl text-gray-300 mb-4"></i>
+        <h3 class="text-xl font-medium text-gray-900 mb-2">No recipes found</h3>
+        <p class="text-gray-500 mb-6">Get started by adding your first recipe!</p>
+        <button
+          @click="showAddForm = true"
+          class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg inline-flex items-center space-x-2"
+        >
+          <i class="fas fa-plus"></i>
+          <span>Add Your First Recipe</span>
+        </button>
+      </div>
+
+      <div x-show="showAddForm" class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-900">Add New Recipe</h2>
+            <button @click="showAddForm = false" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+
+          <form @submit.prevent="addRecipe()">
+            <div class="space-y-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Recipe Name *</label>
+                <input
+                  type="text"
+                  x-model="newRecipe.name"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  placeholder="Enter recipe name"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Cuisine *</label>
+                <input
+                  type="text"
+                  x-model="newRecipe.cuisine"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  placeholder="e.g., Italian, Mexican, Japanese"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+                <input
+                  type="text"
+                  x-model="newRecipe.tagsInput"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  placeholder="Enter tags separated by commas (e.g., vegetarian, quick, healthy)"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Recipe Location *</label>
+                <select
+                  x-model="newRecipe.location.location"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                >
+                  <option value="online">Online</option>
+                  <option value="cookbook">Cookbook</option>
+                </select>
+              </div>
+
+              <div x-show="newRecipe.location.location === 'online'">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Recipe URL *</label>
+                <input
+                  type="url"
+                  x-model="newRecipe.location.url"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  placeholder="https://example.com/recipe"
+                />
+              </div>
+
+              <div x-show="newRecipe.location.location === 'cookbook'" class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Cookbook Name *</label>
+                  <input
+                    type="text"
+                    x-model="newRecipe.location.cookbook_name"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    placeholder="Name of the cookbook"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Page Number *</label>
+                  <input
+                    type="number"
+                    x-model="newRecipe.location.page_number"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    placeholder="Page number"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                <textarea
+                  x-model="newRecipe.notes"
+                  rows="3"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  placeholder="Any additional notes about this recipe..."
+                ></textarea>
+              </div>
+
+              <div class="flex justify-end space-x-4">
+                <button
+                  type="button"
+                  @click="showAddForm = false"
+                  class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg"
+                >
+                  Add Recipe
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div x-show="editingRecipe" class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-900">Edit Recipe</h2>
+            <button @click="editingRecipe = null" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+
+          <form @submit.prevent="updateRecipe()">
+            <div class="space-y-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Recipe Name</label>
+                <input
+                  type="text"
+                  x-model="editingRecipe.name"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Cuisine</label>
+                <input
+                  type="text"
+                  x-model="editingRecipe.cuisine"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+                <input
+                  type="text"
+                  x-model="editingRecipe.tagsInput"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  placeholder="Enter tags separated by commas"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                <textarea
+                  x-model="editingRecipe.notes"
+                  rows="3"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                ></textarea>
+              </div>
+
+              <div class="flex justify-end space-x-4">
+                <button
+                  type="button"
+                  @click="editingRecipe = null"
+                  class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
+                >
+                  Update Recipe
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div x-show="randomRecipe" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-96 overflow-y-auto">
+          <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-2xl font-bold text-gray-900">🎲 Random Recipe Pick!</h2>
+              <button @click="randomRecipe = null" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+              </button>
+            </div>
+
+            <div x-show="randomRecipe" class="space-y-4">
+              <h3 class="text-xl font-semibold" x-text="randomRecipe?.name"></h3>
+              <div class="flex items-center text-gray-600">
+                <i class="fas fa-globe-americas w-5 text-center mr-2"></i>
+                <span x-text="randomRecipe?.cuisine"></span>
+              </div>
+              <div class="flex items-center text-gray-600">
+                <i class="fas fa-map-marker-alt w-5 text-center mr-2"></i>
+                <span x-text="getLocationText(randomRecipe?.location)"></span>
+              </div>
+              <div x-show="randomRecipe?.tags && randomRecipe.tags.length > 0">
+                <div class="flex flex-wrap gap-1">
+                  <template x-for="tag in randomRecipe?.tags" :key="tag">
+                    <span class="inline-block bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full" x-text="tag"></span>
+                  </template>
+                </div>
+              </div>
+              <div x-show="randomRecipe?.notes">
+                <p class="text-gray-600 italic" x-text="randomRecipe?.notes"></p>
+              </div>
+            </div>
+
+            <div class="flex justify-end space-x-4 mt-6">
+              <button
+                @click="getRandomRecipe()"
+                class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg"
+              >
+                Pick Another
+              </button>
+              <button
+                @click="randomRecipe = null"
+                class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      function recipeApp() {
+        return {
+          recipes: {{ recipes | tojson }},
+          searchTerm: '',
+          showAddForm: false,
+          editingRecipe: null,
+          randomRecipe: null,
+          newRecipe: {
+            name: '',
+            cuisine: '',
+            tagsInput: '',
+            location: {
+              location: 'online',
+              url: '',
+              cookbook_name: '',
+              page_number: 1
+            },
+            notes: ''
+          },
+
+          get filteredRecipes() {
+            if (!this.searchTerm) return this.recipes;
+            const term = this.searchTerm.toLowerCase();
+            return this.recipes.filter(recipe =>
+              recipe.name.toLowerCase().includes(term) ||
+              recipe.cuisine.toLowerCase().includes(term) ||
+              recipe.tags.some(tag => tag.toLowerCase().includes(term))
+            );
+          },
+
+          async addRecipe() {
+            try {
+              const tags = this.newRecipe.tagsInput
+                ? this.newRecipe.tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag)
+                : [];
+
+              const location = this.newRecipe.location.location === 'online'
+                ? { location: 'online', url: this.newRecipe.location.url }
+                : {
+                    location: 'cookbook',
+                    cookbook_name: this.newRecipe.location.cookbook_name,
+                    page_number: parseInt(this.newRecipe.location.page_number)
+                  };
+
+              const recipeData = {
+                name: this.newRecipe.name,
+                cuisine: this.newRecipe.cuisine,
+                tags: tags,
+                location: { location: location },
+                notes: this.newRecipe.notes || null,
+                saved_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              };
+
+              const response = await fetch('/recipes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(recipeData)
+              });
+
+              if (response.ok) {
+                // Reload the page to get the updated recipe list
+                window.location.reload();
+              } else {
+                alert('Error adding recipe');
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              alert('Error adding recipe');
+            }
+          },
+
+          editRecipe(recipe) {
+            this.editingRecipe = {
+              ...recipe,
+              tagsInput: recipe.tags.join(', ')
+            };
+          },
+
+          async updateRecipe() {
+            try {
+              const tags = this.editingRecipe.tagsInput
+                ? this.editingRecipe.tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag)
+                : [];
+
+              const updateData = {
+                name: this.editingRecipe.name,
+                cuisine: this.editingRecipe.cuisine,
+                tags: tags,
+                notes: this.editingRecipe.notes
+              };
+
+              const response = await fetch(`/recipes/${this.editingRecipe.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updateData)
+              });
+
+              if (response.ok) {
+                window.location.reload();
+              } else {
+                alert('Error updating recipe');
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              alert('Error updating recipe');
+            }
+          },
+
+          async deleteRecipe(id) {
+            if (confirm('Are you sure you want to delete this recipe?')) {
+              try {
+                const response = await fetch(`/recipes/${id}`, {
+                  method: 'DELETE'
+                });
+
+                if (response.ok) {
+                  this.recipes = this.recipes.filter(recipe => recipe.id !== id);
+                } else {
+                  alert('Error deleting recipe');
+                }
+              } catch (error) {
+                console.error('Error:', error);
+                alert('Error deleting recipe');
+              }
+            }
+          },
+
+          async getRandomRecipe() {
+            try {
+              const response = await fetch('/recipes/random');
+              if (response.ok) {
+                const recipe = await response.json();
+                this.randomRecipe = recipe;
+              } else {
+                alert('No recipes available for random selection');
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              alert('Error getting random recipe');
+            }
+          },
+
+          getLocationText(location) {
+            if (!location || !location.location) return 'Unknown';
+
+            if (location.location.location === 'online') {
+              return `Online: ${location.location.url}`;
+            } else if (location.location.location === 'cookbook') {
+              return `${location.location.cookbook_name}, Page ${location.location.page_number}`;
+            }
+            return 'Unknown';
+          },
+
+          formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString();
+          }
+        }
+      }
+    </script>
+  </body>
+</html>
+
