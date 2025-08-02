@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RecipeBox - Your Digital Recipe Collection</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script type="module" src="https://md-block.verou.me/md-block.js"></script>
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -19,6 +20,28 @@
       .backdrop-blur {
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
+      }
+      /* Markdown content styling */
+      .markdown-content md-block {
+        display: block;
+      }
+      .markdown-content md-block ol {
+        list-style-type: decimal;
+        margin-left: 1.5rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+      .markdown-content md-block ul {
+        list-style-type: disc;
+        margin-left: 1.5rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+      .markdown-content md-block li {
+        margin-bottom: 0.25rem;
+      }
+      .markdown-content md-block p {
+        margin-bottom: 0.5rem;
       }
     </style>
   </head>
@@ -126,7 +149,24 @@
 
                 <!-- Notes -->
                 <div x-show="recipe.notes" class="pt-2 border-t border-slate-100">
-                  <p class="text-sm text-slate-600 italic line-clamp-2" x-text="recipe.notes"></p>
+                  <div
+                    x-init="
+                      $nextTick(async () => {
+                        const mdBlock = document.createElement('md-block');
+                        mdBlock.setAttribute('type', 'md');
+                        mdBlock.textContent = recipe.notes;
+                        $el.appendChild(mdBlock);
+
+                        setTimeout(() => {
+                          if (window.customElements && window.customElements.get('md-block')) {
+                            mdBlock.setAttribute('content', recipe.notes);
+                          }
+                        }, 100);
+                      });
+                    "
+                    class="markdown-content"
+                    style="font-size: 0.875rem; color: rgb(71 85 105);"
+                  ></div>
                 </div>
 
                 <!-- Dates -->
