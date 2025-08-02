@@ -10,3 +10,7 @@ lint:
 
 migrate:
 	sqlite3 recipebox.db < db/schema.sql
+
+reset-db:
+	rm -f recipebox.db
+	make migrate

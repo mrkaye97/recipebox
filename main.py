@@ -30,6 +30,14 @@ def get__find_recipe(
     return get_recipe_by_id(db, id)
 
 
+@app.get("/recipes/{id}")
+def patch__update_recipe(
+    db: DbDependency,
+    id: int,
+) -> Recipe | None:
+    return get_recipe_by_id(db, id)
+
+
 @app.post("/recipes")
 def post__recipe(recipe: Recipe, db: DbDependency) -> dict[str, str]:
     create_recipe(db, recipe)

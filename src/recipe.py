@@ -27,5 +27,6 @@ class Recipe(BaseModel):
     cuisine: str
     tags: list[str]
     location: RecipeLocation
+    notes: str | None
     saved_at: datetime
     updated_at: datetime

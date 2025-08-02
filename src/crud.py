@@ -5,15 +5,16 @@ from sqlite3 import Connection
 from src.recipe import Recipe, RecipeLocation
 
 
-def to_recipe(row: tuple[int, str, str, str, str, datetime, datetime]) -> Recipe:
+def to_recipe(row: tuple[int, str, str, str, str, str, datetime, datetime]) -> Recipe:
     return Recipe(
         id=row[0],
         name=row[1],
         cuisine=row[2],
         tags=json.loads(row[3]) if row[3] else [],
         location=RecipeLocation.model_validate_json(row[4]),
-        saved_at=row[5],
-        updated_at=row[6],
+        notes=row[5],
+        saved_at=row[6],
+        updated_at=row[7],
     )
 
 
@@ -38,6 +39,16 @@ def list_recipes(db: Connection) -> list[Recipe]:
 
 
 def get_recipe_by_id(db: Connection, id: int) -> Recipe | None:
+    res = db.execute("SELECT * FROM recipe WHERE id = ?", (id,))
+    row = res.fetchone()
+
+    if row is None:
+        return None
+
+    return to_recipe(row)
+
+
+def update_recipe_by_id(db: Connection, id: int) -> Recipe | None:
     res = db.execute("SELECT * FROM recipe WHERE id = ?", (id,))
     row = res.fetchone()
 

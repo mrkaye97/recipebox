@@ -4,6 +4,7 @@ CREATE TABLE recipe (
     cuisine TEXT NOT NULL,
     tags TEXT NOT NULL DEFAULT '[]', -- JSON array
     location TEXT NOT NULL,
+    notes TEXT,
     saved_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
