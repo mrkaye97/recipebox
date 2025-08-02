@@ -85,12 +85,119 @@
       .markdown-content md-block p {
         margin-bottom: 0.5rem;
       }
+
+      .loading-overlay {
+        background: #fafafa;
+        transition: opacity 0.3s ease;
+      }
+
+      .loading-spinner {
+        position: relative;
+        width: 48px;
+        height: 48px;
+      }
+
+      .loading-spinner::before,
+      .loading-spinner::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        animation: pulse-rings 2s ease-in-out infinite;
+      }
+
+      .loading-spinner::before {
+        width: 48px;
+        height: 48px;
+        border: 2px solid rgba(15, 118, 110, 0.3);
+        animation-delay: 0s;
+      }
+
+      .loading-spinner::after {
+        width: 32px;
+        height: 32px;
+        top: 8px;
+        left: 8px;
+        border: 2px solid rgba(15, 118, 110, 0.6);
+        animation-delay: 0.3s;
+      }
+
+      .loading-spinner .inner-spinner {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        top: 14px;
+        left: 14px;
+        border: 2px solid transparent;
+        border-top: 2px solid #0f766e;
+        border-radius: 50%;
+        animation: spin 1.2s linear infinite;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      @keyframes pulse-rings {
+        0% {
+          transform: scale(0.8);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.1);
+          opacity: 0.7;
+        }
+        100% {
+          transform: scale(0.8);
+          opacity: 1;
+        }
+      }
+
+      /* Loading text animation */
+      .loading-text {
+        animation: fade-pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes fade-pulse {
+        0%, 100% { opacity: 0.6; }
+        50% { opacity: 1; }
+      }
+
+      .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+      }
+
+      @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+      }
+
+      [x-cloak] { display: none !important; }
     </style>
   </head>
-  <body x-data="recipeApp()" class="h-screen flex overflow-hidden">
-    <!-- Left Panel - Recipe List (2/3 of screen) -->
+  <body x-data="recipeApp()" x-init="$nextTick(() => setTimeout(() => loading = false, 800))" class="h-screen flex overflow-hidden">
+    <div x-show="loading" x-cloak class="loading-overlay fixed inset-0 z-50 flex items-center justify-center">
+      <div class="text-center">
+        <div class="loading-spinner mx-auto mb-6">
+          <div class="inner-spinner"></div>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">RecipeBox</h3>
+        <p class="loading-text text-teal-600 text-sm font-medium">Loading your delicious recipes...</p>
+        <div class="flex justify-center space-x-1 mt-4">
+          <div class="w-2 h-2 bg-teal-400 rounded-full animate-bounce" style="animation-delay: 0ms;"></div>
+          <div class="w-2 h-2 bg-teal-400 rounded-full animate-bounce" style="animation-delay: 150ms;"></div>
+          <div class="w-2 h-2 bg-teal-400 rounded-full animate-bounce" style="animation-delay: 300ms;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div x-show="!loading" x-cloak x-transition:enter="transition ease-out duration-500"
+         x-transition:enter-start="opacity-0 transform scale-95"
+         x-transition:enter-end="opacity-100 transform scale-100"
+         class="h-screen flex overflow-hidden w-full">
     <div class="flex-1 flex flex-col bg-white">
-      <!-- Search Bar -->
       <div class="p-6 border-b border-gray-200">
         <input
           type="text"
@@ -100,7 +207,6 @@
         />
       </div>
 
-      <!-- Recipe List -->
       <div class="flex-1 overflow-y-auto">
         <div class="divide-y divide-gray-100">
           <template x-for="recipe in filteredRecipes" :key="recipe.id">
@@ -110,12 +216,12 @@
                 <div class="flex justify-between items-start">
                   <h3 class="text-lg font-medium text-gray-900" x-text="recipe.name"></h3>
                   <div class="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button @click.stop="editRecipe(recipe)" class="p-2 text-gray-400 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors">
+                    <button @click.stop="editRecipe(recipe)" class="p-2 text-gray-400 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors hover:cursor-pointer">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
                     </button>
-                    <button @click.stop="deleteRecipe(recipe.id)" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                    <button @click.stop="deleteRecipe(recipe.id)" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors hover:cursor-pointer">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
@@ -170,21 +276,7 @@
             </div>
           </template>
         </div>
-        <!-- Empty state -->
-        <div x-show="recipes.length === 0" class="p-12 text-center">
-          <div class="text-gray-400 mb-4">
-            <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-          </div>
-          <h3 class="font-medium text-gray-900 mb-2">No recipes yet</h3>
-          <p class="text-gray-600 mb-6">Start building your recipe collection</p>
-          <button @click="activeTab = 'add'" class="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800">
-            Add Recipe
-          </button>
-        </div>
 
-        <!-- No search results -->
         <div x-show="recipes.length > 0 && filteredRecipes.length === 0" class="p-12 text-center">
           <div class="text-gray-400 mb-4">
             <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -193,20 +285,18 @@
           </div>
           <h3 class="font-medium text-gray-900 mb-2">No matches found</h3>
           <p class="text-gray-600 mb-6">Try adjusting your search terms</p>
-          <button @click="searchTerm = ''" class="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800">
+          <button @click="searchTerm = ''" class="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 hover:cursor-pointer">
             Clear Search
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Right Panel - Tabs and Content (1/3 of screen) -->
     <div class="w-1/3 bg-gray-50 border-l border-gray-200 flex flex-col h-screen">
-      <!-- Tab Navigation -->
       <div class="flex border-b border-gray-200 bg-white">
         <button @click="activeTab = 'add'"
                 :class="activeTab === 'add' ? 'tab-active' : 'tab-inactive'"
-                class="px-6 py-4 text-sm font-medium hover:text-gray-700 transition-colors"
+                class="px-6 py-4 text-sm font-medium hover:text-gray-700 transition-colors hover:cursor-pointer"
                 :class="editingRecipe
                   ? 'flex-1'
                   : 'w-1/2'">
@@ -214,14 +304,14 @@
         </button>
         <button @click="activeTab = 'edit'"
                 :class="activeTab === 'edit' ? 'tab-active' : 'tab-inactive'"
-                class="flex-1 px-6 py-4 text-sm font-medium hover:text-gray-700 transition-colors"
+                class="flex-1 px-6 py-4 text-sm font-medium hover:text-gray-700 transition-colors hover:cursor-pointer"
                 x-show="editingRecipe"
                 x-transition>
           Edit Recipe
         </button>
         <button @click="activeTab = 'recommend'"
                 :class="activeTab === 'recommend' ? 'tab-active' : 'tab-inactive'"
-                class="px-6 py-4 text-sm font-medium hover:text-gray-700 transition-colors"
+                class="px-6 py-4 text-sm font-medium hover:text-gray-700 transition-colors hover:cursor-pointer"
                 :class="editingRecipe
                   ? 'flex-1'
                   : 'w-1/2'">
@@ -229,9 +319,7 @@
         </button>
       </div>
 
-      <!-- Tab Content -->
       <div class="flex-1 overflow-y-auto">
-        <!-- Add Recipe Tab -->
         <div x-show="activeTab === 'add'" class="p-6">
           <form @submit.prevent="addRecipe()" class="space-y-6">
             <div>
@@ -285,13 +373,12 @@
                         class="w-full px-3 py-2 form-input rounded-lg" placeholder="Recipe notes..."></textarea>
             </div>
 
-            <button type="submit" class="w-full bg-gray-900 text-white py-3 rounded-lg hover:bg-gray-800 transition-colors">
+            <button type="submit" class="w-full bg-gray-900 text-white py-3 rounded-lg hover:bg-gray-800 transition-colors hover:cursor-pointer">
               Add Recipe
             </button>
           </form>
         </div>
 
-        <!-- Recommend Tab -->
         <div x-show="activeTab === 'recommend'" class="p-6">
           <div x-show="!randomRecipe" class="text-center py-12">
             <div class="text-gray-400 mb-4">
@@ -301,7 +388,7 @@
             </div>
             <h3 class="font-medium text-gray-900 mb-2">Get a recommendation</h3>
             <p class="text-gray-600 mb-6">Let us suggest something from your collection</p>
-            <button @click="getRandomRecipe()" class="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">
+            <button @click="getRandomRecipe()" class="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors hover:cursor-pointer">
               Surprise Me
             </button>
           </div>
@@ -347,17 +434,16 @@
             </div>
 
             <div class="flex space-x-3 pt-6 border-t border-gray-200">
-              <button @click="getRandomRecipe()" class="flex-1 bg-gray-900 text-white py-2 rounded-lg hover:bg-gray-800 transition-colors">
+              <button @click="getRandomRecipe()" class="flex-1 bg-gray-900 text-white py-2 rounded-lg hover:bg-gray-800 transition-colors hover:cursor-pointer">
                 Another
               </button>
-              <button @click="randomRecipe = null" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+              <button @click="randomRecipe = null" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors hover:cursor-pointer">
                 Clear
               </button>
             </div>
           </div>
         </div>
 
-        <!-- Edit Recipe Tab -->
         <div x-show="activeTab === 'edit' && editingRecipe" class="p-6">
           <div class="border-b border-gray-200 pb-4 mb-6">
             <h2 class="text-lg font-semibold text-gray-900">Edit Recipe</h2>
@@ -391,10 +477,10 @@
             </div>
 
             <div class="flex space-x-3">
-              <button type="submit" class="flex-1 bg-teal-700 text-white py-3 rounded-lg hover:bg-teal-800 transition-colors">
+              <button type="submit" class="flex-1 bg-teal-700 text-white py-3 rounded-lg hover:bg-teal-800 transition-colors hover:cursor-pointer">
                 Update Recipe
               </button>
-              <button type="button" @click="cancelEdit()" class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+              <button type="button" @click="cancelEdit()" class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors hover:cursor-pointer">
                 Cancel
               </button>
             </div>
@@ -406,6 +492,7 @@
     <script>
       function recipeApp() {
         return {
+          loading: true,
           recipes: {{ recipes | tojson }},
           searchTerm: '',
           activeTab: 'add',
