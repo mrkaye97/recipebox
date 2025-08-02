@@ -1,11 +1,14 @@
-from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Literal
 from uuid import UUID, uuid4
 
+from pydantic import BaseModel, Field
+
+
 class OnlineRecipeLocation(BaseModel):
     location: Literal["online"]
     url: str
+
 
 class CookbookRecipeLocation(BaseModel):
     location: Literal["cookbook"]
@@ -14,7 +17,9 @@ class CookbookRecipeLocation(BaseModel):
 
 
 class RecipeLocation(BaseModel):
-    location: CookbookRecipeLocation | OnlineRecipeLocation = Field(discriminator="location")
+    location: CookbookRecipeLocation | OnlineRecipeLocation = Field(
+        discriminator="location"
+    )
 
 
 class Recipe(BaseModel):
