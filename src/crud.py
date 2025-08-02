@@ -39,7 +39,7 @@ def create_recipe(db: Connection, recipe: RecipeCreate) -> Recipe:
 
 
 def list_recipes(db: Connection) -> list[Recipe]:
-    res = db.execute("SELECT * FROM recipe")
+    res = db.execute("SELECT * FROM recipe ORDER BY updated_at DESC")
     rows = res.fetchall()
 
     return [to_recipe(row) for row in rows]

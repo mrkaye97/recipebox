@@ -398,23 +398,6 @@
                 </div>
               </div>
 
-              <div class="bg-white rounded-lg p-4 shadow-sm">
-                <div class="flex justify-between items-center text-sm">
-                  <span class="text-gray-600 flex items-center">
-                    <i data-lucide="map-pin" class="w-4 h-4 mr-2"></i>
-                    Location
-                  </span>
-                  <div class="font-medium text-gray-900 text-right">
-                    <template x-if="randomRecipe?.location?.location?.location === 'online'">
-                      <a :href="randomRecipe.location.location.url" target="_blank" class="text-cyan-600 hover:text-cyan-700 underline break-all" x-text="randomRecipe.location.location.url"></a>
-                    </template>
-                    <template x-if="randomRecipe?.location?.location?.location === 'cookbook'">
-                      <span x-text="`${randomRecipe.location.location.cookbook_name}, p. ${randomRecipe.location.location.page_number}`"></span>
-                    </template>
-                  </div>
-                </div>
-              </div>
-
               <div x-show="randomRecipe?.tags && randomRecipe.tags.length > 0" class="bg-white rounded-lg p-4 shadow-sm">
                 <div class="text-sm text-gray-600 mb-3 flex items-center">
                   <i data-lucide="tag" class="w-4 h-4 mr-2"></i>
@@ -423,6 +406,31 @@
                 <div class="flex flex-wrap gap-2">
                   <template x-for="tag in randomRecipe?.tags" :key="tag">
                     <span class="px-3 py-1 bg-teal-50 text-teal-800 text-xs font-medium rounded-full border border-teal-200" x-text="tag"></span>
+                  </template>
+                </div>
+              </div>
+
+              <div class="bg-white rounded-lg p-4 shadow-sm">
+                <div class="text-sm text-gray-600 mb-3 flex items-center">
+                  <i data-lucide="map-pin" class="w-4 h-4 mr-2"></i>
+                  Recipe Location
+                </div>
+                <div class="text-sm text-gray-900">
+                  <template x-if="randomRecipe?.location?.location?.location === 'online'">
+                    <div class="flex items-center space-x-2">
+                      <i data-lucide="external-link" class="w-3 h-3 text-cyan-500"></i>
+                      <span class="font-medium">Online:</span>
+                      <a :href="randomRecipe.location.location.url" target="_blank" class="text-cyan-600 hover:text-cyan-700 underline break-all max-w-xs truncate block" x-text="randomRecipe.location.location.url"></a>
+                    </div>
+                  </template>
+                  <template x-if="randomRecipe?.location?.location?.location === 'cookbook'">
+                    <div class="flex items-center space-x-2">
+                      <i data-lucide="book-open" class="w-3 h-3 text-amber-500"></i>
+                      <span class="font-medium">Cookbook:</span>
+                      <span x-text="randomRecipe.location.location.cookbook_name"></span>
+                      <span class="text-gray-400">•</span>
+                      <span>Page <span x-text="randomRecipe.location.location.page_number"></span></span>
+                    </div>
                   </template>
                 </div>
               </div>
@@ -454,6 +462,26 @@
                        }
                      "
                      class="markdown-content text-sm text-gray-700"></div>
+              </div>
+
+              <div class="bg-white rounded-lg p-4 shadow-sm">
+                <div class="flex justify-between items-center text-xs text-gray-500">
+                  <div class="flex items-center space-x-2">
+                    <i data-lucide="plus" class="w-3 h-3"></i>
+                    <span>Added <span x-text="formatDate(randomRecipe?.saved_at)"></span></span>
+                  </div>
+                  <div x-show="randomRecipe?.updated_at !== randomRecipe?.saved_at" class="flex items-center space-x-2">
+                    <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                    <span>Updated <span x-text="formatDate(randomRecipe?.updated_at)"></span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div x-show="!randomRecipe" class="flex-1 flex items-center justify-center">
+              <div class="text-center text-gray-500">
+                <i data-lucide="loader-2" class="w-8 h-8 mx-auto mb-4 animate-spin"></i>
+                <p>Finding a recipe for you...</p>
               </div>
             </div>
 
@@ -652,7 +680,7 @@
                     <div class="flex items-center space-x-2">
                       <i data-lucide="external-link" class="w-3 h-3 text-cyan-500"></i>
                       <span class="font-medium">Online:</span>
-                      <a :href="viewingRecipe.location.location.url" target="_blank" class="text-cyan-600 hover:text-cyan-700 underline break-all" x-text="viewingRecipe.location.location.url"></a>
+                      <a :href="viewingRecipe.location.location.url" target="_blank" class="text-cyan-600 hover:text-cyan-700 underline break-all max-w-xs truncate block" x-text="viewingRecipe.location.location.url"></a>
                     </div>
                   </template>
                   <template x-if="viewingRecipe?.location?.location?.location === 'cookbook'">
