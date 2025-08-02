@@ -7,101 +7,135 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      body { font-family: 'Inter', sans-serif; }
+      .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .backdrop-blur {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+      }
+    </style>
   </head>
-  <body class="bg-gray-50 min-h-screen" x-data="recipeApp()">
-    <header class="bg-white shadow-sm border-b">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-6">
-          <div class="flex items-center">
-            <i class="fas fa-utensils text-2xl text-orange-500 mr-3"></i>
-            <h1 class="text-3xl font-bold text-gray-900">RecipeBox</h1>
+  <body class="bg-slate-50 min-h-screen text-slate-800" x-data="recipeApp()">
+    <header class="bg-white/80 backdrop-blur border-b border-slate-200/60 sticky top-0 z-40">
+      <div class="max-w-6xl mx-auto px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
+              <i class="fas fa-utensils text-white text-lg"></i>
+            </div>
+            <div>
+              <h1 class="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">RecipeBox</h1>
+              <p class="text-xs text-slate-500 font-medium">Your culinary collection</p>
+            </div>
           </div>
-          <div class="flex space-x-4">
+          <div class="flex items-center space-x-3">
             <button
               @click="showAddForm = true"
-              class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+              class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-4 py-2.5 rounded-xl flex items-center space-x-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium"
             >
-              <i class="fas fa-plus"></i>
+              <i class="fas fa-plus text-sm"></i>
               <span>Add Recipe</span>
             </button>
             <button
               @click="getRandomRecipe()"
-              class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+              class="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white px-4 py-2.5 rounded-xl flex items-center space-x-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium"
             >
-              <i class="fas fa-dice"></i>
-              <span>Random Recipe</span>
+              <i class="fas fa-dice text-sm"></i>
+              <span>Surprise Me</span>
             </button>
           </div>
         </div>
       </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-6 lg:px-8 py-8">
+      <!-- Search and Filter -->
       <div class="mb-8" x-show="!showAddForm && !editingRecipe">
-        <div class="relative">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <i class="fas fa-search text-gray-400"></i>
+        <div class="relative max-w-md">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <i class="fas fa-search text-slate-400"></i>
           </div>
           <input
             type="text"
             x-model="searchTerm"
-            placeholder="Search recipes by name, cuisine, or tags..."
-            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            placeholder="Search recipes..."
+            class="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 text-slate-800 placeholder-slate-400 shadow-sm"
           />
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" x-show="!showAddForm && !editingRecipe">
+      <!-- Recipe Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" x-show="!showAddForm && !editingRecipe">
         <template x-for="recipe in filteredRecipes" :key="recipe.id">
-          <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200">
+          <div class="group bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-200/60 hover:border-slate-300/60 transform hover:-translate-y-1">
             <div class="p-6">
-              <div class="flex justify-between items-start mb-4">
-                <h3 class="text-lg font-semibold text-gray-900 line-clamp-2" x-text="recipe.name"></h3>
-                <div class="flex space-x-2">
+              <!-- Recipe Header -->
+              <div class="flex justify-between items-start mb-5">
+                <h3 class="text-lg font-semibold text-slate-800 line-clamp-2 group-hover:text-emerald-600 transition-colors" x-text="recipe.name"></h3>
+                <div class="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   <button
                     @click="editRecipe(recipe)"
-                    class="text-blue-500 hover:text-blue-700 transition-colors"
+                    class="w-8 h-8 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
                     title="Edit Recipe"
                   >
-                    <i class="fas fa-edit"></i>
+                    <i class="fas fa-edit text-sm"></i>
                   </button>
                   <button
                     @click="deleteRecipe(recipe.id)"
-                    class="text-red-500 hover:text-red-700 transition-colors"
+                    class="w-8 h-8 flex items-center justify-center rounded-full bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
                     title="Delete Recipe"
                   >
-                    <i class="fas fa-trash"></i>
+                    <i class="fas fa-trash text-sm"></i>
                   </button>
                 </div>
               </div>
 
-              <div class="space-y-3">
-                <div class="flex items-center text-gray-600">
-                  <i class="fas fa-globe-americas w-5 text-center mr-2"></i>
-                  <span class="text-sm" x-text="recipe.cuisine"></span>
+              <!-- Recipe Details -->
+              <div class="space-y-4">
+                <div class="flex items-center text-slate-600">
+                  <div class="w-6 h-6 bg-gradient-to-br from-orange-400 to-pink-500 rounded-lg flex items-center justify-center mr-3">
+                    <i class="fas fa-globe-americas text-white text-xs"></i>
+                  </div>
+                  <span class="text-sm font-medium" x-text="recipe.cuisine"></span>
                 </div>
 
-                <div class="flex items-center text-gray-600">
-                  <i class="fas fa-map-marker-alt w-5 text-center mr-2"></i>
+                <!-- Location -->
+                <div class="flex items-center text-slate-600">
+                  <div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-lg flex items-center justify-center mr-3">
+                    <i class="fas fa-map-marker-alt text-white text-xs"></i>
+                  </div>
                   <span class="text-sm" x-text="getLocationText(recipe.location)"></span>
                 </div>
 
+                <!-- Tags -->
                 <div x-show="recipe.tags && recipe.tags.length > 0">
-                  <div class="flex flex-wrap gap-1 mt-2">
+                  <div class="flex flex-wrap gap-2">
                     <template x-for="tag in recipe.tags" :key="tag">
-                      <span class="inline-block bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full" x-text="tag"></span>
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border border-emerald-200" x-text="tag"></span>
                     </template>
                   </div>
                 </div>
 
-                <div x-show="recipe.notes" class="mt-3">
-                  <p class="text-sm text-gray-600 italic" x-text="recipe.notes"></p>
+                <!-- Notes -->
+                <div x-show="recipe.notes" class="pt-2 border-t border-slate-100">
+                  <p class="text-sm text-slate-600 italic line-clamp-2" x-text="recipe.notes"></p>
                 </div>
 
-                <div class="text-xs text-gray-400 mt-4">
-                  <div>Added: <span x-text="formatDate(recipe.saved_at)"></span></div>
-                  <div x-show="recipe.updated_at !== recipe.saved_at">
-                    Updated: <span x-text="formatDate(recipe.updated_at)"></span>
+                <!-- Dates -->
+                <div class="text-xs text-slate-400 pt-2 border-t border-slate-100">
+                  <div class="flex justify-between">
+                    <span>Added: <span x-text="formatDate(recipe.saved_at)"></span></span>
+                    <span x-show="recipe.updated_at !== recipe.saved_at">
+                      Updated: <span x-text="formatDate(recipe.updated_at)"></span>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -306,48 +340,65 @@
         </div>
       </div>
 
-      <div x-show="randomRecipe" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-96 overflow-y-auto">
-          <div class="p-6">
-            <div class="flex justify-between items-center mb-4">
-              <h2 class="text-2xl font-bold text-gray-900">🎲 Random Recipe Pick!</h2>
-              <button @click="randomRecipe = null" class="text-gray-400 hover:text-gray-600">
-                <i class="fas fa-times text-xl"></i>
+      <!-- Random Recipe Modal -->
+      <div x-show="randomRecipe !== null" x-transition class="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div x-show="randomRecipe !== null" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90" class="bg-white rounded-3xl shadow-2xl max-w-lg w-full border border-slate-200">
+          <div class="p-8">
+            <div class="flex justify-between items-center mb-6">
+              <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <i class="fas fa-dice text-white text-lg"></i>
+                </div>
+                <div>
+                  <h2 class="text-xl font-bold text-slate-800">Recipe Surprise!</h2>
+                  <p class="text-sm text-slate-500">Here's what you should cook today</p>
+                </div>
+              </div>
+              <button @click="randomRecipe = null" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors">
+                <i class="fas fa-times text-sm"></i>
               </button>
             </div>
 
-            <div x-show="randomRecipe" class="space-y-4">
-              <h3 class="text-xl font-semibold" x-text="randomRecipe?.name"></h3>
-              <div class="flex items-center text-gray-600">
-                <i class="fas fa-globe-americas w-5 text-center mr-2"></i>
-                <span x-text="randomRecipe?.cuisine"></span>
+            <div x-show="randomRecipe !== null" class="space-y-5">
+              <div>
+                <h3 class="text-2xl font-bold text-slate-800 mb-2" x-text="randomRecipe?.name"></h3>
+                <div class="flex items-center text-slate-600 mb-3">
+                  <div class="w-6 h-6 bg-gradient-to-br from-orange-400 to-pink-500 rounded-lg flex items-center justify-center mr-3">
+                    <i class="fas fa-globe-americas text-white text-xs"></i>
+                  </div>
+                  <span class="font-medium" x-text="randomRecipe?.cuisine"></span>
+                </div>
+                <div class="flex items-center text-slate-600">
+                  <div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-lg flex items-center justify-center mr-3">
+                    <i class="fas fa-map-marker-alt text-white text-xs"></i>
+                  </div>
+                  <span class="text-sm" x-text="getLocationText(randomRecipe?.location)"></span>
+                </div>
               </div>
-              <div class="flex items-center text-gray-600">
-                <i class="fas fa-map-marker-alt w-5 text-center mr-2"></i>
-                <span x-text="getLocationText(randomRecipe?.location)"></span>
-              </div>
+
               <div x-show="randomRecipe?.tags && randomRecipe.tags.length > 0">
-                <div class="flex flex-wrap gap-1">
+                <div class="flex flex-wrap gap-2">
                   <template x-for="tag in randomRecipe?.tags" :key="tag">
-                    <span class="inline-block bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full" x-text="tag"></span>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-violet-50 to-purple-50 text-violet-700 border border-violet-200" x-text="tag"></span>
                   </template>
                 </div>
               </div>
-              <div x-show="randomRecipe?.notes">
-                <p class="text-gray-600 italic" x-text="randomRecipe?.notes"></p>
+
+              <div x-show="randomRecipe?.notes" class="p-4 bg-slate-50 rounded-2xl">
+                <p class="text-slate-600 italic text-sm" x-text="randomRecipe?.notes"></p>
               </div>
             </div>
 
-            <div class="flex justify-end space-x-4 mt-6">
+            <div class="flex justify-end space-x-3 mt-8">
               <button
                 @click="getRandomRecipe()"
-                class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg"
+                class="px-5 py-2.5 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
-                Pick Another
+                <i class="fas fa-dice mr-2"></i>Pick Another
               </button>
               <button
                 @click="randomRecipe = null"
-                class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium transition-colors"
               >
                 Close
               </button>
