@@ -303,12 +303,18 @@
          class="h-screen flex overflow-hidden w-full">
     <div class="flex-1 flex flex-col bg-white">
       <div class="p-6 border-b border-gray-200">
-        <input
-          type="text"
-          x-model="searchTerm"
-          placeholder="Search recipes..."
-          class="w-full px-4 py-3 form-input rounded-lg text-gray-900 placeholder-gray-500"
-        />
+        <div class="flex space-x-4">
+          <input
+            type="text"
+            x-model="searchTerm"
+            placeholder="Search recipes..."
+            class="flex-1 px-4 py-3 form-input rounded-lg text-gray-900 placeholder-gray-500"
+          />
+          <button @click="activeTab = 'add'" class="btn-primary inline-flex items-center">
+            <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+            Add Recipe
+          </button>
+        </div>
       </div>
 
       <div class="flex-1 overflow-y-auto">
@@ -371,40 +377,19 @@
     </div>
 
     <div class="w-1/3 bg-gray-50 border-l border-gray-200 flex flex-col">
-      <div class="flex-1 overflow-y-auto bg-gray-50">
+      <div class="flex-1 overflow-y-auto">
         <!-- Default: Recommend Pane -->
-        <div x-show="activeTab === 'recommend'" class="sidebar-section">
-          <div x-show="!randomRecipe" class="text-center py-8">
-            <div class="text-gray-400 mb-6">
-              <i data-lucide="gift" class="w-20 h-20 mx-auto"></i>
-            </div>
-            <h3 class="text-xl font-semibold text-gray-900 mb-2">Get a Recommendation</h3>
-            <p class="text-gray-600 mb-8">Let us suggest something delicious from your collection</p>
-            <div class="flex flex-col space-y-3">
-              <button @click="getRandomRecipe()" class="btn-primary inline-flex items-center justify-center">
-                <i data-lucide="zap" class="w-4 h-4 mr-2"></i>
-                Surprise Me
-              </button>
-              <button @click="activeTab = 'add'" class="btn-secondary inline-flex items-center justify-center">
-                <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
-                Add New Recipe
-              </button>
-            </div>
-          </div>
-
-          <div x-show="randomRecipe" class="space-y-6">
+        <div x-show="activeTab === 'recommend'" class="h-full flex flex-col">
+          <div class="h-full flex flex-col p-6">
             <div class="flex items-center justify-between pb-6 border-b border-gray-200">
               <div>
-                <h2 class="text-xl font-semibold text-gray-900 mb-1" x-text="randomRecipe?.name"></h2>
+                <h2 class="text-xl font-semibold text-gray-900 mb-1" x-text="randomRecipe?.name || 'Loading recommendation...'"></h2>
                 <p class="text-teal-600 font-medium">Today's recommendation</p>
               </div>
-              <button @click="activeTab = 'add'" class="btn-secondary p-2">
-                <i data-lucide="plus" class="w-4 h-4"></i>
-              </button>
             </div>
 
-            <div class="space-y-4">
-              <div class="bg-gray-50 rounded-lg p-4">
+            <div x-show="randomRecipe" class="flex-1 overflow-y-auto space-y-4 mt-6">
+              <div class="bg-white rounded-lg p-4 shadow-sm">
                 <div class="flex justify-between items-center text-sm">
                   <span class="text-gray-600 flex items-center">
                     <i data-lucide="chef-hat" class="w-4 h-4 mr-2"></i>
@@ -414,7 +399,7 @@
                 </div>
               </div>
 
-              <div class="bg-gray-50 rounded-lg p-4">
+              <div class="bg-white rounded-lg p-4 shadow-sm">
                 <div class="flex justify-between items-center text-sm">
                   <span class="text-gray-600 flex items-center">
                     <i data-lucide="map-pin" class="w-4 h-4 mr-2"></i>
@@ -431,7 +416,7 @@
                 </div>
               </div>
 
-              <div x-show="randomRecipe?.tags && randomRecipe.tags.length > 0" class="bg-gray-50 rounded-lg p-4">
+              <div x-show="randomRecipe?.tags && randomRecipe.tags.length > 0" class="bg-white rounded-lg p-4 shadow-sm">
                 <div class="text-sm text-gray-600 mb-3 flex items-center">
                   <i data-lucide="tag" class="w-4 h-4 mr-2"></i>
                   Tags
@@ -443,7 +428,7 @@
                 </div>
               </div>
 
-              <div x-show="randomRecipe?.notes" class="bg-gray-50 rounded-lg p-4">
+              <div x-show="randomRecipe?.notes" class="bg-white rounded-lg p-4 shadow-sm">
                 <div class="text-sm text-gray-600 mb-3 flex items-center">
                   <i data-lucide="sticky-note" class="w-4 h-4 mr-2"></i>
                   Notes
@@ -473,97 +458,106 @@
               </div>
             </div>
 
-            <div class="flex space-x-3 pt-6 border-t border-gray-200">
+            <div x-show="!randomRecipe" class="flex-1 flex items-center justify-center">
+              <div class="text-center text-gray-500">
+                <i data-lucide="loader-2" class="w-8 h-8 mx-auto mb-4 animate-spin"></i>
+                <p>Finding a recipe for you...</p>
+              </div>
+            </div>
+
+            <div x-show="randomRecipe" class="flex space-x-3 pt-6 border-t border-gray-200 mt-6">
               <button @click="getRandomRecipe()" class="flex-1 btn-primary">
                 Another
               </button>
-              <button @click="randomRecipe = null" class="btn-secondary">
-                Clear
+              <button @click="randomRecipe = null; getRandomRecipe()" class="btn-secondary">
+                Refresh
               </button>
             </div>
           </div>
         </div>
 
         <!-- Add Recipe Pane -->
-        <div x-show="activeTab === 'add'" class="sidebar-section">
-          <div class="flex items-center justify-between mb-6">
+        <div x-show="activeTab === 'add'" class="h-full flex flex-col">
+          <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-white">
             <div>
               <h2 class="text-lg font-semibold text-gray-900 mb-1">Add New Recipe</h2>
               <p class="text-sm text-gray-600">Add a recipe to your collection</p>
             </div>
             <button @click="activeTab = 'recommend'" class="btn-secondary p-2">
-              <i data-lucide="gift" class="w-4 h-4"></i>
+              <i data-lucide="x" class="w-4 h-4"></i>
             </button>
           </div>
 
-          <form @submit.prevent="addRecipe()" class="space-y-5">
-            <div>
-              <label class="form-label">Recipe Name</label>
-              <input type="text" x-model="newRecipe.name" required
-                     class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="Enter recipe name" />
-            </div>
-
-            <div>
-              <label class="form-label">Cuisine</label>
-              <input type="text" x-model="newRecipe.cuisine" required
-                     class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="e.g., Italian, Mexican, Thai" />
-            </div>
-
-            <div>
-              <label class="form-label">Tags</label>
-              <input type="text" x-model="newRecipe.tagsInput"
-                     class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="Comma-separated tags (e.g., vegetarian, quick, healthy)" />
-              <p class="text-xs text-gray-500 mt-1">Separate multiple tags with commas</p>
-            </div>
-
-            <div>
-              <label class="form-label">Recipe Location</label>
-              <select x-model="newRecipe.location.location" class="w-full px-4 py-3 form-input rounded-lg text-sm">
-                <option value="online">Online Recipe</option>
-                <option value="cookbook">Physical Cookbook</option>
-              </select>
-            </div>
-
-            <div x-show="newRecipe.location.location === 'online'" x-transition class="space-y-4">
+          <div class="flex-1 overflow-y-auto p-6">
+            <form @submit.prevent="addRecipe()" class="space-y-5">
               <div>
-                <label class="form-label">Recipe URL</label>
-                <input type="url" x-model="newRecipe.location.url"
-                       class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="https://example.com/recipe" />
+                <label class="form-label">Recipe Name</label>
+                <input type="text" x-model="newRecipe.name" required
+                       class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="Enter recipe name" />
               </div>
-            </div>
 
-            <div x-show="newRecipe.location.location === 'cookbook'" x-transition class="space-y-4">
               <div>
-                <label class="form-label">Cookbook Name</label>
-                <input type="text" x-model="newRecipe.location.cookbook_name"
-                       class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="Name of the cookbook" />
+                <label class="form-label">Cuisine</label>
+                <input type="text" x-model="newRecipe.cuisine" required
+                       class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="e.g., Italian, Mexican, Thai" />
               </div>
+
               <div>
-                <label class="form-label">Page Number</label>
-                <input type="number" x-model="newRecipe.location.page_number" min="1"
-                       class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="Page number" />
+                <label class="form-label">Tags</label>
+                <input type="text" x-model="newRecipe.tagsInput"
+                       class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="Comma-separated tags (e.g., vegetarian, quick, healthy)" />
+                <p class="text-xs text-gray-500 mt-1">Separate multiple tags with commas</p>
               </div>
-            </div>
 
-            <div>
-              <label class="form-label">Notes</label>
-              <textarea x-model="newRecipe.notes" rows="4"
-                        class="w-full px-4 py-3 form-input rounded-lg text-sm resize-none"
-                        placeholder="Personal notes, modifications, cooking tips..."></textarea>
-            </div>
+              <div>
+                <label class="form-label">Recipe Location</label>
+                <select x-model="newRecipe.location.location" class="w-full px-4 py-3 form-input rounded-lg text-sm">
+                  <option value="online">Online Recipe</option>
+                  <option value="cookbook">Physical Cookbook</option>
+                </select>
+              </div>
 
-            <div class="pt-4 border-t border-gray-100">
-              <button type="submit" class="w-full btn-primary">
-                <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
-                Add Recipe
-              </button>
-            </div>
-          </form>
+              <div x-show="newRecipe.location.location === 'online'" x-transition class="space-y-4">
+                <div>
+                  <label class="form-label">Recipe URL</label>
+                  <input type="url" x-model="newRecipe.location.url"
+                         class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="https://example.com/recipe" />
+                </div>
+              </div>
+
+              <div x-show="newRecipe.location.location === 'cookbook'" x-transition class="space-y-4">
+                <div>
+                  <label class="form-label">Cookbook Name</label>
+                  <input type="text" x-model="newRecipe.location.cookbook_name"
+                         class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="Name of the cookbook" />
+                </div>
+                <div>
+                  <label class="form-label">Page Number</label>
+                  <input type="number" x-model="newRecipe.location.page_number" min="1"
+                         class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="Page number" />
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label">Notes</label>
+                <textarea x-model="newRecipe.notes" rows="4"
+                          class="w-full px-4 py-3 form-input rounded-lg text-sm resize-none"
+                          placeholder="Personal notes, modifications, cooking tips..."></textarea>
+              </div>
+
+              <div class="pt-4 border-t border-gray-100">
+                <button type="submit" class="w-full btn-primary">
+                  <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
+                  Add Recipe
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
 
         <!-- Edit Recipe Pane -->
-        <div x-show="activeTab === 'edit' && editingRecipe" class="sidebar-section">
-          <div class="flex items-center justify-between mb-6">
+        <div x-show="activeTab === 'edit' && editingRecipe" class="h-full flex flex-col">
+          <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-white">
             <div>
               <h2 class="text-lg font-semibold text-gray-900 mb-1">Edit Recipe</h2>
               <p class="text-sm text-gray-600">Update your recipe details</p>
@@ -573,48 +567,50 @@
             </button>
           </div>
 
-          <form @submit.prevent="updateRecipe()" class="space-y-5">
-            <div>
-              <label class="form-label">Recipe Name</label>
-              <input type="text" x-model="editingRecipe.name" required
-                     class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="Recipe name">
-            </div>
+          <div class="flex-1 overflow-y-auto p-6">
+            <form @submit.prevent="updateRecipe()" class="space-y-5">
+              <div>
+                <label class="form-label">Recipe Name</label>
+                <input type="text" x-model="editingRecipe.name" required
+                       class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="Recipe name">
+              </div>
 
-            <div>
-              <label class="form-label">Cuisine</label>
-              <input type="text" x-model="editingRecipe.cuisine" required
-                     class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="e.g., Italian, Mexican, Thai">
-            </div>
+              <div>
+                <label class="form-label">Cuisine</label>
+                <input type="text" x-model="editingRecipe.cuisine" required
+                       class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="e.g., Italian, Mexican, Thai">
+              </div>
 
-            <div>
-              <label class="form-label">Tags</label>
-              <input type="text" x-model="editingRecipe.tagsInput"
-                     class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="Comma-separated tags">
-              <p class="text-xs text-gray-500 mt-1">Separate multiple tags with commas</p>
-            </div>
+              <div>
+                <label class="form-label">Tags</label>
+                <input type="text" x-model="editingRecipe.tagsInput"
+                       class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="Comma-separated tags">
+                <p class="text-xs text-gray-500 mt-1">Separate multiple tags with commas</p>
+              </div>
 
-            <div>
-              <label class="form-label">Notes</label>
-              <textarea x-model="editingRecipe.notes" rows="5"
-                        class="w-full px-4 py-3 form-input rounded-lg text-sm resize-none"
-                        placeholder="Personal notes, modifications, cooking tips..."></textarea>
-            </div>
+              <div>
+                <label class="form-label">Notes</label>
+                <textarea x-model="editingRecipe.notes" rows="5"
+                          class="w-full px-4 py-3 form-input rounded-lg text-sm resize-none"
+                          placeholder="Personal notes, modifications, cooking tips..."></textarea>
+              </div>
 
-            <div class="flex space-x-3 pt-4 border-t border-gray-100">
-              <button type="submit" class="flex-1 btn-primary">
-                <i data-lucide="check" class="w-4 h-4 inline mr-2"></i>
-                Update Recipe
-              </button>
-              <button type="button" @click="cancelEdit()" class="btn-secondary">
-                Cancel
-              </button>
-            </div>
-          </form>
+              <div class="flex space-x-3 pt-4 border-t border-gray-100">
+                <button type="submit" class="flex-1 btn-primary">
+                  <i data-lucide="check" class="w-4 h-4 inline mr-2"></i>
+                  Update Recipe
+                </button>
+                <button type="button" @click="cancelEdit()" class="btn-secondary">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
 
         <!-- View Recipe Pane -->
-        <div x-show="activeTab === 'view' && viewingRecipe" class="sidebar-section">
-          <div class="flex items-center justify-between mb-6">
+        <div x-show="activeTab === 'view' && viewingRecipe" class="h-full flex flex-col">
+          <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-white">
             <div>
               <h2 class="text-lg font-semibold text-gray-900 mb-1" x-text="viewingRecipe?.name"></h2>
               <p class="text-sm text-gray-600">Recipe details</p>
@@ -629,8 +625,8 @@
             </div>
           </div>
 
-          <div class="space-y-6">
-            <div class="bg-gray-50 rounded-lg p-4">
+          <div class="flex-1 overflow-y-auto p-6 space-y-6">
+            <div class="bg-white rounded-lg p-4 shadow-sm">
               <div class="flex justify-between items-center text-sm">
                 <span class="text-gray-600 flex items-center">
                   <i data-lucide="chef-hat" class="w-4 h-4 mr-2"></i>
@@ -640,7 +636,7 @@
               </div>
             </div>
 
-            <div x-show="viewingRecipe?.tags && viewingRecipe.tags.length > 0" class="bg-gray-50 rounded-lg p-4">
+            <div x-show="viewingRecipe?.tags && viewingRecipe.tags.length > 0" class="bg-white rounded-lg p-4 shadow-sm">
               <div class="text-sm text-gray-600 mb-3 flex items-center">
                 <i data-lucide="tag" class="w-4 h-4 mr-2"></i>
                 Tags
@@ -652,7 +648,7 @@
               </div>
             </div>
 
-            <div class="bg-gray-50 rounded-lg p-4">
+            <div class="bg-white rounded-lg p-4 shadow-sm">
               <div class="text-sm text-gray-600 mb-3 flex items-center">
                 <i data-lucide="map-pin" class="w-4 h-4 mr-2"></i>
                 Recipe Location
@@ -677,7 +673,7 @@
               </div>
             </div>
 
-            <div x-show="viewingRecipe?.notes" class="bg-gray-50 rounded-lg p-4">
+            <div x-show="viewingRecipe?.notes" class="bg-white rounded-lg p-4 shadow-sm">
               <div class="text-sm text-gray-600 mb-3 flex items-center">
                 <i data-lucide="sticky-note" class="w-4 h-4 mr-2"></i>
                 Notes
@@ -706,7 +702,7 @@
                    class="markdown-content text-sm text-gray-700"></div>
             </div>
 
-            <div class="bg-gray-50 rounded-lg p-4">
+            <div class="bg-white rounded-lg p-4 shadow-sm">
               <div class="flex justify-between items-center text-xs text-gray-500">
                 <div class="flex items-center space-x-2">
                   <i data-lucide="plus" class="w-3 h-3"></i>
@@ -744,6 +740,10 @@
               page_number: 1
             },
             notes: ''
+          },
+
+          init() {
+            this.getRandomRecipe();
           },
 
           get filteredRecipes() {
