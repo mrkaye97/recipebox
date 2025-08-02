@@ -6,7 +6,7 @@ from src.recipe import Recipe, RecipeCreate, RecipeLocation, RecipePatch
 
 
 def to_recipe(
-    row: tuple[int, str, str, str, str, str, str, datetime, datetime],
+    row: tuple[int, str, str, str, str, str, int, str, datetime, datetime],
 ) -> Recipe:
     return Recipe(
         id=row[0],
@@ -15,17 +15,26 @@ def to_recipe(
         tags=json.loads(row[3]),
         location=RecipeLocation.model_validate_json(row[4]),
         dietary_restrictions_met=json.loads(row[5]),
-        notes=row[6],
-        saved_at=row[7],
-        updated_at=row[8],
+        time_estimate_minutes=row[6],
+        notes=row[7],
+        saved_at=row[8],
+        updated_at=row[9],
     )
 
 
 def create_recipe(db: Connection, recipe: RecipeCreate) -> Recipe:
     res = db.execute(
         """
-        INSERT INTO recipe (name, cuisine, tags, location, dietary_restrictions_met)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO recipe (
+            name,
+            cuisine,
+            tags,
+            location,
+            dietary_restrictions_met,
+            time_estimate_minutes,
+            notes
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
         RETURNING *;
         """,
         (
@@ -34,6 +43,8 @@ def create_recipe(db: Connection, recipe: RecipeCreate) -> Recipe:
             json.dumps(recipe.tags),
             recipe.location.model_dump_json(),
             json.dumps(recipe.dietary_restrictions_met),
+            recipe.time_estimate_minutes,
+            recipe.notes,
         ),
     )
     record = res.fetchone()
@@ -69,6 +80,7 @@ def update_recipe_by_id(db: Connection, id: int, body: RecipePatch) -> Recipe | 
             tags = COALESCE(?, tags),
             location = COALESCE(?, location),
             dietary_restrictions_met = COALESCE(?, dietary_restrictions_met),
+            time_estimate_minutes = COALESCE(?, time_estimate_minutes),
             notes = COALESCE(?, notes),
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
@@ -84,6 +96,7 @@ def update_recipe_by_id(db: Connection, id: int, body: RecipePatch) -> Recipe | 
                 if body.dietary_restrictions_met is not None
                 else None
             ),
+            body.time_estimate_minutes,
             body.notes,
             id,
         ),
