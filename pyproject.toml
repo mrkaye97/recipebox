@@ -1,0 +1,19 @@
+[project]
+name = "recipebox"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "mrkaye97",email = "mrkaye97@gmail.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi (>=0.116.1,<0.117.0)",
+    "pydantic (>=2.11.7,<3.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
