@@ -5,24 +5,27 @@ from sqlite3 import Connection
 from src.recipe import Recipe, RecipeCreate, RecipeLocation, RecipePatch
 
 
-def to_recipe(row: tuple[int, str, str, str, str, str, datetime, datetime]) -> Recipe:
+def to_recipe(
+    row: tuple[int, str, str, str, str, str, str, datetime, datetime],
+) -> Recipe:
     return Recipe(
         id=row[0],
         name=row[1],
         cuisine=row[2],
-        tags=json.loads(row[3]) if row[3] else [],
+        tags=json.loads(row[3]),
         location=RecipeLocation.model_validate_json(row[4]),
-        notes=row[5],
-        saved_at=row[6],
-        updated_at=row[7],
+        dietary_restrictions_met=json.loads(row[5]),
+        notes=row[6],
+        saved_at=row[7],
+        updated_at=row[8],
     )
 
 
 def create_recipe(db: Connection, recipe: RecipeCreate) -> Recipe:
     res = db.execute(
         """
-        INSERT INTO recipe (name, cuisine, tags, location)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO recipe (name, cuisine, tags, location, dietary_restrictions_met)
+        VALUES (?, ?, ?, ?, ?)
         RETURNING *;
         """,
         (
@@ -30,6 +33,7 @@ def create_recipe(db: Connection, recipe: RecipeCreate) -> Recipe:
             recipe.cuisine,
             json.dumps(recipe.tags),
             recipe.location.model_dump_json(),
+            json.dumps(recipe.dietary_restrictions_met),
         ),
     )
     record = res.fetchone()
@@ -64,6 +68,7 @@ def update_recipe_by_id(db: Connection, id: int, body: RecipePatch) -> Recipe | 
             cuisine = COALESCE(?, cuisine),
             tags = COALESCE(?, tags),
             location = COALESCE(?, location),
+            dietary_restrictions_met = COALESCE(?, dietary_restrictions_met),
             notes = COALESCE(?, notes),
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
@@ -74,6 +79,11 @@ def update_recipe_by_id(db: Connection, id: int, body: RecipePatch) -> Recipe | 
             body.cuisine,
             json.dumps(body.tags) if body.tags is not None else None,
             body.location.model_dump_json() if body.location is not None else None,
+            (
+                json.dumps(body.dietary_restrictions_met)
+                if body.dietary_restrictions_met is not None
+                else None
+            ),
             body.notes,
             id,
         ),

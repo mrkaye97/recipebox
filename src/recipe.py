@@ -26,6 +26,7 @@ class RecipeCreate(BaseModel):
     cuisine: str
     tags: list[str]
     location: RecipeLocation
+    dietary_restrictions_met: list[str]
     notes: str | None
     saved_at: datetime
     updated_at: datetime
@@ -40,4 +41,5 @@ class RecipePatch(BaseModel):
     cuisine: str | None = None
     tags: list[str] | None = None
     location: RecipeLocation | None = None
+    dietary_restrictions_met: list[str] | None = None
     notes: str | None = None

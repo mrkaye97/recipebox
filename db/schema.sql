@@ -2,8 +2,9 @@ CREATE TABLE recipe (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     cuisine TEXT NOT NULL,
-    tags TEXT NOT NULL DEFAULT '[]', -- JSON array
+    tags JSONB NOT NULL DEFAULT '[]',
     location TEXT NOT NULL,
+    dietary_restrictions_met JSONB NOT NULL DEFAULT '[]',
     notes TEXT,
     saved_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
