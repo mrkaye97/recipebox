@@ -3,24 +3,66 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RecipeBox - Your Digital Recipe Collection</title>
+    <title>RecipeBox</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12/dist/htmx.min.js"></script>
     <script type="module" src="https://md-block.verou.me/md-block.js"></script>
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-      body { font-family: 'Inter', sans-serif; }
-      .line-clamp-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+      body {
+        font-family: 'Inter', sans-serif;
+        background: #fafafa;
+        color: #374151;
       }
-      .backdrop-blur {
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
+
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 4px;
       }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 2px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #9ca3af;
+      }
+
+      /* Tab styling */
+      .tab-active {
+        border-bottom: 2px solid #6b7280;
+        color: #374151;
+      }
+      .tab-inactive {
+        color: #9ca3af;
+        border-bottom: 2px solid transparent;
+      }
+
+      /* Recipe card styling */
+      .recipe-card {
+        border-left: 3px solid transparent;
+        transition: all 0.2s ease;
+      }
+      .recipe-card:hover {
+        border-left-color: #3b82f6;
+        background-color: #fafbff;
+      }
+
+      /* Form styling */
+      .form-input {
+        border: 1px solid #e5e7eb;
+        background: white;
+        transition: border-color 0.2s ease;
+      }
+      .form-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
       /* Markdown content styling */
       .markdown-content md-block {
         display: block;
@@ -45,417 +87,309 @@
       }
     </style>
   </head>
-  <body class="bg-slate-50 min-h-screen text-slate-800" x-data="recipeApp()">
-    <header class="bg-white/80 backdrop-blur border-b border-slate-200/60 sticky top-0 z-40">
-      <div class="max-w-6xl mx-auto px-6 lg:px-8">
-        <div class="flex justify-between items-center py-4">
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
-              <i class="fas fa-utensils text-white text-lg"></i>
-            </div>
-            <div>
-              <h1 class="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">RecipeBox</h1>
-              <p class="text-xs text-slate-500 font-medium">Your culinary collection</p>
-            </div>
-          </div>
-          <div class="flex items-center space-x-3">
-            <button
-              @click="showAddForm = true"
-              class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-4 py-2.5 rounded-xl flex items-center space-x-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium"
-            >
-              <i class="fas fa-plus text-sm"></i>
-              <span>Add Recipe</span>
-            </button>
-            <button
-              @click="getRandomRecipe()"
-              class="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white px-4 py-2.5 rounded-xl flex items-center space-x-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium"
-            >
-              <i class="fas fa-dice text-sm"></i>
-              <span>Surprise Me</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="max-w-6xl mx-auto px-6 lg:px-8 py-8">
-      <!-- Search and Filter -->
-      <div class="mb-8" x-show="!showAddForm && !editingRecipe">
-        <div class="relative max-w-md">
-          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <i class="fas fa-search text-slate-400"></i>
-          </div>
-          <input
-            type="text"
-            x-model="searchTerm"
-            placeholder="Search recipes..."
-            class="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 text-slate-800 placeholder-slate-400 shadow-sm"
-          />
-        </div>
+  <body x-data="recipeApp()" class="h-screen flex overflow-hidden">
+    <!-- Left Panel - Recipe List (2/3 of screen) -->
+    <div class="flex-1 flex flex-col bg-white">
+      <!-- Search Bar -->
+      <div class="p-6 border-b border-gray-200">
+        <input
+          type="text"
+          x-model="searchTerm"
+          placeholder="Search recipes..."
+          class="w-full px-4 py-3 form-input rounded-lg text-gray-900 placeholder-gray-500"
+        />
       </div>
 
-      <!-- Recipe Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" x-show="!showAddForm && !editingRecipe">
-        <template x-for="recipe in filteredRecipes" :key="recipe.id">
-          <div class="group bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-200/60 hover:border-slate-300/60 transform hover:-translate-y-1">
-            <div class="p-6">
-              <!-- Recipe Header -->
-              <div class="flex justify-between items-start mb-5">
-                <h3 class="text-lg font-semibold text-slate-800 line-clamp-2 group-hover:text-emerald-600 transition-colors" x-text="recipe.name"></h3>
-                <div class="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  <button
-                    @click="editRecipe(recipe)"
-                    class="w-8 h-8 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
-                    title="Edit Recipe"
-                  >
-                    <i class="fas fa-edit text-sm"></i>
-                  </button>
-                  <button
-                    @click="deleteRecipe(recipe.id)"
-                    class="w-8 h-8 flex items-center justify-center rounded-full bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
-                    title="Delete Recipe"
-                  >
-                    <i class="fas fa-trash text-sm"></i>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Recipe Details -->
+      <!-- Recipe List -->
+      <div class="flex-1 overflow-y-auto">
+        <div class="divide-y divide-gray-100">
+          <template x-for="recipe in filteredRecipes" :key="recipe.id">
+            <div class="recipe-card group p-8 cursor-pointer"
+                 @click="selectRecipe(recipe)">
               <div class="space-y-4">
-                <div class="flex items-center text-slate-600">
-                  <div class="w-6 h-6 bg-gradient-to-br from-orange-400 to-pink-500 rounded-lg flex items-center justify-center mr-3">
-                    <i class="fas fa-globe-americas text-white text-xs"></i>
-                  </div>
-                  <span class="text-sm font-medium" x-text="recipe.cuisine"></span>
-                </div>
-
-                <!-- Location -->
-                <div class="flex items-center text-slate-600">
-                  <div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-lg flex items-center justify-center mr-3">
-                    <i class="fas fa-map-marker-alt text-white text-xs"></i>
-                  </div>
-                  <span class="text-sm" x-text="getLocationText(recipe.location)"></span>
-                </div>
-
-                <!-- Tags -->
-                <div x-show="recipe.tags && recipe.tags.length > 0">
-                  <div class="flex flex-wrap gap-2">
-                    <template x-for="tag in recipe.tags" :key="tag">
-                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border border-emerald-200" x-text="tag"></span>
-                    </template>
+                <div class="flex justify-between items-start">
+                  <h3 class="text-lg font-medium text-gray-900" x-text="recipe.name"></h3>
+                  <div class="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button @click.stop="editRecipe(recipe)" class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button @click.stop="deleteRecipe(recipe.id)" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
                   </div>
                 </div>
 
-                <!-- Notes -->
-                <div x-show="recipe.notes" class="pt-2 border-t border-slate-100">
-                  <div
-                    x-init="
-                      $nextTick(async () => {
-                        const mdBlock = document.createElement('md-block');
-                        mdBlock.setAttribute('type', 'md');
-                        mdBlock.textContent = recipe.notes;
-                        $el.appendChild(mdBlock);
-
-                        setTimeout(() => {
-                          if (window.customElements && window.customElements.get('md-block')) {
-                            mdBlock.setAttribute('content', recipe.notes);
-                          }
-                        }, 100);
-                      });
-                    "
-                    class="markdown-content"
-                    style="font-size: 0.875rem; color: rgb(71 85 105);"
-                  ></div>
+                <div class="flex items-center space-x-6 text-sm text-gray-600">
+                  <div class="flex items-center space-x-2">
+                    <div class="w-2 h-2 bg-blue-400 rounded-full"></div>
+                    <span x-text="recipe.cuisine"></span>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span class="text-gray-500 italic" x-text="getLocationText(recipe.location)"></span>
+                  </div>
                 </div>
 
-                <!-- Dates -->
-                <div class="text-xs text-slate-400 pt-2 border-t border-slate-100">
-                  <div class="flex justify-between">
-                    <span>Added: <span x-text="formatDate(recipe.saved_at)"></span></span>
-                    <span x-show="recipe.updated_at !== recipe.saved_at">
-                      Updated: <span x-text="formatDate(recipe.updated_at)"></span>
-                    </span>
-                  </div>
+                <div x-show="recipe.tags && recipe.tags.length > 0" class="flex flex-wrap gap-2">
+                  <template x-for="tag in recipe.tags" :key="tag">
+                    <span class="px-3 py-1 bg-blue-50 text-blue-700 text-xs rounded-full border border-blue-200" x-text="tag"></span>
+                  </template>
+                </div>
+
+                <div x-show="recipe.notes" class="text-sm text-gray-600 border-t border-gray-100 pt-4">
+                  <div x-init="
+                    $nextTick(async () => {
+                      const mdBlock = document.createElement('md-block');
+                      mdBlock.setAttribute('type', 'md');
+                      mdBlock.textContent = recipe.notes;
+                      $el.appendChild(mdBlock);
+
+                      setTimeout(() => {
+                        if (window.customElements && window.customElements.get('md-block')) {
+                          mdBlock.setAttribute('content', recipe.notes);
+                        }
+                      }, 100);
+                    });
+                  " class="markdown-content"></div>
+                </div>
+
+                <div class="text-xs text-gray-400 border-t border-gray-100 pt-3">
+                  Added: <span x-text="formatDate(recipe.saved_at)"></span>
+                  <span x-show="recipe.updated_at !== recipe.saved_at">
+                    • Updated: <span x-text="formatDate(recipe.updated_at)"></span>
+                  </span>
                 </div>
               </div>
             </div>
+          </template>
+        </div>        <!-- Empty state -->
+        <div x-show="filteredRecipes.length === 0" class="p-12 text-center">
+          <div class="text-gray-400 mb-4">
+            <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
           </div>
-        </template>
+          <h3 class="font-medium text-gray-900 mb-2">No recipes found</h3>
+          <p class="text-gray-600 mb-6">Start building your recipe collection</p>
+          <button @click="activeTab = 'add'" class="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800">
+            Add Recipe
+          </button>
+        </div>
       </div>
+    </div>
 
-      <div x-show="filteredRecipes.length === 0 && !showAddForm && !editingRecipe" class="text-center py-12">
-        <i class="fas fa-utensils text-6xl text-gray-300 mb-4"></i>
-        <h3 class="text-xl font-medium text-gray-900 mb-2">No recipes found</h3>
-        <p class="text-gray-500 mb-6">Get started by adding your first recipe!</p>
-        <button
-          @click="showAddForm = true"
-          class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg inline-flex items-center space-x-2"
-        >
-          <i class="fas fa-plus"></i>
-          <span>Add Your First Recipe</span>
+    <!-- Right Panel - Tabs and Content (1/3 of screen) -->
+    <div class="w-1/3 bg-gray-50 border-l border-gray-200 flex flex-col h-screen">
+      <!-- Tab Navigation -->
+      <div class="flex border-b border-gray-200 bg-white">
+        <button @click="activeTab = 'add'"
+                :class="activeTab === 'add' ? 'tab-active' : 'tab-inactive'"
+                class="flex-1 px-6 py-4 text-sm font-medium hover:text-gray-700 transition-colors">
+          Add Recipe
+        </button>
+        <button @click="activeTab = 'edit'"
+                :class="activeTab === 'edit' ? 'tab-active' : 'tab-inactive'"
+                class="flex-1 px-6 py-4 text-sm font-medium hover:text-gray-700 transition-colors"
+                x-show="editingRecipe">
+          Edit Recipe
+        </button>
+        <button @click="activeTab = 'recommend'"
+                :class="activeTab === 'recommend' ? 'tab-active' : 'tab-inactive'"
+                class="flex-1 px-6 py-4 text-sm font-medium hover:text-gray-700 transition-colors">
+          Recommend
         </button>
       </div>
 
-      <div x-show="showAddForm" class="max-w-2xl mx-auto">
-        <div class="bg-white rounded-lg shadow-md p-6">
-          <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-gray-900">Add New Recipe</h2>
-            <button @click="showAddForm = false" class="text-gray-400 hover:text-gray-600">
-              <i class="fas fa-times text-xl"></i>
+      <!-- Tab Content -->
+      <div class="flex-1 overflow-y-auto">
+        <!-- Add Recipe Tab -->
+        <div x-show="activeTab === 'add'" class="p-6">
+          <form @submit.prevent="addRecipe()" class="space-y-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Recipe Name</label>
+              <input type="text" x-model="newRecipe.name" required
+                     class="w-full px-3 py-2 form-input rounded-lg" placeholder="Enter recipe name" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Cuisine</label>
+              <input type="text" x-model="newRecipe.cuisine" required
+                     class="w-full px-3 py-2 form-input rounded-lg" placeholder="e.g., Italian, Mexican" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+              <input type="text" x-model="newRecipe.tagsInput"
+                     class="w-full px-3 py-2 form-input rounded-lg" placeholder="comma separated" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+              <select x-model="newRecipe.location.location" class="w-full px-3 py-2 form-input rounded-lg">
+                <option value="online">Online</option>
+                <option value="cookbook">Cookbook</option>
+              </select>
+            </div>
+
+            <div x-show="newRecipe.location.location === 'online'">
+              <label class="block text-sm font-medium text-gray-700 mb-2">URL</label>
+              <input type="url" x-model="newRecipe.location.url"
+                     class="w-full px-3 py-2 form-input rounded-lg" placeholder="https://..." />
+            </div>
+
+            <div x-show="newRecipe.location.location === 'cookbook'" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Cookbook Name</label>
+                <input type="text" x-model="newRecipe.location.cookbook_name"
+                       class="w-full px-3 py-2 form-input rounded-lg" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Page Number</label>
+                <input type="number" x-model="newRecipe.location.page_number"
+                       class="w-full px-3 py-2 form-input rounded-lg" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+              <textarea x-model="newRecipe.notes" rows="4"
+                        class="w-full px-3 py-2 form-input rounded-lg" placeholder="Recipe notes..."></textarea>
+            </div>
+
+            <button type="submit" class="w-full bg-gray-900 text-white py-3 rounded-lg hover:bg-gray-800 transition-colors">
+              Add Recipe
+            </button>
+          </form>
+        </div>
+
+        <!-- Recommend Tab -->
+        <div x-show="activeTab === 'recommend'" class="p-6">
+          <div x-show="!randomRecipe" class="text-center py-12">
+            <div class="text-gray-400 mb-4">
+              <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+            </div>
+            <h3 class="font-medium text-gray-900 mb-2">Get a recommendation</h3>
+            <p class="text-gray-600 mb-6">Let us suggest something from your collection</p>
+            <button @click="getRandomRecipe()" class="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">
+              Surprise Me
             </button>
           </div>
 
-          <form @submit.prevent="addRecipe()">
-            <div class="space-y-6">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Recipe Name *</label>
-                <input
-                  type="text"
-                  x-model="newRecipe.name"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  placeholder="Enter recipe name"
-                />
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Cuisine *</label>
-                <input
-                  type="text"
-                  x-model="newRecipe.cuisine"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  placeholder="e.g., Italian, Mexican, Japanese"
-                />
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
-                <input
-                  type="text"
-                  x-model="newRecipe.tagsInput"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  placeholder="Enter tags separated by commas (e.g., vegetarian, quick, healthy)"
-                />
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Recipe Location *</label>
-                <select
-                  x-model="newRecipe.location.location"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                >
-                  <option value="online">Online</option>
-                  <option value="cookbook">Cookbook</option>
-                </select>
-              </div>
-
-              <div x-show="newRecipe.location.location === 'online'">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Recipe URL *</label>
-                <input
-                  type="url"
-                  x-model="newRecipe.location.url"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  placeholder="https://example.com/recipe"
-                />
-              </div>
-
-              <div x-show="newRecipe.location.location === 'cookbook'" class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Cookbook Name *</label>
-                  <input
-                    type="text"
-                    x-model="newRecipe.location.cookbook_name"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="Name of the cookbook"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Page Number *</label>
-                  <input
-                    type="number"
-                    x-model="newRecipe.location.page_number"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="Page number"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
-                <textarea
-                  x-model="newRecipe.notes"
-                  rows="3"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  placeholder="Any additional notes about this recipe..."
-                ></textarea>
-              </div>
-
-              <div class="flex justify-end space-x-4">
-                <button
-                  type="button"
-                  @click="showAddForm = false"
-                  class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg"
-                >
-                  Add Recipe
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <div x-show="editingRecipe" class="max-w-2xl mx-auto">
-        <div class="bg-white rounded-lg shadow-md p-6">
-          <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-gray-900">Edit Recipe</h2>
-            <button @click="editingRecipe = null" class="text-gray-400 hover:text-gray-600">
-              <i class="fas fa-times text-xl"></i>
-            </button>
-          </div>
-
-          <form @submit.prevent="updateRecipe()">
-            <div class="space-y-6">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Recipe Name</label>
-                <input
-                  type="text"
-                  x-model="editingRecipe.name"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Cuisine</label>
-                <input
-                  type="text"
-                  x-model="editingRecipe.cuisine"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
-                <input
-                  type="text"
-                  x-model="editingRecipe.tagsInput"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  placeholder="Enter tags separated by commas"
-                />
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
-                <textarea
-                  x-model="editingRecipe.notes"
-                  rows="3"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                ></textarea>
-              </div>
-
-              <div class="flex justify-end space-x-4">
-                <button
-                  type="button"
-                  @click="editingRecipe = null"
-                  class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
-                >
-                  Update Recipe
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- Random Recipe Modal -->
-      <div x-show="randomRecipe !== null" x-transition class="fixed inset-0 bg-slate-900/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div x-show="randomRecipe !== null" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90" class="bg-white rounded-3xl shadow-2xl max-w-lg w-full border border-slate-200">
-          <div class="p-8">
-            <div class="flex justify-between items-center mb-6">
-              <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-                  <i class="fas fa-dice text-white text-lg"></i>
-                </div>
-                <div>
-                  <h2 class="text-xl font-bold text-slate-800">Recipe Surprise!</h2>
-                  <p class="text-sm text-slate-500">Here's what you should cook today</p>
-                </div>
-              </div>
-              <button @click="randomRecipe = null" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors">
-                <i class="fas fa-times text-sm"></i>
-              </button>
+          <div x-show="randomRecipe" class="space-y-6">
+            <div class="text-center pb-6 border-b border-gray-200">
+              <h2 class="text-xl font-semibold text-gray-900 mb-2" x-text="randomRecipe?.name"></h2>
+              <p class="text-gray-600">Today's recommendation</p>
             </div>
 
-            <div x-show="randomRecipe !== null" class="space-y-5">
-              <div>
-                <h3 class="text-2xl font-bold text-slate-800 mb-2" x-text="randomRecipe?.name"></h3>
-                <div class="flex items-center text-slate-600 mb-3">
-                  <div class="w-6 h-6 bg-gradient-to-br from-orange-400 to-pink-500 rounded-lg flex items-center justify-center mr-3">
-                    <i class="fas fa-globe-americas text-white text-xs"></i>
-                  </div>
-                  <span class="font-medium" x-text="randomRecipe?.cuisine"></span>
-                </div>
-                <div class="flex items-center text-slate-600">
-                  <div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-lg flex items-center justify-center mr-3">
-                    <i class="fas fa-map-marker-alt text-white text-xs"></i>
-                  </div>
-                  <span class="text-sm" x-text="getLocationText(randomRecipe?.location)"></span>
-                </div>
+            <div class="space-y-4">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Cuisine</span>
+                <span class="font-medium" x-text="randomRecipe?.cuisine"></span>
+              </div>
+
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Location</span>
+                <span class="font-medium" x-text="getLocationText(randomRecipe?.location)"></span>
               </div>
 
               <div x-show="randomRecipe?.tags && randomRecipe.tags.length > 0">
+                <div class="text-sm text-gray-600 mb-2">Tags</div>
                 <div class="flex flex-wrap gap-2">
                   <template x-for="tag in randomRecipe?.tags" :key="tag">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-violet-50 to-purple-50 text-violet-700 border border-violet-200" x-text="tag"></span>
+                    <span class="px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded" x-text="tag"></span>
                   </template>
                 </div>
               </div>
 
-              <div x-show="randomRecipe?.notes" class="p-4 bg-slate-50 rounded-2xl">
-                <p class="text-slate-600 italic text-sm" x-text="randomRecipe?.notes"></p>
+              <div x-show="randomRecipe?.notes" class="border-t border-gray-200 pt-4">
+                <div class="text-sm text-gray-600 mb-2">Notes</div>
+                <div class="text-sm text-gray-900">
+                  <div x-init="
+                    $nextTick(() => {
+                      const mdBlock = document.createElement('md-block');
+                      mdBlock.textContent = randomRecipe.notes;
+                      $el.appendChild(mdBlock);
+                    });
+                  "></div>
+                </div>
               </div>
             </div>
 
-            <div class="flex justify-end space-x-3 mt-8">
-              <button
-                @click="getRandomRecipe()"
-                class="px-5 py-2.5 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                <i class="fas fa-dice mr-2"></i>Pick Another
+            <div class="flex space-x-3 pt-6 border-t border-gray-200">
+              <button @click="getRandomRecipe()" class="flex-1 bg-gray-900 text-white py-2 rounded-lg hover:bg-gray-800 transition-colors">
+                Another
               </button>
-              <button
-                @click="randomRecipe = null"
-                class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium transition-colors"
-              >
-                Close
+              <button @click="randomRecipe = null" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                Clear
               </button>
             </div>
           </div>
         </div>
+
+        <!-- Edit Recipe Tab -->
+        <div x-show="activeTab === 'edit' && editingRecipe" class="p-6">
+          <div class="border-b border-gray-200 pb-4 mb-6">
+            <h2 class="text-lg font-semibold text-gray-900">Edit Recipe</h2>
+            <p class="text-gray-600 text-sm">Update your recipe details</p>
+          </div>
+
+          <form @submit.prevent="updateRecipe()" class="space-y-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Recipe Name</label>
+              <input type="text" x-model="editingRecipe.name" required
+                     class="w-full px-3 py-2 form-input rounded-lg" placeholder="Recipe name">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Cuisine</label>
+              <input type="text" x-model="editingRecipe.cuisine" required
+                     class="w-full px-3 py-2 form-input rounded-lg" placeholder="e.g., Italian, Mexican">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+              <input type="text" x-model="editingRecipe.tagsInput"
+                     class="w-full px-3 py-2 form-input rounded-lg" placeholder="Comma-separated tags">
+              <p class="text-xs text-gray-500 mt-1">Separate tags with commas</p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+              <textarea x-model="editingRecipe.notes" rows="6"
+                        class="w-full px-3 py-2 form-input rounded-lg" placeholder="Recipe notes..."></textarea>
+            </div>
+
+            <div class="flex space-x-3">
+              <button type="submit" class="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                Update Recipe
+              </button>
+              <button type="button" @click="cancelEdit()" class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </main>
+    </div>
 
     <script>
       function recipeApp() {
         return {
           recipes: {{ recipes | tojson }},
           searchTerm: '',
-          showAddForm: false,
+          activeTab: 'add',
           editingRecipe: null,
           randomRecipe: null,
+          selectedRecipe: null,
           newRecipe: {
             name: '',
             cuisine: '',
@@ -477,6 +411,10 @@
               recipe.cuisine.toLowerCase().includes(term) ||
               recipe.tags.some(tag => tag.toLowerCase().includes(term))
             );
+          },
+
+          selectRecipe(recipe) {
+            this.selectedRecipe = recipe;
           },
 
           async addRecipe() {
@@ -526,6 +464,12 @@
               ...recipe,
               tagsInput: recipe.tags.join(', ')
             };
+            this.activeTab = 'edit';
+          },
+
+          cancelEdit() {
+            this.editingRecipe = null;
+            this.activeTab = 'add';
           },
 
           async updateRecipe() {
@@ -548,6 +492,9 @@
               });
 
               if (response.ok) {
+                // Reset editing state and switch to add tab
+                this.editingRecipe = null;
+                this.activeTab = 'add';
                 window.location.reload();
               } else {
                 alert('Error updating recipe');
@@ -596,9 +543,9 @@
             if (!location || !location.location) return 'Unknown';
 
             if (location.location.location === 'online') {
-              return `Online: ${location.location.url}`;
+              return location.location.url;
             } else if (location.location.location === 'cookbook') {
-              return `${location.location.cookbook_name}, Page ${location.location.page_number}`;
+              return `${location.location.cookbook_name}, p. ${location.location.page_number}`;
             }
             return 'Unknown';
           },
