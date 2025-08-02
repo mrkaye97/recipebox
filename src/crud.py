@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 from sqlite3 import Connection
 
-from src.recipe import Recipe, RecipeLocation, RecipePatch
+from src.recipe import Recipe, RecipeCreate, RecipeLocation, RecipePatch
 
 
 def to_recipe(row: tuple[int, str, str, str, str, str, datetime, datetime]) -> Recipe:
@@ -18,7 +18,7 @@ def to_recipe(row: tuple[int, str, str, str, str, str, datetime, datetime]) -> R
     )
 
 
-def create_recipe(db: Connection, recipe: Recipe) -> Recipe:
+def create_recipe(db: Connection, recipe: RecipeCreate) -> Recipe:
     res = db.execute(
         """
         INSERT INTO recipe (name, cuisine, tags, location)

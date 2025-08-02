@@ -617,8 +617,21 @@
               });
 
               if (response.ok) {
-                // Reload the page to get the updated recipe list
-                window.location.reload();
+                const newRecipe = await response.json();
+                this.recipes.push(newRecipe);
+
+                this.newRecipe = {
+                  name: '',
+                  cuisine: '',
+                  tagsInput: '',
+                  location: {
+                    location: 'online',
+                    url: '',
+                    cookbook_name: '',
+                    page_number: 1
+                  },
+                  notes: ''
+                };
               } else {
                 alert('Error adding recipe');
               }
@@ -661,10 +674,15 @@
               });
 
               if (response.ok) {
-                // Reset editing state and switch to add tab
+                const updatedRecipe = await response.json();
+
+                const index = this.recipes.findIndex(recipe => recipe.id === this.editingRecipe.id);
+                if (index !== -1) {
+                  this.recipes[index] = updatedRecipe;
+                }
+
                 this.editingRecipe = null;
                 this.activeTab = 'add';
-                window.location.reload();
               } else {
                 alert('Error updating recipe');
               }
@@ -683,6 +701,11 @@
 
                 if (response.ok) {
                   this.recipes = this.recipes.filter(recipe => recipe.id !== id);
+
+                  if (this.editingRecipe && this.editingRecipe.id === id) {
+                    this.editingRecipe = null;
+                    this.activeTab = 'add';
+                  }
                 } else {
                   alert('Error deleting recipe');
                 }

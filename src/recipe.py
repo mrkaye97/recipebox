@@ -21,8 +21,7 @@ class RecipeLocation(BaseModel):
     )
 
 
-class Recipe(BaseModel):
-    id: int
+class RecipeCreate(BaseModel):
     name: str
     cuisine: str
     tags: list[str]
@@ -30,6 +29,10 @@ class Recipe(BaseModel):
     notes: str | None
     saved_at: datetime
     updated_at: datetime
+
+
+class Recipe(RecipeCreate):
+    id: int
 
 
 class RecipePatch(BaseModel):

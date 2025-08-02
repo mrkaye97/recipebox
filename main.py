@@ -13,7 +13,7 @@ from src.crud import (
     list_recipes,
     update_recipe_by_id,
 )
-from src.recipe import Recipe, RecipePatch
+from src.recipe import Recipe, RecipeCreate, RecipePatch
 from src.settings import settings
 
 app = FastAPI()
@@ -74,10 +74,8 @@ def patch__update_recipe(
 
 
 @app.post("/recipes")
-def post__create_recipe(recipe: Recipe, db: DbDependency) -> dict[str, str]:
-    create_recipe(db, recipe)
-
-    return {"message": "Recipe created successfully"}
+def post__create_recipe(recipe: RecipeCreate, db: DbDependency) -> Recipe:
+    return create_recipe(db, recipe)
 
 
 @app.delete("/recipes/{id}")
