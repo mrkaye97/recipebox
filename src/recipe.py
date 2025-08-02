@@ -30,3 +30,11 @@ class Recipe(BaseModel):
     notes: str | None
     saved_at: datetime
     updated_at: datetime
+
+
+class RecipePatch(BaseModel):
+    name: str | None = None
+    cuisine: str | None = None
+    tags: list[str] | None = None
+    location: RecipeLocation | None = None
+    notes: str | None = None

@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 from sqlite3 import Connection
 
-from src.recipe import Recipe, RecipeLocation
+from src.recipe import Recipe, RecipeLocation, RecipePatch
 
 
 def to_recipe(row: tuple[int, str, str, str, str, str, datetime, datetime]) -> Recipe:
@@ -18,9 +18,13 @@ def to_recipe(row: tuple[int, str, str, str, str, str, datetime, datetime]) -> R
     )
 
 
-def create_recipe(db: Connection, recipe: Recipe) -> None:
-    db.execute(
-        "INSERT INTO recipe (name, cuisine, tags, location) VALUES (?, ?, ?, ?)",
+def create_recipe(db: Connection, recipe: Recipe) -> Recipe:
+    res = db.execute(
+        """
+        INSERT INTO recipe (name, cuisine, tags, location)
+        VALUES (?, ?, ?, ?)
+        RETURNING *;
+        """,
         (
             recipe.name,
             recipe.cuisine,
@@ -28,7 +32,10 @@ def create_recipe(db: Connection, recipe: Recipe) -> None:
             recipe.location.model_dump_json(),
         ),
     )
+    record = res.fetchone()
     db.commit()
+
+    return to_recipe(record)
 
 
 def list_recipes(db: Connection) -> list[Recipe]:
@@ -48,9 +55,31 @@ def get_recipe_by_id(db: Connection, id: int) -> Recipe | None:
     return to_recipe(row)
 
 
-def update_recipe_by_id(db: Connection, id: int) -> Recipe | None:
-    res = db.execute("SELECT * FROM recipe WHERE id = ?", (id,))
+def update_recipe_by_id(db: Connection, id: int, body: RecipePatch) -> Recipe | None:
+    res = db.execute(
+        """
+        UPDATE recipe
+        SET
+            name = COALESCE(?, name),
+            cuisine = COALESCE(?, cuisine),
+            tags = COALESCE(?, tags),
+            location = COALESCE(?, location),
+            notes = COALESCE(?, notes),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+        RETURNING *;
+        """,
+        (
+            body.name,
+            body.cuisine,
+            json.dumps(body.tags) if body.tags is not None else None,
+            body.location.model_dump_json() if body.location is not None else None,
+            body.notes,
+            id,
+        ),
+    )
     row = res.fetchone()
+    db.commit()
 
     if row is None:
         return None
