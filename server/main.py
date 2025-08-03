@@ -8,7 +8,7 @@ from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from src.crud import (
+from src.old_crud import (
     create_recipe,
     delete_recipe_by_id,
     get_recipe_by_id,
