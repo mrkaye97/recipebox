@@ -1,28 +1,25 @@
 import json
-from datetime import datetime
-from sqlite3 import Connection
+from sqlite3 import Connection, Row
 
 from src.recipe import Recipe, RecipeCreate, RecipeLocation, RecipePatch
 
 
 def to_recipe(
-    row: tuple[
-        int, str, str, str, str, str, str, int, str, datetime, datetime, datetime
-    ],
+    row: Row,
 ) -> Recipe:
     return Recipe(
-        id=row[0],
-        name=row[1],
-        author=row[2],
-        cuisine=row[3],
-        tags=json.loads(row[4]),
-        location=RecipeLocation.model_validate_json(row[5]),
-        dietary_restrictions_met=json.loads(row[6]),
-        time_estimate_minutes=row[7],
-        notes=row[8],
-        last_made_at=row[9],
-        saved_at=row[10],
-        updated_at=row[11],
+        id=row["id"],
+        name=row["name"],
+        author=row["author"],
+        cuisine=row["cuisine"],
+        tags=json.loads(row["tags"]),
+        location=RecipeLocation.model_validate_json(row["location"]),
+        dietary_restrictions_met=json.loads(row["dietary_restrictions_met"]),
+        time_estimate_minutes=row["time_estimate_minutes"],
+        notes=row["notes"],
+        last_made_at=row["last_made_at"],
+        saved_at=row["saved_at"],
+        updated_at=row["updated_at"],
     )
 
 
@@ -40,19 +37,7 @@ def create_recipe(db: Connection, recipe: RecipeCreate) -> Recipe:
             notes
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        RETURNING
-            id,
-            name,
-            author,
-            cuisine,
-            tags,
-            location,
-            dietary_restrictions_met,
-            time_estimate_minutes,
-            notes,
-            last_made_at,
-            saved_at,
-            updated_at
+        RETURNING *
         ;
         """,
         (
@@ -75,19 +60,7 @@ def create_recipe(db: Connection, recipe: RecipeCreate) -> Recipe:
 def list_recipes(db: Connection) -> list[Recipe]:
     res = db.execute(
         """
-        SELECT
-            id,
-            name,
-            author,
-            cuisine,
-            tags,
-            location,
-            dietary_restrictions_met,
-            time_estimate_minutes,
-            notes,
-            last_made_at,
-            saved_at,
-            updated_at
+        SELECT *
         FROM recipe
         ORDER BY updated_at DESC
         """
@@ -100,19 +73,7 @@ def list_recipes(db: Connection) -> list[Recipe]:
 def get_recipe_by_id(db: Connection, id: int) -> Recipe | None:
     res = db.execute(
         """
-        SELECT
-            id,
-            name,
-            author,
-            cuisine,
-            tags,
-            location,
-            dietary_restrictions_met,
-            time_estimate_minutes,
-            notes,
-            last_made_at,
-            saved_at,
-            updated_at
+        SELECT *
         FROM recipe
         WHERE id = ?
         """,
@@ -142,19 +103,7 @@ def update_recipe_by_id(db: Connection, id: int, body: RecipePatch) -> Recipe | 
             last_made_at = COALESCE(?, last_made_at),
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
-        RETURNING
-            id,
-            name,
-            author,
-            cuisine,
-            tags,
-            location,
-            dietary_restrictions_met,
-            time_estimate_minutes,
-            notes,
-            last_made_at,
-            saved_at,
-            updated_at
+        RETURNING *
         ;
         """,
         (
@@ -188,19 +137,7 @@ def delete_recipe_by_id(db: Connection, id: int) -> Recipe | None:
         """
         DELETE FROM recipe
         WHERE id = ?
-        RETURNING
-            id,
-            name,
-            author,
-            cuisine,
-            tags,
-            location,
-            dietary_restrictions_met,
-            time_estimate_minutes,
-            notes,
-            last_made_at,
-            saved_at,
-            updated_at
+        RETURNING *
         ;
         """,
         (id,),

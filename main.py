@@ -1,7 +1,7 @@
 import random
 from collections.abc import Generator
 from datetime import datetime, timedelta
-from sqlite3 import Connection, connect
+from sqlite3 import Connection, Row, connect
 from typing import Annotated, cast
 
 from fastapi import Depends, FastAPI, HTTPException, Request
@@ -40,6 +40,8 @@ def get_recent_recommendations() -> set[int]:
 
 def get_db() -> Generator[Connection, None, None]:
     conn = connect(settings.database_url.replace("sqlite:///", ""))
+    conn.row_factory = Row
+
     try:
         yield conn
     finally:
