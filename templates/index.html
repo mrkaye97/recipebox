@@ -743,12 +743,41 @@
                 <div>
                   <label class="form-label">Dietary Restrictions Met</label>
                   <div class="space-y-2">
-                    <template x-for="restriction in ['Vegetarian', 'Vegan', 'Pescatarian']" :key="restriction">
+                    <template x-for="restriction in ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten Free', 'Dairy Free', 'Nut Free']" :key="restriction">
                       <label class="flex items-center">
                         <input type="checkbox" :value="restriction" x-model="editingRecipe.dietaryRestrictions" class="mr-2 rounded border-gray-300 text-teal-600 focus:ring-teal-500">
                         <span class="text-sm text-gray-700" x-text="restriction"></span>
                       </label>
                     </template>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="form-label">Recipe Location</label>
+                  <select x-model="editingRecipe.location.location" class="w-full px-4 py-3 form-input rounded-lg text-sm">
+                    <option value="online">Online Recipe</option>
+                    <option value="cookbook">Physical Cookbook</option>
+                  </select>
+                </div>
+
+                <div x-show="editingRecipe.location.location === 'online'" x-transition class="space-y-4">
+                  <div>
+                    <label class="form-label">Recipe URL</label>
+                    <input type="url" x-model="editingRecipe.location.url"
+                           class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="https://example.com/recipe" />
+                  </div>
+                </div>
+
+                <div x-show="editingRecipe.location.location === 'cookbook'" x-transition class="space-y-4">
+                  <div>
+                    <label class="form-label">Cookbook Name</label>
+                    <input type="text" x-model="editingRecipe.location.cookbook_name"
+                           class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="Name of the cookbook" />
+                  </div>
+                  <div>
+                    <label class="form-label">Page Number</label>
+                    <input type="number" x-model="editingRecipe.location.page_number" min="1"
+                           class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="Page number" />
                   </div>
                 </div>
 
@@ -1041,6 +1070,12 @@
                 const newRecipe = await response.json();
                 this.recipes.push(newRecipe);
 
+                this.$nextTick(() => {
+                  if (window.lucide) {
+                    lucide.createIcons();
+                  }
+                });
+
                 this.newRecipe = {
                   name: '',
                   author: '',
@@ -1056,6 +1091,8 @@
                   },
                   notes: ''
                 };
+
+                this.activeTab = 'recommend';
               } else {
                 alert('Error adding recipe');
               }
@@ -1070,7 +1107,13 @@
               ...recipe,
               tagsInput: recipe.tags.join(', '),
               dietaryRestrictions: recipe.dietary_restrictions_met || [],
-              timeEstimateMinutes: recipe.time_estimate_minutes
+              timeEstimateMinutes: recipe.time_estimate_minutes,
+              location: {
+                location: recipe.location?.location?.location || 'online',
+                url: recipe.location?.location?.url || '',
+                cookbook_name: recipe.location?.location?.cookbook_name || '',
+                page_number: recipe.location?.location?.page_number || 1
+              }
             };
             this.viewingRecipe = null;
             this.activeTab = 'edit';
@@ -1094,11 +1137,20 @@
                 ? this.editingRecipe.tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag)
                 : [];
 
+              const location = this.editingRecipe.location.location === 'online'
+                ? { location: 'online', url: this.editingRecipe.location.url }
+                : {
+                    location: 'cookbook',
+                    cookbook_name: this.editingRecipe.location.cookbook_name,
+                    page_number: parseInt(this.editingRecipe.location.page_number)
+                  };
+
               const updateData = {
                 name: this.editingRecipe.name,
                 author: this.editingRecipe.author,
                 cuisine: this.editingRecipe.cuisine,
                 tags: tags,
+                location: { location: location },
                 dietary_restrictions_met: this.editingRecipe.dietaryRestrictions || [],
                 time_estimate_minutes: this.editingRecipe.timeEstimateMinutes ? parseInt(this.editingRecipe.timeEstimateMinutes) : null,
                 notes: this.editingRecipe.notes
@@ -1116,6 +1168,13 @@
                 const index = this.recipes.findIndex(recipe => recipe.id === this.editingRecipe.id);
                 if (index !== -1) {
                   this.recipes[index] = updatedRecipe;
+                }
+
+                if (this.randomRecipe && this.randomRecipe.id === updatedRecipe.id) {
+                  this.randomRecipe = updatedRecipe;
+                }
+                if (this.viewingRecipe && this.viewingRecipe.id === updatedRecipe.id) {
+                  this.viewingRecipe = updatedRecipe;
                 }
 
                 this.editingRecipe = null;
@@ -1140,12 +1199,15 @@
                 if (response.ok) {
                   this.recipes = this.recipes.filter(recipe => recipe.id !== id);
 
-                  if (this.editingRecipe && this.editingRecipe.id === id) {
-                    this.editingRecipe = null;
-                    this.activeTab = 'recommend';
+                  if (this.randomRecipe && this.randomRecipe.id === id) {
+                    this.getRandomRecipe();
                   }
                   if (this.viewingRecipe && this.viewingRecipe.id === id) {
                     this.viewingRecipe = null;
+                    this.activeTab = 'recommend';
+                  }
+                  if (this.editingRecipe && this.editingRecipe.id === id) {
+                    this.editingRecipe = null;
                     this.activeTab = 'recommend';
                   }
                 } else {
