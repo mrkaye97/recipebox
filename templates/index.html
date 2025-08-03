@@ -1159,7 +1159,8 @@
                   notes: ''
                 };
 
-                this.activeTab = 'recommend';
+                this.viewingRecipe = newRecipe;
+                this.activeTab = 'view';
               } else {
                 alert('Error adding recipe');
               }
@@ -1247,8 +1248,8 @@
                 }
 
                 this.editingRecipe = null;
-                this.viewingRecipe = null;
-                this.activeTab = 'recommend';
+                this.viewingRecipe = updatedRecipe;
+                this.activeTab = 'view';
               } else {
                 alert('Error updating recipe');
               }
