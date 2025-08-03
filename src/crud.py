@@ -117,9 +117,9 @@ def update_recipe_by_id(db: Connection, id: int, body: RecipePatch) -> Recipe | 
 
 def delete_recipe_by_id(db: Connection, id: int) -> Recipe | None:
     res = db.execute("DELETE FROM recipe WHERE id = ? RETURNING *", (id,))
+    row = res.fetchone()
     db.commit()
 
-    row = res.fetchone()
 
     if row is None:
         return None
