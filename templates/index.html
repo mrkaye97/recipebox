@@ -362,7 +362,9 @@
       </div>
 
       <div class="flex-1 overflow-y-auto">
-        <div class="divide-y divide-gray-100">
+        <div class="divide-y divide-gray-100"
+             x-init="$watch('filteredRecipes', () => $nextTick(() => lucide.createIcons()))"
+             x-data="{}">
           <template x-for="recipe in filteredRecipes" :key="recipe.id">
             <div class="recipe-card group p-6 cursor-pointer" @click="viewRecipe(recipe)">
               <div class="space-y-4">
@@ -1034,6 +1036,12 @@
 
           init() {
             this.getRandomRecipe();
+
+            this.$watch('searchTerm', () => this.$nextTick(() => lucide.createIcons()));
+            this.$watch('filters.cuisine', () => this.$nextTick(() => lucide.createIcons()));
+            this.$watch('filters.author', () => this.$nextTick(() => lucide.createIcons()));
+            this.$watch('filters.dietaryRestriction', () => this.$nextTick(() => lucide.createIcons()));
+            this.$watch('filters.maxTime', () => this.$nextTick(() => lucide.createIcons()));
           },
 
           get uniqueCuisines() {
@@ -1365,8 +1373,20 @@
         lucide.createIcons();
 
         document.addEventListener('alpine:updated', function() {
-          setTimeout(() => lucide.createIcons(), 100);
+          setTimeout(() => lucide.createIcons(), 50);
         });
+
+          setTimeout(() => lucide.createIcons(), 50);
+        });
+
+        const appContainer = document.querySelector('[x-data="recipeApp()"]');
+        if (appContainer) {
+          observer.observe(appContainer, {
+            childList: true,
+            subtree: true,
+            attributes: false
+          });
+        }
       });
     </script>
   </body>

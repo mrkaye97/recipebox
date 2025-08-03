@@ -83,7 +83,9 @@ def get__random_recipe(db: DbDependency) -> Recipe | None:
             1,
             float(
                 (
-                    datetime.now() - (r.last_made_at or r.saved_at) + timedelta(days=1)
+                    datetime.now()
+                    - (r.last_made_at or r.saved_at).replace(tzinfo=None)
+                    + timedelta(days=1)
                 ).days
             ),
         )
