@@ -1,6 +1,7 @@
+import random
 from collections.abc import Generator
 from sqlite3 import Connection, connect
-from typing import Annotated
+from typing import Annotated, cast
 
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
@@ -18,6 +19,16 @@ from src.settings import settings
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+
+
+def set_recent_recommendation(recipe: Recipe) -> None:
+    recent_recommendations = cast(set[int], app.state.recent_recommendations)
+
+    recent_recommendations.add(recipe.id)
+
+
+def get_recent_recommendations() -> set[int]:
+    return cast(set[int], app.state.recent_recommendations)
 
 
 def get_db() -> Generator[Connection, None, None]:
@@ -48,12 +59,16 @@ def get__list_recipes(db: DbDependency) -> list[Recipe]:
 
 @app.get("/recipes/random")
 def get__random_recipe(db: DbDependency) -> Recipe | None:
-    import secrets
+    recipes = [r for r in list_recipes(db) if r.id not in get_recent_recommendations()]
 
-    recipes = list_recipes(db)
     if not recipes:
         return None
-    return recipes[secrets.randbelow(len(recipes))]
+
+    choice = random.choice(recipes)
+
+    set_recent_recommendation(choice)
+
+    return choice
 
 
 @app.get("/recipes/{id}")
