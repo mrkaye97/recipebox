@@ -92,11 +92,16 @@ def get__random_recipe(db: DbDependency) -> Recipe | None:
         for r in recipes
     ]
 
-    choice = random.choices(
+    choices = random.choices(
         recipes,
         k=1,
         weights=weights,
-    )[0]
+    )
+
+    if not choices:
+        return None
+
+    choice = choices[0]
 
     set_recent_recommendation(choice)
 
