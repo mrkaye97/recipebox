@@ -18,6 +18,8 @@ from src.recipe import Recipe, RecipeCreate, RecipePatch
 from src.settings import settings
 
 app = FastAPI()
+app.state.recent_recommendations = set[int]()
+
 templates = Jinja2Templates(directory="templates")
 
 
@@ -26,6 +28,8 @@ def set_recent_recommendation(recipe: Recipe) -> None:
 
     recent_recommendations.add(recipe.id)
 
+def clear_recent_recommendations() -> None:
+    app.state.recent_recommendations.clear()
 
 def get_recent_recommendations() -> set[int]:
     return cast(set[int], app.state.recent_recommendations)
@@ -59,7 +63,14 @@ def get__list_recipes(db: DbDependency) -> list[Recipe]:
 
 @app.get("/recipes/random")
 def get__random_recipe(db: DbDependency) -> Recipe | None:
-    recipes = [r for r in list_recipes(db) if r.id not in get_recent_recommendations()]
+    recent_recommendations = get_recent_recommendations()
+    recipes = list_recipes(db)
+
+    if len(recent_recommendations) >= len(recipes):
+        clear_recent_recommendations()
+        recent_recommendations = set[int]()
+
+    recipes = [r for r in recipes if r.id not in recent_recommendations]
 
     if not recipes:
         return None

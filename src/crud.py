@@ -38,7 +38,20 @@ def create_recipe(db: Connection, recipe: RecipeCreate) -> Recipe:
             notes
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        RETURNING *;
+        RETURNING
+            id,
+            name,
+            author,
+            cuisine,
+            tags,
+            location,
+            dietary_restrictions_met,
+            time_estimate_minutes,
+            notes,
+            last_made_at,
+            saved_at,
+            updated_at
+        ;
         """,
         (
             recipe.name,
@@ -58,14 +71,51 @@ def create_recipe(db: Connection, recipe: RecipeCreate) -> Recipe:
 
 
 def list_recipes(db: Connection) -> list[Recipe]:
-    res = db.execute("SELECT * FROM recipe ORDER BY updated_at DESC")
+    res = db.execute(
+        """
+        SELECT
+            id,
+            name,
+            author,
+            cuisine,
+            tags,
+            location,
+            dietary_restrictions_met,
+            time_estimate_minutes,
+            notes,
+            last_made_at,
+            saved_at,
+            updated_at
+        FROM recipe
+        ORDER BY updated_at DESC
+        """
+    )
     rows = res.fetchall()
 
     return [to_recipe(row) for row in rows]
 
 
 def get_recipe_by_id(db: Connection, id: int) -> Recipe | None:
-    res = db.execute("SELECT * FROM recipe WHERE id = ?", (id,))
+    res = db.execute(
+        """
+        SELECT
+            id,
+            name,
+            author,
+            cuisine,
+            tags,
+            location,
+            dietary_restrictions_met,
+            time_estimate_minutes,
+            notes,
+            last_made_at,
+            saved_at,
+            updated_at
+        FROM recipe
+        WHERE id = ?
+        """,
+        (id,)
+    )
     row = res.fetchone()
 
     if row is None:
@@ -90,7 +140,20 @@ def update_recipe_by_id(db: Connection, id: int, body: RecipePatch) -> Recipe | 
             last_made_at = COALESCE(?, last_made_at),
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
-        RETURNING *;
+        RETURNING
+            id,
+            name,
+            author,
+            cuisine,
+            tags,
+            location,
+            dietary_restrictions_met,
+            time_estimate_minutes,
+            notes,
+            last_made_at,
+            saved_at,
+            updated_at
+        ;
         """,
         (
             body.name,
@@ -119,7 +182,27 @@ def update_recipe_by_id(db: Connection, id: int, body: RecipePatch) -> Recipe | 
 
 
 def delete_recipe_by_id(db: Connection, id: int) -> Recipe | None:
-    res = db.execute("DELETE FROM recipe WHERE id = ? RETURNING *", (id,))
+    res = db.execute(
+        """
+        DELETE FROM recipe
+        WHERE id = ?
+        RETURNING
+            id,
+            name,
+            author,
+            cuisine,
+            tags,
+            location,
+            dietary_restrictions_met,
+            time_estimate_minutes,
+            notes,
+            last_made_at,
+            saved_at,
+            updated_at
+        ;
+        """,
+        (id,)
+    )
     row = res.fetchone()
     db.commit()
 

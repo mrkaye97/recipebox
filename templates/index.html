@@ -387,6 +387,9 @@
                     </div>
                   </div>
                   <div class="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity ml-4">
+                    <button @click.stop="markMadeToday(recipe)" class="p-2 text-gray-400 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors hover:cursor-pointer" title="Mark as made today">
+                      <i data-lucide="chef-hat" class="w-4 h-4"></i>
+                    </button>
                     <button @click.stop="editRecipe(recipe)" class="p-2 text-gray-400 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors hover:cursor-pointer">
                       <i data-lucide="pencil" class="w-4 h-4"></i>
                     </button>
@@ -412,9 +415,15 @@
                 </div>
 
                 <div class="flex justify-between items-center text-xs text-gray-400 pt-2 border-t border-gray-100">
-                  <div class="flex items-center space-x-2">
-                    <i data-lucide="plus" class="w-3 h-3"></i>
-                    <span>Added <span x-text="formatDate(recipe.saved_at)"></span></span>
+                  <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                      <i data-lucide="plus" class="w-3 h-3"></i>
+                      <span>Added <span x-text="formatDate(recipe.saved_at)"></span></span>
+                    </div>
+                    <div x-show="recipe.last_made_at" class="flex items-center space-x-2 text-green-600">
+                      <i data-lucide="chef-hat" class="w-3 h-3"></i>
+                      <span class="font-medium">Made <span x-text="formatDate(recipe.last_made_at)"></span></span>
+                    </div>
                   </div>
                   <div class="flex items-center space-x-2 text-teal-600">
                     <i data-lucide="eye" class="w-3 h-3"></i>
@@ -565,9 +574,15 @@
 
               <div class="bg-white rounded-lg p-4 shadow-sm">
                 <div class="flex justify-between items-center text-xs text-gray-500">
-                  <div class="flex items-center space-x-2">
-                    <i data-lucide="plus" class="w-3 h-3"></i>
-                    <span>Added <span x-text="formatDate(randomRecipe?.saved_at)"></span></span>
+                  <div class="space-y-1">
+                    <div class="flex items-center space-x-2">
+                      <i data-lucide="plus" class="w-3 h-3"></i>
+                      <span>Added <span x-text="formatDate(randomRecipe?.saved_at)"></span></span>
+                    </div>
+                    <div x-show="randomRecipe?.last_made_at" class="flex items-center space-x-2 text-green-600">
+                      <i data-lucide="chef-hat" class="w-3 h-3"></i>
+                      <span class="font-medium">Made <span x-text="formatDate(randomRecipe?.last_made_at)"></span></span>
+                    </div>
                   </div>
                   <div x-show="randomRecipe?.updated_at !== randomRecipe?.saved_at" class="flex items-center space-x-2">
                     <i data-lucide="refresh-cw" class="w-3 h-3"></i>
@@ -585,6 +600,10 @@
             </div>
 
             <div x-show="randomRecipe" class="flex space-x-3 pt-6 border-t border-gray-200 mt-6">
+              <button @click="markMadeToday(randomRecipe)" class="btn-secondary inline-flex items-center hover:cursor-pointer">
+                <i data-lucide="chef-hat" class="w-4 h-4 mr-2"></i>
+                Made Today
+              </button>
               <button @click="getRandomRecipe()" class="flex-1 btn-primary">
                 See Another
               </button>
@@ -826,15 +845,26 @@
           <div class="h-full flex flex-col p-6">
             <div class="flex items-center justify-between">
               <div>
-                <h2 class="text-xl font-semibold text-gray-900 mb-1" x-text="viewingRecipe?.name"></h2>
-                <p class="text-teal-600 font-medium">Recipe details</p>
+                <div class="flex items-center space-x-3 mb-1">
+                  <h2 class="text-xl font-semibold text-gray-900" x-text="viewingRecipe?.name"></h2>
+                  <template x-if="viewingRecipe?.last_made_at">
+                    <span class="text-xs text-gray-500 flex items-center bg-green-50 px-2 py-1 rounded-full">
+                      Last made <span class="ml-1" x-text="new Date(viewingRecipe.last_made_at).toLocaleDateString()"></span>
+                    </span>
+                  </template>
+                </div>
+                <p class="text-teal-600 font-medium text-sm">Recipe details</p>
               </div>
-              <div class="flex space-x-2">
-                <button @click="editRecipe(viewingRecipe)" class="btn-secondary p-2">
-                  <i data-lucide="pencil" class="w-4 h-4"></i>
+              <div class="flex items-center space-x-1">
+                <button @click="markMadeToday(viewingRecipe)" class="px-3 py-1.5 text-xs font-medium text-green-600 border border-green-200 rounded hover:bg-green-50 flex items-center hover:cursor-pointer">
+                  <i data-lucide="chef-hat" class="w-3 h-3 mr-1"></i>
+                  Made Today
                 </button>
-                <button @click="viewingRecipe = null; activeTab = 'recommend'" class="btn-secondary p-2">
-                  <i data-lucide="x" class="w-4 h-4"></i>
+                <button @click="editRecipe(viewingRecipe)" class="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded border border-gray-200 hover:cursor-pointer">
+                  <i data-lucide="pencil" class="w-3 h-3"></i>
+                </button>
+                <button @click="viewingRecipe = null; activeTab = 'recommend'" class="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded border border-gray-200 hover:cursor-pointer">
+                  <i data-lucide="x" class="w-3 h-3"></i>
                 </button>
               </div>
             </div>
@@ -1288,6 +1318,44 @@
 
           formatDate(dateString) {
             return new Date(dateString).toLocaleDateString();
+          },
+
+          async markMadeToday(recipe) {
+            try {
+              const updateData = {
+                last_made_at: new Date().toISOString()
+              };
+
+              const response = await fetch(`/recipes/${recipe.id}`, {
+                method: 'PATCH',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updateData)
+              });
+
+              if (response.ok) {
+                const updatedRecipe = await response.json();
+
+                const recipeIndex = this.recipes.findIndex(r => r.id === recipe.id);
+                if (recipeIndex !== -1) {
+                  this.recipes[recipeIndex] = updatedRecipe;
+                }
+
+                if (this.randomRecipe && this.randomRecipe.id === recipe.id) {
+                  this.randomRecipe = updatedRecipe;
+                }
+
+                if (this.viewingRecipe && this.viewingRecipe.id === recipe.id) {
+                  this.viewingRecipe = updatedRecipe;
+                }
+              } else {
+                alert('Error updating recipe');
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              alert('Error updating recipe');
+            }
           }
         }
       }
