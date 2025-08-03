@@ -525,6 +525,12 @@
                       <span>Page <span x-text="randomRecipe.location.location.page_number"></span></span>
                     </div>
                   </template>
+                  <template x-if="randomRecipe?.location?.location?.location === 'made_up'">
+                    <div class="flex items-center space-x-2">
+                      <i data-lucide="lightbulb" class="w-4 h-4 text-blue-600"></i>
+                      <span class="font-medium text-blue-800">Made Up Recipe</span>
+                    </div>
+                  </template>
                 </div>
               </div>
 
@@ -649,6 +655,7 @@
                   <select x-model="newRecipe.location.location" class="w-full px-4 py-3 form-input rounded-lg text-sm">
                     <option value="online">Online Recipe</option>
                     <option value="cookbook">Physical Cookbook</option>
+                    <option value="made_up">Made Up Recipe</option>
                   </select>
                 </div>
 
@@ -757,6 +764,7 @@
                   <select x-model="editingRecipe.location.location" class="w-full px-4 py-3 form-input rounded-lg text-sm">
                     <option value="online">Online Recipe</option>
                     <option value="cookbook">Physical Cookbook</option>
+                    <option value="made_up">Made Up Recipe</option>
                   </select>
                 </div>
 
@@ -778,6 +786,18 @@
                     <label class="form-label">Page Number</label>
                     <input type="number" x-model="editingRecipe.location.page_number" min="1"
                            class="w-full px-4 py-3 form-input rounded-lg text-sm" placeholder="Page number" />
+                  </div>
+                </div>
+
+                <div x-show="editingRecipe.location.location === 'made_up'" x-transition class="space-y-4">
+                  <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex items-start space-x-3">
+                      <i data-lucide="lightbulb" class="w-5 h-5 text-blue-600 mt-0.5"></i>
+                      <div>
+                        <h4 class="text-sm font-medium text-blue-900">Made Up Recipe</h4>
+                        <p class="text-sm text-blue-700 mt-1">This is a recipe you've created or modified yourself. Add all the details in the Notes section below.</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -892,6 +912,12 @@
                       <span x-text="viewingRecipe.location.location.cookbook_name"></span>
                       <span class="text-gray-400">•</span>
                       <span>Page <span x-text="viewingRecipe.location.location.page_number"></span></span>
+                    </div>
+                  </template>
+                  <template x-if="viewingRecipe?.location?.location?.location === 'made_up'">
+                    <div class="flex items-center space-x-2">
+                      <i data-lucide="lightbulb" class="w-4 h-4 text-blue-600"></i>
+                      <span class="font-medium text-blue-800">Made Up Recipe</span>
                     </div>
                   </template>
                 </div>
@@ -1041,11 +1067,13 @@
 
               const location = this.newRecipe.location.location === 'online'
                 ? { location: 'online', url: this.newRecipe.location.url }
-                : {
+                : this.newRecipe.location.location === 'cookbook'
+                ? {
                     location: 'cookbook',
                     cookbook_name: this.newRecipe.location.cookbook_name,
                     page_number: parseInt(this.newRecipe.location.page_number)
-                  };
+                  }
+                : { location: 'made_up' };
 
               const recipeData = {
                 name: this.newRecipe.name,
@@ -1139,11 +1167,13 @@
 
               const location = this.editingRecipe.location.location === 'online'
                 ? { location: 'online', url: this.editingRecipe.location.url }
-                : {
+                : this.editingRecipe.location.location === 'cookbook'
+                ? {
                     location: 'cookbook',
                     cookbook_name: this.editingRecipe.location.cookbook_name,
                     page_number: parseInt(this.editingRecipe.location.page_number)
-                  };
+                  }
+                : { location: 'made_up' };
 
               const updateData = {
                 name: this.editingRecipe.name,
@@ -1242,6 +1272,8 @@
               return location.location.url;
             } else if (location.location.location === 'cookbook') {
               return `${location.location.cookbook_name}, p. ${location.location.page_number}`;
+            } else if (location.location.location === 'made_up') {
+              return 'Made Up Recipe';
             }
             return 'Unknown';
           },

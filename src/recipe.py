@@ -16,9 +16,13 @@ class CookbookRecipeLocation(BaseModel):
     page_number: int
 
 
+class MadeUpRecipeLocation(BaseModel):
+    location: Literal["made_up"]
+
+
 class RecipeLocation(BaseModel):
-    location: CookbookRecipeLocation | OnlineRecipeLocation = Field(
-        discriminator="location"
+    location: CookbookRecipeLocation | OnlineRecipeLocation | MadeUpRecipeLocation = (
+        Field(discriminator="location")
     )
 
 

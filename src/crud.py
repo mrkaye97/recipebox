@@ -120,7 +120,6 @@ def delete_recipe_by_id(db: Connection, id: int) -> Recipe | None:
     row = res.fetchone()
     db.commit()
 
-
     if row is None:
         return None
 
