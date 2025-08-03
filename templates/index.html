@@ -306,7 +306,7 @@
         <div class="flex space-x-4 mb-4">
           <input
             type="text"
-            x-model="searchTerm"
+            x-model.debounce.300ms="searchTerm"
             placeholder="Search recipes..."
             class="flex-1 px-4 py-3 form-input rounded-lg text-gray-900 placeholder-gray-500"
           />
@@ -362,9 +362,7 @@
       </div>
 
       <div class="flex-1 overflow-y-auto">
-        <div class="divide-y divide-gray-100"
-             x-init="$watch('filteredRecipes', () => $nextTick(() => lucide.createIcons()))"
-             x-data="{}">
+        <div class="divide-y divide-gray-100">
           <template x-for="recipe in filteredRecipes" :key="recipe.id">
             <div class="recipe-card group p-6 cursor-pointer" @click="viewRecipe(recipe)">
               <div class="space-y-4">
@@ -545,33 +543,12 @@
                 </div>
               </div>
 
-              <div x-show="randomRecipe?.notes" class="bg-white rounded-lg p-4 shadow-sm">
+              <div x-show="randomRecipe?.notes" class="bg-white rounded-lg p-4 shadow-sm" x-data="markdownRenderer('randomRecipe')">
                 <div class="text-sm text-gray-600 mb-3 flex items-center">
                   <i data-lucide="sticky-note" class="w-4 h-4 mr-2"></i>
                   Notes
                 </div>
-                <div x-data="{ rendered: false }"
-                     x-effect="
-                       if (randomRecipe && randomRecipe.notes && !rendered) {
-                         $nextTick(() => {
-                           $el.innerHTML = '';
-                           const mdBlock = document.createElement('md-block');
-                           mdBlock.setAttribute('type', 'md');
-                           mdBlock.textContent = randomRecipe.notes;
-                           $el.appendChild(mdBlock);
-                           rendered = true;
-
-                           setTimeout(() => {
-                             if (window.customElements && window.customElements.get('md-block')) {
-                               mdBlock.setAttribute('content', randomRecipe.notes);
-                             }
-                           }, 100);
-                         });
-                       } else if (!randomRecipe || !randomRecipe.notes) {
-                         rendered = false;
-                       }
-                     "
-                     class="markdown-content text-sm text-gray-700"></div>
+                <div x-ref="markdownContainer" class="markdown-content text-sm text-gray-700"></div>
               </div>
 
               <div class="bg-white rounded-lg p-4 shadow-sm">
@@ -955,33 +932,12 @@
                 </div>
               </div>
 
-              <div x-show="viewingRecipe?.notes" class="bg-white rounded-lg p-4 shadow-sm">
+              <div x-show="viewingRecipe?.notes" class="bg-white rounded-lg p-4 shadow-sm" x-data="markdownRenderer('viewingRecipe')">
                 <div class="text-sm text-gray-600 mb-3 flex items-center">
                   <i data-lucide="sticky-note" class="w-4 h-4 mr-2"></i>
                   Notes
                 </div>
-                <div x-data="{ rendered: false }"
-                     x-effect="
-                       if (viewingRecipe && viewingRecipe.notes && !rendered) {
-                         $nextTick(() => {
-                           $el.innerHTML = '';
-                           const mdBlock = document.createElement('md-block');
-                           mdBlock.setAttribute('type', 'md');
-                           mdBlock.textContent = viewingRecipe.notes;
-                           $el.appendChild(mdBlock);
-                           rendered = true;
-
-                           setTimeout(() => {
-                             if (window.customElements && window.customElements.get('md-block')) {
-                               mdBlock.setAttribute('content', viewingRecipe.notes);
-                             }
-                           }, 100);
-                         });
-                       } else if (!viewingRecipe || !viewingRecipe.notes) {
-                         rendered = false;
-                       }
-                     "
-                     class="markdown-content text-sm text-gray-700"></div>
+                <div x-ref="markdownContainer" class="markdown-content text-sm text-gray-700"></div>
               </div>
 
               <div class="bg-white rounded-lg p-4 shadow-sm">
@@ -1001,8 +957,44 @@
         </div>
       </div>
     </div>
+    </div>
 
     <script>
+      function markdownRenderer(recipeProperty) {
+        return {
+          lastNotes: null,
+
+          init() {
+            this.$watch(recipeProperty + '?.notes', (newNotes) => {
+              if (newNotes !== this.lastNotes) {
+                this.lastNotes = newNotes;
+                this.renderMarkdown(newNotes);
+              }
+            });
+          },
+
+          renderMarkdown(notes) {
+            if (!notes) {
+              this.$refs.markdownContainer.innerHTML = '';
+              return;
+            }
+
+            this.$refs.markdownContainer.innerHTML = '';
+
+            const mdBlock = document.createElement('md-block');
+            mdBlock.setAttribute('type', 'md');
+            mdBlock.textContent = notes;
+            this.$refs.markdownContainer.appendChild(mdBlock);
+
+            setTimeout(() => {
+              if (window.customElements && window.customElements.get('md-block')) {
+                mdBlock.setAttribute('content', notes);
+              }
+            }, 10);
+          }
+        };
+      }
+
       function recipeApp() {
         return {
           loading: true,
@@ -1034,24 +1026,39 @@
             notes: ''
           },
 
+          _filteredRecipes: null,
+          _uniqueCuisines: null,
+          _uniqueAuthors: null,
+          _lastFilterHash: '',
+
           init() {
             this.getRandomRecipe();
 
-            this.$watch('searchTerm', () => this.$nextTick(() => lucide.createIcons()));
-            this.$watch('filters.cuisine', () => this.$nextTick(() => lucide.createIcons()));
-            this.$watch('filters.author', () => this.$nextTick(() => lucide.createIcons()));
-            this.$watch('filters.dietaryRestriction', () => this.$nextTick(() => lucide.createIcons()));
-            this.$watch('filters.maxTime', () => this.$nextTick(() => lucide.createIcons()));
+            this.$watch('recipes', () => this.invalidateCache());
+            this.$watch('searchTerm', () => this.invalidateCache());
+            this.$watch('filters', () => this.invalidateCache(), { deep: true });
+          },
+
+          invalidateCache() {
+            this._filteredRecipes = null;
+            this._uniqueCuisines = null;
+            this._uniqueAuthors = null;
           },
 
           get uniqueCuisines() {
-            const cuisines = [...new Set(this.recipes.map(recipe => recipe.cuisine))];
-            return cuisines.sort();
+            if (!this._uniqueCuisines) {
+              const cuisines = [...new Set(this.recipes.map(recipe => recipe.cuisine))];
+              this._uniqueCuisines = cuisines.sort();
+            }
+            return this._uniqueCuisines;
           },
 
           get uniqueAuthors() {
-            const authors = [...new Set(this.recipes.map(recipe => recipe.author))];
-            return authors.sort();
+            if (!this._uniqueAuthors) {
+              const authors = [...new Set(this.recipes.map(recipe => recipe.author))];
+              this._uniqueAuthors = authors.sort();
+            }
+            return this._uniqueAuthors;
           },
 
           get hasActiveFilters() {
@@ -1059,6 +1066,15 @@
           },
 
           get filteredRecipes() {
+            const filterHash = JSON.stringify({
+              search: this.searchTerm,
+              filters: this.filters
+            });
+
+            if (this._filteredRecipes && this._lastFilterHash === filterHash) {
+              return this._filteredRecipes;
+            }
+
             let filtered = this.recipes;
 
             if (this.searchTerm) {
@@ -1093,6 +1109,9 @@
                 recipe.time_estimate_minutes && recipe.time_estimate_minutes <= maxTime
               );
             }
+
+            this._filteredRecipes = filtered;
+            this._lastFilterHash = filterHash;
 
             return filtered;
           },
@@ -1137,9 +1156,9 @@
                 this.recipes.push(newRecipe);
 
                 this.$nextTick(() => {
-                  if (window.lucide) {
-                    lucide.createIcons();
-                  }
+                  setTimeout(() => {
+                    if (window.lucide) lucide.createIcons();
+                  }, 10);
                 });
 
                 this.newRecipe = {
@@ -1369,15 +1388,41 @@
       }
     </script>
     <script>
+      // Optimized icon rendering
+      let iconRenderTimeout;
+
+      function renderIcons() {
+        if (iconRenderTimeout) clearTimeout(iconRenderTimeout);
+
+        iconRenderTimeout = setTimeout(() => {
+          if (window.lucide) {
+            lucide.createIcons();
+          }
+        }, 100);
+      }
+
       document.addEventListener('DOMContentLoaded', function() {
-        lucide.createIcons();
+        renderIcons();
 
-        document.addEventListener('alpine:updated', function() {
-          setTimeout(() => lucide.createIcons(), 50);
-        });
+        const observer = new MutationObserver((mutations) => {
+          let shouldRender = false;
 
-        const observer = new MutationObserver(() => {
-          setTimeout(() => lucide.createIcons(), 50);
+          mutations.forEach((mutation) => {
+            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+              for (const node of mutation.addedNodes) {
+                if (node.nodeType === 1 &&
+                    (node.querySelector && node.querySelector('[data-lucide]') ||
+                     node.hasAttribute && node.hasAttribute('data-lucide'))) {
+                  shouldRender = true;
+                  break;
+                }
+              }
+            }
+          });
+
+          if (shouldRender) {
+            renderIcons();
+          }
         });
 
         const appContainer = document.querySelector('[x-data="recipeApp()"]');
@@ -1392,4 +1437,3 @@
     </script>
   </body>
 </html>
-
