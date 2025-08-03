@@ -1135,7 +1135,7 @@
 
               if (response.ok) {
                 const newRecipe = await response.json();
-                this.recipes.push(newRecipe);
+                this.recipes.unshift(newRecipe);
 
                 this.$nextTick(() => {
                   setTimeout(() => {
@@ -1237,8 +1237,9 @@
 
                 const index = this.recipes.findIndex(recipe => recipe.id === this.editingRecipe.id);
                 if (index !== -1) {
-                  this.recipes[index] = updatedRecipe;
+                  this.recipes.splice(index, 1);
                 }
+                this.recipes.unshift(updatedRecipe);
 
                 if (this.randomRecipe && this.randomRecipe.id === updatedRecipe.id) {
                   this.randomRecipe = updatedRecipe;
