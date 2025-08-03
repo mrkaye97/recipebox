@@ -1,6 +1,6 @@
 import random
 from collections.abc import Generator
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 from sqlite3 import Connection, connect
 from typing import Annotated, cast
 
@@ -83,9 +83,7 @@ def get__random_recipe(db: DbDependency) -> Recipe | None:
             1,
             float(
                 (
-                    datetime.now(tz=UTC)
-                    - (r.last_made_at or r.saved_at)
-                    + timedelta(days=1)
+                    datetime.now() - (r.last_made_at or r.saved_at) + timedelta(days=1)
                 ).days
             ),
         )
