@@ -6,7 +6,9 @@ from src.recipe import Recipe, RecipeCreate, RecipeLocation, RecipePatch
 
 
 def to_recipe(
-    row: tuple[int, str, str, str, str, str, str, int, str, datetime, datetime, datetime],
+    row: tuple[
+        int, str, str, str, str, str, str, int, str, datetime, datetime, datetime
+    ],
 ) -> Recipe:
     return Recipe(
         id=row[0],
@@ -114,7 +116,7 @@ def get_recipe_by_id(db: Connection, id: int) -> Recipe | None:
         FROM recipe
         WHERE id = ?
         """,
-        (id,)
+        (id,),
     )
     row = res.fetchone()
 
@@ -168,7 +170,7 @@ def update_recipe_by_id(db: Connection, id: int, body: RecipePatch) -> Recipe | 
             ),
             body.time_estimate_minutes,
             body.notes,
-            body.last_made_at.isoformat(),
+            body.last_made_at.isoformat() if body.last_made_at else None,
             id,
         ),
     )
@@ -201,7 +203,7 @@ def delete_recipe_by_id(db: Connection, id: int) -> Recipe | None:
             updated_at
         ;
         """,
-        (id,)
+        (id,),
     )
     row = res.fetchone()
     db.commit()

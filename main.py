@@ -1,5 +1,6 @@
 import random
 from collections.abc import Generator
+from datetime import UTC, datetime, timedelta
 from sqlite3 import Connection, connect
 from typing import Annotated, cast
 
@@ -28,8 +29,10 @@ def set_recent_recommendation(recipe: Recipe) -> None:
 
     recent_recommendations.add(recipe.id)
 
+
 def clear_recent_recommendations() -> None:
     app.state.recent_recommendations.clear()
+
 
 def get_recent_recommendations() -> set[int]:
     return cast(set[int], app.state.recent_recommendations)
@@ -75,7 +78,25 @@ def get__random_recipe(db: DbDependency) -> Recipe | None:
     if not recipes:
         return None
 
-    choice = random.choice(recipes)
+    weights = [
+        max(
+            1,
+            float(
+                (
+                    datetime.now(tz=UTC)
+                    - (r.last_made_at or r.saved_at)
+                    + timedelta(days=1)
+                ).days
+            ),
+        )
+        for r in recipes
+    ]
+
+    choice = random.choices(
+        recipes,
+        k=1,
+        weights=weights,
+    )[0]
 
     set_recent_recommendation(choice)
 
