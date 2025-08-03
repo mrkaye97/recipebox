@@ -6,7 +6,7 @@ from src.recipe import Recipe, RecipeCreate, RecipeLocation, RecipePatch
 
 
 def to_recipe(
-    row: tuple[int, str, str, str, str, str, str, int, str, datetime, datetime],
+    row: tuple[int, str, str, str, str, str, str, int, str, datetime, datetime, datetime],
 ) -> Recipe:
     return Recipe(
         id=row[0],
@@ -18,8 +18,9 @@ def to_recipe(
         dietary_restrictions_met=json.loads(row[6]),
         time_estimate_minutes=row[7],
         notes=row[8],
-        saved_at=row[9],
-        updated_at=row[10],
+        last_made_at=row[9],
+        saved_at=row[10],
+        updated_at=row[11],
     )
 
 
@@ -86,6 +87,7 @@ def update_recipe_by_id(db: Connection, id: int, body: RecipePatch) -> Recipe | 
             dietary_restrictions_met = COALESCE(?, dietary_restrictions_met),
             time_estimate_minutes = COALESCE(?, time_estimate_minutes),
             notes = COALESCE(?, notes),
+            last_made_at = COALESCE(?, last_made_at),
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
         RETURNING *;
@@ -103,6 +105,7 @@ def update_recipe_by_id(db: Connection, id: int, body: RecipePatch) -> Recipe | 
             ),
             body.time_estimate_minutes,
             body.notes,
+            body.last_made_at.isoformat(),
             id,
         ),
     )

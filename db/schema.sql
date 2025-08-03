@@ -8,6 +8,7 @@ CREATE TABLE recipe (
     dietary_restrictions_met JSONB NOT NULL DEFAULT '[]',
     time_estimate_minutes INTEGER NOT NULL,
     notes TEXT,
+    last_made_at TEXT,
     saved_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

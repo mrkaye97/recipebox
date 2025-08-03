@@ -41,6 +41,7 @@ class RecipeCreate(BaseModel):
     dietary_restrictions_met: list[DietaryRestriction]
     time_estimate_minutes: int
     notes: str | None
+    last_made_at: datetime | None = None
     saved_at: datetime
     updated_at: datetime
 
@@ -58,3 +59,4 @@ class RecipePatch(BaseModel):
     dietary_restrictions_met: list[DietaryRestriction] | None = None
     time_estimate_minutes: int | None = None
     notes: str | None = None
+    last_made_at: datetime | None = None
