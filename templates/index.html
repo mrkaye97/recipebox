@@ -785,18 +785,6 @@
                   </div>
                 </div>
 
-                <div x-show="editingRecipe.location.location === 'made_up'" x-transition class="space-y-4">
-                  <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <div class="flex items-start space-x-3">
-                      <i data-lucide="lightbulb" class="w-5 h-5 text-blue-600 mt-0.5"></i>
-                      <div>
-                        <h4 class="text-sm font-medium text-blue-900">Made Up Recipe</h4>
-                        <p class="text-sm text-blue-700 mt-1">This is a recipe you've created or modified yourself. Add all the details in the Notes section below.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
                 <div>
                   <label class="form-label">Notes</label>
                   <textarea x-model="editingRecipe.notes" rows="5"
@@ -886,7 +874,7 @@
                 </div>
               </div>
 
-              <div class="bg-white rounded-lg p-4 shadow-sm">
+              <div x-show="viewingRecipe?.location?.location?.location !== 'made_up'" class="bg-white rounded-lg p-4 shadow-sm">
                 <div class="text-sm text-gray-600 mb-3 flex items-center">
                   <i data-lucide="map-pin" class="w-4 h-4 mr-2"></i>
                   Recipe Location
@@ -902,12 +890,6 @@
                       <span x-text="viewingRecipe.location.location.cookbook_name"></span>
                       <span class="text-gray-400">•</span>
                       <span>Page <span x-text="viewingRecipe.location.location.page_number"></span></span>
-                    </div>
-                  </template>
-                  <template x-if="viewingRecipe?.location?.location?.location === 'made_up'">
-                    <div class="flex items-center space-x-2">
-                      <i data-lucide="lightbulb" class="w-4 h-4 text-blue-600"></i>
-                      <span class="font-medium text-blue-800">Made Up Recipe</span>
                     </div>
                   </template>
                 </div>
