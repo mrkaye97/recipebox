@@ -87,3 +87,40 @@ SELECT
 FROM instructions
 ON CONFLICT DO NOTHING
 RETURNING *;
+
+-- name: ListRecipes :many
+SELECT *
+FROM recipe
+WHERE user_id = @userId::UUID
+ORDER BY updated_at DESC
+;
+
+-- name: GetRecipe :one
+SELECT *
+FROM recipe
+WHERE id = @recipeId::UUID
+AND user_id = @userId::UUID
+;
+
+-- name: UpdateRecipe :one
+UPDATE recipe
+SET
+    name = COALESCE(@name::TEXT, name),
+    author = COALESCE(@author::TEXT, author),
+    cuisine = COALESCE(@cuisine::TEXT, cuisine),
+    location = COALESCE(@location::JSONB, location),
+    time_estimate_minutes = COALESCE(@timeEstimateMinutes::INT, time_estimate_minutes),
+    notes = COALESCE(@notes::TEXT, notes),
+    last_made_at = COALESCE(@lastMadeAt::TIMESTAMPTZ, last_made_at),
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = @recipeId::UUID
+AND user_id = @userId::UUID
+RETURNING *
+;
+
+-- name: DeleteRecipe :one
+DELETE FROM recipe
+WHERE id = @recipeId::UUID
+AND user_id = @userId::UUID
+RETURNING *
+;

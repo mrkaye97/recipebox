@@ -2,6 +2,7 @@
 # versions:
 #   sqlc v1.28.0
 # source: query.sql
+import datetime
 import pydantic
 from typing import Any, AsyncIterator, List, Optional
 import uuid
@@ -116,11 +117,64 @@ RETURNING recipe_id, tag
 """
 
 
+DELETE_RECIPE = """-- name: delete_recipe \\:one
+DELETE FROM recipe
+WHERE id = :p1\\:\\:UUID
+AND user_id = :p2\\:\\:UUID
+RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at
+"""
+
+
 FIND_USER_BY_ID = """-- name: find_user_by_id \\:one
 SELECT id, username, email, name, created_at, updated_at
 FROM "user"
 WHERE id = :p1
 """
+
+
+GET_RECIPE = """-- name: get_recipe \\:one
+SELECT id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at
+FROM recipe
+WHERE id = :p1\\:\\:UUID
+AND user_id = :p2\\:\\:UUID
+"""
+
+
+LIST_RECIPES = """-- name: list_recipes \\:many
+SELECT id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at
+FROM recipe
+WHERE user_id = :p1\\:\\:UUID
+ORDER BY updated_at DESC
+"""
+
+
+UPDATE_RECIPE = """-- name: update_recipe \\:one
+UPDATE recipe
+SET
+    name = COALESCE(:p1\\:\\:TEXT, name),
+    author = COALESCE(:p2\\:\\:TEXT, author),
+    cuisine = COALESCE(:p3\\:\\:TEXT, cuisine),
+    location = COALESCE(:p4\\:\\:JSONB, location),
+    time_estimate_minutes = COALESCE(:p5\\:\\:INT, time_estimate_minutes),
+    notes = COALESCE(:p6\\:\\:TEXT, notes),
+    last_made_at = COALESCE(:p7\\:\\:TIMESTAMPTZ, last_made_at),
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = :p8\\:\\:UUID
+AND user_id = :p9\\:\\:UUID
+RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at
+"""
+
+
+class UpdateRecipeParams(pydantic.BaseModel):
+    name: str
+    author: str
+    cuisine: str
+    location: Any
+    timeestimateminutes: int
+    notes: str
+    lastmadeat: datetime.datetime
+    recipeid: uuid.UUID
+    userid: uuid.UUID
 
 
 class AsyncQuerier:
@@ -196,6 +250,24 @@ class AsyncQuerier:
                 tag=row[1],
             )
 
+    async def delete_recipe(self, *, recipeid: uuid.UUID, userid: uuid.UUID) -> Optional[models.Recipe]:
+        row = (await self._conn.execute(sqlalchemy.text(DELETE_RECIPE), {"p1": recipeid, "p2": userid})).first()
+        if row is None:
+            return None
+        return models.Recipe(
+            id=row[0],
+            user_id=row[1],
+            name=row[2],
+            author=row[3],
+            cuisine=row[4],
+            location=row[5],
+            time_estimate_minutes=row[6],
+            notes=row[7],
+            last_made_at=row[8],
+            created_at=row[9],
+            updated_at=row[10],
+        )
+
     async def find_user_by_id(self, *, userid: uuid.UUID) -> Optional[models.User]:
         row = (await self._conn.execute(sqlalchemy.text(FIND_USER_BY_ID), {"p1": userid})).first()
         if row is None:
@@ -207,4 +279,67 @@ class AsyncQuerier:
             name=row[3],
             created_at=row[4],
             updated_at=row[5],
+        )
+
+    async def get_recipe(self, *, recipeid: uuid.UUID, userid: uuid.UUID) -> Optional[models.Recipe]:
+        row = (await self._conn.execute(sqlalchemy.text(GET_RECIPE), {"p1": recipeid, "p2": userid})).first()
+        if row is None:
+            return None
+        return models.Recipe(
+            id=row[0],
+            user_id=row[1],
+            name=row[2],
+            author=row[3],
+            cuisine=row[4],
+            location=row[5],
+            time_estimate_minutes=row[6],
+            notes=row[7],
+            last_made_at=row[8],
+            created_at=row[9],
+            updated_at=row[10],
+        )
+
+    async def list_recipes(self, *, userid: uuid.UUID) -> AsyncIterator[models.Recipe]:
+        result = await self._conn.stream(sqlalchemy.text(LIST_RECIPES), {"p1": userid})
+        async for row in result:
+            yield models.Recipe(
+                id=row[0],
+                user_id=row[1],
+                name=row[2],
+                author=row[3],
+                cuisine=row[4],
+                location=row[5],
+                time_estimate_minutes=row[6],
+                notes=row[7],
+                last_made_at=row[8],
+                created_at=row[9],
+                updated_at=row[10],
+            )
+
+    async def update_recipe(self, arg: UpdateRecipeParams) -> Optional[models.Recipe]:
+        row = (await self._conn.execute(sqlalchemy.text(UPDATE_RECIPE), {
+            "p1": arg.name,
+            "p2": arg.author,
+            "p3": arg.cuisine,
+            "p4": arg.location,
+            "p5": arg.timeestimateminutes,
+            "p6": arg.notes,
+            "p7": arg.lastmadeat,
+            "p8": arg.recipeid,
+            "p9": arg.userid,
+        })).first()
+        if row is None:
+            return None
+        return models.Recipe(
+            id=row[0],
+            user_id=row[1],
+            name=row[2],
+            author=row[3],
+            cuisine=row[4],
+            location=row[5],
+            time_estimate_minutes=row[6],
+            notes=row[7],
+            last_made_at=row[8],
+            created_at=row[9],
+            updated_at=row[10],
         )
