@@ -37,6 +37,7 @@ WHERE id = @userId;
 
 -- name: CreateRecipe :one
 INSERT INTO recipe (
+    user_id,
     name,
     author,
     cuisine,
@@ -45,6 +46,7 @@ INSERT INTO recipe (
     notes
 )
 VALUES (
+    @userId::UUID,
     @name,
     @author,
     @cuisine,
