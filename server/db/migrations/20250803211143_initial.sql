@@ -50,51 +50,61 @@ CREATE INDEX idx_recipe_updated_at ON recipe (user_id, updated_at);
 CREATE INDEX idx_recipe_time_estimate ON recipe (user_id, time_estimate_minutes);
 
 CREATE TABLE recipe_tag (
+    user_id UUID NOT NULL,
     recipe_id UUID NOT NULL,
     tag TEXT NOT NULL,
 
-    PRIMARY KEY (recipe_id, tag),
+    PRIMARY KEY (recipe_id, user_id, tag),
+    FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE,
     FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE
 );
 
 CREATE TABLE recipe_dietary_restriction_met (
+    user_id UUID NOT NULL,
     recipe_id UUID NOT NULL,
     dietary_restriction dietary_restriction NOT NULL,
 
-    PRIMARY KEY (recipe_id, dietary_restriction),
+    PRIMARY KEY (recipe_id, user_id, dietary_restriction),
+    FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE,
     FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE
 );
 
 CREATE TABLE recipe_ingredient (
     recipe_id UUID NOT NULL,
+    user_id UUID NOT NULL,
     name TEXT NOT NULL,
     quantity FLOAT NOT NULL,
     units TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    PRIMARY KEY (recipe_id, name, quantity, units),
+    PRIMARY KEY (recipe_id, user_id, name, quantity, units),
+    FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE,
     FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE
 );
 
 CREATE TABLE recipe_instruction (
     recipe_id UUID NOT NULL,
+    user_id UUID NOT NULL,
     step_number INTEGER NOT NULL,
     content TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    PRIMARY KEY (recipe_id, step_number),
+    PRIMARY KEY (recipe_id, user_id, step_number),
+    FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE,
     FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE
 );
 
 CREATE TABLE cooking_history (
     recipe_id UUID NOT NULL,
+    user_id UUID NOT NULL,
     made_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    PRIMARY KEY (made_at, recipe_id),
+    PRIMARY KEY (user_id, made_at, recipe_id),
+    FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE,
     FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE
 );
 

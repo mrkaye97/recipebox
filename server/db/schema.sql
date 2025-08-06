@@ -34,6 +34,7 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public.cooking_history (
     recipe_id uuid NOT NULL,
+    user_id uuid NOT NULL,
     made_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
@@ -64,6 +65,7 @@ CREATE TABLE public.recipe (
 --
 
 CREATE TABLE public.recipe_dietary_restriction_met (
+    user_id uuid NOT NULL,
     recipe_id uuid NOT NULL,
     dietary_restriction public.dietary_restriction NOT NULL
 );
@@ -75,6 +77,7 @@ CREATE TABLE public.recipe_dietary_restriction_met (
 
 CREATE TABLE public.recipe_ingredient (
     recipe_id uuid NOT NULL,
+    user_id uuid NOT NULL,
     name text NOT NULL,
     quantity double precision NOT NULL,
     units text NOT NULL,
@@ -89,6 +92,7 @@ CREATE TABLE public.recipe_ingredient (
 
 CREATE TABLE public.recipe_instruction (
     recipe_id uuid NOT NULL,
+    user_id uuid NOT NULL,
     step_number integer NOT NULL,
     content text NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -101,6 +105,7 @@ CREATE TABLE public.recipe_instruction (
 --
 
 CREATE TABLE public.recipe_tag (
+    user_id uuid NOT NULL,
     recipe_id uuid NOT NULL,
     tag text NOT NULL
 );
@@ -145,7 +150,7 @@ CREATE TABLE public.user_password (
 --
 
 ALTER TABLE ONLY public.cooking_history
-    ADD CONSTRAINT cooking_history_pkey PRIMARY KEY (made_at, recipe_id);
+    ADD CONSTRAINT cooking_history_pkey PRIMARY KEY (user_id, made_at, recipe_id);
 
 
 --
@@ -153,7 +158,7 @@ ALTER TABLE ONLY public.cooking_history
 --
 
 ALTER TABLE ONLY public.recipe_dietary_restriction_met
-    ADD CONSTRAINT recipe_dietary_restriction_met_pkey PRIMARY KEY (recipe_id, dietary_restriction);
+    ADD CONSTRAINT recipe_dietary_restriction_met_pkey PRIMARY KEY (recipe_id, user_id, dietary_restriction);
 
 
 --
@@ -161,7 +166,7 @@ ALTER TABLE ONLY public.recipe_dietary_restriction_met
 --
 
 ALTER TABLE ONLY public.recipe_ingredient
-    ADD CONSTRAINT recipe_ingredient_pkey PRIMARY KEY (recipe_id, name, quantity, units);
+    ADD CONSTRAINT recipe_ingredient_pkey PRIMARY KEY (recipe_id, user_id, name, quantity, units);
 
 
 --
@@ -169,7 +174,7 @@ ALTER TABLE ONLY public.recipe_ingredient
 --
 
 ALTER TABLE ONLY public.recipe_instruction
-    ADD CONSTRAINT recipe_instruction_pkey PRIMARY KEY (recipe_id, step_number);
+    ADD CONSTRAINT recipe_instruction_pkey PRIMARY KEY (recipe_id, user_id, step_number);
 
 
 --
@@ -185,7 +190,7 @@ ALTER TABLE ONLY public.recipe
 --
 
 ALTER TABLE ONLY public.recipe_tag
-    ADD CONSTRAINT recipe_tag_pkey PRIMARY KEY (recipe_id, tag);
+    ADD CONSTRAINT recipe_tag_pkey PRIMARY KEY (recipe_id, user_id, tag);
 
 
 --
@@ -250,11 +255,27 @@ ALTER TABLE ONLY public.cooking_history
 
 
 --
+-- Name: cooking_history cooking_history_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.cooking_history
+    ADD CONSTRAINT cooking_history_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE;
+
+
+--
 -- Name: recipe_dietary_restriction_met recipe_dietary_restriction_met_recipe_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.recipe_dietary_restriction_met
     ADD CONSTRAINT recipe_dietary_restriction_met_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES public.recipe(id) ON DELETE CASCADE;
+
+
+--
+-- Name: recipe_dietary_restriction_met recipe_dietary_restriction_met_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe_dietary_restriction_met
+    ADD CONSTRAINT recipe_dietary_restriction_met_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE;
 
 
 --
@@ -266,6 +287,14 @@ ALTER TABLE ONLY public.recipe_ingredient
 
 
 --
+-- Name: recipe_ingredient recipe_ingredient_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe_ingredient
+    ADD CONSTRAINT recipe_ingredient_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE;
+
+
+--
 -- Name: recipe_instruction recipe_instruction_recipe_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -274,11 +303,27 @@ ALTER TABLE ONLY public.recipe_instruction
 
 
 --
+-- Name: recipe_instruction recipe_instruction_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe_instruction
+    ADD CONSTRAINT recipe_instruction_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE;
+
+
+--
 -- Name: recipe_tag recipe_tag_recipe_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.recipe_tag
     ADD CONSTRAINT recipe_tag_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES public.recipe(id) ON DELETE CASCADE;
+
+
+--
+-- Name: recipe_tag recipe_tag_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe_tag
+    ADD CONSTRAINT recipe_tag_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE;
 
 
 --
