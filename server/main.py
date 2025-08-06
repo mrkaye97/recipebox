@@ -4,6 +4,7 @@ from uuid import UUID
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import BaseModel
 
 from src.auth import create_access_token, hash_password
 from src.crud.models import DietaryRestriction, RecipeIngredient, RecipeInstruction
@@ -16,7 +17,14 @@ from src.crud.query import (
 )
 from src.dependencies import Connection, User
 from src.logger import get_logger
-from src.schemas import Recipe, RecipeCreate, Token, UserRegistration
+from src.parsing import extract_recipe_from_url
+from src.schemas import (
+    OnlineRecipeLocation,
+    Recipe,
+    RecipeLocation,
+    Token,
+    UserRegistration,
+)
 
 app = FastAPI()
 logger = get_logger(__name__)
@@ -182,11 +190,19 @@ async def update_recipe(
     )
 
 
+class RecipeCreateRequest(BaseModel):
+    url: str
+
+
 @app.post("/recipes")
 async def create_recipe(
-    body: RecipeCreate, user: User, conn: Connection
+    params: RecipeCreateRequest, user: User, conn: Connection
 ) -> Recipe | None:
     db = AsyncQuerier(conn)
+    body = await extract_recipe_from_url(params.url)
+    location = RecipeLocation(
+        location=OnlineRecipeLocation(url=params.url, location="online")
+    )
 
     recipe = await db.create_recipe(
         CreateRecipeParams(
@@ -194,9 +210,9 @@ async def create_recipe(
             name=body.name,
             author=body.author,
             cuisine=body.cuisine,
-            location=body.location.model_dump_json(),
+            location=location.model_dump_json(),
             timeestimateminutes=body.time_estimate_minutes,
-            notes=body.notes,
+            notes=None,
         )
     )
 
@@ -211,7 +227,7 @@ async def create_recipe(
             userid=user.id,
             names=[i.name for i in body.ingredients],
             quantities=[i.quantity for i in body.ingredients],
-            units=[i.units for i in body.ingredients],
+            units=[i.units or "" for i in body.ingredients],
         )
     )
 

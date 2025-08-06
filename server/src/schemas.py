@@ -70,17 +70,20 @@ class RecipeInstruction(BaseModel):
         )
 
 
-class RecipeCreate(BaseModel):
+class BaseRecipeCreate(BaseModel):
     name: str
     author: str
     cuisine: str
-    location: RecipeLocation
     time_estimate_minutes: int
-    notes: str | None
     tags: list[str]
     dietary_restrictions_met: list[models.DietaryRestriction]
     ingredients: list[RecipeIngredient]
     instructions: list[RecipeInstruction]
+
+
+class RecipeCreate(BaseRecipeCreate):
+    location: RecipeLocation
+    notes: str | None
 
 
 class Recipe(RecipeCreate):
