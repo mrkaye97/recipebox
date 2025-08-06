@@ -26,7 +26,7 @@ async def register(user_data: UserRegistration, conn: Connection) -> Token:
     password_hash = hash_password(user_data.password)
     await querier.create_user_password(userid=user.id, passwordhash=password_hash)
 
-    access_token = create_access_token(data={"sub": str(user.id)})
+    access_token = create_access_token(user.id)
 
     await conn.commit()
 
@@ -52,7 +52,7 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    access_token = create_access_token(data={"sub": str(user.id)})
+    access_token = create_access_token(user.id)
 
     return Token(access_token=access_token, token_type="bearer")
 

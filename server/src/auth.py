@@ -1,6 +1,6 @@
 import hashlib
 from datetime import UTC, datetime, timedelta
-from typing import Any
+from uuid import UUID
 
 import jwt
 from fastapi import HTTPException, status
@@ -17,22 +17,16 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return hash_password(plain_password) == hashed_password
 
 
-def create_access_token(
-    data: dict[str, Any], expires_delta: timedelta | None = None
-) -> str:
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.now(UTC) + expires_delta
-    else:
-        expire = datetime.now(UTC) + timedelta(
-            minutes=settings.jwt_access_token_expire_minutes
-        )
-
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(
-        to_encode, settings.jwt_secret_key, algorithm=settings.jwt_algorithm
+def create_access_token(user_id: UUID) -> str:
+    return jwt.encode(
+        {
+            "sub": str(user_id),
+            "exp": datetime.now(UTC)
+            + timedelta(minutes=settings.jwt_access_token_expire_minutes),
+        },
+        settings.jwt_secret_key,
+        algorithm=settings.jwt_algorithm,
     )
-    return encoded_jwt
 
 
 def parse_token(token: str) -> TokenData:
