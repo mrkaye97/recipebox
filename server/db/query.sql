@@ -159,7 +159,6 @@ SELECT *
 FROM recipe_tag
 WHERE
     recipe_id = ANY(@recipeIds::UUID[])
-    AND user_id = @userId::UUID
 ;
 
 -- name: ListRecipeDietaryRestrictionsMet :many
@@ -167,7 +166,6 @@ SELECT *
 FROM recipe_dietary_restriction_met
 WHERE
     recipe_id = ANY(@recipeIds::UUID[])
-    AND user_id = @userId::UUID
 ;
 
 -- name: ListRecipeIngredients :many
@@ -175,7 +173,6 @@ SELECT *
 FROM recipe_ingredient
 WHERE
     recipe_id = ANY(@recipeIds::UUID[])
-    AND user_id = @userId::UUID
 ;
 
 -- name: ListRecipeInstructions :many
@@ -183,6 +180,5 @@ SELECT *
 FROM recipe_instruction
 WHERE
     recipe_id = ANY(@recipeIds::UUID[])
-    AND user_id = @userId::UUID
 ORDER BY step_number ASC
 ;

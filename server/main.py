@@ -78,29 +78,23 @@ async def populate_recipe_data(
     recipe_ids = [recipe.id for recipe in recipes]
 
     recipe_id_to_tags = defaultdict[UUID, list[str]](list)
-    async for tag in db.list_recipe_tags(recipeids=recipe_ids, userid=user_id):
+    async for tag in db.list_recipe_tags(recipeids=recipe_ids):
         recipe_id_to_tags[tag.recipe_id].append(tag.tag)
 
     recipe_id_to_dietary_restrictions_met = defaultdict[UUID, list[DietaryRestriction]](
         list
     )
-    async for dr in db.list_recipe_dietary_restrictions_met(
-        recipeids=recipe_ids, userid=user_id
-    ):
+    async for dr in db.list_recipe_dietary_restrictions_met(recipeids=recipe_ids):
         recipe_id_to_dietary_restrictions_met[dr.recipe_id].append(
             dr.dietary_restriction
         )
 
     recipe_id_to_ingredients = defaultdict[UUID, list[RecipeIngredient]](list)
-    async for ingredient in db.list_recipe_ingredients(
-        recipeids=recipe_ids, userid=user_id
-    ):
+    async for ingredient in db.list_recipe_ingredients(recipeids=recipe_ids):
         recipe_id_to_ingredients[ingredient.recipe_id].append(ingredient)
 
     recipe_id_to_instructions = defaultdict[UUID, list[RecipeInstruction]](list)
-    async for instruction in db.list_recipe_instructions(
-        recipeids=recipe_ids, userid=user_id
-    ):
+    async for instruction in db.list_recipe_instructions(recipeids=recipe_ids):
         recipe_id_to_instructions[instruction.recipe_id].append(instruction)
 
     return [
