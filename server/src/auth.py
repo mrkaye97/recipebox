@@ -13,10 +13,6 @@ def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
 
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return hash_password(plain_password) == hashed_password
-
-
 def create_access_token(user_id: UUID) -> str:
     return jwt.encode(
         {
