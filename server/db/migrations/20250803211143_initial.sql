@@ -48,6 +48,7 @@ CREATE TABLE recipe (
 CREATE INDEX idx_recipe_last_made_at ON recipe (user_id, last_made_at);
 CREATE INDEX idx_recipe_updated_at ON recipe (user_id, updated_at);
 CREATE INDEX idx_recipe_time_estimate ON recipe (user_id, time_estimate_minutes);
+CREATE UNIQUE INDEX idx_recipe_user_name ON recipe (user_id, name);
 
 CREATE TABLE recipe_tag (
     user_id UUID NOT NULL,

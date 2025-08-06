@@ -247,6 +247,13 @@ CREATE INDEX idx_recipe_updated_at ON public.recipe USING btree (user_id, update
 
 
 --
+-- Name: idx_recipe_user_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_recipe_user_name ON public.recipe USING btree (user_id, name);
+
+
+--
 -- Name: cooking_history cooking_history_recipe_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 

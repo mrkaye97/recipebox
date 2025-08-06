@@ -9,11 +9,16 @@ lint:
 	(cd server && poetry run mypy .)
 
 migrate:
-	sqlite3 recipebox.db < db/schema.sql
+	(cd server && dbmate up)
+	make gen-sqlc
+
+rollback:
+	(cd server && dbmate down)
 
 reset-db:
-	rm -f recipebox.db
+	(cd server && dbmate drop)
 	make migrate
 
 gen-sqlc:
 	(cd server && sqlc generate)
+	make lint
