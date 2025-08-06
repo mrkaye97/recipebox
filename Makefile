@@ -14,3 +14,6 @@ migrate:
 reset-db:
 	rm -f recipebox.db
 	make migrate
+
+gen-sqlc:
+	(cd server && sqlc generate)

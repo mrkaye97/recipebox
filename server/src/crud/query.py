@@ -154,8 +154,9 @@ VALUES (
 
 DELETE_RECIPE = """-- name: delete_recipe \\:one
 DELETE FROM recipe
-WHERE id = :p1\\:\\:UUID
-AND user_id = :p2\\:\\:UUID
+WHERE
+    id = :p1\\:\\:UUID
+    AND user_id = :p2\\:\\:UUID
 RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at
 """
 

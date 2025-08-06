@@ -152,7 +152,8 @@ RETURNING *
 
 -- name: DeleteRecipe :one
 DELETE FROM recipe
-WHERE id = @recipeId::UUID
-AND user_id = @userId::UUID
+WHERE
+    id = @recipeId::UUID
+    AND user_id = @userId::UUID
 RETURNING *
 ;

@@ -1,21 +1,15 @@
 import random
 from collections.abc import Generator
 from datetime import datetime, timedelta
-from sqlite3 import Connection, Row, connect
+from sqlite3 import Row, connect
 from typing import Annotated, cast
+from uuid import UUID
 
-from fastapi import Depends, FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.templating import Jinja2Templates
 
-from src.old_crud import (
-    create_recipe,
-    delete_recipe_by_id,
-    get_recipe_by_id,
-    list_recipes,
-    update_recipe_by_id,
-)
-from src.recipe import Recipe, RecipeCreate, RecipePatch
+from src.crud.models import Recipe
+from src.crud.query import AsyncQuerier, CreateRecipeParams, UpdateRecipeParams
 from src.settings import settings
 
 app = FastAPI()
@@ -38,38 +32,28 @@ def get_recent_recommendations() -> set[int]:
     return cast(set[int], app.state.recent_recommendations)
 
 
-def get_db() -> Generator[Connection, None, None]:
+def get_db() -> Generator[AsyncQuerier, None, None]:
     conn = connect(settings.database_url.replace("sqlite:///", ""))
     conn.row_factory = Row
 
     try:
-        yield conn
+        yield AsyncQuerier(conn)
     finally:
         conn.close()
 
 
-DbDependency = Annotated[Connection, Depends(get_db)]
+DbDependency = Annotated[AsyncQuerier, Depends(get_db)]
 
 
-@app.get("/", response_class=HTMLResponse)
-def get__index(request: Request, db: DbDependency) -> HTMLResponse:
-    recipes = list_recipes(db)
-
-    recipes_dict = [recipe.model_dump(mode="json") for recipe in recipes]
-    return templates.TemplateResponse(
-        "index.html", {"request": request, "recipes": recipes_dict}
-    )
+@app.get("/{user_id}/recipes")
+async def get__list_recipes(user_id: UUID, db: DbDependency) -> list[Recipe]:
+    return await db.list_recipes(userid=user_id)
 
 
-@app.get("/recipes")
-def get__list_recipes(db: DbDependency) -> list[Recipe]:
-    return list_recipes(db)
-
-
-@app.get("/recipes/random")
-def get__random_recipe(db: DbDependency) -> Recipe | None:
+@app.get("/{user_id}/recipes/random")
+async def get__random_recipe(user_id: UUID, db: DbDependency) -> Recipe | None:
     recent_recommendations = get_recent_recommendations()
-    recipes = list_recipes(db)
+    recipes = await db.list_recipes(db)
 
     if len(recent_recommendations) >= len(recipes):
         clear_recent_recommendations()
@@ -110,31 +94,31 @@ def get__random_recipe(db: DbDependency) -> Recipe | None:
     return choice
 
 
-@app.get("/recipes/{id}")
-def get__find_recipe(
+@app.get("/{user_id}/recipes/{id}")
+async def get__find_recipe(
     db: DbDependency,
-    id: int,
+    user_id: UUID,
+    id: UUID,
 ) -> Recipe | None:
-    return get_recipe_by_id(db, id)
+    return await db.get_recipe(recipeid=id, userid=user_id)
 
 
-@app.patch("/recipes/{id}")
-def patch__update_recipe(
+@app.patch("/{user_id}/recipes/{id}")
+async def patch__update_recipe(
     db: DbDependency,
-    id: int,
-    body: RecipePatch,
+    body: UpdateRecipeParams,
 ) -> Recipe | None:
-    return update_recipe_by_id(db, id, body)
+    return await db.update_recipe(body)
 
 
 @app.post("/recipes")
-def post__create_recipe(recipe: RecipeCreate, db: DbDependency) -> Recipe:
-    return create_recipe(db, recipe)
+async def post__create_recipe(recipe: CreateRecipeParams, db: DbDependency) -> Recipe:
+    return await db.create_recipe(recipe)
 
 
-@app.delete("/recipes/{id}")
-def delete__recipe(db: DbDependency, id: int) -> Recipe:
-    res = delete_recipe_by_id(db, id)
+@app.delete("/{user_id}/recipes/{id}")
+def delete__recipe(db: DbDependency, id: UUID, user_id: UUID) -> Recipe:
+    res = db.delete_recipe(recipeid=id, userid=user_id)
 
     if not res:
         raise HTTPException(status_code=404, detail="Recipe not found")
