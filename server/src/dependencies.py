@@ -2,16 +2,20 @@ from collections.abc import AsyncGenerator
 from datetime import UTC, datetime
 from typing import Annotated
 
+from asyncpg.exceptions import UniqueViolationError  # type: ignore[import-untyped]
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncConnection, create_async_engine
 
 from src.auth import parse_token
 from src.crud.models import User as DbUser
 from src.crud.query import AsyncQuerier
+from src.logger import get_logger
 from src.settings import settings
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+logger = get_logger(__name__)
 
 
 async def get_db() -> AsyncGenerator[AsyncConnection]:
@@ -22,8 +26,19 @@ async def get_db() -> AsyncGenerator[AsyncConnection]:
         try:
             yield conn
         except Exception as e:
+            logger.exception("error")
             if isinstance(e, HTTPException):
                 raise e
+
+            if (
+                isinstance(e, IntegrityError)
+                and e.orig
+                and isinstance(e.orig.__cause__, UniqueViolationError)
+            ):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="duplicate",
+                ) from e
 
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

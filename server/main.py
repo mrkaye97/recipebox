@@ -15,9 +15,11 @@ from src.crud.query import (
     UpdateRecipeParams,
 )
 from src.dependencies import Connection, User
+from src.logger import get_logger
 from src.schemas import Recipe, RecipeCreate, Token, UserRegistration
 
 app = FastAPI()
+logger = get_logger(__name__)
 
 
 @app.post("/auth/register", response_model=Token)
