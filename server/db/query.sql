@@ -71,13 +71,13 @@ RETURNING *;
 
 -- name: CreateRecipeDietaryRestrictionsMet :many
 WITH restrictions AS (
-    SELECT UNNEST(@dietaryRestrictionsMets::dietary_restriction[]) AS dietary_restriction_met
+    SELECT UNNEST(@dietaryRestrictionsMets::dietary_restriction[]) AS dietary_restriction
 )
 
-INSERT INTO recipe_dietary_restriction_met (recipe_id, dietary_restriction_met)
+INSERT INTO recipe_dietary_restriction_met (recipe_id, dietary_restriction)
 SELECT
     @recipeId::UUID,
-    dietary_restriction_met
+    dietary_restriction
 FROM restrictions
 ON CONFLICT DO NOTHING
 RETURNING *;
@@ -107,7 +107,7 @@ WITH instructions AS (
         UNNEST(@contents::TEXT[]) AS content
 )
 
-INSERT INTO recipe_instruction (recipe_id, step_number, instruction)
+INSERT INTO recipe_instruction (recipe_id, step_number, content)
 SELECT
     @recipeId::UUID,
     step_number,

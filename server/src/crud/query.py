@@ -3,15 +3,15 @@
 #   sqlc v1.28.0
 # source: query.sql
 import datetime
-import uuid
-from collections.abc import AsyncIterator
-from typing import Any
-
 import pydantic
+from typing import Any, AsyncIterator, List, Optional
+import uuid
+
 import sqlalchemy
 import sqlalchemy.ext.asyncio
 
 from src.crud import models
+
 
 AUTHENTICATE_USER = """-- name: authenticate_user \\:one
 SELECT u.id, u.email, u.name, u.created_at, u.updated_at
@@ -53,18 +53,18 @@ class CreateRecipeParams(pydantic.BaseModel):
     cuisine: str
     location: Any
     timeestimateminutes: int
-    notes: str | None
+    notes: Optional[str]
 
 
 CREATE_RECIPE_DIETARY_RESTRICTIONS_MET = """-- name: create_recipe_dietary_restrictions_met \\:many
 WITH restrictions AS (
-    SELECT UNNEST(:p2\\:\\:dietary_restriction[]) AS dietary_restriction_met
+    SELECT UNNEST(:p2\\:\\:dietary_restriction[]) AS dietary_restriction
 )
 
-INSERT INTO recipe_dietary_restriction_met (recipe_id, dietary_restriction_met)
+INSERT INTO recipe_dietary_restriction_met (recipe_id, dietary_restriction)
 SELECT
     :p1\\:\\:UUID,
-    dietary_restriction_met
+    dietary_restriction
 FROM restrictions
 ON CONFLICT DO NOTHING
 RETURNING recipe_id, dietary_restriction
@@ -98,7 +98,7 @@ WITH instructions AS (
         UNNEST(:p3\\:\\:TEXT[]) AS content
 )
 
-INSERT INTO recipe_instruction (recipe_id, step_number, instruction)
+INSERT INTO recipe_instruction (recipe_id, step_number, content)
 SELECT
     :p1\\:\\:UUID,
     step_number,
@@ -251,15 +251,8 @@ class AsyncQuerier:
     def __init__(self, conn: sqlalchemy.ext.asyncio.AsyncConnection):
         self._conn = conn
 
-    async def authenticate_user(
-        self, *, email: str | None, user_id: uuid.UUID | None, passwordhash: str
-    ) -> models.User | None:
-        row = (
-            await self._conn.execute(
-                sqlalchemy.text(AUTHENTICATE_USER),
-                {"p1": email, "p2": user_id, "p3": passwordhash},
-            )
-        ).first()
+    async def authenticate_user(self, *, email: Optional[str], user_id: Optional[uuid.UUID], passwordhash: str) -> Optional[models.User]:
+        row = (await self._conn.execute(sqlalchemy.text(AUTHENTICATE_USER), {"p1": email, "p2": user_id, "p3": passwordhash})).first()
         if row is None:
             return None
         return models.User(
@@ -270,21 +263,16 @@ class AsyncQuerier:
             updated_at=row[4],
         )
 
-    async def create_recipe(self, arg: CreateRecipeParams) -> models.Recipe | None:
-        row = (
-            await self._conn.execute(
-                sqlalchemy.text(CREATE_RECIPE),
-                {
-                    "p1": arg.userid,
-                    "p2": arg.name,
-                    "p3": arg.author,
-                    "p4": arg.cuisine,
-                    "p5": arg.location,
-                    "p6": arg.timeestimateminutes,
-                    "p7": arg.notes,
-                },
-            )
-        ).first()
+    async def create_recipe(self, arg: CreateRecipeParams) -> Optional[models.Recipe]:
+        row = (await self._conn.execute(sqlalchemy.text(CREATE_RECIPE), {
+            "p1": arg.userid,
+            "p2": arg.name,
+            "p3": arg.author,
+            "p4": arg.cuisine,
+            "p5": arg.location,
+            "p6": arg.timeestimateminutes,
+            "p7": arg.notes,
+        })).first()
         if row is None:
             return None
         return models.Recipe(
@@ -301,39 +289,21 @@ class AsyncQuerier:
             updated_at=row[10],
         )
 
-    async def create_recipe_dietary_restrictions_met(
-        self,
-        *,
-        recipeid: uuid.UUID,
-        dietaryrestrictionsmets: list[models.DietaryRestriction],
-    ) -> AsyncIterator[models.RecipeDietaryRestrictionMet]:
-        result = await self._conn.stream(
-            sqlalchemy.text(CREATE_RECIPE_DIETARY_RESTRICTIONS_MET),
-            {"p1": recipeid, "p2": dietaryrestrictionsmets},
-        )
+    async def create_recipe_dietary_restrictions_met(self, *, recipeid: uuid.UUID, dietaryrestrictionsmets: List[models.DietaryRestriction]) -> AsyncIterator[models.RecipeDietaryRestrictionMet]:
+        result = await self._conn.stream(sqlalchemy.text(CREATE_RECIPE_DIETARY_RESTRICTIONS_MET), {"p1": recipeid, "p2": dietaryrestrictionsmets})
         async for row in result:
             yield models.RecipeDietaryRestrictionMet(
                 recipe_id=row[0],
                 dietary_restriction=row[1],
             )
 
-    async def create_recipe_ingredients(
-        self,
-        *,
-        recipeid: uuid.UUID,
-        names: list[str],
-        quantities: list[float],
-        units: list[str],
-    ) -> AsyncIterator[models.RecipeIngredient]:
-        result = await self._conn.stream(
-            sqlalchemy.text(CREATE_RECIPE_INGREDIENTS),
-            {
-                "p1": recipeid,
-                "p2": names,
-                "p3": quantities,
-                "p4": units,
-            },
-        )
+    async def create_recipe_ingredients(self, *, recipeid: uuid.UUID, names: List[str], quantities: List[float], units: List[str]) -> AsyncIterator[models.RecipeIngredient]:
+        result = await self._conn.stream(sqlalchemy.text(CREATE_RECIPE_INGREDIENTS), {
+            "p1": recipeid,
+            "p2": names,
+            "p3": quantities,
+            "p4": units,
+        })
         async for row in result:
             yield models.RecipeIngredient(
                 recipe_id=row[0],
@@ -344,13 +314,8 @@ class AsyncQuerier:
                 updated_at=row[5],
             )
 
-    async def create_recipe_instructions(
-        self, *, recipeid: uuid.UUID, stepnumbers: list[int], contents: list[str]
-    ) -> AsyncIterator[models.RecipeInstruction]:
-        result = await self._conn.stream(
-            sqlalchemy.text(CREATE_RECIPE_INSTRUCTIONS),
-            {"p1": recipeid, "p2": stepnumbers, "p3": contents},
-        )
+    async def create_recipe_instructions(self, *, recipeid: uuid.UUID, stepnumbers: List[int], contents: List[str]) -> AsyncIterator[models.RecipeInstruction]:
+        result = await self._conn.stream(sqlalchemy.text(CREATE_RECIPE_INSTRUCTIONS), {"p1": recipeid, "p2": stepnumbers, "p3": contents})
         async for row in result:
             yield models.RecipeInstruction(
                 recipe_id=row[0],
@@ -360,24 +325,16 @@ class AsyncQuerier:
                 updated_at=row[4],
             )
 
-    async def create_recipe_tags(
-        self, *, recipeid: uuid.UUID, tags: list[str]
-    ) -> AsyncIterator[models.RecipeTag]:
-        result = await self._conn.stream(
-            sqlalchemy.text(CREATE_RECIPE_TAGS), {"p1": recipeid, "p2": tags}
-        )
+    async def create_recipe_tags(self, *, recipeid: uuid.UUID, tags: List[str]) -> AsyncIterator[models.RecipeTag]:
+        result = await self._conn.stream(sqlalchemy.text(CREATE_RECIPE_TAGS), {"p1": recipeid, "p2": tags})
         async for row in result:
             yield models.RecipeTag(
                 recipe_id=row[0],
                 tag=row[1],
             )
 
-    async def create_user(self, *, email: str, name: str) -> models.User | None:
-        row = (
-            await self._conn.execute(
-                sqlalchemy.text(CREATE_USER), {"p1": email, "p2": name}
-            )
-        ).first()
+    async def create_user(self, *, email: str, name: str) -> Optional[models.User]:
+        row = (await self._conn.execute(sqlalchemy.text(CREATE_USER), {"p1": email, "p2": name})).first()
         if row is None:
             return None
         return models.User(
@@ -388,22 +345,14 @@ class AsyncQuerier:
             updated_at=row[4],
         )
 
-    async def create_user_password(
-        self, *, userid: uuid.UUID, passwordhash: str
-    ) -> None:
-        await self._conn.execute(
-            sqlalchemy.text(CREATE_USER_PASSWORD), {"p1": userid, "p2": passwordhash}
-        )
+    async def create_user_password(self, *, userid: uuid.UUID, passwordhash: str) -> None:
+        await self._conn.execute(sqlalchemy.text(CREATE_USER_PASSWORD), {"p1": userid, "p2": passwordhash})
 
     async def delete_recipe(self, *, recipeid: uuid.UUID, userid: uuid.UUID) -> None:
-        await self._conn.execute(
-            sqlalchemy.text(DELETE_RECIPE), {"p1": recipeid, "p2": userid}
-        )
+        await self._conn.execute(sqlalchemy.text(DELETE_RECIPE), {"p1": recipeid, "p2": userid})
 
-    async def find_user_by_id(self, *, userid: uuid.UUID) -> models.User | None:
-        row = (
-            await self._conn.execute(sqlalchemy.text(FIND_USER_BY_ID), {"p1": userid})
-        ).first()
+    async def find_user_by_id(self, *, userid: uuid.UUID) -> Optional[models.User]:
+        row = (await self._conn.execute(sqlalchemy.text(FIND_USER_BY_ID), {"p1": userid})).first()
         if row is None:
             return None
         return models.User(
@@ -414,14 +363,8 @@ class AsyncQuerier:
             updated_at=row[4],
         )
 
-    async def get_recipe(
-        self, *, recipeid: uuid.UUID, userid: uuid.UUID
-    ) -> models.Recipe | None:
-        row = (
-            await self._conn.execute(
-                sqlalchemy.text(GET_RECIPE), {"p1": recipeid, "p2": userid}
-            )
-        ).first()
+    async def get_recipe(self, *, recipeid: uuid.UUID, userid: uuid.UUID) -> Optional[models.Recipe]:
+        row = (await self._conn.execute(sqlalchemy.text(GET_RECIPE), {"p1": recipeid, "p2": userid})).first()
         if row is None:
             return None
         return models.Recipe(
@@ -438,25 +381,16 @@ class AsyncQuerier:
             updated_at=row[10],
         )
 
-    async def list_recipe_dietary_restrictions_met(
-        self, *, recipeids: list[uuid.UUID], userid: uuid.UUID
-    ) -> AsyncIterator[models.RecipeDietaryRestrictionMet]:
-        result = await self._conn.stream(
-            sqlalchemy.text(LIST_RECIPE_DIETARY_RESTRICTIONS_MET),
-            {"p1": recipeids, "p2": userid},
-        )
+    async def list_recipe_dietary_restrictions_met(self, *, recipeids: List[uuid.UUID], userid: uuid.UUID) -> AsyncIterator[models.RecipeDietaryRestrictionMet]:
+        result = await self._conn.stream(sqlalchemy.text(LIST_RECIPE_DIETARY_RESTRICTIONS_MET), {"p1": recipeids, "p2": userid})
         async for row in result:
             yield models.RecipeDietaryRestrictionMet(
                 recipe_id=row[0],
                 dietary_restriction=row[1],
             )
 
-    async def list_recipe_ingredients(
-        self, *, recipeids: list[uuid.UUID], userid: uuid.UUID
-    ) -> AsyncIterator[models.RecipeIngredient]:
-        result = await self._conn.stream(
-            sqlalchemy.text(LIST_RECIPE_INGREDIENTS), {"p1": recipeids, "p2": userid}
-        )
+    async def list_recipe_ingredients(self, *, recipeids: List[uuid.UUID], userid: uuid.UUID) -> AsyncIterator[models.RecipeIngredient]:
+        result = await self._conn.stream(sqlalchemy.text(LIST_RECIPE_INGREDIENTS), {"p1": recipeids, "p2": userid})
         async for row in result:
             yield models.RecipeIngredient(
                 recipe_id=row[0],
@@ -467,12 +401,8 @@ class AsyncQuerier:
                 updated_at=row[5],
             )
 
-    async def list_recipe_instructions(
-        self, *, recipeids: list[uuid.UUID], userid: uuid.UUID
-    ) -> AsyncIterator[models.RecipeInstruction]:
-        result = await self._conn.stream(
-            sqlalchemy.text(LIST_RECIPE_INSTRUCTIONS), {"p1": recipeids, "p2": userid}
-        )
+    async def list_recipe_instructions(self, *, recipeids: List[uuid.UUID], userid: uuid.UUID) -> AsyncIterator[models.RecipeInstruction]:
+        result = await self._conn.stream(sqlalchemy.text(LIST_RECIPE_INSTRUCTIONS), {"p1": recipeids, "p2": userid})
         async for row in result:
             yield models.RecipeInstruction(
                 recipe_id=row[0],
@@ -482,12 +412,8 @@ class AsyncQuerier:
                 updated_at=row[4],
             )
 
-    async def list_recipe_tags(
-        self, *, recipeids: list[uuid.UUID], userid: uuid.UUID
-    ) -> AsyncIterator[models.RecipeTag]:
-        result = await self._conn.stream(
-            sqlalchemy.text(LIST_RECIPE_TAGS), {"p1": recipeids, "p2": userid}
-        )
+    async def list_recipe_tags(self, *, recipeids: List[uuid.UUID], userid: uuid.UUID) -> AsyncIterator[models.RecipeTag]:
+        result = await self._conn.stream(sqlalchemy.text(LIST_RECIPE_TAGS), {"p1": recipeids, "p2": userid})
         async for row in result:
             yield models.RecipeTag(
                 recipe_id=row[0],
@@ -511,23 +437,18 @@ class AsyncQuerier:
                 updated_at=row[10],
             )
 
-    async def update_recipe(self, arg: UpdateRecipeParams) -> models.Recipe | None:
-        row = (
-            await self._conn.execute(
-                sqlalchemy.text(UPDATE_RECIPE),
-                {
-                    "p1": arg.name,
-                    "p2": arg.author,
-                    "p3": arg.cuisine,
-                    "p4": arg.location,
-                    "p5": arg.timeestimateminutes,
-                    "p6": arg.notes,
-                    "p7": arg.lastmadeat,
-                    "p8": arg.recipeid,
-                    "p9": arg.userid,
-                },
-            )
-        ).first()
+    async def update_recipe(self, arg: UpdateRecipeParams) -> Optional[models.Recipe]:
+        row = (await self._conn.execute(sqlalchemy.text(UPDATE_RECIPE), {
+            "p1": arg.name,
+            "p2": arg.author,
+            "p3": arg.cuisine,
+            "p4": arg.location,
+            "p5": arg.timeestimateminutes,
+            "p6": arg.notes,
+            "p7": arg.lastmadeat,
+            "p8": arg.recipeid,
+            "p9": arg.userid,
+        })).first()
         if row is None:
             return None
         return models.Recipe(
