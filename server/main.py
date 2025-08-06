@@ -5,10 +5,9 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from src.auth import create_access_token, hash_password
-from src.crud.models import Recipe
 from src.crud.query import AsyncQuerier, CreateRecipeParams, UpdateRecipeParams
 from src.dependencies import Connection, User
-from src.schemas import Token, UserRegistration
+from src.schemas import Token, UserRegistration, RecipeCreate, Recipe
 
 app = FastAPI()
 
@@ -92,14 +91,55 @@ async def update_recipe(
 
 @app.post("/recipes")
 async def create_recipe(
-    recipe: CreateRecipeParams, user: User, conn: Connection
+    body: RecipeCreate, user: User, conn: Connection
 ) -> Recipe | None:
     db = AsyncQuerier(conn)
-    recipe.userid = user.id
-    created = await db.create_recipe(recipe)
+
+    recipe = await db.create_recipe(
+        CreateRecipeParams(
+            userid=user.id,
+            name=body.name,
+            author=body.author,
+            cuisine=body.cuisine,
+            location=body.location.model_dump_json(),
+            time_estimate_minutes=body.time_estimate_minutes,
+            notes=body.notes,
+        )
+    )
+
+    if not recipe:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Could not create recipe"
+        )
+
+    ingredients = db.create_recipe_ingredients(
+        recipeid=recipe.id,
+        names=[i.name for i in body.ingredients],
+        quantities=[i.quantity for i in body.ingredients],
+        units=[i.units for i in body.ingredients],
+    )
+
+    dietary_restrictions_met = db.create_recipe_dietary_restrictions_met(
+        recipeid=recipe.id,
+        dietaryrestrictionsmets=[dr.value for dr in body.dietary_restrictions_met],
+    )
+
+    instructions = db.create_recipe_instructions(
+        recipeid=recipe.id,
+        stepnumbers=[i.step_number for i in body.instructions],
+        contents=[i.content for i in body.instructions],
+    )
+
+    tags = db.create_recipe_tags(recipeid=recipe.id, tags=body.tags)
 
     await conn.commit()
-    return created
+    return Recipe.from_db(
+        recipe=recipe,
+        ingredients=ingredients,
+        dietary_restrictions_met=dietary_restrictions_met,
+        instructions=instructions,
+        tags=tags,
+    )
 
 
 @app.delete("/recipes/{id}")

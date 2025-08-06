@@ -35,12 +35,12 @@ INSERT INTO recipe (
 )
 VALUES (
     :p1\\:\\:UUID,
-    :p2,
-    :p3,
-    :p4,
-    :p5,
-    :p6,
-    :p7
+    :p2\\:\\:TEXT,
+    :p3\\:\\:TEXT,
+    :p4\\:\\:TEXT,
+    :p5\\:\\:JSONB,
+    :p6\\:\\:INTEGER,
+    :p7\\:\\:TEXT
 )
 RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at
 """
@@ -58,14 +58,12 @@ class CreateRecipeParams(pydantic.BaseModel):
 
 CREATE_RECIPE_DIETARY_RESTRICTIONS_MET = """-- name: create_recipe_dietary_restrictions_met \\:many
 WITH restrictions AS (
-    SELECT
-        UNNEST(:p1\\:\\:UUID[]) AS recipe_id,
-        UNNEST(:p2\\:\\:dietary_restriction[]) AS dietary_restriction_met
+    SELECT UNNEST(:p2\\:\\:dietary_restriction[]) AS dietary_restriction_met
 )
 
 INSERT INTO recipe_dietary_restriction_met (recipe_id, dietary_restriction_met)
 SELECT
-    recipe_id,
+    :p1\\:\\:UUID,
     dietary_restriction_met
 FROM restrictions
 ON CONFLICT DO NOTHING
@@ -76,7 +74,6 @@ RETURNING recipe_id, dietary_restriction
 CREATE_RECIPE_INGREDIENTS = """-- name: create_recipe_ingredients \\:many
 WITH ingredients AS (
     SELECT
-        UNNEST(:p1\\:\\:UUID[]) AS recipe_id,
         UNNEST(:p2\\:\\:TEXT[]) AS name,
         UNNEST(:p3\\:\\:FLOAT8[]) AS quantity,
         UNNEST(:p4\\:\\:TEXT[]) AS units
@@ -84,7 +81,7 @@ WITH ingredients AS (
 
 INSERT INTO recipe_ingredient (recipe_id, name, quantity, units)
 SELECT
-    recipe_id,
+    :p1\\:\\:UUID,
     name,
     quantity,
     units
@@ -97,16 +94,15 @@ RETURNING recipe_id, name, quantity, units, created_at, updated_at
 CREATE_RECIPE_INSTRUCTIONS = """-- name: create_recipe_instructions \\:many
 WITH instructions AS (
     SELECT
-        UNNEST(:p1\\:\\:UUID[]) AS recipe_id,
         UNNEST(:p2\\:\\:INT[]) AS step_number,
-        UNNEST(:p3\\:\\:TEXT[]) AS instruction
+        UNNEST(:p3\\:\\:TEXT[]) AS content
 )
 
 INSERT INTO recipe_instruction (recipe_id, step_number, instruction)
 SELECT
-    recipe_id,
+    :p1\\:\\:UUID,
     step_number,
-    instruction
+    content
 FROM instructions
 ON CONFLICT DO NOTHING
 RETURNING recipe_id, step_number, content, created_at, updated_at
@@ -115,14 +111,12 @@ RETURNING recipe_id, step_number, content, created_at, updated_at
 
 CREATE_RECIPE_TAGS = """-- name: create_recipe_tags \\:many
 WITH tags AS (
-    SELECT
-        UNNEST(:p1\\:\\:UUID[]) AS recipe_id,
-        UNNEST(:p2\\:\\:TEXT[]) AS tag
+    SELECT UNNEST(:p2\\:\\:TEXT[]) AS tag
 )
 
 INSERT INTO recipe_tag (recipe_id, tag)
 SELECT
-    recipe_id,
+    :p1\\:\\:UUID,
     tag
 FROM tags
 ON CONFLICT DO NOTHING
@@ -273,12 +267,12 @@ class AsyncQuerier:
     async def create_recipe_dietary_restrictions_met(
         self,
         *,
-        recipeid: list[uuid.UUID],
-        dietaryrestrictionmet: list[models.DietaryRestriction],
+        recipeid: uuid.UUID,
+        dietaryrestrictionsmets: list[models.DietaryRestriction],
     ) -> AsyncIterator[models.RecipeDietaryRestrictionMet]:
         result = await self._conn.stream(
             sqlalchemy.text(CREATE_RECIPE_DIETARY_RESTRICTIONS_MET),
-            {"p1": recipeid, "p2": dietaryrestrictionmet},
+            {"p1": recipeid, "p2": dietaryrestrictionsmets},
         )
         async for row in result:
             yield models.RecipeDietaryRestrictionMet(
@@ -289,17 +283,17 @@ class AsyncQuerier:
     async def create_recipe_ingredients(
         self,
         *,
-        recipeid: list[uuid.UUID],
-        name: list[str],
-        quantity: list[float],
+        recipeid: uuid.UUID,
+        names: list[str],
+        quantities: list[float],
         units: list[str],
     ) -> AsyncIterator[models.RecipeIngredient]:
         result = await self._conn.stream(
             sqlalchemy.text(CREATE_RECIPE_INGREDIENTS),
             {
                 "p1": recipeid,
-                "p2": name,
-                "p3": quantity,
+                "p2": names,
+                "p3": quantities,
                 "p4": units,
             },
         )
@@ -314,15 +308,11 @@ class AsyncQuerier:
             )
 
     async def create_recipe_instructions(
-        self,
-        *,
-        recipeid: list[uuid.UUID],
-        stepnumber: list[int],
-        instruction: list[str],
+        self, *, recipeid: uuid.UUID, stepnumbers: list[int], contents: list[str]
     ) -> AsyncIterator[models.RecipeInstruction]:
         result = await self._conn.stream(
             sqlalchemy.text(CREATE_RECIPE_INSTRUCTIONS),
-            {"p1": recipeid, "p2": stepnumber, "p3": instruction},
+            {"p1": recipeid, "p2": stepnumbers, "p3": contents},
         )
         async for row in result:
             yield models.RecipeInstruction(
@@ -334,10 +324,10 @@ class AsyncQuerier:
             )
 
     async def create_recipe_tags(
-        self, *, recipeid: list[uuid.UUID], tag: list[str]
+        self, *, recipeid: uuid.UUID, tags: list[str]
     ) -> AsyncIterator[models.RecipeTag]:
         result = await self._conn.stream(
-            sqlalchemy.text(CREATE_RECIPE_TAGS), {"p1": recipeid, "p2": tag}
+            sqlalchemy.text(CREATE_RECIPE_TAGS), {"p1": recipeid, "p2": tags}
         )
         async for row in result:
             yield models.RecipeTag(

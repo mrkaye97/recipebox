@@ -47,25 +47,23 @@ INSERT INTO recipe (
 )
 VALUES (
     @userId::UUID,
-    @name,
-    @author,
-    @cuisine,
-    @location,
-    @timeEstimateMinutes,
-    @notes
+    @name::TEXT,
+    @author::TEXT,
+    @cuisine::TEXT,
+    @location::JSONB,
+    @timeEstimateMinutes::INTEGER,
+    sqlc.narg('notes')::TEXT
 )
 RETURNING *;
 
 -- name: CreateRecipeTags :many
 WITH tags AS (
-    SELECT
-        UNNEST(@recipeId::UUID[]) AS recipe_id,
-        UNNEST(@tag::TEXT[]) AS tag
+    SELECT UNNEST(@tags::TEXT[]) AS tag
 )
 
 INSERT INTO recipe_tag (recipe_id, tag)
 SELECT
-    recipe_id,
+    @recipeId::UUID,
     tag
 FROM tags
 ON CONFLICT DO NOTHING
@@ -73,14 +71,12 @@ RETURNING *;
 
 -- name: CreateRecipeDietaryRestrictionsMet :many
 WITH restrictions AS (
-    SELECT
-        UNNEST(@recipeId::UUID[]) AS recipe_id,
-        UNNEST(@dietaryRestrictionMet::dietary_restriction[]) AS dietary_restriction_met
+    SELECT UNNEST(@dietaryRestrictionsMets::dietary_restriction[]) AS dietary_restriction_met
 )
 
 INSERT INTO recipe_dietary_restriction_met (recipe_id, dietary_restriction_met)
 SELECT
-    recipe_id,
+    @recipeId::UUID,
     dietary_restriction_met
 FROM restrictions
 ON CONFLICT DO NOTHING
@@ -89,15 +85,14 @@ RETURNING *;
 -- name: CreateRecipeIngredients :many
 WITH ingredients AS (
     SELECT
-        UNNEST(@recipeId::UUID[]) AS recipe_id,
-        UNNEST(@name::TEXT[]) AS name,
-        UNNEST(@quantity::FLOAT8[]) AS quantity,
+        UNNEST(@names::TEXT[]) AS name,
+        UNNEST(@quantities::FLOAT8[]) AS quantity,
         UNNEST(@units::TEXT[]) AS units
 )
 
 INSERT INTO recipe_ingredient (recipe_id, name, quantity, units)
 SELECT
-    recipe_id,
+    @recipeId::UUID,
     name,
     quantity,
     units
@@ -108,16 +103,15 @@ RETURNING *;
 -- name: CreateRecipeInstructions :many
 WITH instructions AS (
     SELECT
-        UNNEST(@recipeId::UUID[]) AS recipe_id,
-        UNNEST(@stepNumber::INT[]) AS step_number,
-        UNNEST(@instruction::TEXT[]) AS instruction
+        UNNEST(@stepNumbers::INT[]) AS step_number,
+        UNNEST(@contents::TEXT[]) AS content
 )
 
 INSERT INTO recipe_instruction (recipe_id, step_number, instruction)
 SELECT
-    recipe_id,
+    @recipeId::UUID,
     step_number,
-    instruction
+    content
 FROM instructions
 ON CONFLICT DO NOTHING
 RETURNING *;
