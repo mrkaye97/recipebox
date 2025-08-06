@@ -32,7 +32,8 @@ async def get_db() -> AsyncGenerator[AsyncConnection]:
 Connection = Annotated[AsyncConnection, Depends(get_db)]
 
 
-async def authenticate(db: AsyncQuerier, token: str) -> DbUser:
+async def authenticate(conn: Connection, token: str = Depends(oauth2_scheme)) -> DbUser:
+    db = AsyncQuerier(conn)
     data = parse_token(token)
 
     if not data.expires_at or data.expires_at < datetime.now(UTC):
