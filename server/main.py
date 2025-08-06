@@ -58,13 +58,13 @@ async def login(
 
 
 @app.get("/recipes")
-async def get__list_recipes(user: User, conn: Connection) -> list[Recipe]:
+async def list_recipes(user: User, conn: Connection) -> list[Recipe]:
     db = AsyncQuerier(conn)
     return [r async for r in db.list_recipes(userid=user.id)]
 
 
 @app.get("/recipes/{id}")
-async def get__find_recipe(
+async def get_recipe(
     conn: Connection,
     user: User,
     id: UUID,
@@ -74,7 +74,7 @@ async def get__find_recipe(
 
 
 @app.patch("/recipes/{id}")
-async def patch__update_recipe(
+async def update_recipe(
     conn: Connection,
     user: User,
     id: UUID,
@@ -91,7 +91,7 @@ async def patch__update_recipe(
 
 
 @app.post("/recipes")
-async def post__create_recipe(
+async def create_recipe(
     recipe: CreateRecipeParams, user: User, conn: Connection
 ) -> Recipe | None:
     db = AsyncQuerier(conn)
@@ -103,7 +103,7 @@ async def post__create_recipe(
 
 
 @app.delete("/recipes/{id}")
-async def delete__recipe(conn: Connection, user: User, id: UUID) -> Recipe:
+async def delete_recipe(conn: Connection, user: User, id: UUID) -> Recipe:
     db = AsyncQuerier(conn)
     res = await db.delete_recipe(recipeid=id, userid=user.id)
 
