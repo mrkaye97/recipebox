@@ -2,12 +2,78 @@
 # versions:
 #   sqlc v1.28.0
 # source: query.sql
+import pydantic
+from typing import Any, AsyncIterator, Optional
 import uuid
 
 import sqlalchemy
 import sqlalchemy.ext.asyncio
 
 from src.crud import models
+
+
+CREATE_RECIPE = """-- name: create_recipe \\:one
+INSERT INTO recipe (
+    name,
+    author,
+    cuisine,
+    location,
+    time_estimate_minutes,
+    notes
+)
+VALUES (
+    :p1,
+    :p2,
+    :p3,
+    :p4,
+    :p5,
+    :p6
+)
+RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at
+"""
+
+
+class CreateRecipeParams(pydantic.BaseModel):
+    name: str
+    author: str
+    cuisine: str
+    location: Any
+    timeestimateminutes: int
+    notes: Optional[str]
+
+
+CREATE_RECIPE_DIETARY_RESTRICTIONS_MET = """-- name: create_recipe_dietary_restrictions_met \\:many
+WITH inputs AS (
+    SELECT
+        UNNEST(:p1) AS dietary_restriction_met,
+        UNNEST(:p2) AS recipe_id
+)
+INSERT INTO recipe_dietary_restriction_met (dietary_restriction_met, recipe_id)
+SELECT
+    dietary_restriction_met,
+    recipe_id
+FROM inputs
+ON CONFLICT DO NOTHING
+RETURNING recipe_id, dietary_restriction
+"""
+
+
+CREATE_RECIPE_TAGS = """-- name: create_recipe_tags \\:many
+WITH inputs AS (
+    SELECT
+        UNNEST(:p1) AS name,
+        UNNEST(:p2) AS recipe_id
+)
+
+INSERT INTO recipe_tag (name, recipe_id)
+SELECT
+    name,
+    recipe_id
+FROM inputs
+ON CONFLICT DO NOTHING
+RETURNING recipe_id, tag
+"""
+
 
 FIND_USER_BY_ID = """-- name: find_user_by_id \\:one
 SELECT id, username, email, name, created_at, updated_at
@@ -20,10 +86,49 @@ class AsyncQuerier:
     def __init__(self, conn: sqlalchemy.ext.asyncio.AsyncConnection):
         self._conn = conn
 
-    async def find_user_by_id(self, *, userid: uuid.UUID) -> models.User | None:
-        row = (
-            await self._conn.execute(sqlalchemy.text(FIND_USER_BY_ID), {"p1": userid})
-        ).first()
+    async def create_recipe(self, arg: CreateRecipeParams) -> Optional[models.Recipe]:
+        row = (await self._conn.execute(sqlalchemy.text(CREATE_RECIPE), {
+            "p1": arg.name,
+            "p2": arg.author,
+            "p3": arg.cuisine,
+            "p4": arg.location,
+            "p5": arg.timeestimateminutes,
+            "p6": arg.notes,
+        })).first()
+        if row is None:
+            return None
+        return models.Recipe(
+            id=row[0],
+            user_id=row[1],
+            name=row[2],
+            author=row[3],
+            cuisine=row[4],
+            location=row[5],
+            time_estimate_minutes=row[6],
+            notes=row[7],
+            last_made_at=row[8],
+            created_at=row[9],
+            updated_at=row[10],
+        )
+
+    async def create_recipe_dietary_restrictions_met(self, *, dietaryrestrictionsmet: Any, recipeid: Any) -> AsyncIterator[models.RecipeDietaryRestrictionMet]:
+        result = await self._conn.stream(sqlalchemy.text(CREATE_RECIPE_DIETARY_RESTRICTIONS_MET), {"p1": dietaryrestrictionsmet, "p2": recipeid})
+        async for row in result:
+            yield models.RecipeDietaryRestrictionMet(
+                recipe_id=row[0],
+                dietary_restriction=row[1],
+            )
+
+    async def create_recipe_tags(self, *, name: Any, recipeid: Any) -> AsyncIterator[models.RecipeTag]:
+        result = await self._conn.stream(sqlalchemy.text(CREATE_RECIPE_TAGS), {"p1": name, "p2": recipeid})
+        async for row in result:
+            yield models.RecipeTag(
+                recipe_id=row[0],
+                tag=row[1],
+            )
+
+    async def find_user_by_id(self, *, userid: uuid.UUID) -> Optional[models.User]:
+        row = (await self._conn.execute(sqlalchemy.text(FIND_USER_BY_ID), {"p1": userid})).first()
         if row is None:
             return None
         return models.User(

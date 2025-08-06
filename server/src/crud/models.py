@@ -3,10 +3,9 @@
 #   sqlc v1.28.0
 import datetime
 import enum
-import uuid
-from typing import Any
-
 import pydantic
+from typing import Any, Optional
+import uuid
 
 
 class DietaryRestriction(str, enum.Enum):
@@ -33,8 +32,8 @@ class Recipe(pydantic.BaseModel):
     cuisine: str
     location: Any
     time_estimate_minutes: int
-    notes: str | None
-    last_made_at: datetime.datetime | None
+    notes: Optional[str]
+    last_made_at: Optional[datetime.datetime]
     created_at: datetime.datetime
     updated_at: datetime.datetime
 
@@ -80,7 +79,6 @@ class User(pydantic.BaseModel):
 
 
 class UserPassword(pydantic.BaseModel):
-    id: uuid.UUID
     user_id: uuid.UUID
     password_hash: str
     created_at: datetime.datetime

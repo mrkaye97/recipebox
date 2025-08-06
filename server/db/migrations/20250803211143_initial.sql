@@ -11,11 +11,12 @@ CREATE TABLE "user" (
 );
 
 CREATE TABLE user_password (
-  id UUID PRIMARY KEY DEFAULT GEN_RANDOM_UUID(),
   user_id UUID NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
   password_hash TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+  PRIMARY KEY (user_id)
 );
 
 
@@ -45,9 +46,9 @@ CREATE TABLE recipe (
     FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_recipe_last_made_at ON recipe (last_made_at);
-CREATE INDEX idx_recipe_updated_at ON recipe (updated_at);
-CREATE INDEX idx_recipe_time_estimate ON recipe (time_estimate_minutes);
+CREATE INDEX idx_recipe_last_made_at ON recipe (user_id, last_made_at);
+CREATE INDEX idx_recipe_updated_at ON recipe (user_id, updated_at);
+CREATE INDEX idx_recipe_time_estimate ON recipe (user_id, time_estimate_minutes);
 
 CREATE TABLE recipe_tag (
     recipe_id UUID NOT NULL,

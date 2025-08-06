@@ -134,7 +134,6 @@ CREATE TABLE public."user" (
 --
 
 CREATE TABLE public.user_password (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid NOT NULL,
     password_hash text NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
@@ -211,7 +210,7 @@ ALTER TABLE ONLY public."user"
 --
 
 ALTER TABLE ONLY public.user_password
-    ADD CONSTRAINT user_password_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT user_password_pkey PRIMARY KEY (user_id);
 
 
 --
@@ -234,21 +233,21 @@ ALTER TABLE ONLY public."user"
 -- Name: idx_recipe_last_made_at; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_recipe_last_made_at ON public.recipe USING btree (last_made_at);
+CREATE INDEX idx_recipe_last_made_at ON public.recipe USING btree (user_id, last_made_at);
 
 
 --
 -- Name: idx_recipe_time_estimate; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_recipe_time_estimate ON public.recipe USING btree (time_estimate_minutes);
+CREATE INDEX idx_recipe_time_estimate ON public.recipe USING btree (user_id, time_estimate_minutes);
 
 
 --
 -- Name: idx_recipe_updated_at; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_recipe_updated_at ON public.recipe USING btree (updated_at);
+CREATE INDEX idx_recipe_updated_at ON public.recipe USING btree (user_id, updated_at);
 
 
 --
