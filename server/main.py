@@ -77,6 +77,8 @@ async def populate_recipe_data(
 async def populate_recipe_data(
     db: AsyncQuerier, user_id: UUID, recipes: list[RecipeModel] | RecipeModel
 ) -> list[Recipe] | Recipe:
+    wants_single = isinstance(recipes, RecipeModel)
+
     if isinstance(recipes, RecipeModel):
         recipes = [recipes]
 
@@ -108,7 +110,7 @@ async def populate_recipe_data(
     ):
         recipe_id_to_instructions[instruction.recipe_id].append(instruction)
 
-    return [
+    to_return = [
         Recipe.from_db(
             recipe=recipe,
             ingredients=recipe_id_to_ingredients[recipe.id],
@@ -118,6 +120,11 @@ async def populate_recipe_data(
         )
         for recipe in recipes
     ]
+
+    if wants_single:
+        return to_return[0]
+
+    return to_return
 
 
 async def list_recipes_from_db(user_id: UUID, db: AsyncQuerier) -> list[Recipe]:

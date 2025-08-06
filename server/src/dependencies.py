@@ -16,15 +16,17 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 async def get_db() -> AsyncGenerator[AsyncConnection]:
     engine = create_async_engine(
-        settings.database_url.replace("postgresql", "postgresql+asyncpg")
+        settings.database_url.replace("postgresql", "postgresql+asyncpg").split("?")[0],
     )
     async with engine.connect() as conn, conn.begin():
         try:
             yield conn
         except Exception as e:
+            if isinstance(e, HTTPException):
+                raise e
+
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Database error: {e!s}",
             ) from e
 
 
