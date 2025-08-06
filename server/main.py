@@ -1,13 +1,16 @@
-from typing import Annotated
+from collections import defaultdict
+from typing import Annotated, overload
 from uuid import UUID
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from src.auth import create_access_token, hash_password
+from src.crud.models import DietaryRestriction, RecipeIngredient, RecipeInstruction
+from src.crud.models import Recipe as RecipeModel
 from src.crud.query import AsyncQuerier, CreateRecipeParams, UpdateRecipeParams
 from src.dependencies import Connection, User
-from src.schemas import Token, UserRegistration, RecipeCreate, Recipe
+from src.schemas import Recipe, RecipeCreate, Token, UserRegistration
 
 app = FastAPI()
 
@@ -56,10 +59,74 @@ async def login(
     return Token(access_token=access_token, token_type="bearer")
 
 
+@overload
+async def populate_recipe_data(
+    db: AsyncQuerier, user_id: UUID, recipes: RecipeModel
+) -> Recipe: ...
+
+
+@overload
+async def populate_recipe_data(
+    db: AsyncQuerier, user_id: UUID, recipes: list[RecipeModel]
+) -> list[Recipe]: ...
+
+
+async def populate_recipe_data(
+    db: AsyncQuerier, user_id: UUID, recipes: list[RecipeModel] | RecipeModel
+) -> list[Recipe] | Recipe:
+    if isinstance(recipes, RecipeModel):
+        recipes = [recipes]
+
+    recipe_ids = [recipe.id for recipe in recipes]
+
+    recipe_id_to_tags = defaultdict[UUID, list[str]](list)
+    async for tag in db.list_recipe_tags(recipeids=recipe_ids, userid=user_id):
+        recipe_id_to_tags[tag.recipe_id].append(tag.tag)
+
+    recipe_id_to_dietary_restrictions_met = defaultdict[UUID, list[DietaryRestriction]](
+        list
+    )
+    async for dr in db.list_recipe_dietary_restrictions_met(
+        recipeids=recipe_ids, userid=user_id
+    ):
+        recipe_id_to_dietary_restrictions_met[dr.recipe_id].append(
+            dr.dietary_restriction
+        )
+
+    recipe_id_to_ingredients = defaultdict[UUID, list[RecipeIngredient]](list)
+    async for ingredient in db.list_recipe_ingredients(
+        recipeids=recipe_ids, userid=user_id
+    ):
+        recipe_id_to_ingredients[ingredient.recipe_id].append(ingredient)
+
+    recipe_id_to_instructions = defaultdict[UUID, list[RecipeInstruction]](list)
+    async for instruction in db.list_recipe_instructions(
+        recipeids=recipe_ids, userid=user_id
+    ):
+        recipe_id_to_instructions[instruction.recipe_id].append(instruction)
+
+    return [
+        Recipe.from_db(
+            recipe=recipe,
+            ingredients=recipe_id_to_ingredients[recipe.id],
+            dietary_restrictions_met=recipe_id_to_dietary_restrictions_met[recipe.id],
+            instructions=recipe_id_to_instructions[recipe.id],
+            tags=recipe_id_to_tags[recipe.id],
+        )
+        for recipe in recipes
+    ]
+
+
+async def list_recipes_from_db(user_id: UUID, db: AsyncQuerier) -> list[Recipe]:
+    recipes = [r async for r in db.list_recipes(userid=user_id)]
+
+    return await populate_recipe_data(db=db, user_id=user_id, recipes=recipes)
+
+
 @app.get("/recipes")
 async def list_recipes(user: User, conn: Connection) -> list[Recipe]:
     db = AsyncQuerier(conn)
-    return [r async for r in db.list_recipes(userid=user.id)]
+    return await list_recipes_from_db(user_id=user.id, db=db)
 
 
 @app.get("/recipes/{id}")
@@ -67,9 +134,18 @@ async def get_recipe(
     conn: Connection,
     user: User,
     id: UUID,
-) -> Recipe | None:
+) -> Recipe:
     db = AsyncQuerier(conn)
-    return await db.get_recipe(recipeid=id, userid=user.id)
+    recipe = await db.get_recipe(recipeid=id, userid=user.id)
+
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+
+    return await populate_recipe_data(
+        db=db,
+        user_id=user.id,
+        recipes=recipe,
+    )
 
 
 @app.patch("/recipes/{id}")
@@ -84,9 +160,16 @@ async def update_recipe(
     body.recipeid = id
     recipe = await db.update_recipe(body)
 
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+
     await conn.commit()
 
-    return recipe
+    return await populate_recipe_data(
+        db=db,
+        user_id=user.id,
+        recipes=recipe,
+    )
 
 
 @app.post("/recipes")
@@ -102,7 +185,7 @@ async def create_recipe(
             author=body.author,
             cuisine=body.cuisine,
             location=body.location.model_dump_json(),
-            time_estimate_minutes=body.time_estimate_minutes,
+            timeestimateminutes=body.time_estimate_minutes,
             notes=body.notes,
         )
     )
@@ -121,7 +204,7 @@ async def create_recipe(
 
     dietary_restrictions_met = db.create_recipe_dietary_restrictions_met(
         recipeid=recipe.id,
-        dietaryrestrictionsmets=[dr.value for dr in body.dietary_restrictions_met],
+        dietaryrestrictionsmets=body.dietary_restrictions_met,
     )
 
     instructions = db.create_recipe_instructions(
@@ -135,21 +218,20 @@ async def create_recipe(
     await conn.commit()
     return Recipe.from_db(
         recipe=recipe,
-        ingredients=ingredients,
-        dietary_restrictions_met=dietary_restrictions_met,
-        instructions=instructions,
-        tags=tags,
+        ingredients=[i async for i in ingredients],
+        dietary_restrictions_met=[
+            d.dietary_restriction async for d in dietary_restrictions_met
+        ],
+        instructions=[i async for i in instructions],
+        tags=[t.tag async for t in tags],
     )
 
 
 @app.delete("/recipes/{id}")
-async def delete_recipe(conn: Connection, user: User, id: UUID) -> Recipe:
+async def delete_recipe(conn: Connection, user: User, id: UUID) -> UUID:
     db = AsyncQuerier(conn)
-    res = await db.delete_recipe(recipeid=id, userid=user.id)
 
+    await db.delete_recipe(recipeid=id, userid=user.id)
     await conn.commit()
 
-    if not res:
-        raise HTTPException(status_code=404, detail="Recipe not found")
-
-    return res
+    return id

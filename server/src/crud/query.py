@@ -149,7 +149,7 @@ VALUES (
 """
 
 
-DELETE_RECIPE = """-- name: delete_recipe \\:one
+DELETE_RECIPE = """-- name: delete_recipe \\:exec
 DELETE FROM recipe
 WHERE
     id = :p1\\:\\:UUID
@@ -170,6 +170,43 @@ SELECT id, user_id, name, author, cuisine, location, time_estimate_minutes, note
 FROM recipe
 WHERE id = :p1\\:\\:UUID
 AND user_id = :p2\\:\\:UUID
+"""
+
+
+LIST_RECIPE_DIETARY_RESTRICTIONS_MET = """-- name: list_recipe_dietary_restrictions_met \\:many
+SELECT recipe_id, dietary_restriction
+FROM recipe_dietary_restriction_met
+WHERE
+    recipe_id = ANY(:p1\\:\\:UUID[])
+    AND user_id = :p2\\:\\:UUID
+"""
+
+
+LIST_RECIPE_INGREDIENTS = """-- name: list_recipe_ingredients \\:many
+SELECT recipe_id, name, quantity, units, created_at, updated_at
+FROM recipe_ingredient
+WHERE
+    recipe_id = ANY(:p1\\:\\:UUID[])
+    AND user_id = :p2\\:\\:UUID
+"""
+
+
+LIST_RECIPE_INSTRUCTIONS = """-- name: list_recipe_instructions \\:many
+SELECT recipe_id, step_number, content, created_at, updated_at
+FROM recipe_instruction
+WHERE
+    recipe_id = ANY(:p1\\:\\:UUID[])
+    AND user_id = :p2\\:\\:UUID
+ORDER BY step_number ASC
+"""
+
+
+LIST_RECIPE_TAGS = """-- name: list_recipe_tags \\:many
+SELECT recipe_id, tag
+FROM recipe_tag
+WHERE
+    recipe_id = ANY(:p1\\:\\:UUID[])
+    AND user_id = :p2\\:\\:UUID
 """
 
 
@@ -358,28 +395,9 @@ class AsyncQuerier:
             sqlalchemy.text(CREATE_USER_PASSWORD), {"p1": userid, "p2": passwordhash}
         )
 
-    async def delete_recipe(
-        self, *, recipeid: uuid.UUID, userid: uuid.UUID
-    ) -> models.Recipe | None:
-        row = (
-            await self._conn.execute(
-                sqlalchemy.text(DELETE_RECIPE), {"p1": recipeid, "p2": userid}
-            )
-        ).first()
-        if row is None:
-            return None
-        return models.Recipe(
-            id=row[0],
-            user_id=row[1],
-            name=row[2],
-            author=row[3],
-            cuisine=row[4],
-            location=row[5],
-            time_estimate_minutes=row[6],
-            notes=row[7],
-            last_made_at=row[8],
-            created_at=row[9],
-            updated_at=row[10],
+    async def delete_recipe(self, *, recipeid: uuid.UUID, userid: uuid.UUID) -> None:
+        await self._conn.execute(
+            sqlalchemy.text(DELETE_RECIPE), {"p1": recipeid, "p2": userid}
         )
 
     async def find_user_by_id(self, *, userid: uuid.UUID) -> models.User | None:
@@ -419,6 +437,62 @@ class AsyncQuerier:
             created_at=row[9],
             updated_at=row[10],
         )
+
+    async def list_recipe_dietary_restrictions_met(
+        self, *, recipeids: list[uuid.UUID], userid: uuid.UUID
+    ) -> AsyncIterator[models.RecipeDietaryRestrictionMet]:
+        result = await self._conn.stream(
+            sqlalchemy.text(LIST_RECIPE_DIETARY_RESTRICTIONS_MET),
+            {"p1": recipeids, "p2": userid},
+        )
+        async for row in result:
+            yield models.RecipeDietaryRestrictionMet(
+                recipe_id=row[0],
+                dietary_restriction=row[1],
+            )
+
+    async def list_recipe_ingredients(
+        self, *, recipeids: list[uuid.UUID], userid: uuid.UUID
+    ) -> AsyncIterator[models.RecipeIngredient]:
+        result = await self._conn.stream(
+            sqlalchemy.text(LIST_RECIPE_INGREDIENTS), {"p1": recipeids, "p2": userid}
+        )
+        async for row in result:
+            yield models.RecipeIngredient(
+                recipe_id=row[0],
+                name=row[1],
+                quantity=row[2],
+                units=row[3],
+                created_at=row[4],
+                updated_at=row[5],
+            )
+
+    async def list_recipe_instructions(
+        self, *, recipeids: list[uuid.UUID], userid: uuid.UUID
+    ) -> AsyncIterator[models.RecipeInstruction]:
+        result = await self._conn.stream(
+            sqlalchemy.text(LIST_RECIPE_INSTRUCTIONS), {"p1": recipeids, "p2": userid}
+        )
+        async for row in result:
+            yield models.RecipeInstruction(
+                recipe_id=row[0],
+                step_number=row[1],
+                content=row[2],
+                created_at=row[3],
+                updated_at=row[4],
+            )
+
+    async def list_recipe_tags(
+        self, *, recipeids: list[uuid.UUID], userid: uuid.UUID
+    ) -> AsyncIterator[models.RecipeTag]:
+        result = await self._conn.stream(
+            sqlalchemy.text(LIST_RECIPE_TAGS), {"p1": recipeids, "p2": userid}
+        )
+        async for row in result:
+            yield models.RecipeTag(
+                recipe_id=row[0],
+                tag=row[1],
+            )
 
     async def list_recipes(self, *, userid: uuid.UUID) -> AsyncIterator[models.Recipe]:
         result = await self._conn.stream(sqlalchemy.text(LIST_RECIPES), {"p1": userid})

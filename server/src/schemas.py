@@ -1,4 +1,3 @@
-from collections.abc import AsyncIterator
 from datetime import datetime
 from typing import Literal
 from uuid import UUID
@@ -51,7 +50,7 @@ class RecipeIngredient(BaseModel):
     units: str
 
     @classmethod
-    async def from_db(cls, ingredient: models.RecipeIngredient) -> "RecipeIngredient":
+    def from_db(cls, ingredient: models.RecipeIngredient) -> "RecipeIngredient":
         return cls(
             name=ingredient.name,
             quantity=ingredient.quantity,
@@ -64,9 +63,7 @@ class RecipeInstruction(BaseModel):
     content: str
 
     @classmethod
-    async def from_db(
-        cls, instruction: models.RecipeInstruction
-    ) -> "RecipeInstruction":
+    def from_db(cls, instruction: models.RecipeInstruction) -> "RecipeInstruction":
         return cls(
             step_number=instruction.step_number,
             content=instruction.content,
@@ -90,13 +87,13 @@ class Recipe(RecipeCreate):
     id: UUID
 
     @classmethod
-    async def from_db(
+    def from_db(
         cls,
         recipe: models.Recipe,
-        ingredients: AsyncIterator[models.RecipeIngredient],
-        dietary_restrictions_met: AsyncIterator[models.RecipeDietaryRestrictionMet],
-        instructions: AsyncIterator[models.RecipeInstruction],
-        tags: AsyncIterator[models.RecipeTag],
+        ingredients: list[models.RecipeIngredient],
+        dietary_restrictions_met: list[models.DietaryRestriction],
+        instructions: list[models.RecipeInstruction],
+        tags: list[str],
     ) -> "Recipe":
         return cls(
             id=recipe.id,
@@ -106,12 +103,8 @@ class Recipe(RecipeCreate):
             location=RecipeLocation.model_validate(recipe.location),
             time_estimate_minutes=recipe.time_estimate_minutes,
             notes=recipe.notes,
-            tags=[tag.tag async for tag in tags],
-            dietary_restrictions_met=[
-                dr.dietary_restriction async for dr in dietary_restrictions_met
-            ],
-            ingredients=[await RecipeIngredient.from_db(i) async for i in ingredients],
-            instructions=[
-                await RecipeInstruction.from_db(i) async for i in instructions
-            ],
+            tags=tags,
+            dietary_restrictions_met=dietary_restrictions_met,
+            ingredients=[RecipeIngredient.from_db(i) for i in ingredients],
+            instructions=[RecipeInstruction.from_db(i) for i in instructions],
         )
