@@ -1,4 +1,5 @@
 from collections.abc import AsyncGenerator
+from datetime import UTC, datetime
 from typing import Annotated
 from uuid import UUID
 
@@ -6,7 +7,7 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncConnection, create_async_engine
 
-from src.auth import create_access_token, get_user_id_from_token, hash_password
+from src.auth import create_access_token, hash_password, parse_token
 from src.crud.models import Recipe
 from src.crud.models import User as DbUser
 from src.crud.query import AsyncQuerier, CreateRecipeParams, UpdateRecipeParams
@@ -31,23 +32,36 @@ async def get_db() -> AsyncGenerator[AsyncConnection]:
 Connection = Annotated[AsyncConnection, Depends(get_db)]
 
 
-async def get_current_user(
-    conn: Connection, token: Annotated[str, Depends(oauth2_scheme)]
-) -> DbUser:
-    db = AsyncQuerier(conn)
-    user_id = get_user_id_from_token(token)
-    user = await db.find_user_by_id(userid=user_id)
+async def authenticate(db: AsyncQuerier, token: str) -> DbUser:
+    data = parse_token(token)
+
+    if not data.expires_at or data.expires_at < datetime.now(UTC):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    if data.user_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    user = await db.find_user_by_id(userid=data.user_id)
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
+            detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
     return user
 
 
-User = Annotated[DbUser, Depends(get_current_user)]
+User = Annotated[DbUser, Depends(authenticate)]
 
 
 @app.post("/auth/register", response_model=Token)
@@ -94,13 +108,13 @@ async def login(
     return Token(access_token=access_token, token_type="bearer")
 
 
-@app.get("/{user_id}/recipes")
+@app.get("/recipes")
 async def get__list_recipes(user: User, conn: Connection) -> list[Recipe]:
     db = AsyncQuerier(conn)
     return [r async for r in db.list_recipes(userid=user.id)]
 
 
-@app.get("/{user_id}/recipes/{id}")
+@app.get("/recipes/{id}")
 async def get__find_recipe(
     conn: Connection,
     user: User,
@@ -110,7 +124,7 @@ async def get__find_recipe(
     return await db.get_recipe(recipeid=id, userid=user.id)
 
 
-@app.patch("/{user_id}/recipes/{id}")
+@app.patch("/recipes/{id}")
 async def patch__update_recipe(
     conn: Connection,
     user: User,
@@ -127,7 +141,7 @@ async def patch__update_recipe(
     return recipe
 
 
-@app.post("/{user_id}/recipes")
+@app.post("/recipes")
 async def post__create_recipe(
     recipe: CreateRecipeParams, user: User, conn: Connection
 ) -> Recipe | None:
@@ -139,7 +153,7 @@ async def post__create_recipe(
     return created
 
 
-@app.delete("/{user_id}/recipes/{id}")
+@app.delete("/recipes/{id}")
 async def delete__recipe(conn: Connection, user: User, id: UUID) -> Recipe:
     db = AsyncQuerier(conn)
     res = await db.delete_recipe(recipeid=id, userid=user.id)
