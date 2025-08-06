@@ -26,7 +26,7 @@ SELECT u.*
 FROM "user" u
 JOIN user_password up ON u.id = up.user_id
 WHERE
-    (u.email = @email::TEXT OR u.id = @userId::UUID)
+    (u.email = sqlc.narg('email')::TEXT OR u.id = sqlc.narg('user_id')::UUID)
     AND up.password_hash = @passwordHash::TEXT
 ;
 

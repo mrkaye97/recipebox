@@ -1,5 +1,5 @@
 run:
-	poetry run fastapi dev main.py
+	(cd server && poetry run fastapi dev main.py)
 
 lint:
 	(cd server && poetry run black .)
