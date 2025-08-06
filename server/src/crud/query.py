@@ -13,6 +13,16 @@ import sqlalchemy.ext.asyncio
 from src.crud import models
 
 
+AUTHENTICATE_USER = """-- name: authenticate_user \\:one
+SELECT u.id, u.email, u.name, u.created_at, u.updated_at
+FROM "user" u
+JOIN user_password up ON u.id = up.user_id
+WHERE
+    (u.email = :p1\\:\\:TEXT OR u.id = :p2\\:\\:UUID)
+    AND up.password_hash = :p3\\:\\:TEXT
+"""
+
+
 CREATE_RECIPE = """-- name: create_recipe \\:one
 INSERT INTO recipe (
     name,
@@ -117,6 +127,31 @@ RETURNING recipe_id, tag
 """
 
 
+CREATE_USER = """-- name: create_user \\:one
+INSERT INTO "user" (
+    email,
+    name
+)
+VALUES (
+    :p1\\:\\:TEXT,
+    :p2\\:\\:TEXT
+)
+RETURNING id, email, name, created_at, updated_at
+"""
+
+
+CREATE_USER_PASSWORD = """-- name: create_user_password \\:exec
+INSERT INTO user_password (
+    user_id,
+    password_hash
+)
+VALUES (
+    :p1\\:\\:UUID,
+    :p2\\:\\:TEXT
+)
+"""
+
+
 DELETE_RECIPE = """-- name: delete_recipe \\:one
 DELETE FROM recipe
 WHERE id = :p1\\:\\:UUID
@@ -126,7 +161,7 @@ RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, n
 
 
 FIND_USER_BY_ID = """-- name: find_user_by_id \\:one
-SELECT id, username, email, name, created_at, updated_at
+SELECT id, email, name, created_at, updated_at
 FROM "user"
 WHERE id = :p1
 """
@@ -180,6 +215,18 @@ class UpdateRecipeParams(pydantic.BaseModel):
 class AsyncQuerier:
     def __init__(self, conn: sqlalchemy.ext.asyncio.AsyncConnection):
         self._conn = conn
+
+    async def authenticate_user(self, *, email: str, userid: uuid.UUID, passwordhash: str) -> Optional[models.User]:
+        row = (await self._conn.execute(sqlalchemy.text(AUTHENTICATE_USER), {"p1": email, "p2": userid, "p3": passwordhash})).first()
+        if row is None:
+            return None
+        return models.User(
+            id=row[0],
+            email=row[1],
+            name=row[2],
+            created_at=row[3],
+            updated_at=row[4],
+        )
 
     async def create_recipe(self, arg: CreateRecipeParams) -> Optional[models.Recipe]:
         row = (await self._conn.execute(sqlalchemy.text(CREATE_RECIPE), {
@@ -250,6 +297,21 @@ class AsyncQuerier:
                 tag=row[1],
             )
 
+    async def create_user(self, *, email: str, name: str) -> Optional[models.User]:
+        row = (await self._conn.execute(sqlalchemy.text(CREATE_USER), {"p1": email, "p2": name})).first()
+        if row is None:
+            return None
+        return models.User(
+            id=row[0],
+            email=row[1],
+            name=row[2],
+            created_at=row[3],
+            updated_at=row[4],
+        )
+
+    async def create_user_password(self, *, userid: uuid.UUID, passwordhash: str) -> None:
+        await self._conn.execute(sqlalchemy.text(CREATE_USER_PASSWORD), {"p1": userid, "p2": passwordhash})
+
     async def delete_recipe(self, *, recipeid: uuid.UUID, userid: uuid.UUID) -> Optional[models.Recipe]:
         row = (await self._conn.execute(sqlalchemy.text(DELETE_RECIPE), {"p1": recipeid, "p2": userid})).first()
         if row is None:
@@ -274,11 +336,10 @@ class AsyncQuerier:
             return None
         return models.User(
             id=row[0],
-            username=row[1],
-            email=row[2],
-            name=row[3],
-            created_at=row[4],
-            updated_at=row[5],
+            email=row[1],
+            name=row[2],
+            created_at=row[3],
+            updated_at=row[4],
         )
 
     async def get_recipe(self, *, recipeid: uuid.UUID, userid: uuid.UUID) -> Optional[models.Recipe]:

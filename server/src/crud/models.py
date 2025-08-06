@@ -71,7 +71,6 @@ class SchemaMigration(pydantic.BaseModel):
 
 class User(pydantic.BaseModel):
     id: uuid.UUID
-    username: str
     email: str
     name: str
     created_at: datetime.datetime

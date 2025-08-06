@@ -121,7 +121,6 @@ CREATE TABLE public.schema_migrations (
 
 CREATE TABLE public."user" (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    username text NOT NULL,
     email text NOT NULL,
     name text NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -219,14 +218,6 @@ ALTER TABLE ONLY public.user_password
 
 ALTER TABLE ONLY public."user"
     ADD CONSTRAINT user_pkey PRIMARY KEY (id);
-
-
---
--- Name: user user_username_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public."user"
-    ADD CONSTRAINT user_username_key UNIQUE (username);
 
 
 --
