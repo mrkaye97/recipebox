@@ -8,7 +8,12 @@ from fastapi.security import OAuth2PasswordRequestForm
 from src.auth import create_access_token, hash_password
 from src.crud.models import DietaryRestriction, RecipeIngredient, RecipeInstruction
 from src.crud.models import Recipe as RecipeModel
-from src.crud.query import AsyncQuerier, CreateRecipeParams, UpdateRecipeParams
+from src.crud.query import (
+    AsyncQuerier,
+    CreateRecipeIngredientsParams,
+    CreateRecipeParams,
+    UpdateRecipeParams,
+)
 from src.dependencies import Connection, User
 from src.schemas import Recipe, RecipeCreate, Token, UserRegistration
 
@@ -78,23 +83,29 @@ async def populate_recipe_data(
     recipe_ids = [recipe.id for recipe in recipes]
 
     recipe_id_to_tags = defaultdict[UUID, list[str]](list)
-    async for tag in db.list_recipe_tags(recipeids=recipe_ids):
+    async for tag in db.list_recipe_tags(recipeids=recipe_ids, userid=user_id):
         recipe_id_to_tags[tag.recipe_id].append(tag.tag)
 
     recipe_id_to_dietary_restrictions_met = defaultdict[UUID, list[DietaryRestriction]](
         list
     )
-    async for dr in db.list_recipe_dietary_restrictions_met(recipeids=recipe_ids):
+    async for dr in db.list_recipe_dietary_restrictions_met(
+        recipeids=recipe_ids, userid=user_id
+    ):
         recipe_id_to_dietary_restrictions_met[dr.recipe_id].append(
             dr.dietary_restriction
         )
 
     recipe_id_to_ingredients = defaultdict[UUID, list[RecipeIngredient]](list)
-    async for ingredient in db.list_recipe_ingredients(recipeids=recipe_ids):
+    async for ingredient in db.list_recipe_ingredients(
+        recipeids=recipe_ids, userid=user_id
+    ):
         recipe_id_to_ingredients[ingredient.recipe_id].append(ingredient)
 
     recipe_id_to_instructions = defaultdict[UUID, list[RecipeInstruction]](list)
-    async for instruction in db.list_recipe_instructions(recipeids=recipe_ids):
+    async for instruction in db.list_recipe_instructions(
+        recipeids=recipe_ids, userid=user_id
+    ):
         recipe_id_to_instructions[instruction.recipe_id].append(instruction)
 
     return [
@@ -186,24 +197,33 @@ async def create_recipe(
         )
 
     ingredients = db.create_recipe_ingredients(
-        recipeid=recipe.id,
-        names=[i.name for i in body.ingredients],
-        quantities=[i.quantity for i in body.ingredients],
-        units=[i.units for i in body.ingredients],
+        CreateRecipeIngredientsParams(
+            recipeid=recipe.id,
+            userid=user.id,
+            names=[i.name for i in body.ingredients],
+            quantities=[i.quantity for i in body.ingredients],
+            units=[i.units for i in body.ingredients],
+        )
     )
 
     dietary_restrictions_met = db.create_recipe_dietary_restrictions_met(
         recipeid=recipe.id,
+        userid=user.id,
         dietaryrestrictionsmets=body.dietary_restrictions_met,
     )
 
     instructions = db.create_recipe_instructions(
         recipeid=recipe.id,
+        userid=user.id,
         stepnumbers=[i.step_number for i in body.instructions],
         contents=[i.content for i in body.instructions],
     )
 
-    tags = db.create_recipe_tags(recipeid=recipe.id, tags=body.tags)
+    tags = db.create_recipe_tags(
+        recipeid=recipe.id,
+        tags=body.tags,
+        userid=user.id,
+    )
 
     return Recipe.from_db(
         recipe=recipe,

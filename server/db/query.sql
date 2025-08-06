@@ -61,9 +61,10 @@ WITH tags AS (
     SELECT UNNEST(@tags::TEXT[]) AS tag
 )
 
-INSERT INTO recipe_tag (recipe_id, tag)
+INSERT INTO recipe_tag (recipe_id, user_id, tag)
 SELECT
     @recipeId::UUID,
+    @userId::UUID,
     tag
 FROM tags
 ON CONFLICT DO NOTHING
@@ -74,9 +75,10 @@ WITH restrictions AS (
     SELECT UNNEST(@dietaryRestrictionsMets::dietary_restriction[]) AS dietary_restriction
 )
 
-INSERT INTO recipe_dietary_restriction_met (recipe_id, dietary_restriction)
+INSERT INTO recipe_dietary_restriction_met (recipe_id, user_id, dietary_restriction)
 SELECT
     @recipeId::UUID,
+    @userId::UUID,
     dietary_restriction
 FROM restrictions
 ON CONFLICT DO NOTHING
@@ -90,9 +92,10 @@ WITH ingredients AS (
         UNNEST(@units::TEXT[]) AS units
 )
 
-INSERT INTO recipe_ingredient (recipe_id, name, quantity, units)
+INSERT INTO recipe_ingredient (recipe_id, user_id, name, quantity, units)
 SELECT
     @recipeId::UUID,
+    @userId::UUID,
     name,
     quantity,
     units
@@ -107,9 +110,10 @@ WITH instructions AS (
         UNNEST(@contents::TEXT[]) AS content
 )
 
-INSERT INTO recipe_instruction (recipe_id, step_number, content)
+INSERT INTO recipe_instruction (recipe_id, user_id, step_number, content)
 SELECT
     @recipeId::UUID,
+    @userId::UUID,
     step_number,
     content
 FROM instructions
@@ -141,8 +145,9 @@ SET
     notes = COALESCE(@notes::TEXT, notes),
     last_made_at = COALESCE(@lastMadeAt::TIMESTAMPTZ, last_made_at),
     updated_at = CURRENT_TIMESTAMP
-WHERE id = @recipeId::UUID
-AND user_id = @userId::UUID
+WHERE
+    id = @recipeId::UUID
+    AND user_id = @userId::UUID
 RETURNING *
 ;
 
@@ -159,6 +164,7 @@ SELECT *
 FROM recipe_tag
 WHERE
     recipe_id = ANY(@recipeIds::UUID[])
+    AND user_id = @userId::UUID
 ;
 
 -- name: ListRecipeDietaryRestrictionsMet :many
@@ -166,6 +172,7 @@ SELECT *
 FROM recipe_dietary_restriction_met
 WHERE
     recipe_id = ANY(@recipeIds::UUID[])
+    AND user_id = @userId::UUID
 ;
 
 -- name: ListRecipeIngredients :many
@@ -173,6 +180,7 @@ SELECT *
 FROM recipe_ingredient
 WHERE
     recipe_id = ANY(@recipeIds::UUID[])
+    AND user_id = @userId::UUID
 ;
 
 -- name: ListRecipeInstructions :many
@@ -180,5 +188,6 @@ SELECT *
 FROM recipe_instruction
 WHERE
     recipe_id = ANY(@recipeIds::UUID[])
+    AND user_id = @userId::UUID
 ORDER BY step_number ASC
 ;
