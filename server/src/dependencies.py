@@ -18,11 +18,14 @@ async def get_db() -> AsyncGenerator[AsyncConnection]:
     engine = create_async_engine(
         settings.database_url.replace("postgresql", "postgresql+asyncpg")
     )
-    async with engine.connect() as conn:
+    async with engine.connect() as conn, conn.begin():
         try:
             yield conn
-        finally:
-            await conn.close()
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Database error: {e!s}",
+            ) from e
 
 
 Connection = Annotated[AsyncConnection, Depends(get_db)]

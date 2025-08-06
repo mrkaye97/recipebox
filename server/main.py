@@ -30,8 +30,6 @@ async def register(user_data: UserRegistration, conn: Connection) -> Token:
 
     access_token = create_access_token(user.id)
 
-    await conn.commit()
-
     return Token(access_token=access_token, token_type="bearer")
 
 
@@ -163,8 +161,6 @@ async def update_recipe(
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
 
-    await conn.commit()
-
     return await populate_recipe_data(
         db=db,
         user_id=user.id,
@@ -215,7 +211,6 @@ async def create_recipe(
 
     tags = db.create_recipe_tags(recipeid=recipe.id, tags=body.tags)
 
-    await conn.commit()
     return Recipe.from_db(
         recipe=recipe,
         ingredients=[i async for i in ingredients],
@@ -232,6 +227,5 @@ async def delete_recipe(conn: Connection, user: User, id: UUID) -> UUID:
     db = AsyncQuerier(conn)
 
     await db.delete_recipe(recipeid=id, userid=user.id)
-    await conn.commit()
 
     return id
