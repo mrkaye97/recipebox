@@ -2,7 +2,7 @@ from collections import defaultdict
 from typing import Annotated, overload
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, Form, HTTPException, UploadFile, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from src.auth import create_access_token, hash_password
@@ -22,7 +22,12 @@ from src.parsing import (
     markdown_to_recipe,
 )
 from src.schemas import (
-    CreateRecipeLocation,
+    BaseRecipeCreate,
+    CookbookRecipeLocation,
+    CreateMadeUpRecipeLocation,
+    CreateOnlineRecipeLocation,
+    MadeUpRecipeLocation,
+    OnlineRecipeLocation,
     Recipe,
     RecipeLocation,
     Token,
@@ -193,46 +198,22 @@ async def update_recipe(
     )
 
 
-@app.post("/recipes")
-async def create_recipe(
-    params: CreateRecipeLocation, user: User, conn: Connection
-) -> Recipe | None:
-    db = AsyncQuerier(conn)
-
-    if params.location.location == "cookbook":
-        base = await image_to_recipe(params.location.image_b64)
-    elif params.location.location == "online":
-        md = await extract_recipe_markdown_from_url(params.location.url)
-        base = await markdown_to_recipe(md)
-    elif params.location.location == "made_up":
-        md = f"""
-            # {params.location.name}
-
-            ## Ingredients
-            {params.location.ingredients}
-
-            ## Instructions
-            {params.location.instructions}
-        """
-
-        base = await markdown_to_recipe(md)
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid location type"
-        )
-
-    # print("\nParams to dump out", params.model_dump(), "\n")
-    location = RecipeLocation.model_validate(params.model_dump())
-
+async def ingest_recipe(
+    db: AsyncQuerier,
+    user: User,
+    params: BaseRecipeCreate,
+    location: RecipeLocation,
+    notes: str | None,
+) -> Recipe:
     recipe = await db.create_recipe(
         CreateRecipeParams(
             userid=user.id,
-            name=base.name,
-            author=base.author,
-            cuisine=base.cuisine,
+            name=params.name,
+            author=params.author,
+            cuisine=params.cuisine,
             location=location.model_dump_json(),
-            timeestimateminutes=base.time_estimate_minutes,
-            notes=params.notes,
+            timeestimateminutes=params.time_estimate_minutes,
+            notes=notes,
         )
     )
 
@@ -245,28 +226,28 @@ async def create_recipe(
         CreateRecipeIngredientsParams(
             recipeid=recipe.id,
             userid=user.id,
-            names=[i.name for i in base.ingredients],
-            quantities=[i.quantity for i in base.ingredients],
-            units=[i.units or "" for i in base.ingredients],
+            names=[i.name for i in params.ingredients],
+            quantities=[i.quantity for i in params.ingredients],
+            units=[i.units or "" for i in params.ingredients],
         )
     )
 
     dietary_restrictions_met = db.create_recipe_dietary_restrictions_met(
         recipeid=recipe.id,
         userid=user.id,
-        dietaryrestrictionsmets=base.dietary_restrictions_met,
+        dietaryrestrictionsmets=params.dietary_restrictions_met,
     )
 
     instructions = db.create_recipe_instructions(
         recipeid=recipe.id,
         userid=user.id,
-        stepnumbers=[i.step_number for i in base.instructions],
-        contents=[i.content for i in base.instructions],
+        stepnumbers=[i.step_number for i in params.instructions],
+        contents=[i.content for i in params.instructions],
     )
 
     tags = db.create_recipe_tags(
         recipeid=recipe.id,
-        tags=base.tags,
+        tags=params.tags,
         userid=user.id,
     )
 
@@ -278,6 +259,79 @@ async def create_recipe(
         ],
         instructions=[i async for i in instructions],
         tags=[t.tag async for t in tags],
+    )
+
+
+@app.post("/recipes/made-up")
+async def create_made_up_recipe(
+    params: CreateMadeUpRecipeLocation, user: User, conn: Connection
+) -> Recipe | None:
+    db = AsyncQuerier(conn)
+    md = f"""
+        # {params.name}
+
+        ## Ingredients
+        {params.ingredients}
+
+        ## Instructions
+        {params.instructions}
+    """
+
+    base = await markdown_to_recipe(md)
+    location = RecipeLocation(location=MadeUpRecipeLocation(location="made_up"))
+
+    return await ingest_recipe(
+        db=db, user=user, params=base, notes=params.notes, location=location
+    )
+
+
+@app.post("/recipes/cookbook")
+async def create_cookbook_recipe(
+    user: User,
+    conn: Connection,
+    file: UploadFile,
+    author: str = Form(...),
+    cookbook_name: str = Form(...),
+    page_number: int = Form(...),
+    notes: str | None = Form(None),
+) -> Recipe | None:
+    db = AsyncQuerier(conn)
+
+    image_bytes = await file.read()
+
+    base = await image_to_recipe(image_bytes)
+    base.author = author
+
+    location = RecipeLocation(
+        location=CookbookRecipeLocation(
+            location="cookbook",
+            cookbook_name=cookbook_name,
+            page_number=page_number,
+        )
+    )
+
+    return await ingest_recipe(
+        db=db, user=user, params=base, notes=notes, location=location
+    )
+
+
+@app.post("/recipes/online")
+async def create_online_recipe(
+    params: CreateOnlineRecipeLocation, user: User, conn: Connection
+) -> Recipe | None:
+    db = AsyncQuerier(conn)
+    md = await extract_recipe_markdown_from_url(params.url)
+    base = await markdown_to_recipe(md)
+
+    location = RecipeLocation(
+        location=OnlineRecipeLocation(
+            location="online",
+            url=params.url,
+        )
+    )
+
+    return await ingest_recipe(
+        db=db, user=user, params=base, notes=params.notes, location=location
     )
 
 

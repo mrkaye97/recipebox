@@ -71,12 +71,12 @@ class RecipeLocation(BaseModel):
 
 
 class CreateOnlineRecipeLocation(OnlineRecipeLocation):
-    pass
+    notes: str | None
 
 
 class CreateCookbookRecipeLocation(CookbookRecipeLocation):
     author: str
-    image_b64: str
+    notes: str | None
 
 
 class CreateMadeUpRecipeLocation(MadeUpRecipeLocation):
@@ -88,14 +88,6 @@ class CreateMadeUpRecipeLocation(MadeUpRecipeLocation):
     dietary_restrictions_met: list[models.DietaryRestriction]
     ingredients: list[RecipeIngredient]
     instructions: list[RecipeInstruction]
-
-
-class CreateRecipeLocation(BaseModel):
-    location: (
-        CreateCookbookRecipeLocation
-        | CreateOnlineRecipeLocation
-        | CreateMadeUpRecipeLocation
-    ) = Field(discriminator="location")
     notes: str | None
 
 

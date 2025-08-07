@@ -1,4 +1,3 @@
-import base64
 import io
 import re
 from typing import cast
@@ -90,10 +89,8 @@ async def markdown_to_recipe(markdown: str) -> BaseRecipeCreate:
     return (await recipe_agent.run(prompt, output_type=BaseRecipeCreate)).output
 
 
-async def image_to_recipe(image_b64: str) -> BaseRecipeCreate:
+async def image_to_recipe(image_bytes: bytes) -> BaseRecipeCreate:
     prompt = "Extract the recipe from the following image."
-
-    image_bytes = base64.b64decode(image_b64)
 
     return (
         await recipe_agent.run(
