@@ -16,7 +16,11 @@ from src.crud.query import (
 )
 from src.dependencies import Connection, User
 from src.logger import get_logger
-from src.parsing import extract_recipe_markdown_from_url, markdown_to_recipe
+from src.parsing import (
+    extract_recipe_markdown_from_url,
+    image_to_recipe,
+    markdown_to_recipe,
+)
 from src.schemas import (
     CreateRecipeLocation,
     Recipe,
@@ -196,8 +200,7 @@ async def create_recipe(
     db = AsyncQuerier(conn)
 
     if params.location.location == "cookbook":
-        ## TODO: Picture to markdown to recipe
-        base = await markdown_to_recipe("foo")
+        base = await image_to_recipe(params.location.image_b64)
     elif params.location.location == "online":
         md = await extract_recipe_markdown_from_url(params.location.url)
         base = await markdown_to_recipe(md)

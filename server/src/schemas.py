@@ -76,6 +76,7 @@ class CreateOnlineRecipeLocation(OnlineRecipeLocation):
 
 class CreateCookbookRecipeLocation(CookbookRecipeLocation):
     author: str
+    image_b64: str
 
 
 class CreateMadeUpRecipeLocation(MadeUpRecipeLocation):

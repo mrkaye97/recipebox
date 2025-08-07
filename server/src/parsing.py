@@ -1,3 +1,4 @@
+import base64
 import io
 import re
 from typing import cast
@@ -5,7 +6,7 @@ from typing import cast
 from aiohttp import ClientSession
 from bs4 import BeautifulSoup
 from markitdown import MarkItDown
-from pydantic_ai import Agent
+from pydantic_ai import Agent, BinaryContent
 from pydantic_ai.models.anthropic import AnthropicModel
 from pydantic_ai.providers.anthropic import AnthropicProvider
 
@@ -87,3 +88,16 @@ async def markdown_to_recipe(markdown: str) -> BaseRecipeCreate:
     prompt = f"Extract the recipe from the following webpage content:\n\n{content}"
 
     return (await recipe_agent.run(prompt, output_type=BaseRecipeCreate)).output
+
+
+async def image_to_recipe(image_b64: str) -> BaseRecipeCreate:
+    prompt = "Extract the recipe from the following image."
+
+    image_bytes = base64.b64decode(image_b64)
+
+    return (
+        await recipe_agent.run(
+            [prompt, BinaryContent(image_bytes, media_type="image/jpeg")],
+            output_type=BaseRecipeCreate,
+        )
+    ).output
