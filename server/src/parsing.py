@@ -32,7 +32,7 @@ recipe_agent = Agent(
 )
 
 
-async def extract_recipe_from_url(url: str) -> BaseRecipeCreate:
+async def extract_recipe_markdown_from_url(url: str) -> str:
     async with ClientSession() as session, session.get(url) as response:
         html = await response.text()
 
@@ -42,22 +42,27 @@ async def extract_recipe_from_url(url: str) -> BaseRecipeCreate:
         [
             "script",
             "style",
-            "a",
-            "nav",
-            "footer",
-            "form",
-            "input",
-            "button",
-            "noscript",
             "svg",
             "img",
             "picture",
             "video",
-            "source",
-            "link",
             "meta",
             "head",
             "iframe",
+            "footer",
+            "head",
+            "meta",
+            "nav",
+            "noscript",
+            "form",
+            "input",
+            "button",
+            "aside",
+            "link",
+            "figure",
+            "figcaption",
+            "canvas",
+            "dialog",
         ]
     ):
         tag.decompose()
@@ -69,7 +74,12 @@ async def extract_recipe_from_url(url: str) -> BaseRecipeCreate:
     for pattern in js_patterns:
         for element in soup.find_all(string=re.compile(pattern, re.I)):
             element.decompose()
-    binary_io = io.BytesIO(cast(bytes, soup.prettify(encoding="utf-8")))
+
+    return cast(str, soup.prettify())
+
+
+async def markdown_to_recipe(markdown: str) -> BaseRecipeCreate:
+    binary_io = io.BytesIO(markdown.encode("utf-8"))
 
     md = MarkItDown()
     content = md.convert_stream(binary_io).markdown

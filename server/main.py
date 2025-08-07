@@ -4,7 +4,6 @@ from uuid import UUID
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from pydantic import BaseModel
 
 from src.auth import create_access_token, hash_password
 from src.crud.models import DietaryRestriction, RecipeIngredient, RecipeInstruction
@@ -17,9 +16,9 @@ from src.crud.query import (
 )
 from src.dependencies import Connection, User
 from src.logger import get_logger
-from src.parsing import extract_recipe_from_url
+from src.parsing import extract_recipe_markdown_from_url, markdown_to_recipe
 from src.schemas import (
-    OnlineRecipeLocation,
+    CreateRecipeLocation,
     Recipe,
     RecipeLocation,
     Token,
@@ -190,29 +189,46 @@ async def update_recipe(
     )
 
 
-class RecipeCreateRequest(BaseModel):
-    url: str
-
-
 @app.post("/recipes")
 async def create_recipe(
-    params: RecipeCreateRequest, user: User, conn: Connection
+    params: CreateRecipeLocation, user: User, conn: Connection
 ) -> Recipe | None:
     db = AsyncQuerier(conn)
-    body = await extract_recipe_from_url(params.url)
-    location = RecipeLocation(
-        location=OnlineRecipeLocation(url=params.url, location="online")
-    )
+
+    if params.params.location == "cookbook":
+        ## TODO: Picture to markdown to recipe
+        base = await markdown_to_recipe("foo")
+    elif params.params.location == "online":
+        md = await extract_recipe_markdown_from_url(params.params.url)
+        base = await markdown_to_recipe(md)
+    elif params.params.location == "made_up":
+        md = f"""
+            # {params.params.name}
+
+            ## Ingredients
+            {params.params.ingredients}
+
+            ## Instructions
+            {params.params.instructions}
+        """
+
+        base = await markdown_to_recipe(md)
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid location type"
+        )
+
+    location = RecipeLocation.model_validate(**params.params.model_dump())
 
     recipe = await db.create_recipe(
         CreateRecipeParams(
             userid=user.id,
-            name=body.name,
-            author=body.author,
-            cuisine=body.cuisine,
+            name=base.name,
+            author=base.author,
+            cuisine=base.cuisine,
             location=location.model_dump_json(),
-            timeestimateminutes=body.time_estimate_minutes,
-            notes=None,
+            timeestimateminutes=base.time_estimate_minutes,
+            notes=params.notes,
         )
     )
 
@@ -225,28 +241,28 @@ async def create_recipe(
         CreateRecipeIngredientsParams(
             recipeid=recipe.id,
             userid=user.id,
-            names=[i.name for i in body.ingredients],
-            quantities=[i.quantity for i in body.ingredients],
-            units=[i.units or "" for i in body.ingredients],
+            names=[i.name for i in base.ingredients],
+            quantities=[i.quantity for i in base.ingredients],
+            units=[i.units or "" for i in base.ingredients],
         )
     )
 
     dietary_restrictions_met = db.create_recipe_dietary_restrictions_met(
         recipeid=recipe.id,
         userid=user.id,
-        dietaryrestrictionsmets=body.dietary_restrictions_met,
+        dietaryrestrictionsmets=base.dietary_restrictions_met,
     )
 
     instructions = db.create_recipe_instructions(
         recipeid=recipe.id,
         userid=user.id,
-        stepnumbers=[i.step_number for i in body.instructions],
-        contents=[i.content for i in body.instructions],
+        stepnumbers=[i.step_number for i in base.instructions],
+        contents=[i.content for i in base.instructions],
     )
 
     tags = db.create_recipe_tags(
         recipeid=recipe.id,
-        tags=body.tags,
+        tags=base.tags,
         userid=user.id,
     )
 

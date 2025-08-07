@@ -23,27 +23,6 @@ class TokenData(BaseModel):
     expires_at: datetime | None
 
 
-class OnlineRecipeLocation(BaseModel):
-    location: Literal["online"]
-    url: str
-
-
-class CookbookRecipeLocation(BaseModel):
-    location: Literal["cookbook"]
-    cookbook_name: str
-    page_number: int
-
-
-class MadeUpRecipeLocation(BaseModel):
-    location: Literal["made_up"]
-
-
-class RecipeLocation(BaseModel):
-    location: CookbookRecipeLocation | OnlineRecipeLocation | MadeUpRecipeLocation = (
-        Field(discriminator="location")
-    )
-
-
 class RecipeIngredient(BaseModel):
     name: str
     quantity: float
@@ -68,6 +47,55 @@ class RecipeInstruction(BaseModel):
             step_number=instruction.step_number,
             content=instruction.content,
         )
+
+
+class OnlineRecipeLocation(BaseModel):
+    location: Literal["online"]
+    url: str
+
+
+class CookbookRecipeLocation(BaseModel):
+    location: Literal["cookbook"]
+    cookbook_name: str
+    page_number: int
+
+
+class MadeUpRecipeLocation(BaseModel):
+    location: Literal["made_up"]
+
+
+class RecipeLocation(BaseModel):
+    location: CookbookRecipeLocation | OnlineRecipeLocation | MadeUpRecipeLocation = (
+        Field(discriminator="location")
+    )
+
+
+class CreateOnlineRecipeLocation(OnlineRecipeLocation):
+    pass
+
+
+class CreateCookbookRecipeLocation(CookbookRecipeLocation):
+    author: str
+
+
+class CreateMadeUpRecipeLocation(MadeUpRecipeLocation):
+    name: str
+    author: str
+    cuisine: str
+    time_estimate_minutes: int
+    tags: list[str]
+    dietary_restrictions_met: list[models.DietaryRestriction]
+    ingredients: list[RecipeIngredient]
+    instructions: list[RecipeInstruction]
+
+
+class CreateRecipeLocation(BaseModel):
+    params: (
+        CreateCookbookRecipeLocation
+        | CreateOnlineRecipeLocation
+        | CreateMadeUpRecipeLocation
+    ) = Field(discriminator="location")
+    notes: str | None
 
 
 class BaseRecipeCreate(BaseModel):
