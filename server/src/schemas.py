@@ -90,7 +90,7 @@ class CreateMadeUpRecipeLocation(MadeUpRecipeLocation):
 
 
 class CreateRecipeLocation(BaseModel):
-    params: (
+    location: (
         CreateCookbookRecipeLocation
         | CreateOnlineRecipeLocation
         | CreateMadeUpRecipeLocation

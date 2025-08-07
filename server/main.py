@@ -195,21 +195,21 @@ async def create_recipe(
 ) -> Recipe | None:
     db = AsyncQuerier(conn)
 
-    if params.params.location == "cookbook":
+    if params.location.location == "cookbook":
         ## TODO: Picture to markdown to recipe
         base = await markdown_to_recipe("foo")
-    elif params.params.location == "online":
-        md = await extract_recipe_markdown_from_url(params.params.url)
+    elif params.location.location == "online":
+        md = await extract_recipe_markdown_from_url(params.location.url)
         base = await markdown_to_recipe(md)
-    elif params.params.location == "made_up":
+    elif params.location.location == "made_up":
         md = f"""
-            # {params.params.name}
+            # {params.location.name}
 
             ## Ingredients
-            {params.params.ingredients}
+            {params.location.ingredients}
 
             ## Instructions
-            {params.params.instructions}
+            {params.location.instructions}
         """
 
         base = await markdown_to_recipe(md)
@@ -218,7 +218,8 @@ async def create_recipe(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid location type"
         )
 
-    location = RecipeLocation.model_validate(**params.params.model_dump())
+    # print("\nParams to dump out", params.model_dump(), "\n")
+    location = RecipeLocation.model_validate(params.model_dump())
 
     recipe = await db.create_recipe(
         CreateRecipeParams(
