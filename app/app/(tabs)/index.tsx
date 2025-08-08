@@ -13,9 +13,6 @@ export default function HomeScreen() {
   const { data } = useRecipes();
   const { login, logout, token } = useUser();
 
-  console.log("Token:", token);
-  console.log("Recipes data:", data);
-
   const handleLoginSuccess = (newToken: string) => {
     console.log("Login successful! Token saved:", newToken);
   };

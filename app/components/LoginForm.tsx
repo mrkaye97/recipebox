@@ -32,11 +32,11 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     setIsLoading(true);
 
     try {
-      const response = await login(email.trim(), password);
+      const token = await login(email.trim(), password);
 
-      if (response?.access_token) {
+      if (token) {
         Alert.alert("Success", "Login successful!");
-        onLoginSuccess?.(response.access_token);
+        onLoginSuccess?.(token);
       } else {
         Alert.alert("Error", "Login failed - no token received");
       }
@@ -44,7 +44,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       console.error("Login error:", error);
       Alert.alert(
         "Login Failed",
-        error instanceof Error ? error.message : "An unexpected error occurred"
+        error instanceof Error ? error.message : "An unexpected error occurred",
       );
     } finally {
       setIsLoading(false);

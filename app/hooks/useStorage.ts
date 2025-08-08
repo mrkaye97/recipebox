@@ -19,19 +19,22 @@ export const useStorage = ({ syncCallback }: UseStorageProps) => {
 
   const [token, setToken] = useState<string | null>(null);
 
-  const saveToken = useCallback(async (token: string) => {
-    try {
-      await storage.save({
-        key: "auth:token",
-        data: {
-          token,
-        },
-      });
-      setToken(token);
-    } catch (error) {
-      console.error("Error saving token:", error);
-    }
-  }, [storage]);
+  const saveToken = useCallback(
+    async (token: string) => {
+      try {
+        await storage.save({
+          key: "auth:token",
+          data: {
+            token,
+          },
+        });
+        setToken(token);
+      } catch (error) {
+        console.error("Error saving token:", error);
+      }
+    },
+    [storage],
+  );
 
   const getToken = useCallback(async () => {
     try {
