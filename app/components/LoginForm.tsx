@@ -1,0 +1,168 @@
+import React, { useState } from "react";
+import {
+  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { useUser } from "@/hooks/useUser";
+
+interface LoginFormProps {
+  onLoginSuccess?: (token: string) => void;
+}
+
+export function LoginForm({ onLoginSuccess }: LoginFormProps) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { login } = useUser();
+
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert("Error", "Please enter both email and password");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await login(email.trim(), password);
+
+      if (response?.access_token) {
+        Alert.alert("Success", "Login successful!");
+        onLoginSuccess?.(response.access_token);
+      } else {
+        Alert.alert("Error", "Login failed - no token received");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      Alert.alert(
+        "Login Failed",
+        error instanceof Error ? error.message : "An unexpected error occurred"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <ThemedView style={styles.container}>
+      <ThemedText type="title" style={styles.title}>
+        Login
+      </ThemedText>
+
+      <View style={styles.inputContainer}>
+        <ThemedText type="defaultSemiBold" style={styles.label}>
+          Email
+        </ThemedText>
+        <TextInput
+          style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+          placeholder="Enter your email"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+          editable={!isLoading}
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <ThemedText type="defaultSemiBold" style={styles.label}>
+          Password
+        </ThemedText>
+        <TextInput
+          style={styles.input}
+          value={password}
+          onChangeText={setPassword}
+          placeholder="Enter your password"
+          secureTextEntry
+          autoCapitalize="none"
+          autoCorrect={false}
+          editable={!isLoading}
+        />
+      </View>
+
+      <TouchableOpacity
+        style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
+        onPress={handleLogin}
+        disabled={isLoading}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.loginButtonText}>
+          {isLoading ? "Logging in..." : "Login"}
+        </Text>
+      </TouchableOpacity>
+
+      <View style={styles.testCredentials}>
+        <ThemedText type="default" style={styles.testText}>
+          Test credentials:
+        </ThemedText>
+        <ThemedText type="default" style={styles.testText}>
+          Email: test@example.com
+        </ThemedText>
+        <ThemedText type="default" style={styles.testText}>
+          Password: testpassword123
+        </ThemedText>
+      </View>
+    </ThemedView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+    gap: 20,
+  },
+  title: {
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  inputContainer: {
+    gap: 8,
+  },
+  label: {
+    fontSize: 16,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    backgroundColor: "#fff",
+  },
+  loginButton: {
+    backgroundColor: "#007AFF",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  loginButtonDisabled: {
+    backgroundColor: "#ccc",
+  },
+  loginButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  testCredentials: {
+    marginTop: 20,
+    padding: 15,
+    backgroundColor: "#f5f5f5",
+    borderRadius: 8,
+    gap: 4,
+  },
+  testText: {
+    fontSize: 12,
+    color: "#666",
+    textAlign: "center",
+  },
+});
