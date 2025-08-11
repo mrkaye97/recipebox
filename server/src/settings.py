@@ -9,7 +9,7 @@ class Settings(BaseSettings):
 
     jwt_secret_key: str = "your-secret-key-change-this-in-production"
     jwt_algorithm: str = "HS256"
-    jwt_access_token_expire_minutes: int = 30
+    jwt_access_token_expire_minutes: int = 60 * 24 * 7  ## 1 week
 
 
 settings = Settings()
