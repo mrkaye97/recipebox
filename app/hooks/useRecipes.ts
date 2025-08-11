@@ -4,7 +4,7 @@ import { useUser } from "./useUser";
 export const useRecipes = () => {
   const { token } = useUser();
 
-  const query = $api.useQuery(
+  return $api.useQuery(
     "get",
     "/recipes",
     {
@@ -16,8 +16,4 @@ export const useRecipes = () => {
       enabled: !!token,
     },
   );
-
-  console.log("Recipes data:", query.data);
-
-  return query;
 };

@@ -93,7 +93,6 @@ function OnlineRecipeForm({ onBack }: { onBack: () => void }) {
     setIsLoading(true);
     try {
       // TODO: Implement API call to create online recipe
-      console.log("Creating online recipe:", { url, notes });
       Alert.alert("Success", "Recipe created successfully!");
       onBack();
     } catch {

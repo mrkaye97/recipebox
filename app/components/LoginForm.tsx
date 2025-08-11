@@ -11,15 +11,13 @@ import {
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useUser } from "@/hooks/useUser";
+import { useRouter } from "expo-router";
 
-interface LoginFormProps {
-  onLoginSuccess?: (token: string) => void;
-}
-
-export function LoginForm({ onLoginSuccess }: LoginFormProps) {
+export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const { login } = useUser();
 
@@ -35,8 +33,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       const token = await login(email.trim(), password);
 
       if (token) {
-        Alert.alert("Success", "Login successful!");
-        onLoginSuccess?.(token);
+        router.navigate("/(tabs)");
       } else {
         Alert.alert("Error", "Login failed - no token received");
       }

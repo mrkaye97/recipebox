@@ -7,10 +7,12 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useUser } from "@/hooks/useUser";
+import { useRouter } from "expo-router";
 
 export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const { isAuthenticated, logout, token } = useUser();
+  const router = useRouter();
 
   const handleLogout = async () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -23,6 +25,7 @@ export default function ProfileScreen() {
         style: "destructive",
         onPress: async () => {
           await logout();
+          router.navigate("/(tabs)/profile");
         },
       },
     ]);
