@@ -1,152 +1,232 @@
-import { Image } from "expo-image";
-import { Platform, StyleSheet, TouchableOpacity } from "react-native";
+import { router } from "expo-router";
+import React from "react";
+import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 
-import { HelloWave } from "@/components/HelloWave";
 import { LoginForm } from "@/components/LoginForm";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { IconSymbol } from "@/components/ui/IconSymbol";
+import { Colors } from "@/constants/Colors";
+import { useColorScheme } from "@/hooks/useColorScheme";
 import { useRecipes } from "@/hooks/useRecipes";
 import { useUser } from "@/hooks/useUser";
 
-export default function HomeScreen() {
-  const { data } = useRecipes();
-  const { login, logout, token } = useUser();
+interface RecipeCardProps {
+  id: string;
+  name: string;
+  author: string;
+  cuisine: string;
+  timeEstimate: number;
+  colorScheme: "light" | "dark" | null | undefined;
+}
 
-  const handleLoginSuccess = (newToken: string) => {
-    console.log("Login successful! Token saved:", newToken);
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    console.log("Logged out successfully");
+function RecipeCard({
+  id,
+  name,
+  author,
+  cuisine,
+  timeEstimate,
+  colorScheme,
+}: RecipeCardProps) {
+  const handlePress = () => {
+    router.push(`/recipe/${id}`);
   };
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-      headerImage={
-        <Image
-          source={require("@/assets/images/partial-react-logo.png")}
-          style={styles.reactLogo}
+    <TouchableOpacity style={styles.recipeCard} onPress={handlePress}>
+      <View style={styles.recipeHeader}>
+        <ThemedText type="defaultSemiBold" style={styles.recipeName}>
+          {name}
+        </ThemedText>
+        <IconSymbol
+          name="chevron.right"
+          size={16}
+          color={Colors[colorScheme ?? "light"].icon}
         />
-      }
-    >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">RecipeBox!</ThemedText>
-        <HelloWave />
-      </ThemedView>
+      </View>
+      <ThemedText style={styles.recipeAuthor}>by {author}</ThemedText>
+      <View style={styles.recipeMetadata}>
+        <ThemedText style={styles.recipeCuisine}>{cuisine}</ThemedText>
+        <ThemedText style={styles.recipeTime}>{timeEstimate} min</ThemedText>
+      </View>
+    </TouchableOpacity>
+  );
+}
 
-      {/* Authentication Status */}
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Authentication Status</ThemedText>
-        {token ? (
-          <ThemedView style={styles.authContainer}>
-            <ThemedText>✅ Logged in</ThemedText>
-            <ThemedText type="defaultSemiBold">
-              Token: {token.substring(0, 20)}...
-            </ThemedText>
-            <TouchableOpacity
-              style={styles.logoutButton}
-              onPress={handleLogout}
-            >
-              <ThemedText style={styles.logoutButtonText}>Logout</ThemedText>
-            </TouchableOpacity>
-          </ThemedView>
-        ) : (
-          <ThemedView style={styles.authContainer}>
-            <ThemedText>❌ Not logged in</ThemedText>
-          </ThemedView>
-        )}
-      </ThemedView>
+export default function RecipesScreen() {
+  const colorScheme = useColorScheme();
+  const { isAuthenticated } = useUser();
+  const { data: recipes, isLoading, error } = useRecipes();
 
-      {/* Login Form - only show if not logged in */}
-      {!token && (
-        <ThemedView style={styles.stepContainer}>
-          <ThemedText type="subtitle">Login</ThemedText>
-          <LoginForm onLoginSuccess={handleLoginSuccess} />
-        </ThemedView>
-      )}
+  if (!isAuthenticated) {
+    return (
+      <ThemedView style={styles.container}>
+        <View style={styles.header}>
+          <ThemedText type="title">Welcome to RecipeBox</ThemedText>
+          <ThemedText style={styles.subtitle}>
+            Please log in to view your recipes
+          </ThemedText>
+        </View>
+        <View style={styles.loginContainer}>
+          <LoginForm />
+        </View>
+      </ThemedView>
+    );
+  }
 
-      {/* Recipes Data */}
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Recipes Data</ThemedText>
-        <ThemedText>
-          {data ? `Found ${data.length || 0} recipes` : "No recipes loaded"}
-        </ThemedText>
+  if (isLoading) {
+    return (
+      <ThemedView style={styles.container}>
+        <View style={styles.centerContainer}>
+          <ThemedText type="title">Loading Recipes...</ThemedText>
+        </View>
       </ThemedView>
+    );
+  }
 
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{" "}
-          to see changes. Press{" "}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: "cmd + d",
-              android: "cmd + m",
-              web: "F12",
-            })}
-          </ThemedText>{" "}
-          to open developer tools.
-        </ThemedText>
+  if (error) {
+    return (
+      <ThemedView style={styles.container}>
+        <View style={styles.centerContainer}>
+          <ThemedText type="title">Error Loading Recipes</ThemedText>
+          <ThemedText style={styles.errorText}>
+            Something went wrong loading your recipes
+          </ThemedText>
+        </View>
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
+    );
+  }
+
+  if (!recipes || recipes.length === 0) {
+    return (
+      <ThemedView style={styles.container}>
+        <View style={styles.header}>
+          <ThemedText type="title">Your Recipes</ThemedText>
+        </View>
+        <View style={styles.centerContainer}>
+          <ThemedText type="subtitle">No recipes yet</ThemedText>
+          <ThemedText style={styles.emptyStateText}>
+            Get started by creating your first recipe in the Create tab!
+          </ThemedText>
+        </View>
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">
-            npm run reset-project
-          </ThemedText>{" "}
-          to get a fresh <ThemedText type="defaultSemiBold">app</ThemedText>{" "}
-          directory. This will move the current{" "}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{" "}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
+    );
+  }
+
+  return (
+    <ThemedView style={styles.container}>
+      <View style={styles.header}>
+        <ThemedText type="title">Your Recipes</ThemedText>
+        <ThemedText style={styles.subtitle}>
+          {recipes.length} recipe{recipes.length !== 1 ? "s" : ""}
         </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      </View>
+
+      <ScrollView
+        style={styles.recipesList}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.recipesGrid}>
+          {recipes.map((recipe) => (
+            <RecipeCard
+              key={recipe.id}
+              id={recipe.id}
+              name={recipe.name}
+              author={recipe.author}
+              cuisine={recipe.cuisine}
+              timeEstimate={recipe.time_estimate_minutes}
+              colorScheme={colorScheme}
+            />
+          ))}
+        </View>
+        <View style={styles.bottomPadding} />
+      </ScrollView>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: "row",
+  container: {
+    flex: 1,
+    paddingTop: 60,
+  },
+  header: {
+    padding: 20,
     alignItems: "center",
-    gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
-  },
-  authContainer: {
-    padding: 16,
-    backgroundColor: "#f5f5f5",
-    borderRadius: 8,
-    gap: 8,
-  },
-  logoutButton: {
-    backgroundColor: "#ff4444",
-    padding: 10,
-    borderRadius: 6,
-    alignItems: "center",
+  subtitle: {
+    textAlign: "center",
+    opacity: 0.7,
     marginTop: 8,
   },
-  logoutButtonText: {
-    color: "#fff",
-    fontWeight: "600",
+  loginContainer: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 20,
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  errorText: {
+    textAlign: "center",
+    color: "#ff4444",
+    marginTop: 16,
+  },
+  emptyStateText: {
+    textAlign: "center",
+    opacity: 0.7,
+    marginTop: 16,
+  },
+  recipesList: {
+    flex: 1,
+    padding: 20,
+  },
+  recipesGrid: {
+    gap: 16,
+  },
+  recipeCard: {
+    backgroundColor: "#f8f9fa",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 8,
+  },
+  recipeHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  recipeName: {
+    flex: 1,
+    fontSize: 18,
+  },
+  recipeAuthor: {
+    fontSize: 14,
+    opacity: 0.7,
+    marginBottom: 8,
+  },
+  recipeMetadata: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  recipeCuisine: {
+    fontSize: 14,
+    fontWeight: "500",
+    backgroundColor: "#e3f2fd",
+    color: "#1976d2",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  recipeTime: {
+    fontSize: 14,
+    opacity: 0.7,
+  },
+  bottomPadding: {
+    height: 40,
   },
 });

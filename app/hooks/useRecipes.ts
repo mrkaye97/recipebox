@@ -4,7 +4,7 @@ import { useUser } from "./useUser";
 export const useRecipes = () => {
   const { token } = useUser();
 
-  const { data } = $api.useQuery(
+  const query = $api.useQuery(
     "get",
     "/recipes",
     {
@@ -17,9 +17,7 @@ export const useRecipes = () => {
     },
   );
 
-  console.log("Recipes data:", data);
+  console.log("Recipes data:", query.data);
 
-  return {
-    data,
-  };
+  return query;
 };

@@ -7,7 +7,6 @@ import { ThemedView } from "@/components/ThemedView";
 export default function LoginScreen() {
   const handleLoginSuccess = (token: string) => {
     console.log("Login successful, token saved:", token);
-    // You can navigate to another screen here or update app state
   };
 
   return (
