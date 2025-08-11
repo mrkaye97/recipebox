@@ -144,7 +144,7 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
       console.error("Error creating recipe:", error);
       Alert.alert(
         "Error",
-        error instanceof Error ? error.message : "Failed to create recipe"
+        error instanceof Error ? error.message : "Failed to create recipe",
       );
     } finally {
       setIsLoading(false);
@@ -324,7 +324,8 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
             Tags
           </ThemedText>
           <ThemedText style={styles.helperText}>
-            Separate tags with commas (e.g., "dinner, italian, vegetarian")
+            Separate tags with commas (e.g., &quot;dinner, italian,
+            vegetarian&quot;)
           </ThemedText>
 
           <TextInput

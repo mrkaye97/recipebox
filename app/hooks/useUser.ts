@@ -45,7 +45,12 @@ export const useUser = () => {
       setToken(result.token);
       return result.token;
     } catch (error) {
-      if (error && typeof error === 'object' && 'name' in error && error.name === 'NotFoundError') {
+      if (
+        error &&
+        typeof error === "object" &&
+        "name" in error &&
+        error.name === "NotFoundError"
+      ) {
         setToken(null);
         return null;
       }
@@ -62,7 +67,12 @@ export const useUser = () => {
       });
       setToken(null);
     } catch (error) {
-      if (error && typeof error === 'object' && 'name' in error && error.name === 'NotFoundError') {
+      if (
+        error &&
+        typeof error === "object" &&
+        "name" in error &&
+        error.name === "NotFoundError"
+      ) {
         setToken(null);
         return;
       }
@@ -80,8 +90,8 @@ export const useUser = () => {
           scope: "read write",
         },
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        }
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
       });
 
       if (access_token) {
