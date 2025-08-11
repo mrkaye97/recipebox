@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -20,6 +20,7 @@ export default function RecipeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const colorScheme = useColorScheme();
   const { token } = useUser();
+  const [ingredientsCollapsed, setIngredientsCollapsed] = useState(false);
 
   const { data: recipe, isLoading } = $api.useQuery(
     "get",
@@ -70,7 +71,7 @@ export default function RecipeDetailScreen() {
       <View style={styles.header}>
         <TouchableOpacity onPress={handleBack} style={styles.backIconButton}>
           <IconSymbol
-            name="chevron.right"
+            name="chevron.left"
             size={24}
             color={Colors[colorScheme ?? "light"].icon}
           />
@@ -81,7 +82,11 @@ export default function RecipeDetailScreen() {
         <View style={styles.placeholder} />
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.recipeHeader}>
           <ThemedText type="title" style={styles.recipeName}>
             {recipe.name}
@@ -151,19 +156,38 @@ export default function RecipeDetailScreen() {
 
         {recipe.ingredients && recipe.ingredients.length > 0 && (
           <View style={styles.section}>
-            <ThemedText type="subtitle" style={styles.sectionTitle}>
-              Ingredients
-            </ThemedText>
-            {recipe.ingredients.map((ingredient, index) => (
-              <View key={index} style={styles.ingredient}>
-                <ThemedText style={styles.ingredientQuantity}>
-                  {ingredient.quantity} {ingredient.units}
-                </ThemedText>
-                <ThemedText style={styles.ingredientName}>
-                  {ingredient.name}
-                </ThemedText>
+            <TouchableOpacity
+              style={styles.sectionHeader}
+              onPress={() => setIngredientsCollapsed(!ingredientsCollapsed)}
+            >
+              <ThemedText type="subtitle" style={styles.sectionTitle}>
+                Ingredients ({recipe.ingredients.length})
+              </ThemedText>
+              <IconSymbol
+                name={ingredientsCollapsed ? "chevron.down" : "chevron.up"}
+                size={20}
+                color={Colors[colorScheme ?? "light"].icon}
+              />
+            </TouchableOpacity>
+            {!ingredientsCollapsed && (
+              <View style={styles.ingredientsList}>
+                {recipe.ingredients.map((ingredient, index) => (
+                  <View key={index} style={styles.ingredient}>
+                    <View style={styles.ingredientBullet}>
+                      <View style={styles.bullet} />
+                    </View>
+                    <View style={styles.ingredientContent}>
+                      <ThemedText style={styles.ingredientQuantity}>
+                        {ingredient.quantity} {ingredient.units}
+                      </ThemedText>
+                      <ThemedText style={styles.ingredientName}>
+                        {ingredient.name}
+                      </ThemedText>
+                    </View>
+                  </View>
+                ))}
               </View>
-            ))}
+            )}
           </View>
         )}
 
@@ -223,7 +247,10 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  contentContainer: {
     paddingHorizontal: 20,
+    paddingBottom: 100,
   },
   centerContainer: {
     flex: 1,
@@ -237,42 +264,43 @@ const styles = StyleSheet.create({
   },
   backButton: {
     backgroundColor: "#007AFF",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: 8,
-    marginTop: 20,
   },
   backButtonText: {
     color: "#fff",
-    fontWeight: "600",
+    fontWeight: "500",
   },
   recipeHeader: {
     marginBottom: 24,
+    paddingBottom: 20,
+    borderBottomWidth: 2,
+    borderBottomColor: "rgba(0,0,0,0.1)",
   },
   recipeName: {
+    fontSize: 28,
+    fontWeight: "bold",
     marginBottom: 8,
+    lineHeight: 34,
   },
   recipeAuthor: {
     opacity: 0.7,
-    fontSize: 16,
+    fontSize: 18,
+    fontStyle: "italic",
   },
   recipeInfo: {
     marginBottom: 24,
+    backgroundColor: "#f8f9fa",
+    padding: 16,
+    borderRadius: 12,
     gap: 8,
   },
   infoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.1)",
-  },
-  section: {
-    marginBottom: 32,
-  },
-  sectionTitle: {
-    marginBottom: 16,
+    paddingVertical: 4,
   },
   tagsContainer: {
     flexDirection: "row",
@@ -283,10 +311,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
+    backgroundColor: "#007AFF",
   },
   tagText: {
     fontSize: 12,
-    opacity: 0.8,
+    color: "#ffffff",
+    fontWeight: "500",
   },
   restrictionsContainer: {
     gap: 8,
@@ -295,26 +325,75 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+    padding: 8,
+    backgroundColor: "#e8f5e8",
+    borderRadius: 8,
   },
   restrictionText: {
     fontSize: 14,
     fontWeight: "500",
+    color: "#2e7d32",
+  },
+  section: {
+    marginBottom: 32,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  sectionTitle: {
+    marginBottom: 16,
+    fontSize: 20,
+    fontWeight: "600",
+  },
+  ingredientsList: {
+    backgroundColor: "#ffffff",
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   ingredient: {
     flexDirection: "row",
-    paddingVertical: 8,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(0,0,0,0.05)",
+    alignItems: "center",
+  },
+  ingredientBullet: {
+    marginRight: 12,
+  },
+  bullet: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#007AFF",
+  },
+  ingredientContent: {
+    flex: 1,
   },
   ingredientQuantity: {
-    width: 80,
     fontSize: 14,
-    fontWeight: "500",
-    opacity: 0.8,
+    fontWeight: "600",
+    color: "#007AFF",
+    marginBottom: 2,
   },
   ingredientName: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 16,
+    lineHeight: 20,
   },
   instruction: {
     flexDirection: "row",

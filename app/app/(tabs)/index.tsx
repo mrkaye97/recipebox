@@ -124,6 +124,7 @@ export default function RecipesScreen() {
 
       <ScrollView
         style={styles.recipesList}
+        contentContainerStyle={styles.recipesListContent}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.recipesGrid}>
@@ -139,7 +140,6 @@ export default function RecipesScreen() {
             />
           ))}
         </View>
-        <View style={styles.bottomPadding} />
       </ScrollView>
     </ThemedView>
   );
@@ -153,6 +153,7 @@ const styles = StyleSheet.create({
   header: {
     padding: 20,
     alignItems: "center",
+    paddingBottom: 16,
   },
   subtitle: {
     textAlign: "center",
@@ -182,31 +183,45 @@ const styles = StyleSheet.create({
   },
   recipesList: {
     flex: 1,
+  },
+  recipesListContent: {
     padding: 20,
+    paddingBottom: 100, // Extra padding for tab bar
   },
   recipesGrid: {
     gap: 16,
   },
   recipeCard: {
-    backgroundColor: "#f8f9fa",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 8,
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 4,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
   },
   recipeHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 4,
+    marginBottom: 8,
   },
   recipeName: {
     flex: 1,
-    fontSize: 18,
+    fontSize: 20,
+    fontWeight: "600",
+    marginRight: 12,
   },
   recipeAuthor: {
-    fontSize: 14,
+    fontSize: 15,
     opacity: 0.7,
-    marginBottom: 8,
+    marginBottom: 12,
+    fontStyle: "italic",
   },
   recipeMetadata: {
     flexDirection: "row",
@@ -214,19 +229,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   recipeCuisine: {
-    fontSize: 14,
-    fontWeight: "500",
-    backgroundColor: "#e3f2fd",
-    color: "#1976d2",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    fontSize: 13,
+    fontWeight: "600",
+    backgroundColor: "#007AFF",
+    color: "#ffffff",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    overflow: "hidden",
   },
   recipeTime: {
     fontSize: 14,
-    opacity: 0.7,
-  },
-  bottomPadding: {
-    height: 40,
+    opacity: 0.6,
+    fontWeight: "500",
   },
 });
