@@ -14,7 +14,10 @@ import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { useRecipes } from "@/hooks/useRecipes";
 import { useUser } from "@/hooks/useUser";
+import * as ImagePicker from "expo-image-picker";
+import { router } from "expo-router";
 
 type CreateOption = "online" | "manual" | "cookbook";
 
@@ -82,7 +85,7 @@ function CreateOptionButton({
 function OnlineRecipeForm({ onBack }: { onBack: () => void }) {
   const [url, setUrl] = useState("");
   const [notes, setNotes] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const { create } = useRecipes();
 
   const handleSubmit = async () => {
     if (!url.trim()) {
@@ -90,15 +93,24 @@ function OnlineRecipeForm({ onBack }: { onBack: () => void }) {
       return;
     }
 
-    setIsLoading(true);
-    try {
-      // TODO: Implement API call to create online recipe
-      Alert.alert("Success", "Recipe created successfully!");
-      onBack();
-    } catch {
-      Alert.alert("Error", "Failed to create recipe");
-    } finally {
-      setIsLoading(false);
+    const recipeData = {
+      location: "online" as const,
+      url: url.trim(),
+      notes: notes.trim() || null,
+    };
+
+    const response = await create.perform(recipeData);
+
+    if (response) {
+      Alert.alert("Success", "Recipe imported successfully!", [
+        {
+          text: "OK",
+          onPress: () => {
+            onBack();
+            router.push("/");
+          },
+        },
+      ]);
     }
   };
 
@@ -125,7 +137,7 @@ function OnlineRecipeForm({ onBack }: { onBack: () => void }) {
           placeholder="https://example.com/recipe"
           autoCapitalize="none"
           autoCorrect={false}
-          editable={!isLoading}
+          editable={!create.isPending}
         />
       </View>
 
@@ -138,17 +150,240 @@ function OnlineRecipeForm({ onBack }: { onBack: () => void }) {
           placeholder="Add any notes about this recipe..."
           multiline
           numberOfLines={4}
-          editable={!isLoading}
+          editable={!create.isPending}
         />
       </View>
 
       <TouchableOpacity
-        style={[styles.submitButton, isLoading && styles.submitButtonDisabled]}
+        style={[
+          styles.submitButton,
+          create.isPending && styles.submitButtonDisabled,
+        ]}
         onPress={handleSubmit}
-        disabled={isLoading}
+        disabled={create.isPending}
       >
         <ThemedText style={styles.submitButtonText}>
-          {isLoading ? "Creating..." : "Import Recipe"}
+          {create.isPending ? "Creating..." : "Import Recipe"}
+        </ThemedText>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+}
+
+function CookbookRecipeForm({ onBack }: { onBack: () => void }) {
+  const [cookbookName, setCookbookName] = useState("");
+  const [author, setAuthor] = useState("");
+  const [pageNumber, setPageNumber] = useState("");
+  const [notes, setNotes] = useState("");
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const { create } = useRecipes();
+
+  const selectImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission Required",
+        "Camera roll permission is required to select photos",
+      );
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      setSelectedImage(result.assets[0].uri);
+    }
+  };
+
+  const takePhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission Required",
+        "Camera permission is required to take photos",
+      );
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      setSelectedImage(result.assets[0].uri);
+    }
+  };
+
+  const showImagePickerOptions = () => {
+    Alert.alert("Select Photo", "Choose how you'd like to add a photo", [
+      { text: "Camera", onPress: takePhoto },
+      { text: "Photo Library", onPress: selectImage },
+      { text: "Cancel", style: "cancel" },
+    ]);
+  };
+
+  const handleSubmit = async () => {
+    if (!cookbookName.trim()) {
+      Alert.alert("Error", "Cookbook name is required");
+      return;
+    }
+
+    if (!author.trim()) {
+      Alert.alert("Error", "Author is required");
+      return;
+    }
+
+    if (!pageNumber.trim()) {
+      Alert.alert("Error", "Page number is required");
+      return;
+    }
+
+    if (!selectedImage) {
+      Alert.alert("Error", "Please select or take a photo of the recipe");
+      return;
+    }
+
+    // Create the file object for the form data
+    const imageUri = selectedImage;
+    const filename = imageUri.split("/").pop() || "recipe-photo.jpg";
+    const imageFile = {
+      uri: imageUri,
+      type: "image/jpeg",
+      name: filename,
+    } as any;
+
+    const recipeData = {
+      location: "cookbook" as const,
+      cookbook_name: cookbookName.trim(),
+      author: author.trim(),
+      page_number: parseInt(pageNumber.trim()),
+      notes: notes.trim() || null,
+      file: imageFile,
+    };
+
+    const response = await create.perform(recipeData);
+
+    if (response) {
+      Alert.alert("Success", "Recipe created from cookbook photo!", [
+        {
+          text: "OK",
+          onPress: () => {
+            onBack();
+            router.push("/");
+          },
+        },
+      ]);
+    }
+  };
+
+  return (
+    <ScrollView style={styles.formContainer}>
+      <View style={styles.formHeader}>
+        <TouchableOpacity onPress={onBack}>
+          <IconSymbol name="chevron.left" size={24} color={Colors.light.tint} />
+        </TouchableOpacity>
+        <ThemedText type="title">Cookbook Photo</ThemedText>
+        <View style={styles.placeholder} />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <ThemedText type="defaultSemiBold">Cookbook Name</ThemedText>
+        <TextInput
+          style={styles.input}
+          value={cookbookName}
+          onChangeText={setCookbookName}
+          placeholder="e.g., Joy of Cooking"
+          editable={!create.isPending}
+        />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <ThemedText type="defaultSemiBold">Author</ThemedText>
+        <TextInput
+          style={styles.input}
+          value={author}
+          onChangeText={setAuthor}
+          placeholder="e.g., Julia Child"
+          editable={!create.isPending}
+        />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <ThemedText type="defaultSemiBold">Page Number</ThemedText>
+        <TextInput
+          style={styles.input}
+          value={pageNumber}
+          onChangeText={setPageNumber}
+          placeholder="e.g., 42"
+          keyboardType="numeric"
+          editable={!create.isPending}
+        />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <ThemedText type="defaultSemiBold">Notes (optional)</ThemedText>
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          value={notes}
+          onChangeText={setNotes}
+          placeholder="Add any notes about this recipe..."
+          multiline
+          numberOfLines={4}
+          editable={!create.isPending}
+        />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <ThemedText type="defaultSemiBold">Recipe Photo</ThemedText>
+        <TouchableOpacity
+          style={styles.imagePickerButton}
+          onPress={showImagePickerOptions}
+          disabled={create.isPending}
+        >
+          {selectedImage ? (
+            <View style={styles.selectedImageContainer}>
+              <View style={styles.selectedImagePreview}>
+                <IconSymbol name="photo" size={24} color={Colors.light.tint} />
+                <ThemedText style={styles.imageSelectedText}>
+                  Photo Selected
+                </ThemedText>
+              </View>
+              <ThemedText style={styles.changePhotoText}>
+                Tap to change
+              </ThemedText>
+            </View>
+          ) : (
+            <View style={styles.imagePickerContent}>
+              <IconSymbol
+                name="camera.fill"
+                size={24}
+                color={Colors.light.tint}
+              />
+              <ThemedText style={styles.imagePickerText}>
+                Take Photo or Select from Library
+              </ThemedText>
+            </View>
+          )}
+        </TouchableOpacity>
+      </View>
+
+      <TouchableOpacity
+        style={[
+          styles.submitButton,
+          create.isPending && styles.submitButtonDisabled,
+        ]}
+        onPress={handleSubmit}
+        disabled={create.isPending}
+      >
+        <ThemedText style={styles.submitButtonText}>
+          {create.isPending ? "Creating..." : "Create Recipe"}
         </ThemedText>
       </TouchableOpacity>
     </ScrollView>
@@ -189,18 +424,7 @@ export default function CreateRecipeScreen() {
   if (selectedOption === "cookbook") {
     return (
       <ThemedView style={styles.container}>
-        <ThemedView style={styles.centerContainer}>
-          <ThemedText type="title">From Cookbook</ThemedText>
-          <ThemedText style={styles.messageText}>
-            Cookbook photo upload coming soon!
-          </ThemedText>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => setSelectedOption(null)}
-          >
-            <ThemedText style={styles.backButtonText}>Back</ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
+        <CookbookRecipeForm onBack={() => setSelectedOption(null)} />
       </ThemedView>
     );
   }
@@ -331,5 +555,40 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+  },
+  imagePickerButton: {
+    borderWidth: 2,
+    borderColor: "#ddd",
+    borderStyle: "dashed",
+    borderRadius: 8,
+    padding: 20,
+    alignItems: "center",
+    backgroundColor: "#f9f9f9",
+    marginTop: 8,
+  },
+  imagePickerContent: {
+    alignItems: "center",
+    gap: 8,
+  },
+  imagePickerText: {
+    fontSize: 16,
+    color: "#666",
+  },
+  selectedImageContainer: {
+    alignItems: "center",
+    gap: 8,
+  selectedImagePreview: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  imageSelectedText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#007AFF",
+  },
+  changePhotoText: {
+    fontSize: 14,
+    color: "#666",
   },
 });

@@ -1,6 +1,9 @@
 run:
 	(cd server && poetry run fastapi dev main.py)
 
+fe:
+	(cd app && npm run ios)
+
 lint:
 	(cd server && poetry run black .)
 	(cd server && poetry run ruff format .)
@@ -22,3 +25,6 @@ reset-db:
 gen-sqlc:
 	(cd server && sqlc generate)
 	make lint
+
+gen-api:
+	(cd app && npm run gen-schema)

@@ -13,8 +13,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { useUser } from "@/hooks/useUser";
-import { fetchClient } from "@/src/lib/api/client";
+import { useRecipes } from "@/hooks/useRecipes";
 import { router } from "expo-router";
 
 interface ManualRecipeFormProps {
@@ -23,8 +22,7 @@ interface ManualRecipeFormProps {
 
 export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
   const colorScheme = useColorScheme();
-  const { token } = useUser();
-  const [isLoading, setIsLoading] = useState(false);
+  const { create } = useRecipes();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -54,83 +52,72 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
       return;
     }
 
-    setIsLoading(true);
+    // Parse ingredients - split by newlines and create structured objects
+    const ingredientsList = formData.ingredients
+      .split("\n")
+      .map((line, index) => {
+        const trimmed = line.trim();
+        if (!trimmed) return null;
 
-    try {
-      // Parse ingredients - split by newlines and create structured objects
-      const ingredientsList = formData.ingredients
-        .split("\n")
-        .map((line, index) => {
-          const trimmed = line.trim();
-          if (!trimmed) return null;
-
-          // Try to parse quantity and units from ingredient line
-          // Simple pattern: "2 cups flour" -> quantity: 2, units: "cups", name: "flour"
-          const match = trimmed.match(/^(\d+(?:\.\d+)?)\s+(\w+)\s+(.+)$/);
-          if (match) {
-            return {
-              quantity: parseFloat(match[1]),
-              units: match[2],
-              name: match[3],
-            };
-          } else {
-            // If can't parse, assume quantity 1 and no units
-            return {
-              quantity: 1,
-              units: "",
-              name: trimmed,
-            };
-          }
-        })
-        .filter((ingredient) => ingredient !== null);
-
-      // Parse instructions - split by newlines and create structured objects
-      const instructionsList = formData.instructions
-        .split("\n")
-        .map((line, index) => {
-          const trimmed = line.trim();
-          if (!trimmed) return null;
+        // Try to parse quantity and units from ingredient line
+        // Simple pattern: "2 cups flour" -> quantity: 2, units: "cups", name: "flour"
+        const match = trimmed.match(/^(\d+(?:\.\d+)?)\s+(\w+)\s+(.+)$/);
+        if (match) {
           return {
-            step_number: index + 1,
-            content: trimmed,
+            quantity: parseFloat(match[1]),
+            units: match[2],
+            name: match[3],
           };
-        })
-        .filter((instruction) => instruction !== null);
+        } else {
+          // If can't parse, assume quantity 1 and no units
+          return {
+            quantity: 1,
+            units: "",
+            name: trimmed,
+          };
+        }
+      })
+      .filter((ingredient) => ingredient !== null);
 
-      // Parse tags - split by commas and filter empty tags
-      const tagsList = formData.tags
-        ? formData.tags
-            .split(",")
-            .map((tag) => tag.trim())
-            .filter((tag) => tag.length > 0)
-        : [];
+    // Parse instructions - split by newlines and create structured objects
+    const instructionsList = formData.instructions
+      .split("\n")
+      .map((line, index) => {
+        const trimmed = line.trim();
+        if (!trimmed) return null;
+        return {
+          step_number: index + 1,
+          content: trimmed,
+        };
+      })
+      .filter((instruction) => instruction !== null);
 
-      const recipeData = {
-        name: formData.title.trim(),
-        author: "User", // Default author - could be made configurable
-        cuisine: formData.difficulty.trim() || "Unknown", // Using difficulty field as cuisine for now
-        time_estimate_minutes:
-          (formData.prepTime ? parseInt(formData.prepTime) : 0) +
-          (formData.cookTime ? parseInt(formData.cookTime) : 0),
-        tags: tagsList,
-        dietary_restrictions_met: [] as const, // Empty array for now - could be made configurable
-        ingredients: ingredientsList,
-        instructions: instructionsList,
-        notes: formData.description.trim() || null,
-        location: "made_up" as const,
-      };
+    // Parse tags - split by commas and filter empty tags
+    const tagsList = formData.tags
+      ? formData.tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter((tag) => tag.length > 0)
+      : [];
 
-      const response = await fetchClient.POST("/recipes/made-up", {
-        body: recipeData,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    const recipeData = {
+      name: formData.title.trim(),
+      author: "User", // Default author - could be made configurable
+      cuisine: formData.difficulty.trim() || "Unknown", // Using difficulty field as cuisine for now
+      time_estimate_minutes:
+        (formData.prepTime ? parseInt(formData.prepTime) : 0) +
+        (formData.cookTime ? parseInt(formData.cookTime) : 0),
+      tags: tagsList,
+      dietary_restrictions_met: [] as const, // Empty array for now - could be made configurable
+      ingredients: ingredientsList,
+      instructions: instructionsList,
+      notes: formData.description.trim() || null,
+      location: "made_up" as const,
+    };
 
-      if (response.error) {
-        throw new Error("Failed to create recipe");
-      }
+    const response = await create.perform(recipeData);
 
+    if (response) {
       Alert.alert("Success", "Recipe created successfully!", [
         {
           text: "OK",
@@ -140,14 +127,6 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
           },
         },
       ]);
-    } catch (error) {
-      console.error("Error creating recipe:", error);
-      Alert.alert(
-        "Error",
-        error instanceof Error ? error.message : "Failed to create recipe",
-      );
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -343,13 +322,13 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
         <TouchableOpacity
           style={[
             styles.submitButton,
-            isLoading && styles.submitButtonDisabled,
+            create.isPending && styles.submitButtonDisabled,
           ]}
           onPress={handleSubmit}
-          disabled={isLoading}
+          disabled={create.isPending}
         >
           <ThemedText style={styles.submitButtonText}>
-            {isLoading ? "Creating Recipe..." : "Create Recipe"}
+            {create.isPending ? "Creating Recipe..." : "Create Recipe"}
           </ThemedText>
         </TouchableOpacity>
 

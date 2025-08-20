@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Annotated, overload
+from typing import Annotated, Literal, overload
 from uuid import UUID
 
 from fastapi import Depends, FastAPI, Form, HTTPException, UploadFile, status
@@ -290,6 +290,7 @@ async def create_cookbook_recipe(
     user: User,
     conn: Connection,
     file: UploadFile,
+    location: Literal["cookbook"] = Form("cookbook"),
     author: str = Form(...),
     cookbook_name: str = Form(...),
     page_number: int = Form(...),
