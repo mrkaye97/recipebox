@@ -33,20 +33,23 @@ function RecipeCard({
 
   return (
     <TouchableOpacity style={styles.recipeCard} onPress={handlePress}>
-      <View style={styles.recipeHeader}>
-        <ThemedText type="defaultSemiBold" style={styles.recipeName}>
-          {name}
-        </ThemedText>
-        <IconSymbol
-          name="chevron.right"
-          size={16}
-          color={Colors[colorScheme ?? "light"].icon}
-        />
-      </View>
-      <ThemedText style={styles.recipeAuthor}>by {author}</ThemedText>
-      <View style={styles.recipeMetadata}>
-        <ThemedText style={styles.recipeCuisine}>{cuisine}</ThemedText>
-        <ThemedText style={styles.recipeTime}>{timeEstimate} min</ThemedText>
+      <View style={styles.recipeCardContent}>
+        <View style={styles.recipeHeader}>
+          <ThemedText type="defaultSemiBold" style={styles.recipeName}>
+            {name}
+          </ThemedText>
+          <IconSymbol
+            name="chevron.right"
+            size={16}
+            color={Colors[colorScheme ?? "light"].icon}
+            style={styles.chevronIcon}
+          />
+        </View>
+        <ThemedText style={styles.recipeAuthor}>by {author}</ThemedText>
+        <View style={styles.recipeMetadata}>
+          <ThemedText style={styles.recipeCuisine}>{cuisine}</ThemedText>
+          <ThemedText style={styles.recipeTime}>{timeEstimate} min</ThemedText>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -125,84 +128,105 @@ export default function RecipesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#fafafa",
     paddingTop: 60,
   },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: 32,
   },
   errorText: {
     textAlign: "center",
-    color: "#ff4444",
+    color: "#d63384",
     marginTop: 16,
+    fontSize: 16,
+    lineHeight: 24,
   },
   emptyStateText: {
     textAlign: "center",
-    opacity: 0.7,
+    color: "#6c757d",
     marginTop: 16,
+    fontSize: 16,
+    lineHeight: 24,
   },
   recipesList: {
     flex: 1,
   },
   recipesListContent: {
-    padding: 20,
-    paddingBottom: 100,
+    padding: 24,
+    paddingBottom: 120,
   },
   recipesGrid: {
-    gap: 16,
+    gap: 20,
   },
   recipeCard: {
     backgroundColor: "#ffffff",
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 20,
+    padding: 0,
     marginBottom: 4,
-    shadowColor: "#000",
+    shadowColor: "#000000",
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: "rgba(0, 0, 0, 0.04)",
+  },
+  recipeCardContent: {
+    padding: 24,
   },
   recipeHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
+    alignItems: "flex-start",
+    marginBottom: 12,
   },
   recipeName: {
     flex: 1,
-    fontSize: 20,
-    fontWeight: "600",
-    marginRight: 12,
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#1a1a1a",
+    marginRight: 16,
+    lineHeight: 28,
+    letterSpacing: -0.2,
   },
   recipeAuthor: {
     fontSize: 15,
-    opacity: 0.7,
-    marginBottom: 12,
-    fontStyle: "italic",
+    color: "#6c757d",
+    marginBottom: 16,
+    fontWeight: "400",
+    lineHeight: 20,
   },
   recipeMetadata: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginTop: 4,
   },
   recipeCuisine: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "600",
-    backgroundColor: "#007AFF",
-    color: "#ffffff",
+    backgroundColor: "#f8f9fa",
+    color: "#495057",
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 20,
+    borderRadius: 16,
     overflow: "hidden",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   recipeTime: {
     fontSize: 14,
-    opacity: 0.6,
+    color: "#6c757d",
     fontWeight: "500",
+    letterSpacing: 0.2,
+  },
+  chevronIcon: {
+    opacity: 0.6,
   },
 });
