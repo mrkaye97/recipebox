@@ -64,7 +64,7 @@ async def main() -> None:
     db = AsyncQuerier(pgconn)
 
     recipes = [RecipeToImport.from_sqlite(recipe) for recipe in all_data["recipe"]]
-    user = await db.find_user_by_id(userid="put-my-user-id-here")
+    user = await db.find_user_by_id(userid="34ce6a85-cf5d-4a6b-999c-db861f0bb573")
     assert user
 
     for recipe in recipes:
