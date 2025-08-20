@@ -32,52 +32,43 @@ export const useRecipes = () => {
     },
   );
 
-  const { mutateAsync: createOnlineRecipe } = $api.useMutation(
-    "post",
-    "/recipes/online",
-    {
+  const { mutateAsync: createOnlineRecipe, isPending: onlinePending } =
+    $api.useMutation("post", "/recipes/online", {
       onSuccess: async () => {
         await queryClient.invalidateQueries({
           queryKey: ["get", "/recipes"],
-        })
-      }
-    }
-  );
+        });
+      },
+    });
 
-  const { mutateAsync: createMadeUpRecipe } = $api.useMutation(
-    "post",
-    "/recipes/made-up",
-    {
+  const { mutateAsync: createMadeUpRecipe, isPending: madeUpPending } =
+    $api.useMutation("post", "/recipes/made-up", {
       onSuccess: async () => {
         await queryClient.invalidateQueries({
           queryKey: ["get", "/recipes"],
-        })
-      }
-    }
-  );
+        });
+      },
+    });
 
   const {
     mutateAsync: createCookbookRecipe,
-    isPending,
+    isPending: cookbookPending,
     isError,
-  } = $api.useMutation("post", "/recipes/cookbook",    {
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({
-          queryKey: ["get", "/recipes"],
-        })
-      }
-    }
-);
+  } = $api.useMutation("post", "/recipes/cookbook", {
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["get", "/recipes"],
+      });
+    },
+  });
 
   const createRecipe = useCallback(
     async (props: CreateRecipeProps) => {
-      console.log(token)
       switch (props.location) {
         case "online":
           return await createOnlineRecipe({
             body: props,
             headers: {
-              "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
           });
@@ -85,15 +76,23 @@ export const useRecipes = () => {
           return await createMadeUpRecipe({
             body: props,
             headers: {
-              "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
           });
         case "cookbook":
+          const formData = new FormData();
+          formData.append("file", props.file);
+          formData.append("location", "cookbook");
+          formData.append("author", props.author);
+          formData.append("cookbook_name", props.cookbook_name);
+          formData.append("page_number", props.page_number.toString());
+          if (props.notes) {
+            formData.append("notes", props.notes);
+          }
+
           return await createCookbookRecipe({
-            body: props,
+            body: formData as any, // TypeScript workaround for FormData
             headers: {
-              "Content-Type": "multipart/form-data",
               Authorization: `Bearer ${token}`,
             },
           });
@@ -101,14 +100,14 @@ export const useRecipes = () => {
           throw new Error("Invalid recipe location");
       }
     },
-    [createOnlineRecipe, createMadeUpRecipe, createCookbookRecipe],
+    [createOnlineRecipe, createMadeUpRecipe, createCookbookRecipe, token],
   );
 
   return {
     ...recipeQuery,
     create: {
       perform: createRecipe,
-      isPending,
+      isPending: onlinePending || madeUpPending || cookbookPending,
       isError,
     },
   };

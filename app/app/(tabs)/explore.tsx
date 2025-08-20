@@ -259,16 +259,14 @@ function CookbookRecipeForm({ onBack }: { onBack: () => void }) {
       name: filename,
     } as any;
 
-    const recipeData = {
+    const response = await create.perform({
       location: "cookbook" as const,
-      cookbook_name: cookbookName.trim(),
+      file: imageFile,
       author: author.trim(),
+      cookbook_name: cookbookName.trim(),
       page_number: parseInt(pageNumber.trim()),
       notes: notes.trim() || null,
-      file: imageFile,
-    };
-
-    const response = await create.perform(recipeData);
+    });
 
     if (response) {
       Alert.alert("Success", "Recipe created from cookbook photo!", [
@@ -577,6 +575,7 @@ const styles = StyleSheet.create({
   selectedImageContainer: {
     alignItems: "center",
     gap: 8,
+  },
   selectedImagePreview: {
     flexDirection: "row",
     alignItems: "center",
