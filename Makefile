@@ -1,5 +1,5 @@
 run:
-	(cd server && poetry run fastapi dev main.py)
+	(cd server && poetry run fastapi dev main.py --host 0.0.0.0 --port 8000)
 
 fe:
 	(cd app && npm run ios)
