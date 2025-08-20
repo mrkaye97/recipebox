@@ -13,7 +13,13 @@ import { useRecipes } from "@/hooks/use-recipes";
 import { useUser } from "@/hooks/use-user";
 import { Redirect, router } from "expo-router";
 import React from "react";
-import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 interface RecipeCardProps {
   id: string;
@@ -60,7 +66,11 @@ function RecipeCard({
 
 export default function RecipesScreen() {
   const { isAuthenticated, isLoading: isAuthLoading } = useUser();
-  const { data: recipes, isLoading, error } = useRecipes();
+  const { data: recipes, isLoading, error, refetch } = useRecipes();
+
+  const onRefresh = React.useCallback(() => {
+    refetch();
+  }, [refetch]);
 
   if (!isAuthenticated && !isAuthLoading) {
     return <Redirect href={"/(tabs)/profile"} />;
@@ -108,6 +118,14 @@ export default function RecipesScreen() {
         style={styles.recipesList}
         contentContainerStyle={styles.recipesListContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={onRefresh}
+            tintColor={Colors.primary}
+            colors={[Colors.primary]}
+          />
+        }
       >
         <View style={styles.recipesGrid}>
           {recipes.map((recipe) => (
