@@ -3,12 +3,13 @@ import sqlite3
 from ast import literal_eval
 
 from pydantic import BaseModel
+from sqlalchemy.ext.asyncio import create_async_engine
 
 from main import ingest_recipe
 from src.crud.query import AsyncQuerier
-from src.dependencies import get_db
 from src.parsing import extract_recipe_markdown_from_url, markdown_to_recipe
 from src.schemas import OnlineRecipeLocation, RecipeLocation
+from src.settings import settings
 
 
 class RecipeToImport(BaseModel):
@@ -59,31 +60,34 @@ async def main() -> None:
 
     conn.close()
 
-    pgconn = await get_db().__anext__()
+    engine = create_async_engine(
+        settings.database_url.replace("postgresql", "postgresql+psycopg").split("?")[0],
+    )
+    async with engine.connect() as pgconn, conn.begin():
+        db = AsyncQuerier(pgconn)
 
-    db = AsyncQuerier(pgconn)
+        recipes = [RecipeToImport.from_sqlite(recipe) for recipe in all_data["recipe"]]
+        user = await db.find_user_by_id(userid="34ce6a85-cf5d-4a6b-999c-db861f0bb573")
+        assert user
 
-    recipes = [RecipeToImport.from_sqlite(recipe) for recipe in all_data["recipe"]]
-    user = await db.find_user_by_id(userid="34ce6a85-cf5d-4a6b-999c-db861f0bb573")
-    assert user
+        for recipe in recipes:
+            print(f"Importing recipe: {recipe.name} by {recipe.author}")
+            if recipe.location.location.location != "online":
+                continue
 
-    for recipe in recipes:
-        if recipe.location.location.location != "online":
-            continue
+            md = await extract_recipe_markdown_from_url(recipe.location.location.url)
+            base = await markdown_to_recipe(md)
 
-        md = await extract_recipe_markdown_from_url(recipe.location.location.url)
-        base = await markdown_to_recipe(md)
-
-        location = RecipeLocation(
-            location=OnlineRecipeLocation(
-                location="online",
-                url=recipe.location.location.url,
+            location = RecipeLocation(
+                location=OnlineRecipeLocation(
+                    location="online",
+                    url=recipe.location.location.url,
+                )
             )
-        )
 
-        await ingest_recipe(
-            db=db, user=user, params=base, notes=recipe.notes, location=location
-        )
+            await ingest_recipe(
+                db=db, user=user, params=base, notes=recipe.notes, location=location
+            )
 
 
 if __name__ == "__main__":
