@@ -59,14 +59,14 @@ function RecipeCard({
 }
 
 export default function RecipesScreen() {
-  const { isAuthenticated } = useUser();
+  const { isAuthenticated, isLoading: isAuthLoading } = useUser();
   const { data: recipes, isLoading, error } = useRecipes();
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated && !isAuthLoading) {
     return <Redirect href={"/(tabs)/profile"} />;
   }
 
-  if (isLoading) {
+  if (isLoading || isAuthLoading) {
     return (
       <ThemedView style={styles.container}>
         <View style={styles.centerContainer}>
