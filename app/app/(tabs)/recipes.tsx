@@ -13,6 +13,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
+import { Colors as DesignColors, Typography, Spacing, BorderRadius, Shadows, Layout, Components } from "@/constants/Design";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useRecipes } from "@/hooks/useRecipes";
 import { useUser } from "@/hooks/useUser";
@@ -453,43 +454,40 @@ export default function CreateRecipeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fafafa",
-    paddingTop: 60,
+    backgroundColor: DesignColors.backgroundSubtle,
+    paddingTop: Layout.headerHeight,
   },
   header: {
-    paddingHorizontal: 24,
-    paddingVertical: 32,
+    paddingHorizontal: Layout.screenPadding,
+    paddingVertical: Spacing['3xl'],
     alignItems: "center",
-    backgroundColor: "#ffffff",
+    backgroundColor: DesignColors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(0, 0, 0, 0.04)",
+    borderBottomColor: DesignColors.borderLight,
+    ...Shadows.sm,
   },
   subtitle: {
     textAlign: "center",
-    color: "#6c757d",
-    marginTop: 8,
-    fontSize: 16,
-    lineHeight: 22,
+    color: DesignColors.textSecondary,
+    marginTop: Spacing.sm,
+    fontSize: Typography.fontSizes.md,
+    lineHeight: Typography.fontSizes.md * Typography.lineHeights.normal,
   },
   optionsContainer: {
-    padding: 24,
-    gap: 20,
-    paddingBottom: 120,
+    padding: Layout.screenPadding,
+    gap: Spacing.xl,
+    paddingBottom: Layout.bottomPadding.list,
   },
   bottomSpacer: {
-    height: 20,
+    height: Spacing.xl,
   },
   optionCard: {
-    backgroundColor: "#ffffff",
-    padding: 28,
-    borderRadius: 20,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
+    backgroundColor: DesignColors.surface,
+    padding: Spacing['3xl'],
+    borderRadius: BorderRadius.xl,
+    ...Shadows.lg,
     borderWidth: 1,
-    borderColor: "rgba(0, 0, 0, 0.04)",
+    borderColor: DesignColors.borderLight,
   },
   optionHeader: {
     flexDirection: "row",
@@ -498,30 +496,30 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   optionDescription: {
-    color: "#6c757d",
-    fontSize: 15,
-    lineHeight: 20,
+    color: DesignColors.textSecondary,
+    fontSize: Typography.fontSizes.base,
+    lineHeight: Typography.fontSizes.base * Typography.lineHeights.normal,
   },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 32,
+    padding: Spacing['3xl'],
   },
   messageText: {
     textAlign: "center",
-    color: "#6c757d",
-    marginTop: 16,
-    fontSize: 16,
-    lineHeight: 24,
+    color: DesignColors.textSecondary,
+    marginTop: Spacing.lg,
+    fontSize: Typography.fontSizes.md,
+    lineHeight: Typography.fontSizes.md * Typography.lineHeights.relaxed,
   },
   backButton: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#FF7A5C",
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderRadius: 16,
     marginTop: 24,
-    shadowColor: "#007AFF",
+    shadowColor: "#FF7A5C",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 12,
@@ -587,13 +585,13 @@ const styles = StyleSheet.create({
     paddingTop: 14,
   },
   submitButton: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#FF7A5C",
     paddingVertical: 18,
     paddingHorizontal: 32,
     borderRadius: 16,
     alignItems: "center",
     marginTop: 32,
-    shadowColor: "#007AFF",
+    shadowColor: "#FF7A5C",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 12,
@@ -641,7 +639,7 @@ const styles = StyleSheet.create({
   imageSelectedText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#007AFF",
+    color: "#FF7A5C",
   },
   changePhotoText: {
     fontSize: 14,

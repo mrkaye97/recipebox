@@ -6,6 +6,7 @@ import { HapticTab } from "@/components/HapticTab";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
+import { Colors as DesignColors, Shadows, BorderRadius, Layout } from "@/constants/Design";
 import { useColorScheme } from "@/hooks/useColorScheme";
 
 export default function TabLayout() {
@@ -21,30 +22,24 @@ export default function TabLayout() {
         tabBarStyle: Platform.select({
           ios: {
             position: "absolute",
-            height: 84,
+            height: Layout.tabBarHeight.ios,
             paddingBottom: 34,
             paddingTop: 8,
-            backgroundColor: "#ffffff",
+            backgroundColor: DesignColors.surface,
             borderTopWidth: 1,
-            borderTopColor: "rgba(0, 0, 0, 0.04)",
-            shadowColor: "#000000",
+            borderTopColor: DesignColors.borderLight,
+            ...Shadows.xl,
             shadowOffset: { width: 0, height: -2 },
-            shadowOpacity: 0.06,
-            shadowRadius: 16,
-            elevation: 8,
           },
           default: {
-            height: 60,
+            height: Layout.tabBarHeight.default,
             paddingBottom: 8,
             paddingTop: 8,
-            backgroundColor: "#ffffff",
+            backgroundColor: DesignColors.surface,
             borderTopWidth: 1,
-            borderTopColor: "rgba(0, 0, 0, 0.04)",
-            shadowColor: "#000000",
+            borderTopColor: DesignColors.borderLight,
+            ...Shadows.xl,
             shadowOffset: { width: 0, height: -2 },
-            shadowOpacity: 0.06,
-            shadowRadius: 16,
-            elevation: 8,
           },
         }),
       }}
@@ -70,18 +65,14 @@ export default function TabLayout() {
           tabBarIcon: ({ focused }) => (
             <View
               style={{
-                backgroundColor: "#007AFF",
-                borderRadius: 28,
+                backgroundColor: DesignColors.primary,
+                borderRadius: BorderRadius['2xl'],
                 width: 56,
                 height: 56,
                 justifyContent: "center",
                 alignItems: "center",
                 marginBottom: Platform.OS === "ios" ? 12 : 8,
-                shadowColor: "#007AFF",
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.3,
-                shadowRadius: 12,
-                elevation: 8,
+                ...Shadows.primaryLarge,
               }}
             >
               <IconSymbol size={28} name="plus" color="#ffffff" />

@@ -1,3 +1,11 @@
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { IconSymbol } from "@/components/ui/IconSymbol";
+import { Colors } from "@/constants/Colors";
+import { Colors as DesignColors } from "@/constants/Design";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { useUser } from "@/hooks/useUser";
+import { $api } from "@/src/lib/api/client";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -7,14 +15,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { useUser } from "@/hooks/useUser";
-import { $api } from "@/src/lib/api/client";
 
 export default function RecipeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -35,7 +35,7 @@ export default function RecipeDetailScreen() {
     },
     {
       enabled: !!token && !!id,
-    },
+    }
   );
 
   const handleBack = () => {
@@ -120,7 +120,9 @@ export default function RecipeDetailScreen() {
                     styles.tag,
                     {
                       backgroundColor:
-                        colorScheme === "dark" ? "#48484a" : "#e5e5ea",
+                        colorScheme === "dark"
+                          ? DesignColors.background
+                          : DesignColors.secondary,
                     },
                   ]}
                 >
@@ -141,7 +143,7 @@ export default function RecipeDetailScreen() {
                 {recipe.dietary_restrictions_met.map((restriction, index) => (
                   <View key={index} style={styles.restriction}>
                     <IconSymbol
-                      name="house.fill"
+                      name="heart"
                       size={16}
                       color={Colors[colorScheme ?? "light"].tint}
                     />
@@ -165,7 +167,7 @@ export default function RecipeDetailScreen() {
               </ThemedText>
               <IconSymbol
                 name={ingredientsCollapsed ? "chevron.down" : "chevron.up"}
-                size={20}
+                size={16}
                 color={Colors[colorScheme ?? "light"].icon}
               />
             </TouchableOpacity>
@@ -263,7 +265,6 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   backButton: {
-    backgroundColor: "#007AFF",
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
@@ -311,11 +312,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
-    backgroundColor: "#007AFF",
   },
   tagText: {
     fontSize: 12,
-    color: "#ffffff",
+    color: DesignColors.text,
     fontWeight: "500",
   },
   restrictionsContainer: {
