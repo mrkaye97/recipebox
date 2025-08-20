@@ -2,37 +2,93 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/design-system";
-import { useUser } from "@/hooks/use-user";
-import { $api } from "@/src/lib/api/client";
+import { useRecipeDetails } from "@/hooks/use-recipe-details";
+import { components } from "@/src/lib/api/v1";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
+  Button,
+  Linking,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
+
+type RecipeLocation = components["schemas"]["RecipeLocation"];
+
+const RecipeLocation = ({ location }: { location: RecipeLocation }) => {
+  switch (location.location.location) {
+    case "made_up":
+      return null;
+    case "online":
+      return (
+        <View style={styles.recipeInfo}>
+          <View style={styles.infoRow}>
+            <IconSymbol name="link" size={24} color={Colors.textSecondary} />
+            <Button
+              title={
+                location.location.location === "online"
+                  ? location.location.url.slice(0, 32) +
+                    (location.location.url.length > 32 ? "..." : "")
+                  : ""
+              }
+              onPress={() => {
+                if (location.location.location === "online") {
+                  Linking.openURL(location.location.url);
+                }
+              }}
+            />
+          </View>
+        </View>
+      );
+    case "cookbook":
+      return (
+        <View style={styles.recipeInfo}>
+          <View style={styles.infoRow}>
+            <IconSymbol
+              name="book.closed"
+              size={24}
+              color={Colors.textSecondary}
+            />
+            <ThemedText
+              style={{
+                fontSize: 16,
+                fontWeight: "600",
+              }}
+            >
+              {location.location.cookbook_name}
+            </ThemedText>
+          </View>
+          <View style={styles.infoRow}>
+            <IconSymbol
+              name="number.circle"
+              size={24}
+              color={Colors.textSecondary}
+            />
+            <ThemedText
+              style={{
+                fontSize: 16,
+                fontWeight: "600",
+              }}
+            >
+              Page {location.location.page_number}
+            </ThemedText>
+          </View>
+        </View>
+      );
+    default:
+      const exhaustiveCheck: never = location.location;
+      throw new Error(`Unhandled recipe location: ${exhaustiveCheck}`);
+  }
+};
+
 export default function RecipeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { token } = useUser();
   const [ingredientsCollapsed, setIngredientsCollapsed] = useState(false);
 
-  const { data: recipe, isLoading } = $api.useQuery(
-    "get",
-    "/recipes/{id}",
-    {
-      params: {
-        path: { id: id! },
-      },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    },
-    {
-      enabled: !!token && !!id,
-    }
-  );
+  const { data: recipe, isLoading } = useRecipeDetails(id);
 
   const handleBack = () => {
     router.back();
@@ -103,6 +159,8 @@ export default function RecipeDetailScreen() {
           </View>
         </View>
 
+        <RecipeLocation location={recipe.location} />
+
         {recipe.tags && recipe.tags.length > 0 && (
           <View style={styles.section}>
             <ThemedText type="subtitle" style={styles.sectionTitle}>
@@ -151,7 +209,10 @@ export default function RecipeDetailScreen() {
               style={styles.sectionHeader}
               onPress={() => setIngredientsCollapsed(!ingredientsCollapsed)}
             >
-              <ThemedText type="subtitle" style={styles.sectionTitle}>
+              <ThemedText
+                type="subtitle"
+                style={styles.collapsibleSectionTitle}
+              >
                 Ingredients ({recipe.ingredients.length})
               </ThemedText>
               <IconSymbol
@@ -337,7 +398,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   sectionTitle: {
+    fontSize: 20,
+    fontWeight: "600",
     marginBottom: 16,
+  },
+  collapsibleSectionTitle: {
     fontSize: 20,
     fontWeight: "600",
   },
