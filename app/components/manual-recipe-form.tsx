@@ -8,13 +8,19 @@ import {
   View,
 } from "react-native";
 
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import { Colors } from "@/constants/Colors";
-import { Colors as DesignColors, Typography, Spacing, BorderRadius, Shadows, Layout, Components } from "@/constants/Design";
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { useRecipes } from "@/hooks/useRecipes";
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { IconSymbol } from "@/components/ui/icon-symbol";
+import {
+  BorderRadius,
+  Colors,
+  Components,
+  Layout,
+  Shadows,
+  Spacing,
+  Typography,
+} from "@/constants/design-system";
+import { useRecipes } from "@/hooks/use-recipes";
 import { router } from "expo-router";
 
 interface ManualRecipeFormProps {
@@ -22,7 +28,6 @@ interface ManualRecipeFormProps {
 }
 
 export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
-  const colorScheme = useColorScheme();
   const { create } = useRecipes();
 
   const [formData, setFormData] = useState({
@@ -151,11 +156,7 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
     <ThemedView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onCancel} style={styles.cancelButton}>
-          <IconSymbol
-            name="xmark"
-            size={24}
-            color={Colors[colorScheme ?? "light"].text}
-          />
+          <IconSymbol name="xmark" size={24} color={Colors.text} />
         </TouchableOpacity>
         <ThemedText type="title">Manual Recipe</ThemedText>
         <View style={styles.placeholder} />
@@ -170,28 +171,22 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
           <View style={styles.inputGroup}>
             <ThemedText style={styles.label}>Recipe Name *</ThemedText>
             <TextInput
-              style={[
-                styles.input,
-                { color: Colors[colorScheme ?? "light"].text },
-              ]}
+              style={[styles.input, { color: Colors.text }]}
               value={formData.name}
               onChangeText={(value) => updateFormData("name", value)}
               placeholder="Enter recipe name"
-              placeholderTextColor={Colors[colorScheme ?? "light"].icon}
+              placeholderTextColor={Colors.textSecondary}
             />
           </View>
 
           <View style={styles.inputGroup}>
             <ThemedText style={styles.label}>Author *</ThemedText>
             <TextInput
-              style={[
-                styles.input,
-                { color: Colors[colorScheme ?? "light"].text },
-              ]}
+              style={[styles.input, { color: Colors.text }]}
               value={formData.author}
               onChangeText={(value) => updateFormData("author", value)}
               placeholder="Recipe author or source"
-              placeholderTextColor={Colors[colorScheme ?? "light"].icon}
+              placeholderTextColor={Colors.textSecondary}
             />
           </View>
 
@@ -199,30 +194,24 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
             <View style={[styles.inputGroup, styles.halfWidth]}>
               <ThemedText style={styles.label}>Cuisine *</ThemedText>
               <TextInput
-                style={[
-                  styles.input,
-                  { color: Colors[colorScheme ?? "light"].text },
-                ]}
+                style={[styles.input, { color: Colors.text }]}
                 value={formData.cuisine}
                 onChangeText={(value) => updateFormData("cuisine", value)}
                 placeholder="Italian, Mexican, etc."
-                placeholderTextColor={Colors[colorScheme ?? "light"].icon}
+                placeholderTextColor={Colors.textSecondary}
               />
             </View>
 
             <View style={[styles.inputGroup, styles.halfWidth]}>
               <ThemedText style={styles.label}>Total Time (min)</ThemedText>
               <TextInput
-                style={[
-                  styles.input,
-                  { color: Colors[colorScheme ?? "light"].text },
-                ]}
+                style={[styles.input, { color: Colors.text }]}
                 value={formData.time_estimate_minutes}
                 onChangeText={(value) =>
                   updateFormData("time_estimate_minutes", value)
                 }
                 placeholder="45"
-                placeholderTextColor={Colors[colorScheme ?? "light"].icon}
+                placeholderTextColor={Colors.textSecondary}
                 keyboardType="numeric"
               />
             </View>
@@ -231,15 +220,11 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
           <View style={styles.inputGroup}>
             <ThemedText style={styles.label}>Notes</ThemedText>
             <TextInput
-              style={[
-                styles.input,
-                styles.textArea,
-                { color: Colors[colorScheme ?? "light"].text },
-              ]}
+              style={[styles.input, styles.textArea, { color: Colors.text }]}
               value={formData.notes}
               onChangeText={(value) => updateFormData("notes", value)}
               placeholder="Any additional notes about the recipe"
-              placeholderTextColor={Colors[colorScheme ?? "light"].icon}
+              placeholderTextColor={Colors.textSecondary}
               multiline
               numberOfLines={3}
             />
@@ -255,15 +240,11 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
           </ThemedText>
 
           <TextInput
-            style={[
-              styles.input,
-              styles.largeTextArea,
-              { color: Colors[colorScheme ?? "light"].text },
-            ]}
+            style={[styles.input, styles.largeTextArea, { color: Colors.text }]}
             value={formData.ingredients}
             onChangeText={(value) => updateFormData("ingredients", value)}
             placeholder={`2 cups flour\n1 tsp salt\n3 eggs\n1 cup milk`}
-            placeholderTextColor={Colors[colorScheme ?? "light"].icon}
+            placeholderTextColor={Colors.textSecondary}
             multiline
             numberOfLines={6}
           />
@@ -278,15 +259,11 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
           </ThemedText>
 
           <TextInput
-            style={[
-              styles.input,
-              styles.largeTextArea,
-              { color: Colors[colorScheme ?? "light"].text },
-            ]}
+            style={[styles.input, styles.largeTextArea, { color: Colors.text }]}
             value={formData.instructions}
             onChangeText={(value) => updateFormData("instructions", value)}
             placeholder={`Preheat oven to 350°F\nMix dry ingredients in a bowl\nAdd wet ingredients and stir\nBake for 25-30 minutes`}
-            placeholderTextColor={Colors[colorScheme ?? "light"].icon}
+            placeholderTextColor={Colors.textSecondary}
             multiline
             numberOfLines={8}
           />
@@ -302,14 +279,11 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
           </ThemedText>
 
           <TextInput
-            style={[
-              styles.input,
-              { color: Colors[colorScheme ?? "light"].text },
-            ]}
+            style={[styles.input, { color: Colors.text }]}
             value={formData.tags}
             onChangeText={(value) => updateFormData("tags", value)}
             placeholder="dinner, italian, vegetarian"
-            placeholderTextColor={Colors[colorScheme ?? "light"].icon}
+            placeholderTextColor={Colors.textSecondary}
           />
         </View>
 
@@ -335,7 +309,7 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: DesignColors.backgroundSubtle,
+    backgroundColor: Colors.backgroundSubtle,
   },
   header: {
     flexDirection: "row",
@@ -344,16 +318,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: Layout.screenPadding,
     paddingTop: Layout.headerHeight,
     paddingBottom: Spacing.xl,
-    backgroundColor: DesignColors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: DesignColors.borderLight,
+    borderBottomColor: Colors.borderLight,
     ...Shadows.sm,
   },
   cancelButton: {
     width: 44,
     height: 44,
     borderRadius: BorderRadius.full,
-    backgroundColor: DesignColors.backgroundSubtle,
+    backgroundColor: Colors.backgroundSubtle,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -371,13 +345,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: Typography.fontSizes.xl,
     fontWeight: Typography.fontWeights.bold,
-    color: DesignColors.text,
+    color: Colors.text,
     marginBottom: Spacing.sm,
     letterSpacing: Typography.letterSpacing.tight,
   },
   helperText: {
     fontSize: Typography.fontSizes.sm,
-    color: DesignColors.textSecondary,
+    color: Colors.textSecondary,
     marginBottom: Spacing.xl,
     lineHeight: Typography.fontSizes.sm * Typography.lineHeights.normal,
   },
@@ -387,7 +361,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: Typography.fontSizes.base,
     fontWeight: Typography.fontWeights.semibold,
-    color: DesignColors.text,
+    color: Colors.text,
     marginBottom: Spacing.sm,
     letterSpacing: Typography.letterSpacing.wide,
   },
@@ -414,18 +388,18 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     ...Components.button,
-    backgroundColor: DesignColors.buttonPrimary,
+    backgroundColor: Colors.buttonPrimary,
     alignItems: "center",
-    marginTop: Spacing['3xl'],
+    marginTop: Spacing["3xl"],
     marginHorizontal: Layout.screenPadding,
     ...Shadows.primary,
   },
   submitButtonDisabled: {
-    backgroundColor: DesignColors.buttonDisabled,
+    backgroundColor: Colors.buttonDisabled,
     shadowOpacity: 0,
   },
   submitButtonText: {
-    color: DesignColors.surface,
+    color: Colors.surface,
     fontSize: Typography.fontSizes.lg,
     fontWeight: Typography.fontWeights.semibold,
     letterSpacing: Typography.letterSpacing.wider,

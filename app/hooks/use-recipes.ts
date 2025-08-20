@@ -2,7 +2,7 @@ import { $api } from "@/src/lib/api/client";
 import { components } from "@/src/lib/api/v1";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
-import { useUser } from "./useUser";
+import { useUser } from "./use-user";
 
 type CreateMadeUpRecipeProps =
   components["schemas"]["CreateMadeUpRecipeLocation"];

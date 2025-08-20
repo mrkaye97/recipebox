@@ -1,16 +1,14 @@
 import React from "react";
 import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
 
-import { LoginForm } from "@/components/LoginForm";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { useUser } from "@/hooks/useUser";
+import { LoginForm } from "@/components/login-form";
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { IconSymbol } from "@/components/ui/icon-symbol";
+import { useUser } from "@/hooks/use-user";
 import { useRouter } from "expo-router";
 
 export default function ProfileScreen() {
-  const colorScheme = useColorScheme();
   const { isAuthenticated, logout, token } = useUser();
   const router = useRouter();
 

@@ -8,9 +8,9 @@ import {
   View,
 } from "react-native";
 
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { useUser } from "@/hooks/useUser";
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { useUser } from "@/hooks/use-user";
 import { useRouter } from "expo-router";
 
 export function LoginForm() {

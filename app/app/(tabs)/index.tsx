@@ -1,15 +1,19 @@
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { IconSymbol } from "@/components/ui/icon-symbol";
+import {
+  BorderRadius,
+  Colors,
+  Layout,
+  Shadows,
+  Spacing,
+  Typography,
+} from "@/constants/design-system";
+import { useRecipes } from "@/hooks/use-recipes";
+import { useUser } from "@/hooks/use-user";
 import { router } from "expo-router";
 import React from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import { Colors } from "@/constants/Colors";
-import { Colors as DesignColors, Typography, Spacing, BorderRadius, Shadows, Layout } from "@/constants/Design";
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { useRecipes } from "@/hooks/useRecipes";
-import { useUser } from "@/hooks/useUser";
 
 interface RecipeCardProps {
   id: string;
@@ -17,7 +21,6 @@ interface RecipeCardProps {
   author: string;
   cuisine: string;
   timeEstimate: number;
-  colorScheme: "light" | "dark" | null | undefined;
 }
 
 function RecipeCard({
@@ -26,7 +29,6 @@ function RecipeCard({
   author,
   cuisine,
   timeEstimate,
-  colorScheme,
 }: RecipeCardProps) {
   const handlePress = () => {
     router.push(`/recipe/${id}`);
@@ -42,7 +44,7 @@ function RecipeCard({
           <IconSymbol
             name="chevron.right"
             size={16}
-            color={Colors[colorScheme ?? "light"].icon}
+            color={Colors.textSecondary}
             style={styles.chevronIcon}
           />
         </View>
@@ -57,7 +59,6 @@ function RecipeCard({
 }
 
 export default function RecipesScreen() {
-  const colorScheme = useColorScheme();
   const { isAuthenticated } = useUser();
   const { data: recipes, isLoading, error } = useRecipes();
 
@@ -117,7 +118,6 @@ export default function RecipesScreen() {
               author={recipe.author}
               cuisine={recipe.cuisine}
               timeEstimate={recipe.time_estimate_minutes}
-              colorScheme={colorScheme}
             />
           ))}
         </View>
@@ -129,25 +129,25 @@ export default function RecipesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: DesignColors.background,
+    backgroundColor: Colors.background,
     paddingTop: Layout.headerHeight,
   },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: Spacing['3xl'],
+    padding: Spacing["3xl"],
   },
   errorText: {
     textAlign: "center",
-    color: DesignColors.error,
+    color: Colors.error,
     marginTop: Spacing.lg,
     fontSize: Typography.fontSizes.md,
     lineHeight: Typography.fontSizes.md * Typography.lineHeights.relaxed,
   },
   emptyStateText: {
     textAlign: "center",
-    color: DesignColors.textSecondary,
+    color: Colors.textSecondary,
     marginTop: Spacing.lg,
     fontSize: Typography.fontSizes.md,
     lineHeight: Typography.fontSizes.md * Typography.lineHeights.relaxed,
@@ -163,16 +163,16 @@ const styles = StyleSheet.create({
     gap: Spacing.xl,
   },
   recipeCard: {
-    backgroundColor: DesignColors.surface,
+    backgroundColor: Colors.surface,
     borderRadius: BorderRadius.xl,
     padding: 0,
     marginBottom: Spacing.xs,
     ...Shadows.xl,
     borderWidth: 1,
-    borderColor: DesignColors.border,
+    borderColor: Colors.border,
   },
   recipeCardContent: {
-    padding: Spacing['2xl'],
+    padding: Spacing["2xl"],
   },
   recipeHeader: {
     flexDirection: "row",
@@ -182,16 +182,16 @@ const styles = StyleSheet.create({
   },
   recipeName: {
     flex: 1,
-    fontSize: Typography.fontSizes['2xl'],
+    fontSize: Typography.fontSizes["2xl"],
     fontWeight: Typography.fontWeights.bold,
-    color: DesignColors.text,
+    color: Colors.text,
     marginRight: Spacing.lg,
-    lineHeight: Typography.fontSizes['2xl'] * Typography.lineHeights.tight,
+    lineHeight: Typography.fontSizes["2xl"] * Typography.lineHeights.tight,
     letterSpacing: Typography.letterSpacing.tight,
   },
   recipeAuthor: {
     fontSize: Typography.fontSizes.base,
-    color: DesignColors.textSecondary,
+    color: Colors.textSecondary,
     marginBottom: Spacing.lg,
     fontWeight: Typography.fontWeights.normal,
     lineHeight: Typography.fontSizes.base * Typography.lineHeights.normal,
@@ -205,8 +205,8 @@ const styles = StyleSheet.create({
   recipeCuisine: {
     fontSize: Typography.fontSizes.xs,
     fontWeight: Typography.fontWeights.semibold,
-    backgroundColor: DesignColors.secondary,
-    color: DesignColors.text,
+    backgroundColor: Colors.secondary,
+    color: Colors.text,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.lg,
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   },
   recipeTime: {
     fontSize: Typography.fontSizes.sm,
-    color: DesignColors.textSecondary,
+    color: Colors.textSecondary,
     fontWeight: Typography.fontWeights.medium,
     letterSpacing: Typography.letterSpacing.wider,
   },

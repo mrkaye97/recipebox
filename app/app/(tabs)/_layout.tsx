@@ -1,21 +1,22 @@
+import {
+  BorderRadius,
+  Colors,
+  Layout,
+  Shadows,
+} from "@/constants/design-system";
 import { Tabs } from "expo-router";
 import React from "react";
 import { Platform, View } from "react-native";
 
-import { HapticTab } from "@/components/HapticTab";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import TabBarBackground from "@/components/ui/TabBarBackground";
-import { Colors } from "@/constants/Colors";
-import { Colors as DesignColors, Shadows, BorderRadius, Layout } from "@/constants/Design";
-import { useColorScheme } from "@/hooks/useColorScheme";
+import { HapticTab } from "@/components/haptic-tab";
+import { IconSymbol } from "@/components/ui/icon-symbol";
+import TabBarBackground from "@/components/ui/tab-bar-background";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarActiveTintColor: Colors.primary,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
@@ -25,9 +26,9 @@ export default function TabLayout() {
             height: Layout.tabBarHeight.ios,
             paddingBottom: 34,
             paddingTop: 8,
-            backgroundColor: DesignColors.surface,
+            backgroundColor: Colors.surface,
             borderTopWidth: 1,
-            borderTopColor: DesignColors.borderLight,
+            borderTopColor: Colors.borderLight,
             ...Shadows.xl,
             shadowOffset: { width: 0, height: -2 },
           },
@@ -35,9 +36,9 @@ export default function TabLayout() {
             height: Layout.tabBarHeight.default,
             paddingBottom: 8,
             paddingTop: 8,
-            backgroundColor: DesignColors.surface,
+            backgroundColor: Colors.surface,
             borderTopWidth: 1,
-            borderTopColor: DesignColors.borderLight,
+            borderTopColor: Colors.borderLight,
             ...Shadows.xl,
             shadowOffset: { width: 0, height: -2 },
           },
@@ -52,7 +53,7 @@ export default function TabLayout() {
             <IconSymbol
               size={24}
               name="list.bullet.clipboard.fill"
-              color={focused ? color : Colors[colorScheme ?? "light"].icon}
+              color={focused ? color : Colors.textSecondary}
             />
           ),
           tabBarLabelStyle: { fontSize: 12, marginTop: 4 },
@@ -65,8 +66,8 @@ export default function TabLayout() {
           tabBarIcon: ({ focused }) => (
             <View
               style={{
-                backgroundColor: DesignColors.primary,
-                borderRadius: BorderRadius['2xl'],
+                backgroundColor: Colors.primary,
+                borderRadius: BorderRadius["2xl"],
                 width: 56,
                 height: 56,
                 justifyContent: "center",
@@ -89,7 +90,7 @@ export default function TabLayout() {
             <IconSymbol
               size={24}
               name="person.fill"
-              color={focused ? color : Colors[colorScheme ?? "light"].icon}
+              color={focused ? color : Colors.textSecondary}
             />
           ),
           tabBarLabelStyle: { fontSize: 12, marginTop: 4 },

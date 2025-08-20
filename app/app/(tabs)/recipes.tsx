@@ -8,22 +8,21 @@ import {
   View,
 } from "react-native";
 
-import { ManualRecipeForm } from "@/components/ManualRecipeForm";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import { Colors } from "@/constants/Colors";
+import { ManualRecipeForm } from "@/components/manual-recipe-form";
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { IconSymbol } from "@/components/ui/icon-symbol";
 import {
   BorderRadius,
-  Colors as DesignColors,
+  Colors,
   Layout,
   Shadows,
   Spacing,
   Typography,
-} from "@/constants/Design";
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { useRecipes } from "@/hooks/useRecipes";
-import { useUser } from "@/hooks/useUser";
+} from "@/constants/design-system";
+
+import { useRecipes } from "@/hooks/use-recipes";
+import { useUser } from "@/hooks/use-user";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 
@@ -64,17 +63,12 @@ function CreateOptionButton({
   option: CreateOptionCard;
   onPress: () => void;
 }) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-
   return (
     <TouchableOpacity
       style={[
         styles.optionCard,
         {
-          backgroundColor: isDark
-            ? DesignColors.background
-            : DesignColors.surface,
+          backgroundColor: Colors.surface,
         },
       ]}
       onPress={onPress}
@@ -83,7 +77,7 @@ function CreateOptionButton({
         <IconSymbol
           name={option.icon as any}
           size={24}
-          color={DesignColors.primary}
+          color={Colors.primary}
         />
         <ThemedText type="subtitle">{option.title}</ThemedText>
       </View>
@@ -130,7 +124,7 @@ function OnlineRecipeForm({ onBack }: { onBack: () => void }) {
     <ScrollView style={styles.formContainer}>
       <View style={styles.formHeader}>
         <TouchableOpacity onPress={onBack}>
-          <IconSymbol name="chevron.left" size={24} color={Colors.light.tint} />
+          <IconSymbol name="chevron.left" size={24} color={Colors.primary} />
         </TouchableOpacity>
         <ThemedText type="title">Import from URL</ThemedText>
         <View style={styles.placeholder} />
@@ -293,7 +287,7 @@ function CookbookRecipeForm({ onBack }: { onBack: () => void }) {
     <ScrollView style={styles.formContainer}>
       <View style={styles.formHeader}>
         <TouchableOpacity onPress={onBack}>
-          <IconSymbol name="chevron.left" size={24} color={Colors.light.tint} />
+          <IconSymbol name="chevron.left" size={24} color={Colors.primary} />
         </TouchableOpacity>
         <ThemedText type="title">Cookbook Photo</ThemedText>
         <View style={styles.placeholder} />
@@ -356,7 +350,7 @@ function CookbookRecipeForm({ onBack }: { onBack: () => void }) {
           {selectedImage ? (
             <View style={styles.selectedImageContainer}>
               <View style={styles.selectedImagePreview}>
-                <IconSymbol name="photo" size={24} color={Colors.light.tint} />
+                <IconSymbol name="photo" size={24} color={Colors.primary} />
                 <ThemedText style={styles.imageSelectedText}>
                   Photo Selected
                 </ThemedText>
@@ -367,11 +361,7 @@ function CookbookRecipeForm({ onBack }: { onBack: () => void }) {
             </View>
           ) : (
             <View style={styles.imagePickerContent}>
-              <IconSymbol
-                name="camera.fill"
-                size={24}
-                color={Colors.light.tint}
-              />
+              <IconSymbol name="camera.fill" size={24} color={Colors.primary} />
               <ThemedText style={styles.imagePickerText}>
                 Take Photo or Select from Library
               </ThemedText>
@@ -461,21 +451,21 @@ export default function CreateRecipeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: DesignColors.backgroundSubtle,
+    backgroundColor: Colors.backgroundSubtle,
     paddingTop: Layout.headerHeight,
   },
   header: {
     paddingHorizontal: Layout.screenPadding,
     paddingVertical: Spacing["3xl"],
     alignItems: "center",
-    backgroundColor: DesignColors.surface,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: DesignColors.borderLight,
+    borderBottomColor: Colors.borderLight,
     ...Shadows.sm,
   },
   subtitle: {
     textAlign: "center",
-    color: DesignColors.textSecondary,
+    color: Colors.textSecondary,
     marginTop: Spacing.sm,
     fontSize: Typography.fontSizes.md,
     lineHeight: Typography.fontSizes.md * Typography.lineHeights.normal,
@@ -489,12 +479,12 @@ const styles = StyleSheet.create({
     height: Spacing.xl,
   },
   optionCard: {
-    backgroundColor: DesignColors.surface,
+    backgroundColor: Colors.surface,
     padding: Spacing["3xl"],
     borderRadius: BorderRadius.xl,
     ...Shadows.lg,
     borderWidth: 1,
-    borderColor: DesignColors.borderLight,
+    borderColor: Colors.borderLight,
   },
   optionHeader: {
     flexDirection: "row",
@@ -503,7 +493,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   optionDescription: {
-    color: DesignColors.textSecondary,
+    color: Colors.textSecondary,
     fontSize: Typography.fontSizes.base,
     lineHeight: Typography.fontSizes.base * Typography.lineHeights.normal,
   },
@@ -515,7 +505,7 @@ const styles = StyleSheet.create({
   },
   messageText: {
     textAlign: "center",
-    color: DesignColors.textSecondary,
+    color: Colors.textSecondary,
     marginTop: Spacing.lg,
     fontSize: Typography.fontSizes.md,
     lineHeight: Typography.fontSizes.md * Typography.lineHeights.relaxed,
@@ -592,13 +582,13 @@ const styles = StyleSheet.create({
     paddingTop: 14,
   },
   submitButton: {
-    backgroundColor: DesignColors.primary,
+    backgroundColor: Colors.primary,
     paddingVertical: 18,
     paddingHorizontal: 32,
     borderRadius: 16,
     alignItems: "center",
     marginTop: 32,
-    shadowColor: DesignColors.shadow,
+    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 12,

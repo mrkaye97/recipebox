@@ -1,8 +1,8 @@
 import React from "react";
 import { ScrollView, StyleSheet } from "react-native";
 
-import { LoginForm } from "@/components/LoginForm";
-import { ThemedView } from "@/components/ThemedView";
+import { LoginForm } from "@/components/login-form";
+import { ThemedView } from "@/components/themed-view";
 
 export default function LoginScreen() {
   return (
