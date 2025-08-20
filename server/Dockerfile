@@ -16,7 +16,13 @@ RUN pip install poetry
 RUN poetry config virtualenvs.create false
 
 RUN poetry install --only=main --no-interaction --no-ansi --no-root
-RUN curl -fsSL -o /usr/local/bin/dbmate https://github.com/amacneil/dbmate/releases/download/v1.6.0/dbmate-linux-amd64
+
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+    curl -fsSL -o /usr/local/bin/dbmate https://github.com/amacneil/dbmate/releases/latest/download/dbmate-linux-arm64; \
+    else \
+    curl -fsSL -o /usr/local/bin/dbmate https://github.com/amacneil/dbmate/releases/latest/download/dbmate-linux-amd64; \
+    fi
 RUN chmod +x /usr/local/bin/dbmate
 
 COPY . .
