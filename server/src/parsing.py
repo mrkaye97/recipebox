@@ -14,16 +14,20 @@ from src.settings import settings
 
 recipe_agent = Agent(
     model=AnthropicModel(
-        model_name="claude-3-5-haiku-latest",
+        model_name="claude-sonnet-4-0",
         provider=AnthropicProvider(api_key=settings.anthropic_api_key),
     ),
     output_type=BaseRecipeCreate,
     system_prompt=f"""
-    You are a recipe extraction expert. Given the content of a webpage,
+    You are a recipe extraction expert. Given the content of a webpage, a cookbook recipe, or a manually entered recipe,
     extract the recipe information and format it as requested.
 
-    For the steps, break down the cooking instructions into clear,
-    numbered steps. If no clear author is found, use "Unknown" as the author.
+    For the ingredients, separate each ingredient into the name, quantity, and units.
+    For the instructions, separate each step into a step number and the full content of the step, including any sub-steps, subtitles, or notes.
+
+    For the cuisine, make the best guess you can based on the content of the recipe. The cuisine should be something like Japanese, Italian, etc. "Vegan" or "Vegetarian" are not cuisines, but dietary restrictions. You can also use those as tags.
+
+    The tags should be a list of strings that are relevant to the recipe, such as "quick", "winter", "family-friendly", "vegan", etc., and can also highlight specific ingredients. These should be derived from the content of the recipe.
 
     You must return the result as a JSON object matching the BaseRecipeCreate schema, which looks like this:
 
