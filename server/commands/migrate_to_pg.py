@@ -63,7 +63,7 @@ async def main() -> None:
     engine = create_async_engine(
         settings.database_url.replace("postgresql", "postgresql+psycopg").split("?")[0],
     )
-    async with engine.connect() as pgconn, conn.begin():
+    async with engine.connect() as pgconn, pgconn.begin():
         db = AsyncQuerier(pgconn)
 
         recipes = [RecipeToImport.from_sqlite(recipe) for recipe in all_data["recipe"]]
