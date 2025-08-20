@@ -2,7 +2,6 @@ import { router } from "expo-router";
 import React from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 
-import { LoginForm } from "@/components/LoginForm";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
@@ -59,19 +58,7 @@ export default function RecipesScreen() {
   const { data: recipes, isLoading, error } = useRecipes();
 
   if (!isAuthenticated) {
-    return (
-      <ThemedView style={styles.container}>
-        <View style={styles.header}>
-          <ThemedText type="title">Welcome to RecipeBox</ThemedText>
-          <ThemedText style={styles.subtitle}>
-            Please log in to view your recipes
-          </ThemedText>
-        </View>
-        <View style={styles.loginContainer}>
-          <LoginForm />
-        </View>
-      </ThemedView>
-    );
+    return router.push("/(tabs)/profile");
   }
 
   if (isLoading) {
@@ -100,9 +87,6 @@ export default function RecipesScreen() {
   if (!recipes || recipes.length === 0) {
     return (
       <ThemedView style={styles.container}>
-        <View style={styles.header}>
-          <ThemedText type="title">Your Recipes</ThemedText>
-        </View>
         <View style={styles.centerContainer}>
           <ThemedText type="subtitle">No recipes yet</ThemedText>
           <ThemedText style={styles.emptyStateText}>
@@ -115,13 +99,6 @@ export default function RecipesScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <View style={styles.header}>
-        <ThemedText type="title">Your Recipes</ThemedText>
-        <ThemedText style={styles.subtitle}>
-          {recipes.length} recipe{recipes.length !== 1 ? "s" : ""}
-        </ThemedText>
-      </View>
-
       <ScrollView
         style={styles.recipesList}
         contentContainerStyle={styles.recipesListContent}
@@ -150,21 +127,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 60,
   },
-  header: {
-    padding: 20,
-    alignItems: "center",
-    paddingBottom: 16,
-  },
-  subtitle: {
-    textAlign: "center",
-    opacity: 0.7,
-    marginTop: 8,
-  },
-  loginContainer: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 20,
-  },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
@@ -186,7 +148,7 @@ const styles = StyleSheet.create({
   },
   recipesListContent: {
     padding: 20,
-    paddingBottom: 100, // Extra padding for tab bar
+    paddingBottom: 100,
   },
   recipesGrid: {
     gap: 16,

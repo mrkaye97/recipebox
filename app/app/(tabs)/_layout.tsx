@@ -36,11 +36,11 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: "Recipes",
           tabBarIcon: ({ color, focused }) => (
             <IconSymbol
               size={24}
-              name="house.fill"
+              name="list.bullet.clipboard.fill"
               color={focused ? color : Colors[colorScheme ?? "light"].icon}
             />
           ),
@@ -48,7 +48,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="recipes"
         options={{
           title: "",
           tabBarIcon: ({ focused }) => (

@@ -41,7 +41,7 @@ export function LoginForm() {
       console.error("Login error:", error);
       Alert.alert(
         "Login Failed",
-        error instanceof Error ? error.message : "An unexpected error occurred",
+        error instanceof Error ? error.message : "An unexpected error occurred"
       );
     } finally {
       setIsLoading(false);
@@ -96,18 +96,6 @@ export function LoginForm() {
           {isLoading ? "Logging in..." : "Login"}
         </Text>
       </TouchableOpacity>
-
-      <View style={styles.testCredentials}>
-        <ThemedText type="default" style={styles.testText}>
-          Test credentials:
-        </ThemedText>
-        <ThemedText type="default" style={styles.testText}>
-          Email: test@example.com
-        </ThemedText>
-        <ThemedText type="default" style={styles.testText}>
-          Password: testpassword123
-        </ThemedText>
-      </View>
     </ThemedView>
   );
 }
@@ -149,17 +137,5 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
-  },
-  testCredentials: {
-    marginTop: 20,
-    padding: 15,
-    backgroundColor: "#f5f5f5",
-    borderRadius: 8,
-    gap: 4,
-  },
-  testText: {
-    fontSize: 12,
-    color: "#666",
-    textAlign: "center",
   },
 });
