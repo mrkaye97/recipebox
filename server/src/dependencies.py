@@ -2,9 +2,9 @@ from collections.abc import AsyncGenerator
 from datetime import UTC, datetime
 from typing import Annotated
 
-from asyncpg.exceptions import UniqueViolationError  # type: ignore[import-untyped]
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from psycopg.errors import UniqueViolation
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncConnection, create_async_engine
 
@@ -20,7 +20,7 @@ logger = get_logger(__name__)
 
 async def get_db() -> AsyncGenerator[AsyncConnection]:
     engine = create_async_engine(
-        settings.database_url.replace("postgresql", "postgresql+asyncpg").split("?")[0],
+        settings.database_url.replace("postgresql", "postgresql+psycopg").split("?")[0],
     )
     async with engine.connect() as conn, conn.begin():
         try:
@@ -33,7 +33,7 @@ async def get_db() -> AsyncGenerator[AsyncConnection]:
             if (
                 isinstance(e, IntegrityError)
                 and e.orig
-                and isinstance(e.orig.__cause__, UniqueViolationError)
+                and isinstance(e.orig.__cause__, UniqueViolation)
             ):
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
