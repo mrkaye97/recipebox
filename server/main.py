@@ -318,16 +318,16 @@ async def create_cookbook_recipe(
     base = await image_to_recipe(image_bytes)
     base.author = author
 
-    location = RecipeLocation(
+    created_location = RecipeLocation(
         location=CookbookRecipeLocation(
-            location="cookbook",
+            location=location,
             cookbook_name=cookbook_name,
             page_number=page_number,
         )
     )
 
     return await ingest_recipe(
-        db=db, user=user, params=base, notes=notes, location=location
+        db=db, user=user, params=base, notes=notes, location=created_location
     )
 
 

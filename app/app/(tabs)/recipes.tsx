@@ -13,7 +13,14 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
-import { Colors as DesignColors, Typography, Spacing, BorderRadius, Shadows, Layout, Components } from "@/constants/Design";
+import {
+  BorderRadius,
+  Colors as DesignColors,
+  Layout,
+  Shadows,
+  Spacing,
+  Typography,
+} from "@/constants/Design";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useRecipes } from "@/hooks/useRecipes";
 import { useUser } from "@/hooks/useUser";
@@ -64,7 +71,11 @@ function CreateOptionButton({
     <TouchableOpacity
       style={[
         styles.optionCard,
-        { backgroundColor: isDark ? "#2c2c2e" : "#f2f2f7" },
+        {
+          backgroundColor: isDark
+            ? DesignColors.background
+            : DesignColors.surface,
+        },
       ]}
       onPress={onPress}
     >
@@ -72,7 +83,7 @@ function CreateOptionButton({
         <IconSymbol
           name={option.icon as any}
           size={24}
-          color={Colors[colorScheme ?? "light"].tint}
+          color={DesignColors.primary}
         />
         <ThemedText type="subtitle">{option.title}</ThemedText>
       </View>
@@ -119,11 +130,7 @@ function OnlineRecipeForm({ onBack }: { onBack: () => void }) {
     <ScrollView style={styles.formContainer}>
       <View style={styles.formHeader}>
         <TouchableOpacity onPress={onBack}>
-          <IconSymbol
-            name="chevron.right"
-            size={24}
-            color={Colors.light.tint}
-          />
+          <IconSymbol name="chevron.left" size={24} color={Colors.light.tint} />
         </TouchableOpacity>
         <ThemedText type="title">Import from URL</ThemedText>
         <View style={styles.placeholder} />
@@ -184,7 +191,7 @@ function CookbookRecipeForm({ onBack }: { onBack: () => void }) {
     if (status !== "granted") {
       Alert.alert(
         "Permission Required",
-        "Camera roll permission is required to select photos",
+        "Camera roll permission is required to select photos"
       );
       return;
     }
@@ -206,7 +213,7 @@ function CookbookRecipeForm({ onBack }: { onBack: () => void }) {
     if (status !== "granted") {
       Alert.alert(
         "Permission Required",
-        "Camera permission is required to take photos",
+        "Camera permission is required to take photos"
       );
       return;
     }
@@ -391,7 +398,7 @@ function CookbookRecipeForm({ onBack }: { onBack: () => void }) {
 
 export default function CreateRecipeScreen() {
   const [selectedOption, setSelectedOption] = useState<CreateOption | null>(
-    null,
+    null
   );
   const { isAuthenticated } = useUser();
 
@@ -459,7 +466,7 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: Layout.screenPadding,
-    paddingVertical: Spacing['3xl'],
+    paddingVertical: Spacing["3xl"],
     alignItems: "center",
     backgroundColor: DesignColors.surface,
     borderBottomWidth: 1,
@@ -483,7 +490,7 @@ const styles = StyleSheet.create({
   },
   optionCard: {
     backgroundColor: DesignColors.surface,
-    padding: Spacing['3xl'],
+    padding: Spacing["3xl"],
     borderRadius: BorderRadius.xl,
     ...Shadows.lg,
     borderWidth: 1,
@@ -504,7 +511,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: Spacing['3xl'],
+    padding: Spacing["3xl"],
   },
   messageText: {
     textAlign: "center",
@@ -585,13 +592,13 @@ const styles = StyleSheet.create({
     paddingTop: 14,
   },
   submitButton: {
-    backgroundColor: "#FF7A5C",
+    backgroundColor: DesignColors.primary,
     paddingVertical: 18,
     paddingHorizontal: 32,
     borderRadius: 16,
     alignItems: "center",
     marginTop: 32,
-    shadowColor: "#FF7A5C",
+    shadowColor: DesignColors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 12,

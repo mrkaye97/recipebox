@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "#007AFF",
+    backgroundColor: DesignColors.primaryDark,
   },
   ingredientContent: {
     flex: 1,
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
   ingredientQuantity: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#007AFF",
+    color: DesignColors.text,
     marginBottom: 2,
   },
   ingredientName: {
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "#007AFF",
+    backgroundColor: DesignColors.primary,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 2,
