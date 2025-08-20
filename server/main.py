@@ -270,6 +270,21 @@ async def create_made_up_recipe(
     md = f"""
         # {params.name}
 
+        # Cuisine:
+        {params.cuisine}
+
+        ## Author
+        {params.author}
+
+        ## Time Estimate
+        {params.time_estimate_minutes} minutes
+
+        ## Tags
+        {", ".join(params.tags)}
+
+        ## Dietary Restrictions Met
+        {", ".join([dr.value for dr in params.dietary_restrictions_met])}
+
         ## Ingredients
         {params.ingredients}
 

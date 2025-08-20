@@ -25,20 +25,29 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
   const { create } = useRecipes();
 
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    prepTime: "",
-    cookTime: "",
-    servings: "",
-    difficulty: "",
+    name: "",
+    author: "",
+    cuisine: "",
+    time_estimate_minutes: "",
     ingredients: "",
     instructions: "",
     tags: "",
+    notes: "",
   });
 
   const handleSubmit = async () => {
-    if (!formData.title.trim()) {
-      Alert.alert("Error", "Recipe title is required");
+    if (!formData.name.trim()) {
+      Alert.alert("Error", "Recipe name is required");
+      return;
+    }
+
+    if (!formData.author.trim()) {
+      Alert.alert("Error", "Author is required");
+      return;
+    }
+
+    if (!formData.cuisine.trim()) {
+      Alert.alert("Error", "Cuisine is required");
       return;
     }
 
@@ -101,17 +110,17 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
       : [];
 
     const recipeData = {
-      name: formData.title.trim(),
-      author: "User", // Default author - could be made configurable
-      cuisine: formData.difficulty.trim() || "Unknown", // Using difficulty field as cuisine for now
-      time_estimate_minutes:
-        (formData.prepTime ? parseInt(formData.prepTime) : 0) +
-        (formData.cookTime ? parseInt(formData.cookTime) : 0),
+      name: formData.name.trim(),
+      author: formData.author.trim(),
+      cuisine: formData.cuisine.trim(),
+      time_estimate_minutes: formData.time_estimate_minutes
+        ? parseInt(formData.time_estimate_minutes)
+        : 0,
       tags: tagsList,
       dietary_restrictions_met: [] as const, // Empty array for now - could be made configurable
       ingredients: ingredientsList,
       instructions: instructionsList,
-      notes: formData.description.trim() || null,
+      notes: formData.notes.trim() || null,
       location: "made_up" as const,
     };
 
@@ -158,97 +167,81 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
           </ThemedText>
 
           <View style={styles.inputGroup}>
-            <ThemedText style={styles.label}>Title *</ThemedText>
+            <ThemedText style={styles.label}>Recipe Name *</ThemedText>
             <TextInput
               style={[
                 styles.input,
                 { color: Colors[colorScheme ?? "light"].text },
               ]}
-              value={formData.title}
-              onChangeText={(value) => updateFormData("title", value)}
-              placeholder="Enter recipe title"
+              value={formData.name}
+              onChangeText={(value) => updateFormData("name", value)}
+              placeholder="Enter recipe name"
               placeholderTextColor={Colors[colorScheme ?? "light"].icon}
             />
           </View>
 
           <View style={styles.inputGroup}>
-            <ThemedText style={styles.label}>Description</ThemedText>
+            <ThemedText style={styles.label}>Author *</ThemedText>
+            <TextInput
+              style={[
+                styles.input,
+                { color: Colors[colorScheme ?? "light"].text },
+              ]}
+              value={formData.author}
+              onChangeText={(value) => updateFormData("author", value)}
+              placeholder="Recipe author or source"
+              placeholderTextColor={Colors[colorScheme ?? "light"].icon}
+            />
+          </View>
+
+          <View style={styles.row}>
+            <View style={[styles.inputGroup, styles.halfWidth]}>
+              <ThemedText style={styles.label}>Cuisine *</ThemedText>
+              <TextInput
+                style={[
+                  styles.input,
+                  { color: Colors[colorScheme ?? "light"].text },
+                ]}
+                value={formData.cuisine}
+                onChangeText={(value) => updateFormData("cuisine", value)}
+                placeholder="Italian, Mexican, etc."
+                placeholderTextColor={Colors[colorScheme ?? "light"].icon}
+              />
+            </View>
+
+            <View style={[styles.inputGroup, styles.halfWidth]}>
+              <ThemedText style={styles.label}>Total Time (min)</ThemedText>
+              <TextInput
+                style={[
+                  styles.input,
+                  { color: Colors[colorScheme ?? "light"].text },
+                ]}
+                value={formData.time_estimate_minutes}
+                onChangeText={(value) =>
+                  updateFormData("time_estimate_minutes", value)
+                }
+                placeholder="45"
+                placeholderTextColor={Colors[colorScheme ?? "light"].icon}
+                keyboardType="numeric"
+              />
+            </View>
+          </View>
+
+          <View style={styles.inputGroup}>
+            <ThemedText style={styles.label}>Notes</ThemedText>
             <TextInput
               style={[
                 styles.input,
                 styles.textArea,
                 { color: Colors[colorScheme ?? "light"].text },
               ]}
-              value={formData.description}
-              onChangeText={(value) => updateFormData("description", value)}
-              placeholder="Brief description of the recipe"
+              value={formData.notes}
+              onChangeText={(value) => updateFormData("notes", value)}
+              placeholder="Any additional notes about the recipe"
               placeholderTextColor={Colors[colorScheme ?? "light"].icon}
               multiline
               numberOfLines={3}
             />
-          </View>
-
-          <View style={styles.row}>
-            <View style={[styles.inputGroup, styles.halfWidth]}>
-              <ThemedText style={styles.label}>Prep Time (min)</ThemedText>
-              <TextInput
-                style={[
-                  styles.input,
-                  { color: Colors[colorScheme ?? "light"].text },
-                ]}
-                value={formData.prepTime}
-                onChangeText={(value) => updateFormData("prepTime", value)}
-                placeholder="15"
-                placeholderTextColor={Colors[colorScheme ?? "light"].icon}
-                keyboardType="numeric"
-              />
-            </View>
-
-            <View style={[styles.inputGroup, styles.halfWidth]}>
-              <ThemedText style={styles.label}>Cook Time (min)</ThemedText>
-              <TextInput
-                style={[
-                  styles.input,
-                  { color: Colors[colorScheme ?? "light"].text },
-                ]}
-                value={formData.cookTime}
-                onChangeText={(value) => updateFormData("cookTime", value)}
-                placeholder="30"
-                placeholderTextColor={Colors[colorScheme ?? "light"].icon}
-                keyboardType="numeric"
-              />
-            </View>
-          </View>
-
-          <View style={styles.row}>
-            <View style={[styles.inputGroup, styles.halfWidth]}>
-              <ThemedText style={styles.label}>Servings</ThemedText>
-              <TextInput
-                style={[
-                  styles.input,
-                  { color: Colors[colorScheme ?? "light"].text },
-                ]}
-                value={formData.servings}
-                onChangeText={(value) => updateFormData("servings", value)}
-                placeholder="4"
-                placeholderTextColor={Colors[colorScheme ?? "light"].icon}
-                keyboardType="numeric"
-              />
-            </View>
-
-            <View style={[styles.inputGroup, styles.halfWidth]}>
-              <ThemedText style={styles.label}>Difficulty</ThemedText>
-              <TextInput
-                style={[
-                  styles.input,
-                  { color: Colors[colorScheme ?? "light"].text },
-                ]}
-                value={formData.difficulty}
-                onChangeText={(value) => updateFormData("difficulty", value)}
-                placeholder="Easy, Medium, Hard"
-                placeholderTextColor={Colors[colorScheme ?? "light"].icon}
-              />
-            </View>
           </View>
         </View>
 
@@ -419,6 +412,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   bottomPadding: {
-    height: 40,
+    height: 120,
   },
 });
