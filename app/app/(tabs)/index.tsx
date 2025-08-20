@@ -11,7 +11,7 @@ import {
 } from "@/constants/design-system";
 import { useRecipes } from "@/hooks/use-recipes";
 import { useUser } from "@/hooks/use-user";
-import { router } from "expo-router";
+import { Redirect, router } from "expo-router";
 import React from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 
@@ -63,7 +63,7 @@ export default function RecipesScreen() {
   const { data: recipes, isLoading, error } = useRecipes();
 
   if (!isAuthenticated) {
-    return router.push("/(tabs)/profile");
+    return <Redirect href={"/(tabs)/profile"} />;
   }
 
   if (isLoading) {

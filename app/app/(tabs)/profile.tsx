@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   footer: {
     marginTop: "auto",
     alignItems: "center",
-    paddingBottom: 100, // Extra space for tab bar
+    paddingBottom: 100,
   },
   footerText: {
     fontSize: 12,

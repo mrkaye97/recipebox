@@ -67,15 +67,12 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
       return;
     }
 
-    // Parse ingredients - split by newlines and create structured objects
     const ingredientsList = formData.ingredients
       .split("\n")
-      .map((line, index) => {
+      .map((line) => {
         const trimmed = line.trim();
         if (!trimmed) return null;
 
-        // Try to parse quantity and units from ingredient line
-        // Simple pattern: "2 cups flour" -> quantity: 2, units: "cups", name: "flour"
         const match = trimmed.match(/^(\d+(?:\.\d+)?)\s+(\w+)\s+(.+)$/);
         if (match) {
           return {
@@ -94,7 +91,6 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
       })
       .filter((ingredient) => ingredient !== null);
 
-    // Parse instructions - split by newlines and create structured objects
     const instructionsList = formData.instructions
       .split("\n")
       .map((line, index) => {
@@ -107,7 +103,6 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
       })
       .filter((instruction) => instruction !== null);
 
-    // Parse tags - split by commas and filter empty tags
     const tagsList = formData.tags
       ? formData.tags
           .split(",")
@@ -123,7 +118,7 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
         ? parseInt(formData.time_estimate_minutes)
         : 0,
       tags: tagsList,
-      dietary_restrictions_met: [] as const, // Empty array for now - could be made configurable
+      dietary_restrictions_met: [] as const,
       ingredients: ingredientsList,
       instructions: instructionsList,
       notes: formData.notes.trim() || null,
@@ -137,8 +132,8 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
         {
           text: "OK",
           onPress: () => {
-            onCancel(); // Close the form
-            router.push("/"); // Navigate to recipes list
+            onCancel();
+            router.push("/");
           },
         },
       ]);

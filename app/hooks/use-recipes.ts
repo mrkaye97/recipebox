@@ -91,7 +91,7 @@ export const useRecipes = () => {
           }
 
           return await createCookbookRecipe({
-            body: formData as any, // TypeScript workaround for FormData
+            body: formData as any,
             headers: {
               Authorization: `Bearer ${token}`,
             },
