@@ -41,7 +41,7 @@ class RecipeToImport(BaseModel):
 
 
 async def main() -> None:
-    conn = sqlite3.connect("recipebox.db")
+    conn = sqlite3.connect("/recipebox.db")
 
     cursor = conn.cursor()
 
@@ -61,7 +61,7 @@ async def main() -> None:
     conn.close()
 
     engine = create_async_engine(
-        settings.database_url.replace("postgresql", "postgresql+psycopg").split("?")[0],
+        settings.database_url.replace("postgresql", "postgresql+asyncpg").split("?")[0],
     )
     async with engine.connect() as pgconn, pgconn.begin():
         db = AsyncQuerier(pgconn)
