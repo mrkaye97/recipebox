@@ -184,8 +184,7 @@ function CookbookRecipeForm({ onBack }: { onBack: () => void }) {
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
-      allowsEditing: true,
-      aspect: [4, 3],
+      allowsEditing: false,
       quality: 0.8,
     });
 
@@ -205,8 +204,7 @@ function CookbookRecipeForm({ onBack }: { onBack: () => void }) {
     }
 
     const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
+      allowsEditing: false,
       quality: 0.8,
     });
 
