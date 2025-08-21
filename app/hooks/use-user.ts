@@ -19,6 +19,9 @@ export const useUser = () => {
   const { mutateAsync: loginMutation, isPending: isLoginPending } =
     $api.useMutation("post", "/auth/login");
 
+  const { mutateAsync: registerMutation, isPending: isRegisterPending } =
+    $api.useMutation("post", "/auth/register");
+
   const saveToken = useCallback(
     async (token: string) => {
       try {
@@ -103,6 +106,25 @@ export const useUser = () => {
     [loginMutation, saveToken],
   );
 
+  const register = useCallback(
+    async (email: string, name: string, password: string): Promise<AccessToken> => {
+      const { access_token } = await registerMutation({
+        body: {
+          email,
+          name,
+          password,
+        },
+      });
+
+      if (access_token) {
+        await saveToken(access_token);
+      }
+
+      return access_token;
+    },
+    [registerMutation, saveToken],
+  );
+
   const logout = useCallback(async () => {
     await removeToken();
   }, [removeToken]);
@@ -117,16 +139,18 @@ export const useUser = () => {
   }, [getToken]);
 
   const isAuthenticated = !!token;
-  const isLoading = isLoginPending || !isInitialized;
+  const isLoading = isLoginPending || isRegisterPending || !isInitialized;
 
   return {
     token,
     isAuthenticated,
     isLoading,
     isLoginPending,
+    isRegisterPending,
     isInitialized,
 
     login,
+    register,
     logout,
 
     getToken,

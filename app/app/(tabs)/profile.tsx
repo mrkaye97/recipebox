@@ -2,6 +2,7 @@ import React from "react";
 import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
 
 import { LoginForm } from "@/components/login-form";
+import { SignupForm } from "@/components/signup-form";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -11,6 +12,7 @@ import { useRouter } from "expo-router";
 export default function ProfileScreen() {
   const { isAuthenticated, logout, token } = useUser();
   const router = useRouter();
+  const [showSignup, setShowSignup] = React.useState(false);
 
   const handleLogout = async () => {
     Alert.alert("Logout", "Are you sure you want to log out?", [
@@ -33,7 +35,18 @@ export default function ProfileScreen() {
     return (
       <ThemedView style={styles.container}>
         <View style={styles.loginContainer}>
-          <LoginForm />
+          {showSignup ? <SignupForm /> : <LoginForm />}
+          
+          <View style={styles.toggleContainer}>
+            <ThemedText style={styles.toggleText}>
+              {showSignup ? "Already have an account?" : "Don't have an account?"}
+            </ThemedText>
+            <TouchableOpacity onPress={() => setShowSignup(!showSignup)}>
+              <ThemedText style={styles.toggleLink}>
+                {showSignup ? "Log In" : "Sign Up"}
+              </ThemedText>
+            </TouchableOpacity>
+          </View>
         </View>
       </ThemedView>
     );
@@ -149,6 +162,22 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     padding: 20,
+  },
+  toggleContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 24,
+  },
+  toggleText: {
+    fontSize: 14,
+    color: "#666",
+  },
+  toggleLink: {
+    fontSize: 14,
+    color: "#007AFF",
+    fontWeight: "600",
   },
   subtitle: {
     textAlign: "center",
