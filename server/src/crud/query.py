@@ -249,13 +249,13 @@ RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, n
 
 
 class UpdateRecipeParams(pydantic.BaseModel):
-    name: str
-    author: str
-    cuisine: str
-    location: Any
-    timeestimateminutes: int
-    notes: str
-    lastmadeat: datetime.datetime
+    name: str | None
+    author: str | None
+    cuisine: str | None
+    location: Any | None
+    time_estimate_minutes: int | None
+    notes: str | None
+    last_made_at: datetime.datetime | None
     recipeid: uuid.UUID
     userid: uuid.UUID
 
@@ -549,9 +549,9 @@ class AsyncQuerier:
                     "p2": arg.author,
                     "p3": arg.cuisine,
                     "p4": arg.location,
-                    "p5": arg.timeestimateminutes,
+                    "p5": arg.time_estimate_minutes,
                     "p6": arg.notes,
-                    "p7": arg.lastmadeat,
+                    "p7": arg.last_made_at,
                     "p8": arg.recipeid,
                     "p9": arg.userid,
                 },

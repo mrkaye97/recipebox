@@ -62,6 +62,15 @@ export const useRecipes = () => {
     },
   });
 
+  const { mutateAsync: updateRecipe, isPending: updatePending } =
+    $api.useMutation("patch", "/recipes/{id}", {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: ["get", "/recipes"],
+        });
+      },
+    });
+
   const createRecipe = useCallback(
     async (props: CreateRecipeProps) => {
       switch (props.location) {
@@ -103,12 +112,32 @@ export const useRecipes = () => {
     [createOnlineRecipe, createMadeUpRecipe, createCookbookRecipe, token],
   );
 
+  const markAsCookedRecently = useCallback(
+    async (recipeId: string) => {
+      return await updateRecipe({
+        params: { path: { id: recipeId } },
+        body: {
+          last_made_at: new Date().toISOString(),
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    [updateRecipe, token],
+  );
+
   return {
     ...recipeQuery,
     create: {
       perform: createRecipe,
       isPending: onlinePending || madeUpPending || cookbookPending,
       isError,
+    },
+    markAsCookedRecently: {
+      perform: markAsCookedRecently,
+      isPending: updatePending,
+      isError: recipeQuery.isError,
     },
   };
 };

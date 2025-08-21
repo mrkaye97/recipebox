@@ -3,11 +3,13 @@ import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/design-system";
 import { useRecipeDetails } from "@/hooks/use-recipe-details";
+import { useRecipes } from "@/hooks/use-recipes";
 import { components } from "@/src/lib/api/v1";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Button,
   Linking,
   ScrollView,
@@ -89,9 +91,26 @@ export default function RecipeDetailScreen() {
   const [ingredientsCollapsed, setIngredientsCollapsed] = useState(false);
 
   const { data: recipe, isLoading } = useRecipeDetails(id);
+  const {
+    markAsCookedRecently: {
+      perform: markAsCookedRecently,
+      isPending: isMarkingCooked,
+    },
+  } = useRecipes();
 
   const handleBack = () => {
     router.back();
+  };
+
+  const handleMarkAsCooked = async () => {
+    if (!recipe || !id) return;
+
+    try {
+      await markAsCookedRecently(id);
+      Alert.alert("Success", "Recipe marked as cooked recently!");
+    } catch (error) {
+      Alert.alert("Error", "Failed to mark recipe as cooked");
+    }
   };
 
   if (isLoading) {
@@ -131,7 +150,17 @@ export default function RecipeDetailScreen() {
         <ThemedText type="title" style={styles.headerTitle}>
           Recipe
         </ThemedText>
-        <View style={styles.placeholder} />
+        <TouchableOpacity
+          onPress={handleMarkAsCooked}
+          disabled={isMarkingCooked}
+          style={styles.cookedButton}
+        >
+          <IconSymbol
+            name="checkmark.circle.fill"
+            size={24}
+            color={Colors.primary}
+          />
+        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -146,16 +175,19 @@ export default function RecipeDetailScreen() {
           <ThemedText style={styles.recipeAuthor}>
             by {recipe.author}
           </ThemedText>
-        </View>
-
-        <View style={styles.recipeInfo}>
-          <View style={styles.infoRow}>
-            <ThemedText type="defaultSemiBold">Cuisine:</ThemedText>
-            <ThemedText>{recipe.cuisine}</ThemedText>
-          </View>
-          <View style={styles.infoRow}>
-            <ThemedText type="defaultSemiBold">Cook Time:</ThemedText>
-            <ThemedText>{recipe.time_estimate_minutes} minutes</ThemedText>
+          <View style={styles.recipeBasicInfo}>
+            <View style={styles.infoItem}>
+              <IconSymbol name="fork.knife" size={16} color={Colors.primary} />
+              <ThemedText style={styles.infoLabel}>Cuisine:</ThemedText>
+              <ThemedText style={styles.infoValue}>{recipe.cuisine}</ThemedText>
+            </View>
+            <View style={styles.infoItem}>
+              <IconSymbol name="clock" size={16} color={Colors.primary} />
+              <ThemedText style={styles.infoLabel}>Time:</ThemedText>
+              <ThemedText style={styles.infoValue}>
+                {recipe.time_estimate_minutes} min
+              </ThemedText>
+            </View>
           </View>
         </View>
 
@@ -294,8 +326,8 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
   },
-  placeholder: {
-    width: 40,
+  cookedButton: {
+    padding: 8,
   },
   content: {
     flex: 1,
@@ -326,8 +358,33 @@ const styles = StyleSheet.create({
   recipeHeader: {
     marginBottom: 24,
     paddingBottom: 20,
-    borderBottomWidth: 2,
-    borderBottomColor: "rgba(0,0,0,0.1)",
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderLight,
+  },
+  recipeBasicInfo: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: Colors.borderLight,
+  },
+  infoItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    flex: 1,
+    justifyContent: "center",
+  },
+  infoLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: Colors.textSecondary,
+  },
+  infoValue: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: Colors.text,
   },
   recipeName: {
     fontSize: 28,

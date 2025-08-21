@@ -128,15 +128,7 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
     const response = await create.perform(recipeData);
 
     if (response) {
-      Alert.alert("Success", "Recipe created successfully!", [
-        {
-          text: "OK",
-          onPress: () => {
-            onCancel();
-            router.push("/");
-          },
-        },
-      ]);
+      router.push(`/recipe/${response.id}`);
     }
   };
 

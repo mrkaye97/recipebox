@@ -41,7 +41,7 @@ function RecipeCard({
   };
 
   return (
-    <TouchableOpacity style={styles.recipeCard} onPress={handlePress}>
+    <TouchableOpacity style={styles.recipeCard} onPress={handlePress} activeOpacity={0.7}>
       <View style={styles.recipeCardContent}>
         <View style={styles.recipeHeader}>
           <ThemedText type="defaultSemiBold" style={styles.recipeName}>
@@ -56,8 +56,17 @@ function RecipeCard({
         </View>
         <ThemedText style={styles.recipeAuthor}>by {author}</ThemedText>
         <View style={styles.recipeMetadata}>
-          <ThemedText style={styles.recipeCuisine}>{cuisine}</ThemedText>
-          <ThemedText style={styles.recipeTime}>{timeEstimate} min</ThemedText>
+          <View style={styles.cuisineContainer}>
+            <ThemedText style={styles.recipeCuisine}>{cuisine}</ThemedText>
+          </View>
+          <View style={styles.timeContainer}>
+            <IconSymbol
+              name="clock"
+              size={12}
+              color={Colors.textSecondary}
+            />
+            <ThemedText style={styles.recipeTime}>{timeEstimate} min</ThemedText>
+          </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -71,6 +80,13 @@ export default function RecipesScreen() {
   const onRefresh = React.useCallback(() => {
     refetch();
   }, [refetch]);
+
+  const getRandomRecipe = () => {
+    if (!recipes || recipes.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * recipes.length);
+    const randomRecipe = recipes[randomIndex];
+    router.push(`/recipe/${randomRecipe.id}`);
+  };
 
   if (!isAuthenticated && !isAuthLoading) {
     return <Redirect href={"/(tabs)/profile"} />;
@@ -114,6 +130,29 @@ export default function RecipesScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <View style={styles.header}>
+        <ThemedText type="title">My Recipes</ThemedText>
+        <TouchableOpacity 
+          onPress={getRandomRecipe}
+          disabled={!recipes || recipes.length === 0}
+          style={[
+            styles.randomButton,
+            (!recipes || recipes.length === 0) && styles.randomButtonDisabled
+          ]}
+        >
+          <IconSymbol
+            name="dice"
+            size={18}
+            color={Colors.textSecondary}
+          />
+          <ThemedText style={[
+            styles.randomButtonText,
+            (!recipes || recipes.length === 0) && styles.randomButtonTextDisabled
+          ]}>
+            Random
+          </ThemedText>
+        </TouchableOpacity>
+      </View>
       <ScrollView
         style={styles.recipesList}
         contentContainerStyle={styles.recipesListContent}
@@ -150,6 +189,39 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
     paddingTop: Layout.headerHeight,
   },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: Layout.screenPadding,
+    paddingVertical: Spacing.xl,
+    backgroundColor: Colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderLight,
+    ...Shadows.sm,
+  },
+  randomButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.xs,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    backgroundColor: "transparent",
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+  },
+  randomButtonDisabled: {
+    opacity: 0.5,
+  },
+  randomButtonText: {
+    fontSize: Typography.fontSizes.sm,
+    fontWeight: Typography.fontWeights.medium,
+    color: Colors.textSecondary,
+  },
+  randomButtonTextDisabled: {
+    color: Colors.textSecondary,
+  },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
@@ -184,10 +256,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.xl,
     padding: 0,
-    marginBottom: Spacing.xs,
+    marginBottom: Spacing.lg,
     ...Shadows.xl,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.borderLight,
+    overflow: "hidden",
   },
   recipeCardContent: {
     padding: Spacing["2xl"],
@@ -218,27 +291,32 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: Spacing.xs,
+    marginTop: Spacing.lg,
+  },
+  cuisineContainer: {
+    backgroundColor: Colors.backgroundSubtle,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.sm,
   },
   recipeCuisine: {
     fontSize: Typography.fontSizes.xs,
-    fontWeight: Typography.fontWeights.semibold,
-    backgroundColor: Colors.secondary,
-    color: Colors.text,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.lg,
-    overflow: "hidden",
+    fontWeight: Typography.fontWeights.medium,
+    color: Colors.textSecondary,
     textTransform: "uppercase",
-    letterSpacing: Typography.letterSpacing.widest,
+    letterSpacing: Typography.letterSpacing.wide,
+  },
+  timeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.xs,
   },
   recipeTime: {
     fontSize: Typography.fontSizes.sm,
     color: Colors.textSecondary,
     fontWeight: Typography.fontWeights.medium,
-    letterSpacing: Typography.letterSpacing.wider,
   },
   chevronIcon: {
-    opacity: 0.6,
+    // No additional styling needed - handled by container
   },
 });

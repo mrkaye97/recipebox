@@ -41,21 +41,18 @@ export default function ProfileScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <View style={styles.header}>
-        <ThemedText type="title">Profile</ThemedText>
-      </View>
-
-      <View style={styles.content}>
-        <View style={styles.section}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>
-            Actions
-          </ThemedText>
-
-          <TouchableOpacity style={styles.actionButton} onPress={handleLogout}>
-            <IconSymbol name="door.right.hand.open" size={20} color="#fff" />
-            <ThemedText style={styles.actionButtonText}>Log Out</ThemedText>
-          </TouchableOpacity>
-        </View>
+      <View style={styles.centerContainer}>
+        <ThemedText type="subtitle" style={styles.messageText}>
+          You're all set! 
+        </ThemedText>
+        <ThemedText style={styles.subMessageText}>
+          Use the Recipes tab to view your collection or the + button to add new recipes.
+        </ThemedText>
+        
+        <TouchableOpacity style={styles.actionButton} onPress={handleLogout}>
+          <IconSymbol name="door.right.hand.open" size={16} color="#fff" />
+          <ThemedText style={styles.actionButtonText}>Log Out</ThemedText>
+        </TouchableOpacity>
       </View>
     </ThemedView>
   );
@@ -82,8 +79,17 @@ const styles = StyleSheet.create({
   },
   messageText: {
     textAlign: "center",
+    marginBottom: 12,
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  subMessageText: {
+    textAlign: "center",
     opacity: 0.7,
-    marginTop: 16,
+    marginBottom: 32,
+    fontSize: 16,
+    lineHeight: 24,
+    paddingHorizontal: 20,
   },
   section: {
     marginBottom: 32,
@@ -114,18 +120,20 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   actionButton: {
-    backgroundColor: "#ff4444",
+    backgroundColor: "#ee3333",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
-    padding: 16,
-    borderRadius: 12,
+    gap: 6,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 16,
   },
   actionButtonText: {
     color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 14,
+    fontWeight: "500",
   },
   footer: {
     marginTop: "auto",

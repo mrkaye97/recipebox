@@ -137,13 +137,13 @@ AND user_id = @userId::UUID
 -- name: UpdateRecipe :one
 UPDATE recipe
 SET
-    name = COALESCE(@name::TEXT, name),
-    author = COALESCE(@author::TEXT, author),
-    cuisine = COALESCE(@cuisine::TEXT, cuisine),
-    location = COALESCE(@location::JSONB, location),
-    time_estimate_minutes = COALESCE(@timeEstimateMinutes::INT, time_estimate_minutes),
-    notes = COALESCE(@notes::TEXT, notes),
-    last_made_at = COALESCE(@lastMadeAt::TIMESTAMPTZ, last_made_at),
+    name = COALESCE(sqlc.narg('name')::TEXT, name),
+    author = COALESCE(sqlc.narg('author')::TEXT, author),
+    cuisine = COALESCE(sqlc.narg('cuisine')::TEXT, cuisine),
+    location = COALESCE(sqlc.narg('location')::JSONB, location),
+    time_estimate_minutes = COALESCE(sqlc.narg('time_estimate_minutes')::INT, time_estimate_minutes),
+    notes = COALESCE(sqlc.narg('notes')::TEXT, notes),
+    last_made_at = COALESCE(sqlc.narg('last_made_at')::TIMESTAMPTZ, last_made_at),
     updated_at = CURRENT_TIMESTAMP
 WHERE
     id = @recipeId::UUID

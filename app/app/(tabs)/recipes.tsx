@@ -108,15 +108,7 @@ function OnlineRecipeForm({ onBack }: { onBack: () => void }) {
     const response = await create.perform(recipeData);
 
     if (response) {
-      Alert.alert("Success", "Recipe imported successfully!", [
-        {
-          text: "OK",
-          onPress: () => {
-            onBack();
-            router.push("/");
-          },
-        },
-      ]);
+      router.push(`/recipe/${response.id}`);
     }
   };
 
@@ -252,7 +244,6 @@ function CookbookRecipeForm({ onBack }: { onBack: () => void }) {
       return;
     }
 
-    // Create the file object for the form data
     const imageUri = selectedImage;
     const filename = imageUri.split("/").pop() || "recipe-photo.jpg";
     const imageFile = {
@@ -271,15 +262,7 @@ function CookbookRecipeForm({ onBack }: { onBack: () => void }) {
     });
 
     if (response) {
-      Alert.alert("Success", "Recipe created from cookbook photo!", [
-        {
-          text: "OK",
-          onPress: () => {
-            onBack();
-            router.push("/");
-          },
-        },
-      ]);
+      router.push(`/recipe/${response.id}`);
     }
   };
 

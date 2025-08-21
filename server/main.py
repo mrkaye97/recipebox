@@ -1,9 +1,11 @@
 from collections import defaultdict
+from datetime import datetime
 from typing import Annotated, Literal, overload
 from uuid import UUID
 
 from fastapi import Depends, FastAPI, Form, HTTPException, UploadFile, status
 from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import BaseModel
 
 from src.auth import create_access_token, hash_password
 from src.crud.models import DietaryRestriction, RecipeIngredient, RecipeInstruction
@@ -176,17 +178,38 @@ async def get_recipe(
     )
 
 
+class RecipePatch(BaseModel):
+    name: str | None = None
+    author: str | None = None
+    cuisine: str | None = None
+    location: RecipeLocation | None = None
+    time_estimate_minutes: int | None = None
+    notes: str | None = None
+    last_made_at: datetime | None = None
+
+
 @app.patch("/recipes/{id}")
 async def update_recipe(
     conn: Connection,
     user: User,
     id: UUID,
-    body: UpdateRecipeParams,
+    body: RecipePatch,
 ) -> Recipe | None:
     db = AsyncQuerier(conn)
-    body.userid = user.id
-    body.recipeid = id
-    recipe = await db.update_recipe(body)
+
+    recipe = await db.update_recipe(
+        UpdateRecipeParams(
+            name=body.name,
+            author=body.author,
+            cuisine=body.cuisine,
+            location=body.location.model_dump_json() if body.location else None,
+            time_estimate_minutes=body.time_estimate_minutes,
+            notes=body.notes,
+            last_made_at=body.last_made_at,
+            recipeid=id,
+            userid=user.id,
+        )
+    )
 
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
