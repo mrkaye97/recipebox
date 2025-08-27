@@ -113,7 +113,7 @@ async def list_recipes_from_db(user_id: UUID, db: AsyncQuerier) -> list[Recipe]:
     return await populate_recipe_data(db=db, user_id=user_id, recipes=recipes)
 
 
-@recipes.get("/recipes")
+@recipes.get("/")
 async def list_recipes(user: User, conn: Connection) -> list[Recipe]:
     db = AsyncQuerier(conn)
     return await list_recipes_from_db(user_id=user.id, db=db)
