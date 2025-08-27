@@ -18,10 +18,23 @@ class DietaryRestriction(str, enum.Enum):
     PESCATARIAN = "pescatarian"
 
 
+class FriendshipStatus(str, enum.Enum):
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+
+
 class CookingHistory(pydantic.BaseModel):
     recipe_id: uuid.UUID
     user_id: uuid.UUID
     made_at: datetime.datetime
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
+
+
+class Friendship(pydantic.BaseModel):
+    user_id: uuid.UUID
+    friend_user_id: uuid.UUID
+    status: FriendshipStatus
     created_at: datetime.datetime
     updated_at: datetime.datetime
 
@@ -43,7 +56,7 @@ class Recipe(pydantic.BaseModel):
 class RecipeDietaryRestrictionMet(pydantic.BaseModel):
     user_id: uuid.UUID
     recipe_id: uuid.UUID
-    dietary_restriction: Any
+    dietary_restriction: DietaryRestriction
 
 
 class RecipeIngredient(pydantic.BaseModel):

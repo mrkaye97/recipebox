@@ -24,6 +24,16 @@ CREATE TYPE public.dietary_restriction AS ENUM (
 );
 
 
+--
+-- Name: friendship_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.friendship_status AS ENUM (
+    'pending',
+    'accepted'
+);
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -36,6 +46,19 @@ CREATE TABLE public.cooking_history (
     recipe_id uuid NOT NULL,
     user_id uuid NOT NULL,
     made_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
+-- Name: friendship; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.friendship (
+    user_id uuid NOT NULL,
+    friend_user_id uuid NOT NULL,
+    status public.friendship_status NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
@@ -151,6 +174,14 @@ CREATE TABLE public.user_password (
 
 ALTER TABLE ONLY public.cooking_history
     ADD CONSTRAINT cooking_history_pkey PRIMARY KEY (user_id, made_at, recipe_id);
+
+
+--
+-- Name: friendship friendship_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.friendship
+    ADD CONSTRAINT friendship_pkey PRIMARY KEY (user_id, friend_user_id);
 
 
 --
@@ -270,6 +301,22 @@ ALTER TABLE ONLY public.cooking_history
 
 
 --
+-- Name: friendship friendship_friend_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.friendship
+    ADD CONSTRAINT friendship_friend_user_id_fkey FOREIGN KEY (friend_user_id) REFERENCES public."user"(id) ON DELETE CASCADE;
+
+
+--
+-- Name: friendship friendship_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.friendship
+    ADD CONSTRAINT friendship_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE;
+
+
+--
 -- Name: recipe_dietary_restriction_met recipe_dietary_restriction_met_recipe_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -359,4 +406,5 @@ ALTER TABLE ONLY public.user_password
 --
 
 INSERT INTO public.schema_migrations (version) VALUES
-    ('20250803211143');
+    ('20250803211143'),
+    ('20250827005941');

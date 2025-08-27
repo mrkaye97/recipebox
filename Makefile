@@ -12,7 +12,7 @@ lint:
 	(cd server && poetry run mypy .)
 
 migrate:
-	(cd server && dbmate up)
+	(cd server && dbmate up && sed -E '/^SET /d; /^SELECT /d; /^--/d; /^\/\*/,/\*\//d; /^$$/d; s/public\.//g' db/schema.sql > db/schema-sqlc.sql)
 	make gen-sqlc
 
 rollback:
