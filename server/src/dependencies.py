@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection, create_async_engine
 
 from src.auth import parse_token
 from src.crud.models import User as DbUser
-from src.crud.query import AsyncQuerier
+from src.crud.users import AsyncQuerier
 from src.logger import get_logger
 from src.settings import settings
 

@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from src.crud.models import DietaryRestriction, RecipeIngredient, RecipeInstruction
 from src.crud.models import Recipe as RecipeModel
-from src.crud.query import (
+from src.crud.recipes import (
     AsyncQuerier,
     CreateRecipeIngredientsParams,
     CreateRecipeParams,

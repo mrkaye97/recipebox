@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from src.auth import create_access_token, hash_password
-from src.crud.query import AsyncQuerier
+from src.crud.users import AsyncQuerier
 from src.dependencies import Connection
 from src.logger import get_logger
 from src.schemas import Token, UserRegistration

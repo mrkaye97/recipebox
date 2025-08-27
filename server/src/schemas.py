@@ -7,6 +7,12 @@ from pydantic import BaseModel, Field
 from src.crud import models
 
 
+class User(BaseModel):
+    id: UUID
+    email: str
+    name: str
+
+
 class UserRegistration(BaseModel):
     email: str
     name: str
