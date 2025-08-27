@@ -67,6 +67,7 @@ CREATE TABLE recipe_instruction (
 );
 CREATE TABLE recipe_share_request (
     token text NOT NULL,
+    to_user_id uuid,
     recipe_id uuid,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     expires_at timestamp with time zone NOT NULL
@@ -144,6 +145,8 @@ ALTER TABLE ONLY recipe_instruction
     ADD CONSTRAINT recipe_instruction_user_id_fkey FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE;
 ALTER TABLE ONLY recipe_share_request
     ADD CONSTRAINT recipe_share_request_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE;
+ALTER TABLE ONLY recipe_share_request
+    ADD CONSTRAINT recipe_share_request_to_user_id_fkey FOREIGN KEY (to_user_id) REFERENCES "user"(id) ON DELETE CASCADE;
 ALTER TABLE ONLY recipe_tag
     ADD CONSTRAINT recipe_tag_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE;
 ALTER TABLE ONLY recipe_tag

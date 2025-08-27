@@ -153,6 +153,7 @@ CREATE TABLE public.recipe_instruction (
 
 CREATE TABLE public.recipe_share_request (
     token text NOT NULL,
+    to_user_id uuid,
     recipe_id uuid,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     expires_at timestamp with time zone NOT NULL
@@ -422,6 +423,14 @@ ALTER TABLE ONLY public.recipe_instruction
 
 ALTER TABLE ONLY public.recipe_share_request
     ADD CONSTRAINT recipe_share_request_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES public.recipe(id) ON DELETE CASCADE;
+
+
+--
+-- Name: recipe_share_request recipe_share_request_to_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe_share_request
+    ADD CONSTRAINT recipe_share_request_to_user_id_fkey FOREIGN KEY (to_user_id) REFERENCES public."user"(id) ON DELETE CASCADE;
 
 
 --

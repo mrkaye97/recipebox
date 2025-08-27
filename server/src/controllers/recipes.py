@@ -347,11 +347,12 @@ def create_share_token() -> str:
     return secrets.token_urlsafe(32)
 
 
-@recipes.post("/{id}/share")
+@recipes.post("/{id}/share/{to_user_id}")
 async def create_recipe_share_link(
     conn: Connection,
     user: User,
     id: UUID,
+    to_user_id: UUID,
 ) -> RecipeShareRequest | None:
     db = AsyncQuerier(conn)
     recipe = await db.get_recipe(recipeid=id, userid=user.id)
@@ -362,6 +363,7 @@ async def create_recipe_share_link(
     return await db.create_recipe_share_request(
         recipeid=recipe.id,
         token=create_share_token(),
+        touserid=to_user_id,
         expiresat=datetime.now(UTC) + timedelta(days=7),
     )
 

@@ -129,14 +129,16 @@ CREATE_RECIPE_SHARE_REQUEST = """-- name: create_recipe_share_request \\:one
 INSERT INTO recipe_share_request (
     recipe_id,
     token,
+    to_user_id,
     expires_at
 )
 VALUES (
     :p1\\:\\:UUID,
     :p2\\:\\:TEXT,
-    :p3\\:\\:TIMESTAMPTZ
+    :p3\\:\\:UUID,
+    :p4\\:\\:TIMESTAMPTZ
 )
-RETURNING token, recipe_id, created_at, expires_at
+RETURNING token, to_user_id, recipe_id, created_at, expires_at
 """
 
 
@@ -252,9 +254,7 @@ class AsyncQuerier:
     def __init__(self, conn: sqlalchemy.ext.asyncio.AsyncConnection):
         self._conn = conn
 
-    async def accept_recipe_share_request(
-        self, *, token: str
-    ) -> models.Recipe | None:
+    async def accept_recipe_share_request(self, *, token: str) -> models.Recipe | None:
         row = (
             await self._conn.execute(
                 sqlalchemy.text(ACCEPT_RECIPE_SHARE_REQUEST), {"p1": token}
@@ -377,21 +377,32 @@ class AsyncQuerier:
             )
 
     async def create_recipe_share_request(
-        self, *, recipeid: uuid.UUID, token: str, expiresat: datetime.datetime
+        self,
+        *,
+        recipeid: uuid.UUID,
+        token: str,
+        touserid: uuid.UUID,
+        expiresat: datetime.datetime,
     ) -> models.RecipeShareRequest | None:
         row = (
             await self._conn.execute(
                 sqlalchemy.text(CREATE_RECIPE_SHARE_REQUEST),
-                {"p1": recipeid, "p2": token, "p3": expiresat},
+                {
+                    "p1": recipeid,
+                    "p2": token,
+                    "p3": touserid,
+                    "p4": expiresat,
+                },
             )
         ).first()
         if row is None:
             return None
         return models.RecipeShareRequest(
             token=row[0],
-            recipe_id=row[1],
-            created_at=row[2],
-            expires_at=row[3],
+            to_user_id=row[1],
+            recipe_id=row[2],
+            created_at=row[3],
+            expires_at=row[4],
         )
 
     async def create_recipe_tags(

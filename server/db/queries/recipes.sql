@@ -160,11 +160,13 @@ ORDER BY step_number ASC
 INSERT INTO recipe_share_request (
     recipe_id,
     token,
+    to_user_id,
     expires_at
 )
 VALUES (
     @recipeId::UUID,
     @token::TEXT,
+    @toUserId::UUID,
     @expiresAt::TIMESTAMPTZ
 )
 RETURNING *;
