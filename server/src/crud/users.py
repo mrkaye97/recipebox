@@ -13,12 +13,23 @@ import sqlalchemy.ext.asyncio
 from src.crud import models
 
 ACCEPT_FRIEND_REQUEST = """-- name: accept_friend_request \\:one
-UPDATE friendship
-SET status = 'accepted',
-    updated_at = NOW()
-WHERE id = :p1\\:\\:UUID
-  AND friend_user_id = :p2\\:\\:UUID
-  AND status = 'pending'
+WITH updated AS (
+    UPDATE friendship
+    SET status = 'accepted',
+        updated_at = NOW()
+    WHERE user_id = :p1\\:\\:UUID
+    AND friend_user_id = :p2\\:\\:UUID
+    AND status = 'pending'
+    RETURNING user_id, friend_user_id, status, created_at, updated_at
+)
+
+INSERT INTO friendship (
+    user_id,
+    friend_user_id,
+    status
+)
+SELECT friend_user_id, user_id, 'accepted'
+FROM updated
 RETURNING user_id, friend_user_id, status, created_at, updated_at
 """
 
@@ -115,12 +126,12 @@ class AsyncQuerier:
         self._conn = conn
 
     async def accept_friend_request(
-        self, *, friendshipid: uuid.UUID, userid: uuid.UUID
+        self, *, requestfromuserid: uuid.UUID, userid: uuid.UUID
     ) -> models.Friendship | None:
         row = (
             await self._conn.execute(
                 sqlalchemy.text(ACCEPT_FRIEND_REQUEST),
-                {"p1": friendshipid, "p2": userid},
+                {"p1": requestfromuserid, "p2": userid},
             )
         ).first()
         if row is None:

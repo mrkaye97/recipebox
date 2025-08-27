@@ -1,5 +1,9 @@
-from fastapi import APIRouter
+from uuid import UUID
 
+from fastapi import APIRouter
+from pydantic import BaseModel
+
+from src.crud.models import Friendship
 from src.crud.users import AsyncQuerier
 from src.dependencies import Connection
 from src.dependencies import User as UserDependency
@@ -24,3 +28,32 @@ async def register(
     )
 
     return [User(id=user.id, name=user.name, email=user.email) async for user in users]
+
+
+class FriendRequestBody(BaseModel):
+    friend_user_id: UUID
+
+
+@users.post("/friend-request")
+async def send_friend_request(
+    conn: Connection,
+    user: UserDependency,
+    body: FriendRequestBody,
+) -> Friendship | None:
+    querier = AsyncQuerier(conn)
+    return await querier.create_friend_request(
+        userid=user.id,
+        frienduserid=body.friend_user_id,
+    )
+
+
+@users.post("/friend-request/{request_from_user_id}/accept")
+async def accept_friend_request(
+    conn: Connection,
+    user: UserDependency,
+    request_from_user_id: UUID,
+) -> Friendship | None:
+    querier = AsyncQuerier(conn)
+    return await querier.accept_friend_request(
+        userid=user.id, requestfromuserid=request_from_user_id
+    )

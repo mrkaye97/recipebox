@@ -61,12 +61,23 @@ RETURNING *
 ;
 
 -- name: AcceptFriendRequest :one
-UPDATE friendship
-SET status = 'accepted',
-    updated_at = NOW()
-WHERE id = @friendshipId::UUID
-  AND friend_user_id = @userId::UUID
-  AND status = 'pending'
+WITH updated AS (
+    UPDATE friendship
+    SET status = 'accepted',
+        updated_at = NOW()
+    WHERE user_id = @requestFromUserId::UUID
+    AND friend_user_id = @userId::UUID
+    AND status = 'pending'
+    RETURNING *
+)
+
+INSERT INTO friendship (
+    user_id,
+    friend_user_id,
+    status
+)
+SELECT friend_user_id, user_id, 'accepted'
+FROM updated
 RETURNING *
 ;
 
