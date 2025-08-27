@@ -16,7 +16,6 @@ CREATE TABLE friendship (
 CREATE INDEX idx_users_name_email_trgm ON "user" USING gin ((name || ' ' || email) gin_trgm_ops);
 
 -- migrate:down
-DROP INDEX idx_users_full_text_name_email;
 DROP INDEX idx_users_name_email_trgm;
 DROP TABLE friendship;
 DROP TYPE friendship_status;

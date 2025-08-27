@@ -155,3 +155,29 @@ WHERE
     AND user_id = @userId::UUID
 ORDER BY step_number ASC
 ;
+
+-- name: CreateRecipeShareRequest :one
+INSERT INTO recipe_share_request (
+    recipe_id,
+    token,
+    expires_at
+)
+VALUES (
+    @recipeId::UUID,
+    @token::TEXT,
+    @expiresAt::TIMESTAMPTZ
+)
+RETURNING *;
+
+-- name: AcceptRecipeShareRequest :one
+WITH deleted_request AS (
+    DELETE FROM recipe_share_request rsr
+    USING recipe r
+    WHERE rsr.recipe_id = r.id
+      AND rsr.token = @token::TEXT
+      AND rsr.expires_at > NOW()
+    RETURNING rsr.recipe_id
+)
+SELECT r.*
+FROM recipe r
+JOIN deleted_request dr ON r.id = dr.recipe_id;

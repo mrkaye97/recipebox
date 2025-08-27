@@ -148,6 +148,18 @@ CREATE TABLE public.recipe_instruction (
 
 
 --
+-- Name: recipe_share_request; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.recipe_share_request (
+    token text NOT NULL,
+    recipe_id uuid,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    expires_at timestamp with time zone NOT NULL
+);
+
+
+--
 -- Name: recipe_tag; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -239,6 +251,14 @@ ALTER TABLE ONLY public.recipe_instruction
 
 ALTER TABLE ONLY public.recipe
     ADD CONSTRAINT recipe_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: recipe_share_request recipe_share_request_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe_share_request
+    ADD CONSTRAINT recipe_share_request_pkey PRIMARY KEY (token);
 
 
 --
@@ -397,6 +417,14 @@ ALTER TABLE ONLY public.recipe_instruction
 
 
 --
+-- Name: recipe_share_request recipe_share_request_recipe_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe_share_request
+    ADD CONSTRAINT recipe_share_request_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES public.recipe(id) ON DELETE CASCADE;
+
+
+--
 -- Name: recipe_tag recipe_tag_recipe_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -440,4 +468,5 @@ ALTER TABLE ONLY public.user_password
 INSERT INTO public.schema_migrations (version) VALUES
     ('20250803211143'),
     ('20250827005941'),
-    ('20250827021238');
+    ('20250827021238'),
+    ('20250827022009');

@@ -83,6 +83,13 @@ class RecipeInstruction(pydantic.BaseModel):
     updated_at: datetime.datetime
 
 
+class RecipeShareRequest(pydantic.BaseModel):
+    token: str
+    recipe_id: uuid.UUID | None
+    created_at: datetime.datetime
+    expires_at: datetime.datetime
+
+
 class RecipeTag(pydantic.BaseModel):
     user_id: uuid.UUID
     recipe_id: uuid.UUID

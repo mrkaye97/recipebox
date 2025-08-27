@@ -1,12 +1,18 @@
+import secrets
 from collections import defaultdict
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from typing import Literal, overload
 from uuid import UUID
 
 from fastapi import APIRouter, Form, HTTPException, UploadFile, status
 from pydantic import BaseModel
 
-from src.crud.models import DietaryRestriction, RecipeIngredient, RecipeInstruction
+from src.crud.models import (
+    DietaryRestriction,
+    RecipeIngredient,
+    RecipeInstruction,
+    RecipeShareRequest,
+)
 from src.crud.models import Recipe as RecipeModel
 from src.crud.recipes import (
     AsyncQuerier,
@@ -335,3 +341,76 @@ async def delete_recipe(conn: Connection, user: User, id: UUID) -> UUID:
     await db.delete_recipe(recipeid=id, userid=user.id)
 
     return id
+
+
+def create_share_token() -> str:
+    return secrets.token_urlsafe(32)
+
+
+@recipes.post("/{id}/share")
+async def create_recipe_share_link(
+    conn: Connection,
+    user: User,
+    id: UUID,
+) -> RecipeShareRequest | None:
+    db = AsyncQuerier(conn)
+    recipe = await db.get_recipe(recipeid=id, userid=user.id)
+
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+
+    return await db.create_recipe_share_request(
+        recipeid=recipe.id,
+        token=create_share_token(),
+        expiresat=datetime.now(UTC) + timedelta(days=7),
+    )
+
+
+class AcceptShareRequestBody(BaseModel):
+    token: str
+
+
+@recipes.post("/share/accept")
+async def accept_recipe_share_request(
+    conn: Connection,
+    user: User,
+    body: AcceptShareRequestBody,
+) -> Recipe | None:
+    db = AsyncQuerier(conn)
+
+    recipe = await db.accept_recipe_share_request(
+        token=body.token,
+    )
+
+    if not recipe:
+        raise HTTPException(
+            status_code=404, detail="Share request not found or expired"
+        )
+
+    dietary_restrictions = db.list_recipe_dietary_restrictions_met(
+        recipeids=[recipe.id], userid=recipe.user_id
+    )
+    instructions = db.list_recipe_instructions(
+        recipeids=[recipe.id], userid=recipe.user_id
+    )
+    ingredients = db.list_recipe_ingredients(
+        recipeids=[recipe.id], userid=recipe.user_id
+    )
+    tags = db.list_recipe_tags(recipeids=[recipe.id], userid=recipe.user_id)
+    db_recipe = Recipe.from_db(
+        recipe=recipe,
+        ingredients=[i async for i in ingredients],
+        dietary_restrictions_met=[
+            d.dietary_restriction async for d in dietary_restrictions
+        ],
+        instructions=[i async for i in instructions],
+        tags=[t.tag async for t in tags],
+    )
+
+    return await ingest_recipe(
+        db=db,
+        user=user,
+        params=db_recipe,
+        location=RecipeLocation.model_validate(recipe.location),
+        notes=None,
+    )

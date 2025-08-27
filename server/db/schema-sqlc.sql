@@ -65,6 +65,12 @@ CREATE TABLE recipe_instruction (
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
+CREATE TABLE recipe_share_request (
+    token text NOT NULL,
+    recipe_id uuid,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    expires_at timestamp with time zone NOT NULL
+);
 CREATE TABLE recipe_tag (
     user_id uuid NOT NULL,
     recipe_id uuid NOT NULL,
@@ -99,6 +105,8 @@ ALTER TABLE ONLY recipe_instruction
     ADD CONSTRAINT recipe_instruction_pkey PRIMARY KEY (recipe_id, user_id, step_number);
 ALTER TABLE ONLY recipe
     ADD CONSTRAINT recipe_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY recipe_share_request
+    ADD CONSTRAINT recipe_share_request_pkey PRIMARY KEY (token);
 ALTER TABLE ONLY recipe_tag
     ADD CONSTRAINT recipe_tag_pkey PRIMARY KEY (recipe_id, user_id, tag);
 ALTER TABLE ONLY schema_migrations
@@ -134,6 +142,8 @@ ALTER TABLE ONLY recipe_instruction
     ADD CONSTRAINT recipe_instruction_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE;
 ALTER TABLE ONLY recipe_instruction
     ADD CONSTRAINT recipe_instruction_user_id_fkey FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE;
+ALTER TABLE ONLY recipe_share_request
+    ADD CONSTRAINT recipe_share_request_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE;
 ALTER TABLE ONLY recipe_tag
     ADD CONSTRAINT recipe_tag_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE;
 ALTER TABLE ONLY recipe_tag
@@ -145,4 +155,5 @@ ALTER TABLE ONLY user_password
 INSERT INTO schema_migrations (version) VALUES
     ('20250803211143'),
     ('20250827005941'),
-    ('20250827021238');
+    ('20250827021238'),
+    ('20250827022009');
