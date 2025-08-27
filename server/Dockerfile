@@ -15,7 +15,7 @@ RUN pip install poetry
 
 RUN poetry config virtualenvs.create false
 
-RUN poetry install --only=main --no-interaction --no-ansi --no-root
+RUN poetry install --only=main --no-interaction --no-ansi --no-root --no-cache
 
 ARG TARGETARCH
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
