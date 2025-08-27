@@ -1,11 +1,13 @@
 -- name: CreateUser :one
 INSERT INTO "user" (
     email,
-    name
+    name,
+    privacy_preference
 )
 VALUES (
     @email::TEXT,
-    @name::TEXT
+    @name::TEXT,
+    @privacyPreference::user_privacy_preference
 )
 RETURNING *
 ;
@@ -40,7 +42,9 @@ SELECT
     *,
     similarity(name || ' ' || email, @query::TEXT) as relevance_score
 FROM "user"
-WHERE (name || ' ' || email) ILIKE '%' || @query::TEXT || '%'
+WHERE
+    (name || ' ' || email) ILIKE '%' || @query::TEXT || '%'
+    AND privacy_preference = 'public'
 ORDER BY relevance_score DESC, name ASC
 LIMIT COALESCE(@userLimit::INT, 25)
 OFFSET COALESCE(@userOffset::INT, 0)

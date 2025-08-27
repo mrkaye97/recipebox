@@ -16,7 +16,11 @@ logger = get_logger(__name__)
 @auth.post("/register", response_model=Token)
 async def register(user_data: UserRegistration, conn: Connection) -> Token:
     querier = AsyncQuerier(conn)
-    user = await querier.create_user(email=user_data.email, name=user_data.name)
+    user = await querier.create_user(
+        email=user_data.email,
+        name=user_data.name,
+        privacypreference=user_data.privacy_preference,
+    )
 
     if not user:
         raise HTTPException(

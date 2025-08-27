@@ -48,6 +48,16 @@ CREATE TYPE public.friendship_status AS ENUM (
 );
 
 
+--
+-- Name: user_privacy_preference; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.user_privacy_preference AS ENUM (
+    'public',
+    'private'
+);
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -166,7 +176,8 @@ CREATE TABLE public."user" (
     email text NOT NULL,
     name text NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    privacy_preference public.user_privacy_preference DEFAULT 'public'::public.user_privacy_preference NOT NULL
 );
 
 
@@ -428,4 +439,5 @@ ALTER TABLE ONLY public.user_password
 
 INSERT INTO public.schema_migrations (version) VALUES
     ('20250803211143'),
-    ('20250827005941');
+    ('20250827005941'),
+    ('20250827021238');

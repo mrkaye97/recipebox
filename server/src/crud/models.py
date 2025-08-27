@@ -23,6 +23,11 @@ class FriendshipStatus(str, enum.Enum):
     ACCEPTED = "accepted"
 
 
+class UserPrivacyPreference(str, enum.Enum):
+    PUBLIC = "public"
+    PRIVATE = "private"
+
+
 class CookingHistory(pydantic.BaseModel):
     recipe_id: uuid.UUID
     user_id: uuid.UUID
@@ -94,6 +99,7 @@ class User(pydantic.BaseModel):
     name: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
+    privacy_preference: UserPrivacyPreference
 
 
 class UserPassword(pydantic.BaseModel):

@@ -12,6 +12,10 @@ CREATE TYPE friendship_status AS ENUM (
     'pending',
     'accepted'
 );
+CREATE TYPE user_privacy_preference AS ENUM (
+    'public',
+    'private'
+);
 CREATE TABLE cooking_history (
     recipe_id uuid NOT NULL,
     user_id uuid NOT NULL,
@@ -74,7 +78,8 @@ CREATE TABLE "user" (
     email text NOT NULL,
     name text NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    privacy_preference user_privacy_preference DEFAULT 'public'::user_privacy_preference NOT NULL
 );
 CREATE TABLE user_password (
     user_id uuid NOT NULL,
@@ -139,4 +144,5 @@ ALTER TABLE ONLY user_password
     ADD CONSTRAINT user_password_user_id_fkey FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE;
 INSERT INTO schema_migrations (version) VALUES
     ('20250803211143'),
-    ('20250827005941');
+    ('20250827005941'),
+    ('20250827021238');

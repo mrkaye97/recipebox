@@ -35,7 +35,7 @@ RETURNING user_id, friend_user_id, status, created_at, updated_at
 
 
 AUTHENTICATE_USER = """-- name: authenticate_user \\:one
-SELECT u.id, u.email, u.name, u.created_at, u.updated_at
+SELECT u.id, u.email, u.name, u.created_at, u.updated_at, u.privacy_preference
 FROM "user" u
 JOIN user_password up ON u.id = up.user_id
 WHERE
@@ -62,13 +62,15 @@ RETURNING user_id, friend_user_id, status, created_at, updated_at
 CREATE_USER = """-- name: create_user \\:one
 INSERT INTO "user" (
     email,
-    name
+    name,
+    privacy_preference
 )
 VALUES (
     :p1\\:\\:TEXT,
-    :p2\\:\\:TEXT
+    :p2\\:\\:TEXT,
+    :p3\\:\\:user_privacy_preference
 )
-RETURNING id, email, name, created_at, updated_at
+RETURNING id, email, name, created_at, updated_at, privacy_preference
 """
 
 
@@ -85,14 +87,14 @@ VALUES (
 
 
 FIND_USER_BY_ID = """-- name: find_user_by_id \\:one
-SELECT id, email, name, created_at, updated_at
+SELECT id, email, name, created_at, updated_at, privacy_preference
 FROM "user"
 WHERE id = :p1
 """
 
 
 LIST_FRIENDS = """-- name: list_friends \\:many
-SELECT u.id, u.email, u.name, u.created_at, u.updated_at
+SELECT u.id, u.email, u.name, u.created_at, u.updated_at, u.privacy_preference
 FROM "user" u
 JOIN friendship f ON u.id = f.friend_user_id
 WHERE f.user_id = :p1\\:\\:UUID
@@ -102,10 +104,12 @@ WHERE f.user_id = :p1\\:\\:UUID
 
 SEARCH_USERS = """-- name: search_users \\:many
 SELECT
-    id, email, name, created_at, updated_at,
+    id, email, name, created_at, updated_at, privacy_preference,
     similarity(name || ' ' || email, :p1\\:\\:TEXT) as relevance_score
 FROM "user"
-WHERE (name || ' ' || email) ILIKE '%' || :p1\\:\\:TEXT || '%'
+WHERE
+    (name || ' ' || email) ILIKE '%' || :p1\\:\\:TEXT || '%'
+    AND privacy_preference = 'public'
 ORDER BY relevance_score DESC, name ASC
 LIMIT COALESCE(:p3\\:\\:INT, 25)
 OFFSET COALESCE(:p2\\:\\:INT, 0)
@@ -118,6 +122,7 @@ class SearchUsersRow(pydantic.BaseModel):
     name: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
+    privacy_preference: models.UserPrivacyPreference
     relevance_score: float
 
 
@@ -161,6 +166,7 @@ class AsyncQuerier:
             name=row[2],
             created_at=row[3],
             updated_at=row[4],
+            privacy_preference=row[5],
         )
 
     async def create_friend_request(
@@ -182,10 +188,13 @@ class AsyncQuerier:
             updated_at=row[4],
         )
 
-    async def create_user(self, *, email: str, name: str) -> models.User | None:
+    async def create_user(
+        self, *, email: str, name: str, privacypreference: models.UserPrivacyPreference
+    ) -> models.User | None:
         row = (
             await self._conn.execute(
-                sqlalchemy.text(CREATE_USER), {"p1": email, "p2": name}
+                sqlalchemy.text(CREATE_USER),
+                {"p1": email, "p2": name, "p3": privacypreference},
             )
         ).first()
         if row is None:
@@ -196,6 +205,7 @@ class AsyncQuerier:
             name=row[2],
             created_at=row[3],
             updated_at=row[4],
+            privacy_preference=row[5],
         )
 
     async def create_user_password(
@@ -217,6 +227,7 @@ class AsyncQuerier:
             name=row[2],
             created_at=row[3],
             updated_at=row[4],
+            privacy_preference=row[5],
         )
 
     async def list_friends(self, *, userid: uuid.UUID) -> AsyncIterator[models.User]:
@@ -228,6 +239,7 @@ class AsyncQuerier:
                 name=row[2],
                 created_at=row[3],
                 updated_at=row[4],
+                privacy_preference=row[5],
             )
 
     async def search_users(
@@ -244,5 +256,6 @@ class AsyncQuerier:
                 name=row[2],
                 created_at=row[3],
                 updated_at=row[4],
-                relevance_score=row[5],
+                privacy_preference=row[5],
+                relevance_score=row[6],
             )
