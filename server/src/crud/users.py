@@ -3,6 +3,7 @@
 #   sqlc v1.28.0
 # source: users.sql
 import uuid
+from collections.abc import AsyncIterator
 
 import sqlalchemy
 import sqlalchemy.ext.asyncio
@@ -48,6 +49,18 @@ FIND_USER_BY_ID = """-- name: find_user_by_id \\:one
 SELECT id, email, name, created_at, updated_at
 FROM "user"
 WHERE id = :p1
+"""
+
+
+SEARCH_USERS = """-- name: search_users \\:many
+SELECT id, email, name, created_at, updated_at
+FROM "user"
+WHERE
+    (name ILIKE '%' || :p1\\:\\:TEXT || '%'
+    OR email ILIKE '%' || :p1\\:\\:TEXT || '%')
+ORDER BY name ASC
+LIMIT COALESCE(:p3\\:\\:INT, 25)
+OFFSET COALESCE(:p2\\:\\:INT, 0)
 """
 
 
@@ -110,3 +123,19 @@ class AsyncQuerier:
             created_at=row[3],
             updated_at=row[4],
         )
+
+    async def search_users(
+        self, *, query: str, useroffset: int, userlimit: int
+    ) -> AsyncIterator[models.User]:
+        result = await self._conn.stream(
+            sqlalchemy.text(SEARCH_USERS),
+            {"p1": query, "p2": useroffset, "p3": userlimit},
+        )
+        async for row in result:
+            yield models.User(
+                id=row[0],
+                email=row[1],
+                name=row[2],
+                created_at=row[3],
+                updated_at=row[4],
+            )

@@ -34,3 +34,14 @@ WHERE
 SELECT *
 FROM "user"
 WHERE id = @userId;
+
+-- name: SearchUsers :many
+SELECT *
+FROM "user"
+WHERE
+    (name ILIKE '%' || @query::TEXT || '%'
+    OR email ILIKE '%' || @query::TEXT || '%')
+ORDER BY name ASC
+LIMIT COALESCE(@userLimit::INT, 25)
+OFFSET COALESCE(@userOffset::INT, 0)
+;
