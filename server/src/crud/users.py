@@ -2,9 +2,11 @@
 # versions:
 #   sqlc v1.28.0
 # source: users.sql
+import datetime
 import uuid
 from collections.abc import AsyncIterator
 
+import pydantic
 import sqlalchemy
 import sqlalchemy.ext.asyncio
 
@@ -53,15 +55,24 @@ WHERE id = :p1
 
 
 SEARCH_USERS = """-- name: search_users \\:many
-SELECT id, email, name, created_at, updated_at
+SELECT
+    id, email, name, created_at, updated_at,
+    similarity(name || ' ' || email, :p1\\:\\:TEXT) as relevance_score
 FROM "user"
-WHERE
-    (name ILIKE '%' || :p1\\:\\:TEXT || '%'
-    OR email ILIKE '%' || :p1\\:\\:TEXT || '%')
-ORDER BY name ASC
+WHERE (name || ' ' || email) ILIKE '%' || :p1\\:\\:TEXT || '%'
+ORDER BY relevance_score DESC, name ASC
 LIMIT COALESCE(:p3\\:\\:INT, 25)
 OFFSET COALESCE(:p2\\:\\:INT, 0)
 """
+
+
+class SearchUsersRow(pydantic.BaseModel):
+    id: uuid.UUID
+    email: str
+    name: str
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
+    relevance_score: float
 
 
 class AsyncQuerier:
@@ -126,16 +137,17 @@ class AsyncQuerier:
 
     async def search_users(
         self, *, query: str, useroffset: int, userlimit: int
-    ) -> AsyncIterator[models.User]:
+    ) -> AsyncIterator[SearchUsersRow]:
         result = await self._conn.stream(
             sqlalchemy.text(SEARCH_USERS),
             {"p1": query, "p2": useroffset, "p3": userlimit},
         )
         async for row in result:
-            yield models.User(
+            yield SearchUsersRow(
                 id=row[0],
                 email=row[1],
                 name=row[2],
                 created_at=row[3],
                 updated_at=row[4],
+                relevance_score=row[5],
             )

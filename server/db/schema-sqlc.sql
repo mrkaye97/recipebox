@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
+COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
 CREATE TYPE dietary_restriction AS ENUM (
     'gluten_free',
     'dairy_free',
@@ -106,6 +108,7 @@ CREATE INDEX idx_recipe_last_made_at ON recipe USING btree (user_id, last_made_a
 CREATE INDEX idx_recipe_time_estimate ON recipe USING btree (user_id, time_estimate_minutes);
 CREATE INDEX idx_recipe_updated_at ON recipe USING btree (user_id, updated_at);
 CREATE UNIQUE INDEX idx_recipe_user_name ON recipe USING btree (user_id, name);
+CREATE INDEX idx_users_name_email_trgm ON "user" USING gin ((((name || ' '::text) || email)) gin_trgm_ops);
 ALTER TABLE ONLY cooking_history
     ADD CONSTRAINT cooking_history_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE;
 ALTER TABLE ONLY cooking_history

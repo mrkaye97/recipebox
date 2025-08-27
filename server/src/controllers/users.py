@@ -6,11 +6,11 @@ from src.dependencies import User as UserDependency
 from src.logger import get_logger
 from src.schemas import User
 
-auth = APIRouter(prefix="/auth")
+users = APIRouter(prefix="/users")
 logger = get_logger(__name__)
 
 
-@auth.post("/search")
+@users.get("/search")
 async def register(
     conn: Connection,
     _: UserDependency,

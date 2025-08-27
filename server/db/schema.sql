@@ -11,6 +11,20 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
+
+
+--
 -- Name: dietary_restriction; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -282,6 +296,13 @@ CREATE INDEX idx_recipe_updated_at ON public.recipe USING btree (user_id, update
 --
 
 CREATE UNIQUE INDEX idx_recipe_user_name ON public.recipe USING btree (user_id, name);
+
+
+--
+-- Name: idx_users_name_email_trgm; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_users_name_email_trgm ON public."user" USING gin ((((name || ' '::text) || email)) public.gin_trgm_ops);
 
 
 --
