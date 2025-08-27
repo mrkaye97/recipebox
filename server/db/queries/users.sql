@@ -45,3 +45,35 @@ ORDER BY relevance_score DESC, name ASC
 LIMIT COALESCE(@userLimit::INT, 25)
 OFFSET COALESCE(@userOffset::INT, 0)
 ;
+
+-- name: CreateFriendRequest :one
+INSERT INTO friendship (
+    user_id,
+    friend_user_id,
+    status
+)
+VALUES (
+    @userId::UUID,
+    @friendUserId::UUID,
+    'pending'
+)
+RETURNING *
+;
+
+-- name: AcceptFriendRequest :one
+UPDATE friendship
+SET status = 'accepted',
+    updated_at = NOW()
+WHERE id = @friendshipId::UUID
+  AND friend_user_id = @userId::UUID
+  AND status = 'pending'
+RETURNING *
+;
+
+-- name: ListFriends :many
+SELECT u.*
+FROM "user" u
+JOIN friendship f ON u.id = f.friend_user_id
+WHERE f.user_id = @userId::UUID
+  AND f.status = 'accepted'
+;

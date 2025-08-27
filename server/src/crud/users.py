@@ -12,6 +12,17 @@ import sqlalchemy.ext.asyncio
 
 from src.crud import models
 
+ACCEPT_FRIEND_REQUEST = """-- name: accept_friend_request \\:one
+UPDATE friendship
+SET status = 'accepted',
+    updated_at = NOW()
+WHERE id = :p1\\:\\:UUID
+  AND friend_user_id = :p2\\:\\:UUID
+  AND status = 'pending'
+RETURNING user_id, friend_user_id, status, created_at, updated_at
+"""
+
+
 AUTHENTICATE_USER = """-- name: authenticate_user \\:one
 SELECT u.id, u.email, u.name, u.created_at, u.updated_at
 FROM "user" u
@@ -19,6 +30,21 @@ JOIN user_password up ON u.id = up.user_id
 WHERE
     (u.email = :p1\\:\\:TEXT OR u.id = :p2\\:\\:UUID)
     AND up.password_hash = :p3\\:\\:TEXT
+"""
+
+
+CREATE_FRIEND_REQUEST = """-- name: create_friend_request \\:one
+INSERT INTO friendship (
+    user_id,
+    friend_user_id,
+    status
+)
+VALUES (
+    :p1\\:\\:UUID,
+    :p2\\:\\:UUID,
+    'pending'
+)
+RETURNING user_id, friend_user_id, status, created_at, updated_at
 """
 
 
@@ -54,6 +80,15 @@ WHERE id = :p1
 """
 
 
+LIST_FRIENDS = """-- name: list_friends \\:many
+SELECT u.id, u.email, u.name, u.created_at, u.updated_at
+FROM "user" u
+JOIN friendship f ON u.id = f.friend_user_id
+WHERE f.user_id = :p1\\:\\:UUID
+  AND f.status = 'accepted'
+"""
+
+
 SEARCH_USERS = """-- name: search_users \\:many
 SELECT
     id, email, name, created_at, updated_at,
@@ -79,6 +114,25 @@ class AsyncQuerier:
     def __init__(self, conn: sqlalchemy.ext.asyncio.AsyncConnection):
         self._conn = conn
 
+    async def accept_friend_request(
+        self, *, friendshipid: uuid.UUID, userid: uuid.UUID
+    ) -> models.Friendship | None:
+        row = (
+            await self._conn.execute(
+                sqlalchemy.text(ACCEPT_FRIEND_REQUEST),
+                {"p1": friendshipid, "p2": userid},
+            )
+        ).first()
+        if row is None:
+            return None
+        return models.Friendship(
+            user_id=row[0],
+            friend_user_id=row[1],
+            status=row[2],
+            created_at=row[3],
+            updated_at=row[4],
+        )
+
     async def authenticate_user(
         self, *, email: str | None, user_id: uuid.UUID | None, passwordhash: str
     ) -> models.User | None:
@@ -94,6 +148,25 @@ class AsyncQuerier:
             id=row[0],
             email=row[1],
             name=row[2],
+            created_at=row[3],
+            updated_at=row[4],
+        )
+
+    async def create_friend_request(
+        self, *, userid: uuid.UUID, frienduserid: uuid.UUID
+    ) -> models.Friendship | None:
+        row = (
+            await self._conn.execute(
+                sqlalchemy.text(CREATE_FRIEND_REQUEST),
+                {"p1": userid, "p2": frienduserid},
+            )
+        ).first()
+        if row is None:
+            return None
+        return models.Friendship(
+            user_id=row[0],
+            friend_user_id=row[1],
+            status=row[2],
             created_at=row[3],
             updated_at=row[4],
         )
@@ -134,6 +207,17 @@ class AsyncQuerier:
             created_at=row[3],
             updated_at=row[4],
         )
+
+    async def list_friends(self, *, userid: uuid.UUID) -> AsyncIterator[models.User]:
+        result = await self._conn.stream(sqlalchemy.text(LIST_FRIENDS), {"p1": userid})
+        async for row in result:
+            yield models.User(
+                id=row[0],
+                email=row[1],
+                name=row[2],
+                created_at=row[3],
+                updated_at=row[4],
+            )
 
     async def search_users(
         self, *, query: str, useroffset: int, userlimit: int
