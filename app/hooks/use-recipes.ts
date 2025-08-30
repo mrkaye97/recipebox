@@ -41,7 +41,7 @@ export const useRecipes = ({
     },
     {
       enabled: !!token,
-      keepPreviousData: true,
+      placeholderData: (previousData) => previousData,
     },
   );
 
