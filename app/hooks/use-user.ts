@@ -1,9 +1,13 @@
 import { $api } from "@/src/lib/api/client";
+import { components } from "@/src/lib/api/v1";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback, useEffect, useState } from "react";
 import Storage from "react-native-storage";
 
 type AccessToken = string;
+
+export type PrivacyPreference = components["schemas"]["UserPrivacyPreference"];
+export const PrivacyPreferences: PrivacyPreference[] = ["public", "private"];
 
 export const useUser = () => {
   const [token, setToken] = useState<string | null>(null);
@@ -107,12 +111,18 @@ export const useUser = () => {
   );
 
   const register = useCallback(
-    async (email: string, name: string, password: string): Promise<AccessToken> => {
+    async (
+      email: string,
+      name: string,
+      password: string,
+      privacy_preference: PrivacyPreference,
+    ): Promise<AccessToken> => {
       const { access_token } = await registerMutation({
         body: {
           email,
           name,
           password,
+          privacy_preference,
         },
       });
 

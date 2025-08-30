@@ -1,3 +1,5 @@
+import { Picker } from "@react-native-picker/picker";
+import * as _ from "lodash";
 import React, { useState } from "react";
 import {
   Alert,
@@ -10,13 +12,20 @@ import {
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { useUser } from "@/hooks/use-user";
+import {
+  PrivacyPreference,
+  PrivacyPreferences,
+  useUser,
+} from "@/hooks/use-user";
 import { useRouter } from "expo-router";
 
 export function SignupForm() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const [privacyPreference, setPrivacyPreference] =
+    useState<PrivacyPreference>("public");
+
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -36,7 +45,12 @@ export function SignupForm() {
     setIsLoading(true);
 
     try {
-      const token = await register(email.trim(), name.trim(), password);
+      const token = await register(
+        email.trim(),
+        name.trim(),
+        password,
+        privacyPreference,
+      );
 
       if (token) {
         router.navigate("/(tabs)");
@@ -47,7 +61,7 @@ export function SignupForm() {
       console.error("Signup error:", error);
       Alert.alert(
         "Signup Failed",
-        error instanceof Error ? error.message : "An unexpected error occurred"
+        error instanceof Error ? error.message : "An unexpected error occurred",
       );
     } finally {
       setIsLoading(false);
@@ -107,6 +121,29 @@ export function SignupForm() {
         />
       </View>
 
+      <View style={styles.inputContainer}>
+        <ThemedText type="defaultSemiBold" style={styles.label}>
+          Profile Visibility
+        </ThemedText>
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={privacyPreference}
+            onValueChange={(itemValue) => setPrivacyPreference(itemValue)}
+            style={styles.picker}
+            mode="dropdown"
+            itemStyle={styles.pickerItem} // Add this for iOS
+          >
+            {PrivacyPreferences.map((preference) => (
+              <Picker.Item
+                key={preference}
+                label={_.capitalize(preference)}
+                value={preference}
+              />
+            ))}
+          </Picker>
+        </View>
+      </View>
+
       <TouchableOpacity
         style={[styles.signupButton, isLoading && styles.signupButtonDisabled]}
         onPress={handleSignup}
@@ -143,6 +180,22 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 16,
     backgroundColor: "#fff",
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    backgroundColor: "#fff",
+    overflow: "hidden",
+  },
+  picker: {
+    height: 50,
+    margin: 0,
+    padding: 0,
+  },
+  pickerItem: {
+    height: 50,
+    fontSize: 16,
   },
   signupButton: {
     backgroundColor: "#34C759",

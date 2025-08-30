@@ -10,6 +10,7 @@ lint:
 	(cd server && poetry run isort .)
 	(cd server && poetry run ruff check --fix)
 	(cd server && poetry run mypy .)
+	(cd app && npx prettier --write .)
 
 migrate:
 	(cd server && dbmate up && sed -E '/^SET /d; /^SELECT /d; /^--/d; /^\/\*/,/\*\//d; /^$$/d; s/public\.//g' db/schema.sql > db/schema-sqlc.sql)

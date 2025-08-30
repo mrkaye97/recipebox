@@ -71,6 +71,44 @@ export const useRecipes = () => {
       },
     });
 
+  const { mutateAsync: shareRecipe, isPending: sharePending } =
+    $api.useMutation("post", "/sharing", {
+      onSuccess: async () => {
+        // Could invalidate shared recipes query if we had one
+      },
+    });
+
+  const { mutateAsync: acceptRecipeShare, isPending: acceptPending } =
+    $api.useMutation("post", "/sharing/accept", {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: ["get", "/recipes"],
+        });
+        await queryClient.invalidateQueries({
+          queryKey: ["get", "/recipes/share"],
+        });
+      },
+    });
+
+  const pendingSharesQuery = $api.useQuery(
+    "get",
+    "/sharing",
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+    {
+      enabled: !!token,
+    },
+  );
+
+  console.log(
+    "Pending shares data:",
+    JSON.stringify(pendingSharesQuery.error),
+    JSON.stringify(pendingSharesQuery.data),
+  );
+
   const createRecipe = useCallback(
     async (props: CreateRecipeProps) => {
       switch (props.location) {
@@ -127,6 +165,39 @@ export const useRecipes = () => {
     [updateRecipe, token],
   );
 
+  const shareRecipeWithFriend = useCallback(
+    async (recipeId: string, friendUserId: string) => {
+      if (!token) throw new Error("Not authenticated");
+
+      return await shareRecipe({
+        body: {
+          recipe_id: recipeId,
+          to_user_id: friendUserId,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    [shareRecipe, token],
+  );
+
+  const acceptRecipeShareRequest = useCallback(
+    async (shareToken: string) => {
+      if (!token) throw new Error("Not authenticated");
+
+      return await acceptRecipeShare({
+        body: {
+          token: shareToken,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    [acceptRecipeShare, token],
+  );
+
   return {
     ...recipeQuery,
     create: {
@@ -138,6 +209,20 @@ export const useRecipes = () => {
       perform: markAsCookedRecently,
       isPending: updatePending,
       isError: recipeQuery.isError,
+    },
+    shareRecipe: {
+      perform: shareRecipeWithFriend,
+      isPending: sharePending,
+    },
+    acceptShare: {
+      perform: acceptRecipeShareRequest,
+      isPending: acceptPending,
+    },
+    pendingShares: {
+      data: pendingSharesQuery.data,
+      isLoading: pendingSharesQuery.isLoading,
+      isError: pendingSharesQuery.isError,
+      refetch: pendingSharesQuery.refetch,
     },
   };
 };

@@ -92,3 +92,12 @@ JOIN friendship f ON u.id = f.friend_user_id
 WHERE f.user_id = @userId::UUID
   AND f.status = 'accepted'
 ;
+
+-- name: ListFriendRequests :many
+SELECT u.*
+FROM "user" u
+JOIN friendship f ON u.id = f.user_id
+WHERE f.friend_user_id = @userId::UUID
+  AND f.status = 'pending'
+ORDER BY f.created_at DESC
+;

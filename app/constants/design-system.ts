@@ -1,21 +1,21 @@
 export const Colors = {
-  primary: '#538083',
-  primaryDark: '#2a7f62',
-  secondary: '#c3acce',
-  background: '#ffffff',
-  backgroundSubtle: '#fafafa',
-  surface: '#ffffff',
-  text: '#1a1a1a',
-  textSecondary: '#6c757d',
-  border: 'rgba(195, 172, 206, 0.2)',
-  borderLight: 'rgba(0, 0, 0, 0.06)',
-  shadow: '#000000',
+  primary: "#538083",
+  primaryDark: "#2a7f62",
+  secondary: "#c3acce",
+  background: "#ffffff",
+  backgroundSubtle: "#fafafa",
+  surface: "#ffffff",
+  text: "#1a1a1a",
+  textSecondary: "#6c757d",
+  border: "rgba(195, 172, 206, 0.2)",
+  borderLight: "rgba(0, 0, 0, 0.06)",
+  shadow: "#000000",
 
-  buttonPrimary: '#538083',
-  buttonDisabled: '#c3acce',
-  error: '#2a7f62',
+  buttonPrimary: "#538083",
+  buttonDisabled: "#c3acce",
+  error: "#2a7f62",
 
-  overlay: 'rgba(137, 144, 159, 0.15)',
+  overlay: "rgba(137, 144, 159, 0.15)",
 } as const;
 
 export const Typography = {
@@ -26,13 +26,13 @@ export const Typography = {
     md: 16,
     lg: 17,
     xl: 20,
-    '2xl': 22,
+    "2xl": 22,
   },
   fontWeights: {
-    normal: '400',
-    medium: '500',
-    semibold: '600',
-    bold: '700',
+    normal: "400",
+    medium: "500",
+    semibold: "600",
+    bold: "700",
   } as const,
   lineHeights: {
     tight: 1.25,
@@ -54,11 +54,11 @@ export const Spacing = {
   md: 12,
   lg: 16,
   xl: 20,
-  '2xl': 24,
-  '3xl': 32,
-  '4xl': 40,
-  '5xl': 48,
-  '6xl': 60,
+  "2xl": 24,
+  "3xl": 32,
+  "4xl": 40,
+  "5xl": 48,
+  "6xl": 60,
 } as const;
 
 export const BorderRadius = {
@@ -66,7 +66,7 @@ export const BorderRadius = {
   md: 12,
   lg: 16,
   xl: 20,
-  '2xl': 28,
+  "2xl": 28,
   full: 9999,
 } as const;
 
@@ -126,7 +126,7 @@ export const Components = {
   },
   card: {
     borderRadius: BorderRadius.xl,
-    padding: Spacing['2xl'],
+    padding: Spacing["2xl"],
     backgroundColor: Colors.surface,
     borderWidth: 1,
     borderColor: Colors.borderLight,
@@ -144,7 +144,7 @@ export const Components = {
   formSection: {
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
-    padding: Spacing['2xl'],
+    padding: Spacing["2xl"],
     marginTop: Spacing.xl,
     borderWidth: 1,
     borderColor: Colors.borderLight,
@@ -152,7 +152,7 @@ export const Components = {
 } as const;
 
 export const Layout = {
-  screenPadding: Spacing['2xl'],
+  screenPadding: Spacing["2xl"],
   headerHeight: 60,
   tabBarHeight: {
     ios: 84,

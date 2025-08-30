@@ -1,3 +1,4 @@
+import { PendingRecipeShares } from "@/components/pending-recipe-shares";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -12,8 +13,9 @@ import {
 import { useRecipes } from "@/hooks/use-recipes";
 import { useUser } from "@/hooks/use-user";
 import { Redirect, router } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import {
+  Modal,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -41,7 +43,11 @@ function RecipeCard({
   };
 
   return (
-    <TouchableOpacity style={styles.recipeCard} onPress={handlePress} activeOpacity={0.7}>
+    <TouchableOpacity
+      style={styles.recipeCard}
+      onPress={handlePress}
+      activeOpacity={0.7}
+    >
       <View style={styles.recipeCardContent}>
         <View style={styles.recipeHeader}>
           <ThemedText type="defaultSemiBold" style={styles.recipeName}>
@@ -60,12 +66,10 @@ function RecipeCard({
             <ThemedText style={styles.recipeCuisine}>{cuisine}</ThemedText>
           </View>
           <View style={styles.timeContainer}>
-            <IconSymbol
-              name="clock"
-              size={12}
-              color={Colors.textSecondary}
-            />
-            <ThemedText style={styles.recipeTime}>{timeEstimate} min</ThemedText>
+            <IconSymbol name="clock" size={12} color={Colors.textSecondary} />
+            <ThemedText style={styles.recipeTime}>
+              {timeEstimate} min
+            </ThemedText>
           </View>
         </View>
       </View>
@@ -75,7 +79,18 @@ function RecipeCard({
 
 export default function RecipesScreen() {
   const { isAuthenticated, isLoading: isAuthLoading } = useUser();
-  const { data: recipes, isLoading, error, refetch } = useRecipes();
+  const {
+    data: recipes,
+    isLoading,
+    error,
+    refetch,
+    pendingShares: {
+      data: pendingShares = [],
+      isLoading: pendingSharesLoading,
+    },
+  } = useRecipes();
+
+  const [sharesDrawerVisible, setSharesDrawerVisible] = useState(false);
 
   const onRefresh = React.useCallback(() => {
     refetch();
@@ -118,12 +133,63 @@ export default function RecipesScreen() {
   if (!recipes || recipes.length === 0) {
     return (
       <ThemedView style={styles.container}>
+        <View style={styles.header}>
+          <ThemedText type="title">My Recipes</ThemedText>
+          {pendingShares.length > 0 && (
+            <View style={styles.headerActions}>
+              <TouchableOpacity
+                onPress={() => setSharesDrawerVisible(true)}
+                style={[
+                  styles.sharesButton,
+                  pendingShares.length > 0 && styles.sharesButtonWithBadge,
+                ]}
+              >
+                <IconSymbol
+                  name="tray.and.arrow.down"
+                  size={18}
+                  color={Colors.textSecondary}
+                />
+                {pendingShares.length > 0 && (
+                  <View style={styles.sharesBadge}>
+                    <ThemedText style={styles.sharesBadgeText}>
+                      {pendingShares.length}
+                    </ThemedText>
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
         <View style={styles.centerContainer}>
           <ThemedText type="subtitle">No recipes yet</ThemedText>
           <ThemedText style={styles.emptyStateText}>
             Get started by creating your first recipe in the Create tab!
           </ThemedText>
         </View>
+
+        <Modal
+          visible={sharesDrawerVisible}
+          animationType="slide"
+          presentationStyle="pageSheet"
+          onRequestClose={() => setSharesDrawerVisible(false)}
+        >
+          <ThemedView style={styles.drawerContainer}>
+            <View style={styles.drawerHeader}>
+              <ThemedText type="title">Shared Recipes</ThemedText>
+              <TouchableOpacity
+                onPress={() => setSharesDrawerVisible(false)}
+                style={styles.closeButton}
+              >
+                <IconSymbol
+                  name="xmark.circle.fill"
+                  size={28}
+                  color={Colors.textSecondary}
+                />
+              </TouchableOpacity>
+            </View>
+            <PendingRecipeShares />
+          </ThemedView>
+        </Modal>
       </ThemedView>
     );
   }
@@ -132,26 +198,49 @@ export default function RecipesScreen() {
     <ThemedView style={styles.container}>
       <View style={styles.header}>
         <ThemedText type="title">My Recipes</ThemedText>
-        <TouchableOpacity 
-          onPress={getRandomRecipe}
-          disabled={!recipes || recipes.length === 0}
-          style={[
-            styles.randomButton,
-            (!recipes || recipes.length === 0) && styles.randomButtonDisabled
-          ]}
-        >
-          <IconSymbol
-            name="dice"
-            size={18}
-            color={Colors.textSecondary}
-          />
-          <ThemedText style={[
-            styles.randomButtonText,
-            (!recipes || recipes.length === 0) && styles.randomButtonTextDisabled
-          ]}>
-            Random
-          </ThemedText>
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          {pendingShares.length > 0 && (
+            <TouchableOpacity
+              onPress={() => setSharesDrawerVisible(true)}
+              style={[
+                styles.sharesButton,
+                pendingShares.length > 0 && styles.sharesButtonWithBadge,
+              ]}
+            >
+              <IconSymbol
+                name="tray.and.arrow.down"
+                size={18}
+                color={Colors.textSecondary}
+              />
+              {pendingShares.length > 0 && (
+                <View style={styles.sharesBadge}>
+                  <ThemedText style={styles.sharesBadgeText}>
+                    {pendingShares.length}
+                  </ThemedText>
+                </View>
+              )}
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            onPress={getRandomRecipe}
+            disabled={!recipes || recipes.length === 0}
+            style={[
+              styles.randomButton,
+              (!recipes || recipes.length === 0) && styles.randomButtonDisabled,
+            ]}
+          >
+            <IconSymbol name="dice" size={18} color={Colors.textSecondary} />
+            <ThemedText
+              style={[
+                styles.randomButtonText,
+                (!recipes || recipes.length === 0) &&
+                  styles.randomButtonTextDisabled,
+              ]}
+            >
+              Random
+            </ThemedText>
+          </TouchableOpacity>
+        </View>
       </View>
       <ScrollView
         style={styles.recipesList}
@@ -179,6 +268,30 @@ export default function RecipesScreen() {
           ))}
         </View>
       </ScrollView>
+
+      <Modal
+        visible={sharesDrawerVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setSharesDrawerVisible(false)}
+      >
+        <ThemedView style={styles.drawerContainer}>
+          <View style={styles.drawerHeader}>
+            <ThemedText type="title">Shared Recipes</ThemedText>
+            <TouchableOpacity
+              onPress={() => setSharesDrawerVisible(false)}
+              style={styles.closeButton}
+            >
+              <IconSymbol
+                name="xmark.circle.fill"
+                size={28}
+                color={Colors.textSecondary}
+              />
+            </TouchableOpacity>
+          </View>
+          <PendingRecipeShares />
+        </ThemedView>
+      </Modal>
     </ThemedView>
   );
 }
@@ -318,5 +431,71 @@ const styles = StyleSheet.create({
   },
   chevronIcon: {
     // No additional styling needed - handled by container
+  },
+  shareAcceptSection: {
+    marginTop: Spacing["3xl"],
+    paddingTop: Spacing["2xl"],
+    borderTopWidth: 1,
+    borderTopColor: Colors.borderLight,
+    backgroundColor: Colors.backgroundSubtle,
+    marginHorizontal: -Layout.screenPadding,
+    paddingHorizontal: 0,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: Colors.borderLight,
+    marginVertical: Spacing["2xl"],
+    marginHorizontal: Layout.screenPadding,
+  },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.sm,
+  },
+  sharesButton: {
+    position: "relative",
+    padding: Spacing.sm,
+    backgroundColor: "transparent",
+    borderRadius: BorderRadius.md,
+  },
+  sharesButtonWithBadge: {
+    marginRight: Spacing.xs,
+  },
+  sharesBadge: {
+    position: "absolute",
+    top: -2,
+    right: -2,
+    backgroundColor: Colors.error,
+    borderRadius: BorderRadius.full,
+    minWidth: 18,
+    height: 18,
+    paddingHorizontal: Spacing.xs,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  sharesBadgeText: {
+    color: Colors.surface,
+    fontSize: Typography.fontSizes.xs,
+    fontWeight: Typography.fontWeights.bold,
+    lineHeight: Typography.fontSizes.xs,
+  },
+  drawerContainer: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    paddingTop: 44,
+  },
+  drawerHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: Layout.screenPadding,
+    paddingVertical: Spacing.xl,
+    backgroundColor: Colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderLight,
+    ...Shadows.sm,
+  },
+  closeButton: {
+    padding: Spacing.xs,
   },
 });

@@ -93,6 +93,16 @@ WHERE id = :p1
 """
 
 
+LIST_FRIEND_REQUESTS = """-- name: list_friend_requests \\:many
+SELECT u.id, u.email, u.name, u.created_at, u.updated_at, u.privacy_preference
+FROM "user" u
+JOIN friendship f ON u.id = f.user_id
+WHERE f.friend_user_id = :p1\\:\\:UUID
+  AND f.status = 'pending'
+ORDER BY f.created_at DESC
+"""
+
+
 LIST_FRIENDS = """-- name: list_friends \\:many
 SELECT u.id, u.email, u.name, u.created_at, u.updated_at, u.privacy_preference
 FROM "user" u
@@ -229,6 +239,22 @@ class AsyncQuerier:
             updated_at=row[4],
             privacy_preference=row[5],
         )
+
+    async def list_friend_requests(
+        self, *, userid: uuid.UUID
+    ) -> AsyncIterator[models.User]:
+        result = await self._conn.stream(
+            sqlalchemy.text(LIST_FRIEND_REQUESTS), {"p1": userid}
+        )
+        async for row in result:
+            yield models.User(
+                id=row[0],
+                email=row[1],
+                name=row[2],
+                created_at=row[3],
+                updated_at=row[4],
+                privacy_preference=row[5],
+            )
 
     async def list_friends(self, *, userid: uuid.UUID) -> AsyncIterator[models.User]:
         result = await self._conn.stream(sqlalchemy.text(LIST_FRIENDS), {"p1": userid})

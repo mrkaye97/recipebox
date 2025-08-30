@@ -177,7 +177,7 @@ function CookbookRecipeForm({ onBack }: { onBack: () => void }) {
     if (status !== "granted") {
       Alert.alert(
         "Permission Required",
-        "Camera roll permission is required to select photos"
+        "Camera roll permission is required to select photos",
       );
       return;
     }
@@ -198,7 +198,7 @@ function CookbookRecipeForm({ onBack }: { onBack: () => void }) {
     if (status !== "granted") {
       Alert.alert(
         "Permission Required",
-        "Camera permission is required to take photos"
+        "Camera permission is required to take photos",
       );
       return;
     }
@@ -369,7 +369,7 @@ function CookbookRecipeForm({ onBack }: { onBack: () => void }) {
 
 export default function CreateRecipeScreen() {
   const [selectedOption, setSelectedOption] = useState<CreateOption | null>(
-    null
+    null,
   );
   const { isAuthenticated } = useUser();
 

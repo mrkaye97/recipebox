@@ -13,21 +13,6 @@ import sqlalchemy.ext.asyncio
 
 from src.crud import models
 
-ACCEPT_RECIPE_SHARE_REQUEST = """-- name: accept_recipe_share_request \\:one
-WITH deleted_request AS (
-    DELETE FROM recipe_share_request rsr
-    USING recipe r
-    WHERE rsr.recipe_id = r.id
-      AND rsr.token = :p1\\:\\:TEXT
-      AND rsr.expires_at > NOW()
-    RETURNING rsr.recipe_id
-)
-SELECT r.id, r.user_id, r.name, r.author, r.cuisine, r.location, r.time_estimate_minutes, r.notes, r.last_made_at, r.created_at, r.updated_at
-FROM recipe r
-JOIN deleted_request dr ON r.id = dr.recipe_id
-"""
-
-
 CREATE_RECIPE = """-- name: create_recipe \\:one
 INSERT INTO recipe (
     user_id,
@@ -122,23 +107,6 @@ SELECT
 FROM instructions
 ON CONFLICT DO NOTHING
 RETURNING recipe_id, user_id, step_number, content, created_at, updated_at
-"""
-
-
-CREATE_RECIPE_SHARE_REQUEST = """-- name: create_recipe_share_request \\:one
-INSERT INTO recipe_share_request (
-    recipe_id,
-    token,
-    to_user_id,
-    expires_at
-)
-VALUES (
-    :p1\\:\\:UUID,
-    :p2\\:\\:TEXT,
-    :p3\\:\\:UUID,
-    :p4\\:\\:TIMESTAMPTZ
-)
-RETURNING token, to_user_id, recipe_id, created_at, expires_at
 """
 
 
@@ -254,28 +222,6 @@ class AsyncQuerier:
     def __init__(self, conn: sqlalchemy.ext.asyncio.AsyncConnection):
         self._conn = conn
 
-    async def accept_recipe_share_request(self, *, token: str) -> models.Recipe | None:
-        row = (
-            await self._conn.execute(
-                sqlalchemy.text(ACCEPT_RECIPE_SHARE_REQUEST), {"p1": token}
-            )
-        ).first()
-        if row is None:
-            return None
-        return models.Recipe(
-            id=row[0],
-            user_id=row[1],
-            name=row[2],
-            author=row[3],
-            cuisine=row[4],
-            location=row[5],
-            time_estimate_minutes=row[6],
-            notes=row[7],
-            last_made_at=row[8],
-            created_at=row[9],
-            updated_at=row[10],
-        )
-
     async def create_recipe(self, arg: CreateRecipeParams) -> models.Recipe | None:
         row = (
             await self._conn.execute(
@@ -375,35 +321,6 @@ class AsyncQuerier:
                 created_at=row[4],
                 updated_at=row[5],
             )
-
-    async def create_recipe_share_request(
-        self,
-        *,
-        recipeid: uuid.UUID,
-        token: str,
-        touserid: uuid.UUID,
-        expiresat: datetime.datetime,
-    ) -> models.RecipeShareRequest | None:
-        row = (
-            await self._conn.execute(
-                sqlalchemy.text(CREATE_RECIPE_SHARE_REQUEST),
-                {
-                    "p1": recipeid,
-                    "p2": token,
-                    "p3": touserid,
-                    "p4": expiresat,
-                },
-            )
-        ).first()
-        if row is None:
-            return None
-        return models.RecipeShareRequest(
-            token=row[0],
-            to_user_id=row[1],
-            recipe_id=row[2],
-            created_at=row[3],
-            expires_at=row[4],
-        )
 
     async def create_recipe_tags(
         self, *, recipeid: uuid.UUID, userid: uuid.UUID, tags: list[str]

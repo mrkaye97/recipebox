@@ -57,3 +57,35 @@ async def accept_friend_request(
     return await querier.accept_friend_request(
         userid=user.id, requestfromuserid=request_from_user_id
     )
+
+
+@users.get("/friends")
+async def list_friends(
+    conn: Connection,
+    user: UserDependency,
+) -> list[User]:
+    querier = AsyncQuerier(conn)
+    friends = querier.list_friends(
+        userid=user.id,
+    )
+
+    return [
+        User(id=friend.id, name=friend.name, email=friend.email)
+        async for friend in friends
+    ]
+
+
+@users.get("/friend-requests")
+async def list_friend_requests(
+    conn: Connection,
+    user: UserDependency,
+) -> list[User]:
+    querier = AsyncQuerier(conn)
+    requests = querier.list_friend_requests(
+        userid=user.id,
+    )
+
+    return [
+        User(id=friend.id, name=friend.name, email=friend.email)
+        async for friend in requests
+    ]

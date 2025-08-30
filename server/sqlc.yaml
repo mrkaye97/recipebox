@@ -9,6 +9,7 @@ sql:
     queries:
       - "db/queries/recipes.sql"
       - "db/queries/users.sql"
+      - "db/queries/sharing.sql"
     engine: postgresql
     codegen:
       - out: src/crud

@@ -1,3 +1,4 @@
+import { RecipeShareModal } from "@/components/recipe-share-modal";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -89,6 +90,7 @@ const RecipeLocation = ({ location }: { location: RecipeLocation }) => {
 export default function RecipeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [ingredientsCollapsed, setIngredientsCollapsed] = useState(false);
+  const [shareModalVisible, setShareModalVisible] = useState(false);
 
   const { data: recipe, isLoading } = useRecipeDetails(id);
   const {
@@ -107,10 +109,17 @@ export default function RecipeDetailScreen() {
 
     try {
       await markAsCookedRecently(id);
-      Alert.alert("Success", "Recipe marked as cooked recently!");
     } catch (error) {
       Alert.alert("Error", "Failed to mark recipe as cooked");
     }
+  };
+
+  const handleShareRecipe = () => {
+    setShareModalVisible(true);
+  };
+
+  const handleCloseShareModal = () => {
+    setShareModalVisible(false);
   };
 
   if (isLoading) {
@@ -150,17 +159,29 @@ export default function RecipeDetailScreen() {
         <ThemedText type="title" style={styles.headerTitle}>
           Recipe
         </ThemedText>
-        <TouchableOpacity
-          onPress={handleMarkAsCooked}
-          disabled={isMarkingCooked}
-          style={styles.cookedButton}
-        >
-          <IconSymbol
-            name="checkmark.circle.fill"
-            size={24}
-            color={Colors.primary}
-          />
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity
+            onPress={handleShareRecipe}
+            style={styles.shareButton}
+          >
+            <IconSymbol
+              name="square.and.arrow.up"
+              size={24}
+              color={Colors.primary}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleMarkAsCooked}
+            disabled={isMarkingCooked}
+            style={styles.cookedButton}
+          >
+            <IconSymbol
+              name="checkmark.circle.fill"
+              size={24}
+              color={Colors.primary}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView
@@ -304,6 +325,12 @@ export default function RecipeDetailScreen() {
           </View>
         )}
       </ScrollView>
+
+      <RecipeShareModal
+        visible={shareModalVisible}
+        recipe={recipe}
+        onClose={handleCloseShareModal}
+      />
     </ThemedView>
   );
 }
@@ -325,6 +352,13 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
+  },
+  headerActions: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  shareButton: {
+    padding: 8,
   },
   cookedButton: {
     padding: 8,

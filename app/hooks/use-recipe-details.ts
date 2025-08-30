@@ -1,7 +1,6 @@
 import { $api } from "@/src/lib/api/client";
 import { useUser } from "./use-user";
 
-
 export const useRecipeDetails = (id: string) => {
   const { token } = useUser();
 
@@ -18,6 +17,6 @@ export const useRecipeDetails = (id: string) => {
     },
     {
       enabled: !!token && !!id,
-    }
+    },
   );
 };
