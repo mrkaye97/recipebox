@@ -2,6 +2,7 @@ import { $api } from "@/src/lib/api/client";
 import { components } from "@/src/lib/api/v1";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
+import { useDebounce } from "use-debounce";
 import { useUser } from "./use-user";
 
 type CreateMadeUpRecipeProps =
@@ -15,9 +16,13 @@ type CreateRecipeProps =
   | CreateOnlineRecipeProps
   | CreateCookbookRecipeProps;
 
-export const useRecipes = () => {
+export const useRecipes = ({search}: {
+  search?: string;
+} = {}) => {
   const { token } = useUser();
   const queryClient = useQueryClient();
+  
+  const [debouncedSearch] = useDebounce(search || "", 300);
 
   const recipeQuery = $api.useQuery(
     "get",
@@ -26,9 +31,15 @@ export const useRecipes = () => {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      params: {
+        query: {
+          search: debouncedSearch || undefined
+        }
+      }
     },
     {
       enabled: !!token,
+      keepPreviousData: true,
     },
   );
 
@@ -101,12 +112,6 @@ export const useRecipes = () => {
     {
       enabled: !!token,
     },
-  );
-
-  console.log(
-    "Pending shares data:",
-    JSON.stringify(pendingSharesQuery.error),
-    JSON.stringify(pendingSharesQuery.data),
   );
 
   const createRecipe = useCallback(

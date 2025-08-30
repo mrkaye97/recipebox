@@ -19,6 +19,7 @@ import {
   RefreshControl,
   ScrollView,
   StyleSheet,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -79,6 +80,8 @@ function RecipeCard({
 
 export default function RecipesScreen() {
   const { isAuthenticated, isLoading: isAuthLoading } = useUser();
+  const [searchQuery, setSearchQuery] = useState("");
+
   const {
     data: recipes,
     isLoading,
@@ -88,7 +91,7 @@ export default function RecipesScreen() {
       data: pendingShares = [],
       isLoading: pendingSharesLoading,
     },
-  } = useRecipes();
+  } = useRecipes({ search: searchQuery });
 
   const [sharesDrawerVisible, setSharesDrawerVisible] = useState(false);
 
@@ -160,10 +163,48 @@ export default function RecipesScreen() {
             </View>
           )}
         </View>
+        
+        <View style={styles.searchContainer}>
+          <View style={styles.searchInputContainer}>
+            <IconSymbol
+              name="magnifyingglass"
+              size={16}
+              color={Colors.textSecondary}
+              style={styles.searchIcon}
+            />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search recipes, authors, or cuisines..."
+              placeholderTextColor={Colors.textSecondary}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity
+                onPress={() => setSearchQuery("")}
+                style={styles.clearButton}
+              >
+                <IconSymbol
+                  name="xmark.circle.fill"
+                  size={16}
+                  color={Colors.textSecondary}
+                />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+        
         <View style={styles.centerContainer}>
-          <ThemedText type="subtitle">No recipes yet</ThemedText>
+          <ThemedText type="subtitle">
+            {searchQuery ? "No recipes found" : "No recipes yet"}
+          </ThemedText>
           <ThemedText style={styles.emptyStateText}>
-            Get started by creating your first recipe in the Create tab!
+            {searchQuery 
+              ? "Try adjusting your search terms"
+              : "Get started by creating your first recipe in the Create tab!"
+            }
           </ThemedText>
         </View>
 
@@ -242,6 +283,39 @@ export default function RecipesScreen() {
           </TouchableOpacity>
         </View>
       </View>
+
+      <View style={styles.searchContainer}>
+        <View style={styles.searchInputContainer}>
+          <IconSymbol
+            name="magnifyingglass"
+            size={16}
+            color={Colors.textSecondary}
+            style={styles.searchIcon}
+          />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search recipes, authors, or cuisines..."
+            placeholderTextColor={Colors.textSecondary}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              onPress={() => setSearchQuery("")}
+              style={styles.clearButton}
+            >
+              <IconSymbol
+                name="xmark.circle.fill"
+                size={16}
+                color={Colors.textSecondary}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
       <ScrollView
         style={styles.recipesList}
         contentContainerStyle={styles.recipesListContent}
@@ -497,5 +571,36 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     padding: Spacing.xs,
+  },
+  searchContainer: {
+    paddingHorizontal: Layout.screenPadding,
+    paddingVertical: Spacing.lg,
+    backgroundColor: Colors.background,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderLight,
+  },
+  searchInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+    ...Shadows.sm,
+  },
+  searchIcon: {
+    marginRight: Spacing.sm,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: Typography.fontSizes.base,
+    color: Colors.text,
+    paddingVertical: Spacing.xs,
+  },
+  clearButton: {
+    padding: Spacing.xs,
+    marginLeft: Spacing.sm,
   },
 });
