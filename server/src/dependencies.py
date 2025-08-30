@@ -1,4 +1,5 @@
 from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from typing import Annotated
 
@@ -18,11 +19,17 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 logger = get_logger(__name__)
 
 
-async def get_db() -> AsyncGenerator[AsyncConnection]:
+@asynccontextmanager
+async def create_db_connection() -> AsyncGenerator[AsyncConnection]:
     engine = create_async_engine(
         settings.database_url.replace("postgresql", "postgresql+asyncpg").split("?")[0],
     )
-    async with engine.connect() as conn, conn.begin():
+    async with engine.connect() as conn:
+        yield conn
+
+
+async def get_db() -> AsyncGenerator[AsyncConnection]:
+    async with create_db_connection() as conn:
         try:
             yield conn
         except Exception as e:

@@ -1,0 +1,1864 @@
+[
+  {
+    "name": "Spicy Korean Beef Bowls",
+    "author": "Maria Kim",
+    "cuisine": "Korean",
+    "time_estimate_minutes": 25,
+    "tags": [
+      "quick",
+      "weeknight",
+      "spicy",
+      "dinner",
+      "main course",
+      "ground beef",
+      "rice bowl",
+      "stovetop"
+    ],
+    "dietary_restrictions_met": ["dairy_free"],
+    "ingredients": [
+      {
+        "name": "sesame oil",
+        "quantity": 1.0,
+        "units": "tablespoon"
+      },
+      {
+        "name": "ground beef",
+        "quantity": 1.0,
+        "units": "pound"
+      },
+      {
+        "name": "garlic cloves, minced",
+        "quantity": 4.0,
+        "units": "cloves"
+      },
+      {
+        "name": "fresh ginger, grated",
+        "quantity": 1.0,
+        "units": "tablespoon"
+      },
+      {
+        "name": "soy sauce",
+        "quantity": 3.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "gochujang",
+        "quantity": 2.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "brown sugar",
+        "quantity": 1.0,
+        "units": "tablespoon"
+      },
+      {
+        "name": "cooked white rice",
+        "quantity": 4.0,
+        "units": "cups"
+      },
+      {
+        "name": "scallions, sliced",
+        "quantity": 3.0,
+        "units": "whole"
+      },
+      {
+        "name": "sesame seeds",
+        "quantity": 2.0,
+        "units": "tablespoons"
+      }
+    ],
+    "instructions": [
+      {
+        "step_number": 1,
+        "content": "Heat sesame oil in a large skillet over medium-high heat. Add ground beef and cook, breaking it up with a spoon, until browned and cooked through, about 6-8 minutes."
+      },
+      {
+        "step_number": 2,
+        "content": "Add garlic and ginger to the beef and cook for 1 minute until fragrant."
+      },
+      {
+        "step_number": 3,
+        "content": "Stir in soy sauce, gochujang, and brown sugar. Cook for 2-3 minutes until the sauce thickens slightly."
+      },
+      {
+        "step_number": 4,
+        "content": "Serve over rice and garnish with scallions and sesame seeds."
+      }
+    ],
+    "location": {
+      "location": {
+        "location": "online",
+        "url": "https://example.com/korean-beef-bowls"
+      }
+    },
+    "notes": "Adjust gochujang to taste for desired spice level",
+    "id": "a1b2c3d4-5678-90ef-ghij-klmnopqrstuv"
+  },
+  {
+    "name": "Mediterranean Chickpea Salad",
+    "author": "Elena Papadopoulos",
+    "cuisine": "Mediterranean",
+    "time_estimate_minutes": 15,
+    "tags": [
+      "no-cook",
+      "easy",
+      "quick",
+      "healthy",
+      "lunch",
+      "salad",
+      "chickpea",
+      "vegetarian",
+      "make-ahead"
+    ],
+    "dietary_restrictions_met": [
+      "vegetarian",
+      "vegan",
+      "dairy_free",
+      "gluten_free"
+    ],
+    "ingredients": [
+      {
+        "name": "canned chickpeas, drained and rinsed",
+        "quantity": 2.0,
+        "units": "cans (15 oz each)"
+      },
+      {
+        "name": "cucumber, diced",
+        "quantity": 1.0,
+        "units": "large"
+      },
+      {
+        "name": "cherry tomatoes, halved",
+        "quantity": 1.0,
+        "units": "pint"
+      },
+      {
+        "name": "red onion, finely diced",
+        "quantity": 0.5,
+        "units": "small"
+      },
+      {
+        "name": "kalamata olives, pitted and halved",
+        "quantity": 0.5,
+        "units": "cup"
+      },
+      {
+        "name": "extra virgin olive oil",
+        "quantity": 3.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "lemon juice",
+        "quantity": 2.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "dried oregano",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "salt",
+        "quantity": 1.0,
+        "units": "to taste"
+      },
+      {
+        "name": "fresh parsley, chopped",
+        "quantity": 0.25,
+        "units": "cup"
+      }
+    ],
+    "instructions": [
+      {
+        "step_number": 1,
+        "content": "In a large bowl, combine chickpeas, cucumber, tomatoes, red onion, and olives."
+      },
+      {
+        "step_number": 2,
+        "content": "Whisk together olive oil, lemon juice, oregano, and salt in a small bowl."
+      },
+      {
+        "step_number": 3,
+        "content": "Pour dressing over salad and toss to combine. Let sit for 10 minutes to marinate."
+      },
+      {
+        "step_number": 4,
+        "content": "Garnish with fresh parsley before serving."
+      }
+    ],
+    "location": {
+      "location": {
+        "location": "cookbook",
+        "cookbook_name": "The Complete Mediterranean Cookbook",
+        "page_number": 98
+      }
+    },
+    "notes": "Can be made up to 2 days ahead and stored in refrigerator",
+    "id": "b2c3d4e5-6789-01fg-hijk-lmnopqrstuvw"
+  },
+  {
+    "name": "Classic Beef Tacos",
+    "author": "Carlos Hernandez",
+    "cuisine": "Mexican",
+    "time_estimate_minutes": 30,
+    "tags": [
+      "easy",
+      "weeknight",
+      "family-friendly",
+      "dinner",
+      "main course",
+      "ground beef",
+      "tacos",
+      "stovetop"
+    ],
+    "dietary_restrictions_met": ["gluten_free"],
+    "ingredients": [
+      {
+        "name": "vegetable oil",
+        "quantity": 1.0,
+        "units": "tablespoon"
+      },
+      {
+        "name": "ground beef",
+        "quantity": 1.0,
+        "units": "pound"
+      },
+      {
+        "name": "yellow onion, diced",
+        "quantity": 1.0,
+        "units": "small"
+      },
+      {
+        "name": "garlic cloves, minced",
+        "quantity": 2.0,
+        "units": "cloves"
+      },
+      {
+        "name": "chili powder",
+        "quantity": 2.0,
+        "units": "teaspoons"
+      },
+      {
+        "name": "cumin",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "paprika",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "salt",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "corn tortillas",
+        "quantity": 12.0,
+        "units": "small"
+      },
+      {
+        "name": "shredded cheddar cheese",
+        "quantity": 1.0,
+        "units": "cup"
+      },
+      {
+        "name": "lettuce, shredded",
+        "quantity": 2.0,
+        "units": "cups"
+      },
+      {
+        "name": "tomato, diced",
+        "quantity": 1.0,
+        "units": "large"
+      }
+    ],
+    "instructions": [
+      {
+        "step_number": 1,
+        "content": "Heat oil in a large skillet over medium-high heat. Add onion and cook until softened, about 5 minutes."
+      },
+      {
+        "step_number": 2,
+        "content": "Add ground beef and cook, breaking up with a spoon, until browned and cooked through, about 8 minutes."
+      },
+      {
+        "step_number": 3,
+        "content": "Add garlic, chili powder, cumin, paprika, and salt. Cook for 1 minute until fragrant."
+      },
+      {
+        "step_number": 4,
+        "content": "Warm tortillas and fill with beef mixture. Top with cheese, lettuce, and tomato."
+      }
+    ],
+    "location": {
+      "location": {
+        "location": "cookbook",
+        "cookbook_name": "The Complete Mediterranean Cookbook",
+        "page_number": 98
+      }
+    },
+    "notes": null,
+    "id": "c3d4e5f6-7890-12gh-ijkl-mnopqrstuvwx"
+  },
+  {
+    "name": "Honey Garlic Glazed Salmon",
+    "author": "Rachel Chen",
+    "cuisine": "Asian-Fusion",
+    "time_estimate_minutes": 20,
+    "tags": [
+      "quick",
+      "healthy",
+      "weeknight",
+      "dinner",
+      "main course",
+      "salmon",
+      "glazed",
+      "stovetop"
+    ],
+    "dietary_restrictions_met": ["dairy_free", "gluten_free"],
+    "ingredients": [
+      {
+        "name": "salmon fillets, skin removed",
+        "quantity": 4.0,
+        "units": "pieces (6 oz each)"
+      },
+      {
+        "name": "honey",
+        "quantity": 3.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "soy sauce",
+        "quantity": 3.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "garlic cloves, minced",
+        "quantity": 4.0,
+        "units": "cloves"
+      },
+      {
+        "name": "fresh ginger, grated",
+        "quantity": 1.0,
+        "units": "tablespoon"
+      },
+      {
+        "name": "rice vinegar",
+        "quantity": 1.0,
+        "units": "tablespoon"
+      },
+      {
+        "name": "sesame oil",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "vegetable oil",
+        "quantity": 2.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "salt",
+        "quantity": 1.0,
+        "units": "to taste"
+      },
+      {
+        "name": "black pepper",
+        "quantity": 1.0,
+        "units": "to taste"
+      },
+      {
+        "name": "green onions, sliced",
+        "quantity": 2.0,
+        "units": "whole"
+      }
+    ],
+    "instructions": [
+      {
+        "step_number": 1,
+        "content": "Season salmon fillets with salt and pepper. Heat vegetable oil in a large skillet over medium-high heat."
+      },
+      {
+        "step_number": 2,
+        "content": "Cook salmon for 4-5 minutes per side until golden brown and cooked through. Remove from pan."
+      },
+      {
+        "step_number": 3,
+        "content": "In the same pan, add garlic and ginger. Cook for 30 seconds until fragrant."
+      },
+      {
+        "step_number": 4,
+        "content": "Add honey, soy sauce, rice vinegar, and sesame oil. Simmer for 2 minutes until thickened."
+      },
+      {
+        "step_number": 5,
+        "content": "Return salmon to pan, spooning glaze over fillets. Garnish with green onions."
+      }
+    ],
+    "location": {
+      "location": {
+        "location": "online",
+        "url": "https://example.com/honey-garlic-salmon"
+      }
+    },
+    "notes": "Don't overcook the salmon - it should be slightly pink in the center",
+    "id": "d4e5f6g7-8901-23hi-jklm-nopqrstuvwxy"
+  },
+  {
+    "name": "Creamy Mushroom Risotto",
+    "author": "Giovanni Rossi",
+    "cuisine": "Italian",
+    "time_estimate_minutes": 45,
+    "tags": [
+      "comfort food",
+      "dinner",
+      "main course",
+      "mushroom",
+      "risotto",
+      "creamy",
+      "stovetop",
+      "vegetarian"
+    ],
+    "dietary_restrictions_met": ["vegetarian", "gluten_free"],
+    "ingredients": [
+      {
+        "name": "vegetable broth",
+        "quantity": 6.0,
+        "units": "cups"
+      },
+      {
+        "name": "butter",
+        "quantity": 3.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "mixed mushrooms, sliced",
+        "quantity": 8.0,
+        "units": "ounces"
+      },
+      {
+        "name": "yellow onion, finely diced",
+        "quantity": 1.0,
+        "units": "small"
+      },
+      {
+        "name": "arborio rice",
+        "quantity": 1.5,
+        "units": "cups"
+      },
+      {
+        "name": "white wine",
+        "quantity": 0.5,
+        "units": "cup"
+      },
+      {
+        "name": "parmesan cheese, grated",
+        "quantity": 0.75,
+        "units": "cup"
+      },
+      {
+        "name": "salt",
+        "quantity": 1.0,
+        "units": "to taste"
+      },
+      {
+        "name": "black pepper",
+        "quantity": 1.0,
+        "units": "to taste"
+      },
+      {
+        "name": "fresh thyme",
+        "quantity": 2.0,
+        "units": "teaspoons"
+      }
+    ],
+    "instructions": [
+      {
+        "step_number": 1,
+        "content": "Heat broth in a saucepan and keep warm. In a large pan, melt 1 tablespoon butter and cook mushrooms until golden, about 5 minutes. Season with salt and pepper, remove and set aside."
+      },
+      {
+        "step_number": 2,
+        "content": "In the same pan, melt remaining butter and cook onion until translucent, about 5 minutes."
+      },
+      {
+        "step_number": 3,
+        "content": "Add rice and stir for 2 minutes until lightly toasted. Add wine and stir until absorbed."
+      },
+      {
+        "step_number": 4,
+        "content": "Add warm broth one ladle at a time, stirring constantly until absorbed before adding more. Continue for 18-20 minutes until rice is creamy."
+      },
+      {
+        "step_number": 5,
+        "content": "Stir in mushrooms, parmesan, and thyme. Season with salt and pepper. Serve immediately."
+      }
+    ],
+    "location": {
+      "location": {
+        "location": "cookbook",
+        "cookbook_name": "The Complete Mediterranean Cookbook",
+        "page_number": 120
+      }
+    },
+    "notes": "Constant stirring is key for creamy texture",
+    "id": "e5f6g7h8-9012-34ij-klmn-opqrstuvwxyz"
+  },
+  {
+    "name": "Thai Green Curry with Chicken",
+    "author": "Siriporn Tanaka",
+    "cuisine": "Thai",
+    "time_estimate_minutes": 35,
+    "tags": [
+      "spicy",
+      "curry",
+      "dinner",
+      "main course",
+      "chicken",
+      "coconut milk",
+      "stovetop",
+      "authentic"
+    ],
+    "dietary_restrictions_met": ["dairy_free", "gluten_free"],
+    "ingredients": [
+      {
+        "name": "coconut oil",
+        "quantity": 2.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "green curry paste",
+        "quantity": 3.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "coconut milk",
+        "quantity": 1.0,
+        "units": "can (14 oz)"
+      },
+      {
+        "name": "boneless chicken thighs, cut into bite-sized pieces",
+        "quantity": 1.5,
+        "units": "pounds"
+      },
+      {
+        "name": "fish sauce",
+        "quantity": 2.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "brown sugar",
+        "quantity": 1.0,
+        "units": "tablespoon"
+      },
+      {
+        "name": "Thai eggplant, quartered",
+        "quantity": 1.0,
+        "units": "cup"
+      },
+      {
+        "name": "bell pepper, sliced",
+        "quantity": 1.0,
+        "units": "large"
+      },
+      {
+        "name": "Thai basil leaves",
+        "quantity": 0.25,
+        "units": "cup"
+      },
+      {
+        "name": "lime juice",
+        "quantity": 2.0,
+        "units": "tablespoons"
+      }
+    ],
+    "instructions": [
+      {
+        "step_number": 1,
+        "content": "Heat coconut oil in a large pan over medium heat. Add curry paste and cook for 2 minutes until fragrant."
+      },
+      {
+        "step_number": 2,
+        "content": "Add half the coconut milk and stir to combine with curry paste. Simmer for 5 minutes."
+      },
+      {
+        "step_number": 3,
+        "content": "Add chicken and cook for 10 minutes until cooked through."
+      },
+      {
+        "step_number": 4,
+        "content": "Add remaining coconut milk, fish sauce, brown sugar, eggplant, and bell pepper. Simmer for 10 minutes."
+      },
+      {
+        "step_number": 5,
+        "content": "Stir in basil and lime juice. Serve with jasmine rice."
+      }
+    ],
+    "location": {
+      "location": {
+        "location": "online",
+        "url": "https://example.com/thai-green-curry"
+      }
+    },
+    "notes": "Adjust curry paste to taste for desired spice level",
+    "id": "f6g7h8i9-0123-45jk-lmno-pqrstuvwxyza"
+  },
+  {
+    "name": "Classic Caesar Salad",
+    "author": "Anthony Romano",
+    "cuisine": "Italian-American",
+    "time_estimate_minutes": 20,
+    "tags": [
+      "salad",
+      "classic",
+      "lunch",
+      "dinner",
+      "side dish",
+      "romaine",
+      "caesar",
+      "no-cook"
+    ],
+    "dietary_restrictions_met": ["vegetarian"],
+    "ingredients": [
+      {
+        "name": "romaine lettuce hearts, chopped",
+        "quantity": 3.0,
+        "units": "large"
+      },
+      {
+        "name": "mayonnaise",
+        "quantity": 0.5,
+        "units": "cup"
+      },
+      {
+        "name": "parmesan cheese, grated",
+        "quantity": 0.75,
+        "units": "cup"
+      },
+      {
+        "name": "lemon juice",
+        "quantity": 2.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "worcestershire sauce",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "dijon mustard",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "garlic cloves, minced",
+        "quantity": 2.0,
+        "units": "cloves"
+      },
+      {
+        "name": "anchovy paste",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "black pepper",
+        "quantity": 0.5,
+        "units": "teaspoon"
+      },
+      {
+        "name": "croutons",
+        "quantity": 1.0,
+        "units": "cup"
+      }
+    ],
+    "instructions": [
+      {
+        "step_number": 1,
+        "content": "In a large bowl, whisk together mayonnaise, half the parmesan, lemon juice, worcestershire, mustard, garlic, anchovy paste, and black pepper."
+      },
+      {
+        "step_number": 2,
+        "content": "Add chopped romaine and toss to coat thoroughly with dressing."
+      },
+      {
+        "step_number": 3,
+        "content": "Top with remaining parmesan and croutons."
+      },
+      {
+        "step_number": 4,
+        "content": "Serve immediately while lettuce is crisp."
+      }
+    ],
+    "location": {
+      "location": {
+        "location": "cookbook",
+        "cookbook_name": "The Complete Mediterranean Cookbook",
+        "page_number": 98
+      }
+    },
+    "notes": "For best results, chill all ingredients before assembling",
+    "id": "g7h8i9j0-1234-56kl-mnop-qrstuvwxyzab"
+  },
+  {
+    "name": "Moroccan Lamb Tagine",
+    "author": "Fatima Al-Zahra",
+    "cuisine": "Moroccan",
+    "time_estimate_minutes": 120,
+    "tags": [
+      "slow-cooked",
+      "traditional",
+      "dinner",
+      "main course",
+      "lamb",
+      "tagine",
+      "moroccan spices",
+      "one-pot"
+    ],
+    "dietary_restrictions_met": ["dairy_free", "gluten_free"],
+    "ingredients": [
+      {
+        "name": "olive oil",
+        "quantity": 3.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "lamb shoulder, cut into 2-inch pieces",
+        "quantity": 2.0,
+        "units": "pounds"
+      },
+      {
+        "name": "yellow onion, sliced",
+        "quantity": 1.0,
+        "units": "large"
+      },
+      {
+        "name": "garlic cloves, minced",
+        "quantity": 4.0,
+        "units": "cloves"
+      },
+      {
+        "name": "ground cinnamon",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "ground ginger",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "ground cumin",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "dried apricots, halved",
+        "quantity": 0.75,
+        "units": "cup"
+      },
+      {
+        "name": "chicken broth",
+        "quantity": 2.0,
+        "units": "cups"
+      },
+      {
+        "name": "salt",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "almonds, sliced",
+        "quantity": 0.25,
+        "units": "cup"
+      },
+      {
+        "name": "fresh cilantro, chopped",
+        "quantity": 0.25,
+        "units": "cup"
+      }
+    ],
+    "instructions": [
+      {
+        "step_number": 1,
+        "content": "Heat oil in a tagine or heavy-bottomed pot over medium-high heat. Brown lamb pieces on all sides, about 8 minutes total. Remove and set aside."
+      },
+      {
+        "step_number": 2,
+        "content": "In the same pot, cook onion until softened, about 5 minutes. Add garlic and spices, cook for 1 minute."
+      },
+      {
+        "step_number": 3,
+        "content": "Return lamb to pot, add apricots, broth, and salt. Bring to a boil, then reduce heat to low."
+      },
+      {
+        "step_number": 4,
+        "content": "Cover and simmer for 1.5 hours until lamb is tender, stirring occasionally."
+      },
+      {
+        "step_number": 5,
+        "content": "Garnish with almonds and cilantro. Serve with couscous or flatbread."
+      }
+    ],
+    "location": {
+      "location": {
+        "location": "cookbook",
+        "cookbook_name": "The Complete Mediterranean Cookbook",
+        "page_number": 152
+      }
+    },
+    "notes": "Traditionally cooked in a clay tagine, but a heavy pot works well too",
+    "id": "h8i9j0k1-2345-67lm-nopq-rstuvwxyzabc"
+  },
+  {
+    "name": "Quinoa Buddha Bowl",
+    "author": "Sarah Green",
+    "cuisine": "Health Food",
+    "time_estimate_minutes": 30,
+    "tags": [
+      "healthy",
+      "vegetarian",
+      "lunch",
+      "dinner",
+      "bowl",
+      "quinoa",
+      "colorful",
+      "nutritious"
+    ],
+    "dietary_restrictions_met": [
+      "vegetarian",
+      "vegan",
+      "dairy_free",
+      "gluten_free"
+    ],
+    "ingredients": [
+      {
+        "name": "quinoa",
+        "quantity": 1.0,
+        "units": "cup"
+      },
+      {
+        "name": "sweet potato, cubed",
+        "quantity": 1.0,
+        "units": "large"
+      },
+      {
+        "name": "olive oil",
+        "quantity": 3.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "chickpeas, drained and rinsed",
+        "quantity": 1.0,
+        "units": "can (15 oz)"
+      },
+      {
+        "name": "baby spinach",
+        "quantity": 4.0,
+        "units": "cups"
+      },
+      {
+        "name": "avocado, sliced",
+        "quantity": 1.0,
+        "units": "large"
+      },
+      {
+        "name": "cherry tomatoes, halved",
+        "quantity": 1.0,
+        "units": "cup"
+      },
+      {
+        "name": "tahini",
+        "quantity": 3.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "lemon juice",
+        "quantity": 2.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "maple syrup",
+        "quantity": 1.0,
+        "units": "tablespoon"
+      },
+      {
+        "name": "water",
+        "quantity": 2.0,
+        "units": "tablespoons"
+      }
+    ],
+    "instructions": [
+      {
+        "step_number": 1,
+        "content": "Cook quinoa according to package directions. Preheat oven to 400°F."
+      },
+      {
+        "step_number": 2,
+        "content": "Toss sweet potato cubes with 1 tablespoon olive oil and roast for 20 minutes until tender."
+      },
+      {
+        "step_number": 3,
+        "content": "Heat remaining oil in a pan and sauté chickpeas for 5 minutes until crispy."
+      },
+      {
+        "step_number": 4,
+        "content": "Whisk together tahini, lemon juice, maple syrup, and water for dressing."
+      },
+      {
+        "step_number": 5,
+        "content": "Divide quinoa, spinach, sweet potato, chickpeas, avocado, and tomatoes among bowls. Drizzle with dressing."
+      }
+    ],
+    "location": {
+      "location": {
+        "location": "online",
+        "url": "https://example.com/quinoa-buddha-bowl"
+      }
+    },
+    "notes": "Feel free to substitute vegetables based on seasonal availability",
+    "id": "i9j0k1l2-3456-78mn-opqr-stuvwxyzabcd"
+  },
+  {
+    "name": "Beef Stroganoff",
+    "author": "Dmitri Volkov",
+    "cuisine": "Russian",
+    "time_estimate_minutes": 45,
+    "tags": [
+      "comfort food",
+      "dinner",
+      "main course",
+      "beef",
+      "stroganoff",
+      "creamy",
+      "stovetop",
+      "traditional"
+    ],
+    "dietary_restrictions_met": [],
+    "ingredients": [
+      {
+        "name": "beef sirloin, cut into strips",
+        "quantity": 1.5,
+        "units": "pounds"
+      },
+      {
+        "name": "butter",
+        "quantity": 4.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "mushrooms, sliced",
+        "quantity": 8.0,
+        "units": "ounces"
+      },
+      {
+        "name": "yellow onion, sliced",
+        "quantity": 1.0,
+        "units": "large"
+      },
+      {
+        "name": "garlic cloves, minced",
+        "quantity": 3.0,
+        "units": "cloves"
+      },
+      {
+        "name": "all-purpose flour",
+        "quantity": 2.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "beef broth",
+        "quantity": 1.0,
+        "units": "cup"
+      },
+      {
+        "name": "sour cream",
+        "quantity": 0.75,
+        "units": "cup"
+      },
+      {
+        "name": "dijon mustard",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "salt",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "black pepper",
+        "quantity": 0.5,
+        "units": "teaspoon"
+      },
+      {
+        "name": "egg noodles",
+        "quantity": 12.0,
+        "units": "ounces"
+      },
+      {
+        "name": "fresh parsley, chopped",
+        "quantity": 2.0,
+        "units": "tablespoons"
+      }
+    ],
+    "instructions": [
+      {
+        "step_number": 1,
+        "content": "Season beef strips with salt and pepper. Heat 2 tablespoons butter in a large skillet over medium-high heat. Cook beef in batches until browned, about 3-4 minutes. Remove and set aside."
+      },
+      {
+        "step_number": 2,
+        "content": "In the same pan, melt remaining butter. Add mushrooms and onion, cook until softened, about 8 minutes."
+      },
+      {
+        "step_number": 3,
+        "content": "Add garlic and flour, cook for 1 minute. Gradually add beef broth, stirring constantly."
+      },
+      {
+        "step_number": 4,
+        "content": "Return beef to pan and simmer for 10 minutes. Meanwhile, cook egg noodles according to package directions."
+      },
+      {
+        "step_number": 5,
+        "content": "Remove from heat, stir in sour cream and mustard. Serve over noodles, garnished with parsley."
+      }
+    ],
+    "location": {
+      "location": {
+        "location": "cookbook",
+        "cookbook_name": "The Complete Mediterranean Cookbook",
+        "page_number": 98
+      }
+    },
+    "notes": "Don't let the sour cream boil or it will curdle",
+    "id": "j0k1l2m3-4567-89no-pqrs-tuvwxyzabcde"
+  },
+  {
+    "name": "Caprese Stuffed Chicken",
+    "author": "Isabella Martinez",
+    "cuisine": "Italian-American",
+    "time_estimate_minutes": 35,
+    "tags": [
+      "dinner",
+      "main course",
+      "chicken",
+      "stuffed",
+      "mozzarella",
+      "basil",
+      "baked",
+      "elegant"
+    ],
+    "dietary_restrictions_met": ["gluten_free"],
+    "ingredients": [
+      {
+        "name": "boneless chicken breasts",
+        "quantity": 4.0,
+        "units": "large"
+      },
+      {
+        "name": "fresh mozzarella, sliced",
+        "quantity": 8.0,
+        "units": "ounces"
+      },
+      {
+        "name": "cherry tomatoes, halved",
+        "quantity": 1.0,
+        "units": "cup"
+      },
+      {
+        "name": "fresh basil leaves",
+        "quantity": 0.25,
+        "units": "cup"
+      },
+      {
+        "name": "olive oil",
+        "quantity": 3.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "garlic powder",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "italian seasoning",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "salt",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "black pepper",
+        "quantity": 0.5,
+        "units": "teaspoon"
+      },
+      {
+        "name": "balsamic glaze",
+        "quantity": 2.0,
+        "units": "tablespoons"
+      }
+    ],
+    "instructions": [
+      {
+        "step_number": 1,
+        "content": "Preheat oven to 375°F. Cut a pocket in each chicken breast, being careful not to cut all the way through."
+      },
+      {
+        "step_number": 2,
+        "content": "Stuff each pocket with mozzarella, tomatoes, and basil. Secure with toothpicks."
+      },
+      {
+        "step_number": 3,
+        "content": "Mix olive oil, garlic powder, Italian seasoning, salt, and pepper. Brush over chicken."
+      },
+      {
+        "step_number": 4,
+        "content": "Place in baking dish and bake for 25-30 minutes until chicken reaches 165°F internal temperature."
+      },
+      {
+        "step_number": 5,
+        "content": "Let rest 5 minutes, then drizzle with balsamic glaze before serving."
+      }
+    ],
+    "location": {
+      "location": {
+        "location": "online",
+        "url": "https://example.com/caprese-stuffed-chicken"
+      }
+    },
+    "notes": "Remove toothpicks before serving",
+    "id": "k1l2m3n4-5678-90op-qrst-uvwxyzabcdef"
+  },
+  {
+    "name": "Coconut Curry Lentil Soup",
+    "author": "Priya Sharma",
+    "cuisine": "Indian",
+    "time_estimate_minutes": 40,
+    "tags": [
+      "soup",
+      "vegetarian",
+      "comfort food",
+      "dinner",
+      "lunch",
+      "lentils",
+      "curry",
+      "coconut",
+      "one-pot"
+    ],
+    "dietary_restrictions_met": [
+      "vegetarian",
+      "vegan",
+      "dairy_free",
+      "gluten_free"
+    ],
+    "ingredients": [
+      {
+        "name": "coconut oil",
+        "quantity": 2.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "yellow onion, diced",
+        "quantity": 1.0,
+        "units": "large"
+      },
+      {
+        "name": "garlic cloves, minced",
+        "quantity": 4.0,
+        "units": "cloves"
+      },
+      {
+        "name": "fresh ginger, grated",
+        "quantity": 1.0,
+        "units": "tablespoon"
+      },
+      {
+        "name": "curry powder",
+        "quantity": 2.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "ground cumin",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "red lentils",
+        "quantity": 1.0,
+        "units": "cup"
+      },
+      {
+        "name": "vegetable broth",
+        "quantity": 4.0,
+        "units": "cups"
+      },
+      {
+        "name": "coconut milk",
+        "quantity": 1.0,
+        "units": "can (14 oz)"
+      },
+      {
+        "name": "diced tomatoes",
+        "quantity": 1.0,
+        "units": "can (14 oz)"
+      },
+      {
+        "name": "salt",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "baby spinach",
+        "quantity": 2.0,
+        "units": "cups"
+      }
+    ],
+    "instructions": [
+      {
+        "step_number": 1,
+        "content": "Heat coconut oil in a large pot over medium heat. Add onion and cook until softened, about 5 minutes."
+      },
+      {
+        "step_number": 2,
+        "content": "Add garlic, ginger, curry powder, and cumin. Cook for 1 minute until fragrant."
+      },
+      {
+        "step_number": 3,
+        "content": "Add lentils, broth, coconut milk, tomatoes, and salt. Bring to a boil, then simmer for 20 minutes."
+      },
+      {
+        "step_number": 4,
+        "content": "Stir in spinach and cook until wilted, about 2 minutes."
+      },
+      {
+        "step_number": 5,
+        "content": "Taste and adjust seasoning. Serve with naan or rice."
+      }
+    ],
+    "location": {
+      "location": {
+        "location": "cookbook",
+        "cookbook_name": "The Complete Indian Cookbook",
+        "page_number": 98
+      }
+    },
+    "notes": "Red lentils break down and thicken the soup naturally",
+    "id": "l2m3n4o5-6789-01pq-rstu-vwxyzabcdefg"
+  },
+  {
+    "name": "BBQ Pulled Pork Sandwiches",
+    "author": "Jake Thompson",
+    "cuisine": "American",
+    "time_estimate_minutes": 480,
+    "tags": [
+      "slow-cooker",
+      "comfort food",
+      "dinner",
+      "lunch",
+      "pork",
+      "bbq",
+      "sandwiches",
+      "make-ahead"
+    ],
+    "dietary_restrictions_met": ["dairy_free"],
+    "ingredients": [
+      {
+        "name": "pork shoulder roast",
+        "quantity": 3.0,
+        "units": "pounds"
+      },
+      {
+        "name": "brown sugar",
+        "quantity": 0.25,
+        "units": "cup"
+      },
+      {
+        "name": "paprika",
+        "quantity": 2.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "chili powder",
+        "quantity": 1.0,
+        "units": "tablespoon"
+      },
+      {
+        "name": "garlic powder",
+        "quantity": 1.0,
+        "units": "tablespoon"
+      },
+      {
+        "name": "onion powder",
+        "quantity": 1.0,
+        "units": "tablespoon"
+      },
+      {
+        "name": "salt",
+        "quantity": 2.0,
+        "units": "teaspoons"
+      },
+      {
+        "name": "black pepper",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "bbq sauce",
+        "quantity": 1.0,
+        "units": "cup"
+      },
+      {
+        "name": "hamburger buns",
+        "quantity": 8.0,
+        "units": "whole"
+      },
+      {
+        "name": "coleslaw mix",
+        "quantity": 2.0,
+        "units": "cups"
+      }
+    ],
+    "instructions": [
+      {
+        "step_number": 1,
+        "content": "Mix brown sugar, paprika, chili powder, garlic powder, onion powder, salt, and pepper to make dry rub."
+      },
+      {
+        "step_number": 2,
+        "content": "Rub spice mixture all over pork shoulder. Place in slow cooker."
+      },
+      {
+        "step_number": 3,
+        "content": "Cook on low for 8 hours until pork shreds easily with a fork."
+      },
+      {
+        "step_number": 4,
+        "content": "Remove pork and shred with two forks. Mix with BBQ sauce."
+      },
+      {
+        "step_number": 5,
+        "content": "Serve on buns topped with coleslaw."
+      }
+    ],
+    "location": {
+      "location": {
+        "location": "cookbook",
+        "cookbook_name": "The Complete Mediterranean Cookbook",
+        "page_number": 98
+      }
+    },
+    "notes": "Can be made up to 3 days ahead and reheated",
+    "id": "m3n4o5p6-7890-12qr-stuv-wxyzabcdefgh"
+  },
+  {
+    "name": "Greek Lemon Potatoes",
+    "author": "Kostas Dimitriou",
+    "cuisine": "Greek",
+    "time_estimate_minutes": 75,
+    "tags": [
+      "side dish",
+      "potatoes",
+      "lemon",
+      "herbs",
+      "baked",
+      "vegetarian",
+      "mediterranean"
+    ],
+    "dietary_restrictions_met": [
+      "vegetarian",
+      "vegan",
+      "dairy_free",
+      "gluten_free"
+    ],
+    "ingredients": [
+      {
+        "name": "yukon potatoes, cut into wedges",
+        "quantity": 3.0,
+        "units": "pounds"
+      },
+      {
+        "name": "olive oil",
+        "quantity": 0.5,
+        "units": "cup"
+      },
+      {
+        "name": "lemon juice",
+        "quantity": 0.25,
+        "units": "cup"
+      },
+      {
+        "name": "vegetable broth",
+        "quantity": 1.0,
+        "units": "cup"
+      },
+      {
+        "name": "garlic cloves, minced",
+        "quantity": 4.0,
+        "units": "cloves"
+      },
+      {
+        "name": "dried oregano",
+        "quantity": 2.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "salt",
+        "quantity": 2.0,
+        "units": "teaspoons"
+      },
+      {
+        "name": "black pepper",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "fresh parsley, chopped",
+        "quantity": 0.25,
+        "units": "cup"
+      }
+    ],
+    "instructions": [
+      {
+        "step_number": 1,
+        "content": "Preheat oven to 425°F. Arrange potato wedges in a large baking dish."
+      },
+      {
+        "step_number": 2,
+        "content": "Whisk together olive oil, lemon juice, broth, garlic, oregano, salt, and pepper."
+      },
+      {
+        "step_number": 3,
+        "content": "Pour mixture over potatoes and toss to coat evenly."
+      },
+      {
+        "step_number": 4,
+        "content": "Bake for 60-75 minutes, turning once, until potatoes are golden and tender."
+      },
+      {
+        "step_number": 5,
+        "content": "Garnish with fresh parsley and serve hot."
+      }
+    ],
+    "location": {
+      "location": {
+        "location": "cookbook",
+        "cookbook_name": "The Complete Mediterranean Cookbook",
+        "page_number": 98
+      }
+    },
+    "notes": "The potatoes should absorb most of the liquid during cooking",
+    "id": "n4o5p6q7-8901-23rs-tuvw-xyzabcdefghi"
+  },
+  {
+    "name": "Chocolate Chip Banana Bread",
+    "author": "Emma Baker",
+    "cuisine": "American",
+    "time_estimate_minutes": 90,
+    "tags": [
+      "baking",
+      "dessert",
+      "breakfast",
+      "banana bread",
+      "chocolate chip",
+      "comfort food",
+      "sweet"
+    ],
+    "dietary_restrictions_met": ["vegetarian"],
+    "ingredients": [
+      {
+        "name": "all-purpose flour",
+        "quantity": 1.75,
+        "units": "cups"
+      },
+      {
+        "name": "baking soda",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "salt",
+        "quantity": 0.5,
+        "units": "teaspoon"
+      },
+      {
+        "name": "butter, melted",
+        "quantity": 0.5,
+        "units": "cup"
+      },
+      {
+        "name": "brown sugar",
+        "quantity": 0.75,
+        "units": "cup"
+      },
+      {
+        "name": "eggs",
+        "quantity": 2.0,
+        "units": "large"
+      },
+      {
+        "name": "vanilla extract",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "ripe bananas, mashed",
+        "quantity": 3.0,
+        "units": "large"
+      },
+      {
+        "name": "chocolate chips",
+        "quantity": 1.0,
+        "units": "cup"
+      }
+    ],
+    "instructions": [
+      {
+        "step_number": 1,
+        "content": "Preheat oven to 350°F. Grease a 9x5 inch loaf pan."
+      },
+      {
+        "step_number": 2,
+        "content": "In a bowl, whisk together flour, baking soda, and salt."
+      },
+      {
+        "step_number": 3,
+        "content": "In another bowl, mix melted butter, brown sugar, eggs, vanilla, and mashed bananas."
+      },
+      {
+        "step_number": 4,
+        "content": "Add dry ingredients to wet ingredients, mixing just until combined. Fold in chocolate chips."
+      },
+      {
+        "step_number": 5,
+        "content": "Pour into prepared pan and bake for 60-65 minutes until a toothpick comes out clean. Cool completely before slicing."
+      }
+    ],
+    "location": {
+      "location": {
+        "location": "cookbook",
+        "cookbook_name": "The Complete Mediterranean Cookbook",
+        "page_number": 98
+      }
+    },
+    "notes": "Use very ripe bananas for best flavor and sweetness",
+    "id": "o5p6q7r8-9012-34st-uvwx-yzabcdefghij"
+  },
+  {
+    "name": "Shrimp Scampi",
+    "author": "Marco Antonelli",
+    "cuisine": "Italian-American",
+    "time_estimate_minutes": 20,
+    "tags": [
+      "quick",
+      "dinner",
+      "main course",
+      "shrimp",
+      "garlic",
+      "pasta",
+      "white wine",
+      "stovetop"
+    ],
+    "dietary_restrictions_met": [],
+    "ingredients": [
+      {
+        "name": "linguine pasta",
+        "quantity": 1.0,
+        "units": "pound"
+      },
+      {
+        "name": "large shrimp, peeled and deveined",
+        "quantity": 1.5,
+        "units": "pounds"
+      },
+      {
+        "name": "butter",
+        "quantity": 4.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "olive oil",
+        "quantity": 2.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "garlic cloves, minced",
+        "quantity": 6.0,
+        "units": "cloves"
+      },
+      {
+        "name": "white wine",
+        "quantity": 0.5,
+        "units": "cup"
+      },
+      {
+        "name": "lemon juice",
+        "quantity": 0.25,
+        "units": "cup"
+      },
+      {
+        "name": "red pepper flakes",
+        "quantity": 0.25,
+        "units": "teaspoon"
+      },
+      {
+        "name": "salt",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "fresh parsley, chopped",
+        "quantity": 0.25,
+        "units": "cup"
+      },
+      {
+        "name": "parmesan cheese, grated",
+        "quantity": 0.5,
+        "units": "cup"
+      }
+    ],
+    "instructions": [
+      {
+        "step_number": 1,
+        "content": "Cook linguine according to package directions. Reserve 1 cup pasta water before draining."
+      },
+      {
+        "step_number": 2,
+        "content": "Season shrimp with salt. Heat butter and oil in a large skillet over medium-high heat."
+      },
+      {
+        "step_number": 3,
+        "content": "Add shrimp and cook for 2 minutes per side until pink. Remove and set aside."
+      },
+      {
+        "step_number": 4,
+        "content": "Add garlic and red pepper flakes to pan, cook for 30 seconds. Add wine and lemon juice, simmer for 2 minutes."
+      },
+      {
+        "step_number": 5,
+        "content": "Return shrimp to pan with pasta. Toss with parsley and parmesan, adding pasta water as needed."
+      }
+    ],
+    "location": {
+      "location": {
+        "location": "cookbook",
+        "cookbook_name": "The Complete Mediterranean Cookbook",
+        "page_number": 98
+      }
+    },
+    "notes": "Don't overcook the shrimp or they'll become rubbery",
+    "id": "p6q7r8s9-0123-45tu-vwxy-zabcdefghijk"
+  },
+  {
+    "name": "Stuffed Bell Peppers",
+    "author": "Helen Johnson",
+    "cuisine": "American",
+    "time_estimate_minutes": 60,
+    "tags": [
+      "comfort food",
+      "dinner",
+      "main course",
+      "stuffed peppers",
+      "ground beef",
+      "rice",
+      "baked",
+      "family-friendly"
+    ],
+    "dietary_restrictions_met": ["gluten_free"],
+    "ingredients": [
+      {
+        "name": "large bell peppers, tops cut and seeds removed",
+        "quantity": 6.0,
+        "units": "whole"
+      },
+      {
+        "name": "ground beef",
+        "quantity": 1.0,
+        "units": "pound"
+      },
+      {
+        "name": "cooked white rice",
+        "quantity": 1.0,
+        "units": "cup"
+      },
+      {
+        "name": "yellow onion, diced",
+        "quantity": 1.0,
+        "units": "small"
+      },
+      {
+        "name": "diced tomatoes, drained",
+        "quantity": 1.0,
+        "units": "can (14 oz)"
+      },
+      {
+        "name": "shredded cheddar cheese",
+        "quantity": 1.0,
+        "units": "cup"
+      },
+      {
+        "name": "garlic powder",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "italian seasoning",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "salt",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "black pepper",
+        "quantity": 0.5,
+        "units": "teaspoon"
+      },
+      {
+        "name": "beef broth",
+        "quantity": 0.5,
+        "units": "cup"
+      }
+    ],
+    "instructions": [
+      {
+        "step_number": 1,
+        "content": "Preheat oven to 375°F. If needed, trim bottom of peppers slightly so they stand upright."
+      },
+      {
+        "step_number": 2,
+        "content": "Cook ground beef and onion in a large skillet until beef is browned and onion is softened, about 8 minutes."
+      },
+      {
+        "step_number": 3,
+        "content": "Stir in rice, tomatoes, half the cheese, garlic powder, Italian seasoning, salt, and pepper."
+      },
+      {
+        "step_number": 4,
+        "content": "Stuff peppers with beef mixture and place in baking dish. Pour broth around peppers."
+      },
+      {
+        "step_number": 5,
+        "content": "Cover and bake for 35 minutes. Top with remaining cheese and bake uncovered for 10 more minutes."
+      }
+    ],
+    "location": {
+      "location": {
+        "location": "cookbook",
+        "cookbook_name": "The Complete Mediterranean Cookbook",
+        "page_number": 98
+      }
+    },
+    "notes": "Can use ground turkey instead of beef for a lighter version",
+    "id": "q7r8s9t0-1234-56uv-wxyz-abcdefghijkl"
+  },
+  {
+    "name": "Teriyaki Glazed Pork Tenderloin",
+    "author": "Kenji Nakamura",
+    "cuisine": "Japanese-American",
+    "time_estimate_minutes": 35,
+    "tags": [
+      "dinner",
+      "main course",
+      "pork",
+      "teriyaki",
+      "glazed",
+      "baked",
+      "asian-fusion"
+    ],
+    "dietary_restrictions_met": ["dairy_free"],
+    "ingredients": [
+      {
+        "name": "pork tenderloin",
+        "quantity": 2.0,
+        "units": "pounds"
+      },
+      {
+        "name": "soy sauce",
+        "quantity": 0.5,
+        "units": "cup"
+      },
+      {
+        "name": "brown sugar",
+        "quantity": 0.25,
+        "units": "cup"
+      },
+      {
+        "name": "rice vinegar",
+        "quantity": 2.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "garlic cloves, minced",
+        "quantity": 3.0,
+        "units": "cloves"
+      },
+      {
+        "name": "fresh ginger, grated",
+        "quantity": 1.0,
+        "units": "tablespoon"
+      },
+      {
+        "name": "sesame oil",
+        "quantity": 1.0,
+        "units": "teaspoon"
+      },
+      {
+        "name": "cornstarch",
+        "quantity": 1.0,
+        "units": "tablespoon"
+      },
+      {
+        "name": "water",
+        "quantity": 2.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "sesame seeds",
+        "quantity": 2.0,
+        "units": "tablespoons"
+      },
+      {
+        "name": "green onions, sliced",
+        "quantity": 2.0,
+        "units": "whole"
+      }
+    ],
+    "instructions": [
+      {
+        "step_number": 1,
+        "content": "Preheat oven to 425°F. Trim any silver skin from pork tenderloin."
+      },
+      {
+        "step_number": 2,
+        "content": "Whisk together soy sauce, brown sugar, rice vinegar, garlic, ginger, and sesame oil for marinade."
+      },
+      {
+        "step_number": 3,
+        "content": "Place pork in baking dish and pour half the marinade over it. Bake for 20-25 minutes until internal temperature reaches 145°F."
+      },
+      {
+        "step_number": 4,
+        "content": "Meanwhile, pour remaining marinade into a small saucepan. Mix cornstarch and water, add to pan and simmer until thickened."
+      },
+      {
+        "step_number": 5,
+        "content": "Let pork rest 5 minutes, then slice and drizzle with glaze. Garnish with sesame seeds and green onions."
+      }
+    ],
+    "location": {
+      "location": {
+        "location": "online",
+        "url": "https://example.com/teriyaki-pork-tenderloin"
+      }
+    },
+    "notes": "Use a meat thermometer for best results",
+    "id": "r8s9t0u1-2345-67vw-xyza-bcdefghijklm"
+  }
+]
