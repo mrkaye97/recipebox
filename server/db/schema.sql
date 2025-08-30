@@ -11,6 +11,27 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: paradedb; Type: SCHEMA; Schema: -; Owner: -
+--
+
+CREATE SCHEMA paradedb;
+
+
+--
+-- Name: pg_search; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_search WITH SCHEMA paradedb;
+
+
+--
+-- Name: EXTENSION pg_search; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pg_search IS 'pg_search: Full text search for PostgreSQL using BM25';
+
+
+--
 -- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: -
 --
 
@@ -338,6 +359,20 @@ CREATE INDEX idx_users_name_email_trgm ON public."user" USING gin ((((name || ' 
 
 
 --
+-- Name: recipe_ingredient_search_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX recipe_ingredient_search_idx ON public.recipe_ingredient USING bm25 (name, recipe_id, user_id) WITH (key_field=recipe_id, text_fields='{"name": {"tokenizer": {"type": "default", "stemmer": "English"}}}');
+
+
+--
+-- Name: recipe_search_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX recipe_search_idx ON public.recipe USING bm25 (name, author, cuisine, notes, id) WITH (key_field=id, text_fields='{"name": {"tokenizer": {"type": "default", "stemmer": "English"}}, "notes": {"tokenizer": {"type": "default", "stemmer": "English"}}}');
+
+
+--
 -- Name: cooking_history cooking_history_recipe_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -478,4 +513,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20250803211143'),
     ('20250827005941'),
     ('20250827021238'),
-    ('20250827022009');
+    ('20250827022009'),
+    ('20250830115304');

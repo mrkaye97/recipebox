@@ -1,3 +1,6 @@
+CREATE SCHEMA paradedb;
+CREATE EXTENSION IF NOT EXISTS pg_search WITH SCHEMA paradedb;
+COMMENT ON EXTENSION pg_search IS 'pg_search: Full text search for PostgreSQL using BM25';
 CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
 COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
 CREATE TYPE dietary_restriction AS ENUM (
@@ -123,6 +126,8 @@ CREATE INDEX idx_recipe_time_estimate ON recipe USING btree (user_id, time_estim
 CREATE INDEX idx_recipe_updated_at ON recipe USING btree (user_id, updated_at);
 CREATE UNIQUE INDEX idx_recipe_user_name ON recipe USING btree (user_id, name);
 CREATE INDEX idx_users_name_email_trgm ON "user" USING gin ((((name || ' '::text) || email)) gin_trgm_ops);
+CREATE INDEX recipe_ingredient_search_idx ON recipe_ingredient USING bm25 (name, recipe_id, user_id) WITH (key_field=recipe_id, text_fields='{"name": {"tokenizer": {"type": "default", "stemmer": "English"}}}');
+CREATE INDEX recipe_search_idx ON recipe USING bm25 (name, author, cuisine, notes, id) WITH (key_field=id, text_fields='{"name": {"tokenizer": {"type": "default", "stemmer": "English"}}, "notes": {"tokenizer": {"type": "default", "stemmer": "English"}}}');
 ALTER TABLE ONLY cooking_history
     ADD CONSTRAINT cooking_history_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE;
 ALTER TABLE ONLY cooking_history
@@ -159,4 +164,5 @@ INSERT INTO schema_migrations (version) VALUES
     ('20250803211143'),
     ('20250827005941'),
     ('20250827021238'),
-    ('20250827022009');
+    ('20250827022009'),
+    ('20250830115304');

@@ -12,6 +12,9 @@ lint:
 	(cd server && poetry run mypy .)
 	(cd app && npx prettier --write .)
 
+gen-migration:
+	(cd server && dbmate new "$(name)")
+
 migrate:
 	(cd server && dbmate up && sed -E '/^SET /d; /^SELECT /d; /^--/d; /^\/\*/,/\*\//d; /^$$/d; s/public\.//g' db/schema.sql > db/schema-sqlc.sql)
 	make gen-sqlc
