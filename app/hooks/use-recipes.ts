@@ -16,12 +16,14 @@ type CreateRecipeProps =
   | CreateOnlineRecipeProps
   | CreateCookbookRecipeProps;
 
-export const useRecipes = ({search}: {
+export const useRecipes = ({
+  search,
+}: {
   search?: string;
 } = {}) => {
   const { token } = useUser();
   const queryClient = useQueryClient();
-  
+
   const [debouncedSearch] = useDebounce(search || "", 300);
 
   const recipeQuery = $api.useQuery(
@@ -33,9 +35,9 @@ export const useRecipes = ({search}: {
       },
       params: {
         query: {
-          search: debouncedSearch || undefined
-        }
-      }
+          search: debouncedSearch || undefined,
+        },
+      },
     },
     {
       enabled: !!token,

@@ -163,7 +163,7 @@ export default function RecipesScreen() {
             </View>
           )}
         </View>
-        
+
         <View style={styles.searchContainer}>
           <View style={styles.searchInputContainer}>
             <IconSymbol
@@ -195,16 +195,15 @@ export default function RecipesScreen() {
             )}
           </View>
         </View>
-        
+
         <View style={styles.centerContainer}>
           <ThemedText type="subtitle">
             {searchQuery ? "No recipes found" : "No recipes yet"}
           </ThemedText>
           <ThemedText style={styles.emptyStateText}>
-            {searchQuery 
+            {searchQuery
               ? "Try adjusting your search terms"
-              : "Get started by creating your first recipe in the Create tab!"
-            }
+              : "Get started by creating your first recipe in the Create tab!"}
           </ThemedText>
         </View>
 
