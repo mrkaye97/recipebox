@@ -32,6 +32,91 @@ interface RecipeCardProps {
   timeEstimate: number;
 }
 
+interface RecipeHeaderProps {
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
+  onClearSearch: () => void;
+  pendingSharesCount: number;
+  onShowShares: () => void;
+  onRandomRecipe: () => void;
+  hasRecipes: boolean;
+}
+
+function RecipeHeader({
+  searchQuery,
+  onSearchChange,
+  onClearSearch,
+  pendingSharesCount,
+  onShowShares,
+  onRandomRecipe,
+  hasRecipes,
+}: RecipeHeaderProps) {
+  return (
+    <View style={styles.compactHeader}>
+      <View style={styles.searchInputContainer}>
+        <IconSymbol
+          name="magnifyingglass"
+          size={16}
+          color={Colors.textSecondary}
+          style={styles.searchIcon}
+        />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search recipes..."
+          placeholderTextColor={Colors.textSecondary}
+          value={searchQuery}
+          onChangeText={onSearchChange}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity onPress={onClearSearch} style={styles.clearButton}>
+            <IconSymbol
+              name="xmark.circle.fill"
+              size={16}
+              color={Colors.textSecondary}
+            />
+          </TouchableOpacity>
+        )}
+      </View>
+      <View style={styles.headerActions}>
+        {pendingSharesCount > 0 && (
+          <TouchableOpacity
+            onPress={onShowShares}
+            style={[
+              styles.sharesButton,
+              pendingSharesCount > 0 && styles.sharesButtonWithBadge,
+            ]}
+          >
+            <IconSymbol
+              name="tray.and.arrow.down"
+              size={18}
+              color={Colors.textSecondary}
+            />
+            {pendingSharesCount > 0 && (
+              <View style={styles.sharesBadge}>
+                <ThemedText style={styles.sharesBadgeText}>
+                  {pendingSharesCount}
+                </ThemedText>
+              </View>
+            )}
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity
+          onPress={onRandomRecipe}
+          disabled={!hasRecipes}
+          style={[
+            styles.randomButton,
+            !hasRecipes && styles.randomButtonDisabled,
+          ]}
+        >
+          <IconSymbol name="dice" size={16} color={Colors.textSecondary} />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
 function RecipeCard({
   id,
   name,
@@ -133,69 +218,9 @@ export default function RecipesScreen() {
     );
   }
 
-  if (!recipes || recipes.length === 0) {
-    return (
-      <ThemedView style={styles.container}>
-        <View style={styles.header}>
-          <ThemedText type="title">My Recipes</ThemedText>
-          {pendingShares.length > 0 && (
-            <View style={styles.headerActions}>
-              <TouchableOpacity
-                onPress={() => setSharesDrawerVisible(true)}
-                style={[
-                  styles.sharesButton,
-                  pendingShares.length > 0 && styles.sharesButtonWithBadge,
-                ]}
-              >
-                <IconSymbol
-                  name="tray.and.arrow.down"
-                  size={18}
-                  color={Colors.textSecondary}
-                />
-                {pendingShares.length > 0 && (
-                  <View style={styles.sharesBadge}>
-                    <ThemedText style={styles.sharesBadgeText}>
-                      {pendingShares.length}
-                    </ThemedText>
-                  </View>
-                )}
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
-
-        <View style={styles.searchContainer}>
-          <View style={styles.searchInputContainer}>
-            <IconSymbol
-              name="magnifyingglass"
-              size={16}
-              color={Colors.textSecondary}
-              style={styles.searchIcon}
-            />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search recipes, authors, or cuisines..."
-              placeholderTextColor={Colors.textSecondary}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity
-                onPress={() => setSearchQuery("")}
-                style={styles.clearButton}
-              >
-                <IconSymbol
-                  name="xmark.circle.fill"
-                  size={16}
-                  color={Colors.textSecondary}
-                />
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-
+  const renderContent = () => {
+    if (!recipes || recipes.length === 0) {
+      return (
         <View style={styles.centerContainer}>
           <ThemedText type="subtitle">
             {searchQuery ? "No recipes found" : "No recipes yet"}
@@ -206,115 +231,10 @@ export default function RecipesScreen() {
               : "Get started by creating your first recipe in the Create tab!"}
           </ThemedText>
         </View>
+      );
+    }
 
-        <Modal
-          visible={sharesDrawerVisible}
-          animationType="slide"
-          presentationStyle="pageSheet"
-          onRequestClose={() => setSharesDrawerVisible(false)}
-        >
-          <ThemedView style={styles.drawerContainer}>
-            <View style={styles.drawerHeader}>
-              <ThemedText type="title">Shared Recipes</ThemedText>
-              <TouchableOpacity
-                onPress={() => setSharesDrawerVisible(false)}
-                style={styles.closeButton}
-              >
-                <IconSymbol
-                  name="xmark.circle.fill"
-                  size={28}
-                  color={Colors.textSecondary}
-                />
-              </TouchableOpacity>
-            </View>
-            <PendingRecipeShares />
-          </ThemedView>
-        </Modal>
-      </ThemedView>
-    );
-  }
-
-  return (
-    <ThemedView style={styles.container}>
-      <View style={styles.header}>
-        <ThemedText type="title">My Recipes</ThemedText>
-        <View style={styles.headerActions}>
-          {pendingShares.length > 0 && (
-            <TouchableOpacity
-              onPress={() => setSharesDrawerVisible(true)}
-              style={[
-                styles.sharesButton,
-                pendingShares.length > 0 && styles.sharesButtonWithBadge,
-              ]}
-            >
-              <IconSymbol
-                name="tray.and.arrow.down"
-                size={18}
-                color={Colors.textSecondary}
-              />
-              {pendingShares.length > 0 && (
-                <View style={styles.sharesBadge}>
-                  <ThemedText style={styles.sharesBadgeText}>
-                    {pendingShares.length}
-                  </ThemedText>
-                </View>
-              )}
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity
-            onPress={getRandomRecipe}
-            disabled={!recipes || recipes.length === 0}
-            style={[
-              styles.randomButton,
-              (!recipes || recipes.length === 0) && styles.randomButtonDisabled,
-            ]}
-          >
-            <IconSymbol name="dice" size={18} color={Colors.textSecondary} />
-            <ThemedText
-              style={[
-                styles.randomButtonText,
-                (!recipes || recipes.length === 0) &&
-                  styles.randomButtonTextDisabled,
-              ]}
-            >
-              Random
-            </ThemedText>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View style={styles.searchContainer}>
-        <View style={styles.searchInputContainer}>
-          <IconSymbol
-            name="magnifyingglass"
-            size={16}
-            color={Colors.textSecondary}
-            style={styles.searchIcon}
-          />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search recipes, authors, or cuisines..."
-            placeholderTextColor={Colors.textSecondary}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity
-              onPress={() => setSearchQuery("")}
-              style={styles.clearButton}
-            >
-              <IconSymbol
-                name="xmark.circle.fill"
-                size={16}
-                color={Colors.textSecondary}
-              />
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-
+    return (
       <ScrollView
         style={styles.recipesList}
         contentContainerStyle={styles.recipesListContent}
@@ -341,6 +261,22 @@ export default function RecipesScreen() {
           ))}
         </View>
       </ScrollView>
+    );
+  };
+
+  return (
+    <ThemedView style={styles.container}>
+      <RecipeHeader
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onClearSearch={() => setSearchQuery("")}
+        pendingSharesCount={pendingShares.length}
+        onShowShares={() => setSharesDrawerVisible(true)}
+        onRandomRecipe={getRandomRecipe}
+        hasRecipes={Boolean(recipes && recipes.length > 0)}
+      />
+
+      {renderContent()}
 
       <Modal
         visible={sharesDrawerVisible}
@@ -375,23 +311,18 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
     paddingTop: Layout.headerHeight,
   },
-  header: {
+  compactHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: Layout.screenPadding,
-    paddingVertical: Spacing.xl,
+    paddingVertical: Spacing.lg,
     backgroundColor: Colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: Colors.borderLight,
     ...Shadows.sm,
   },
   randomButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.xs,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
+    padding: Spacing.sm,
     backgroundColor: "transparent",
     borderRadius: BorderRadius.md,
     borderWidth: 1,
@@ -571,23 +502,18 @@ const styles = StyleSheet.create({
   closeButton: {
     padding: Spacing.xs,
   },
-  searchContainer: {
-    paddingHorizontal: Layout.screenPadding,
-    paddingVertical: Spacing.lg,
-    backgroundColor: Colors.background,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.borderLight,
-  },
   searchInputContainer: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.surface,
+    backgroundColor: Colors.background,
     borderRadius: BorderRadius.lg,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderWidth: 1,
     borderColor: Colors.borderLight,
     ...Shadows.sm,
+    marginRight: Spacing.md,
   },
   searchIcon: {
     marginRight: Spacing.sm,
