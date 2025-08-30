@@ -87,7 +87,12 @@ RETURNING *;
 -- name: ListRecipes :many
 SELECT *
 FROM recipe
-WHERE user_id = @userId::UUID
+WHERE
+    user_id = @userId::UUID
+    AND (
+        sqlc.narg('search')::TEXT IS NULL
+        OR id @@@ paradedb.parse(sqlc.narg('search')::TEXT, lenient => true)
+    )
 ORDER BY updated_at DESC
 ;
 

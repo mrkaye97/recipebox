@@ -183,7 +183,12 @@ WHERE
 LIST_RECIPES = """-- name: list_recipes \\:many
 SELECT id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at
 FROM recipe
-WHERE user_id = :p1\\:\\:UUID
+WHERE
+    user_id = :p1\\:\\:UUID
+    AND (
+        :p2\\:\\:TEXT IS NULL
+        OR id @@@ paradedb.parse(:p2\\:\\:TEXT, lenient => true)
+    )
 ORDER BY updated_at DESC
 """
 
@@ -425,8 +430,12 @@ class AsyncQuerier:
                 tag=row[2],
             )
 
-    async def list_recipes(self, *, userid: uuid.UUID) -> AsyncIterator[models.Recipe]:
-        result = await self._conn.stream(sqlalchemy.text(LIST_RECIPES), {"p1": userid})
+    async def list_recipes(
+        self, *, userid: uuid.UUID, search: str | None
+    ) -> AsyncIterator[models.Recipe]:
+        result = await self._conn.stream(
+            sqlalchemy.text(LIST_RECIPES), {"p1": userid, "p2": search}
+        )
         async for row in result:
             yield models.Recipe(
                 id=row[0],

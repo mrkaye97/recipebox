@@ -28,16 +28,20 @@ recipes = APIRouter(prefix="/recipes")
 logger = get_logger(__name__)
 
 
-async def list_recipes_from_db(user_id: UUID, db: AsyncQuerier) -> list[Recipe]:
-    recipes = [r async for r in db.list_recipes(userid=user_id)]
+async def list_recipes_from_db(
+    user_id: UUID, search: str | None, db: AsyncQuerier
+) -> list[Recipe]:
+    recipes = [r async for r in db.list_recipes(userid=user_id, search=search)]
 
     return await populate_recipe_data(db=db, user_id=user_id, recipes=recipes)
 
 
 @recipes.get("")
-async def list_recipes(user: User, conn: Connection) -> list[Recipe]:
+async def list_recipes(
+    user: User, conn: Connection, search: str | None = None
+) -> list[Recipe]:
     db = AsyncQuerier(conn)
-    return await list_recipes_from_db(user_id=user.id, db=db)
+    return await list_recipes_from_db(user_id=user.id, db=db, search=search)
 
 
 @recipes.get("/{id}")
