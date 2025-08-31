@@ -33,7 +33,6 @@ async def get_db() -> AsyncGenerator[AsyncConnection]:
         try:
             yield conn
         except Exception as e:
-            logger.exception("error")
             if isinstance(e, HTTPException):
                 raise e
 

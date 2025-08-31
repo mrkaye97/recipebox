@@ -87,6 +87,13 @@ CREATE TABLE recipe_instruction (
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
+CREATE TABLE recipe_recommendation (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    recipe_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
 CREATE TABLE recipe_share_request (
     token text NOT NULL,
     to_user_id uuid,
@@ -129,6 +136,8 @@ ALTER TABLE ONLY recipe_instruction
     ADD CONSTRAINT recipe_instruction_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY recipe
     ADD CONSTRAINT recipe_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY recipe_recommendation
+    ADD CONSTRAINT recipe_recommendation_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY recipe_share_request
     ADD CONSTRAINT recipe_share_request_pkey PRIMARY KEY (token);
 ALTER TABLE ONLY recipe_tag
@@ -142,6 +151,7 @@ ALTER TABLE ONLY user_password
 ALTER TABLE ONLY "user"
     ADD CONSTRAINT user_pkey PRIMARY KEY (id);
 CREATE INDEX idx_recipe_last_made_at ON recipe USING btree (user_id, last_made_at);
+CREATE UNIQUE INDEX idx_recipe_recommendation_user_recipe ON recipe_recommendation USING btree (user_id, recipe_id);
 CREATE INDEX idx_recipe_time_estimate ON recipe USING btree (user_id, time_estimate_minutes);
 CREATE INDEX idx_recipe_updated_at ON recipe USING btree (user_id, updated_at);
 CREATE UNIQUE INDEX idx_recipe_user_name ON recipe USING btree (user_id, name);
@@ -172,6 +182,10 @@ ALTER TABLE ONLY recipe_instruction
     ADD CONSTRAINT recipe_instruction_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE;
 ALTER TABLE ONLY recipe_instruction
     ADD CONSTRAINT recipe_instruction_user_id_fkey FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE;
+ALTER TABLE ONLY recipe_recommendation
+    ADD CONSTRAINT recipe_recommendation_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE;
+ALTER TABLE ONLY recipe_recommendation
+    ADD CONSTRAINT recipe_recommendation_user_id_fkey FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE;
 ALTER TABLE ONLY recipe_share_request
     ADD CONSTRAINT recipe_share_request_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE;
 ALTER TABLE ONLY recipe_share_request
@@ -189,4 +203,5 @@ INSERT INTO schema_migrations (version) VALUES
     ('20250827005941'),
     ('20250827021238'),
     ('20250827022009'),
-    ('20250831115304');
+    ('20250831115304'),
+    ('20250831115922');

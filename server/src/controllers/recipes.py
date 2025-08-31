@@ -38,7 +38,7 @@ ingredient_to_peak_months = {
     "blueberries": [7, 8, 9],
     "bok_choy": [4, 5, 9, 10, 11],
     "broccoli": [5, 6, 9, 10, 11],
-    "broccoli_rabe": [4, 5, 9, 10, 11],
+    "brussels": [4, 5, 9, 10, 11],
     "brussels_sprouts": [9, 10, 11, 12, 1],
     "butternut_squash": [9, 10, 11, 12, 1, 2],
     "cabbage": [1, 2, 6, 7, 8, 9, 10, 11, 12],
@@ -143,7 +143,6 @@ def get_seasonal_search_query() -> str:
 
     seasonal_ingredients = month_to_ingredients[month]
 
-    # Create OR query for ParadeDB
     return " OR ".join([f"name:{ingredient}" for ingredient in seasonal_ingredients])
 
 
@@ -160,6 +159,7 @@ async def recommend_recipe(
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
 
+    await db.log_recipe_recommendation(recipeid=recipe.id, userid=user.id)
     return await populate_recipe_data(
         db=db,
         user_id=user.id,

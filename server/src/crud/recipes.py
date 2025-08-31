@@ -193,6 +193,15 @@ ORDER BY updated_at DESC
 """
 
 
+LOG_RECIPE_RECOMMENDATION = """-- name: log_recipe_recommendation \\:exec
+INSERT INTO recipe_recommendation (recipe_id, user_id)
+VALUES (
+    :p1\\:\\:UUID,
+    :p2\\:\\:UUID
+)
+"""
+
+
 RECOMMEND_RECIPE = """-- name: recommend_recipe \\:one
 WITH ingredient_seasonality_score AS (
     SELECT
@@ -204,21 +213,32 @@ WITH ingredient_seasonality_score AS (
         id @@@ paradedb.parse(:p2\\:\\:TEXT, lenient => true)
         AND user_id = :p1\\:\\:UUID
     GROUP BY recipe_id, user_id
+), last_recommended_at_score AS (
+    SELECT
+        recipe_id,
+        user_id,
+        GREATEST(1.0, LEAST(3.0, (NOW()\\:\\:DATE - COALESCE(MAX(rr.created_at)\\:\\:DATE, '1970-01-01'\\:\\:DATE)) / 30.0)) AS last_recommended_at_factor
+    FROM recipe_recommendation rr
+    WHERE rr.user_id = :p1\\:\\:UUID
+    GROUP BY recipe_id, user_id
 )
 
 SELECT r.id, r.user_id, r.name, r.author, r.cuisine, r.location, r.time_estimate_minutes, r.notes, r.last_made_at, r.created_at, r.updated_at
 FROM recipe r
 JOIN ingredient_seasonality_score iss ON (r.id, r.user_id) = (iss.recipe_id, iss.user_id)
+LEFT JOIN last_recommended_at_score lras ON (r.id, r.user_id) = (lras.recipe_id, lras.user_id)
 WHERE r.user_id = :p1\\:\\:UUID
 ORDER BY (
     CASE
         WHEN EXTRACT(ISODOW FROM NOW()\\:\\:DATE) IN (6, 7) AND r.time_estimate_minutes > 60 THEN 0.5
         ELSE 1.0
-    END +
+    END *
     CASE
         WHEN r.last_made_at IS NULL THEN 1.0
         ELSE GREATEST(1.0, LEAST(3.0, (NOW()\\:\\:DATE - r.last_made_at\\:\\:DATE) / 30.0))
-    END + iss.total_ingredient_score
+    END *
+    COALESCE(lras.last_recommended_at_factor, 1.0) *
+    iss.total_ingredient_score
 ) DESC
 LIMIT 1
 """
@@ -489,6 +509,13 @@ class AsyncQuerier:
                 created_at=row[9],
                 updated_at=row[10],
             )
+
+    async def log_recipe_recommendation(
+        self, *, recipeid: uuid.UUID, userid: uuid.UUID
+    ) -> None:
+        await self._conn.execute(
+            sqlalchemy.text(LOG_RECIPE_RECOMMENDATION), {"p1": recipeid, "p2": userid}
+        )
 
     async def recommend_recipe(
         self, *, userid: uuid.UUID, seasonalingredients: str

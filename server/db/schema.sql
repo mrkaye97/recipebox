@@ -284,6 +284,19 @@ CREATE TABLE public.recipe_instruction (
 
 
 --
+-- Name: recipe_recommendation; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.recipe_recommendation (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    recipe_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
 -- Name: recipe_share_request; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -392,6 +405,14 @@ ALTER TABLE ONLY public.recipe
 
 
 --
+-- Name: recipe_recommendation recipe_recommendation_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe_recommendation
+    ADD CONSTRAINT recipe_recommendation_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: recipe_share_request recipe_share_request_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -444,6 +465,13 @@ ALTER TABLE ONLY public."user"
 --
 
 CREATE INDEX idx_recipe_last_made_at ON public.recipe USING btree (user_id, last_made_at);
+
+
+--
+-- Name: idx_recipe_recommendation_user_recipe; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_recipe_recommendation_user_recipe ON public.recipe_recommendation USING btree (user_id, recipe_id);
 
 
 --
@@ -597,6 +625,22 @@ ALTER TABLE ONLY public.recipe_instruction
 
 
 --
+-- Name: recipe_recommendation recipe_recommendation_recipe_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe_recommendation
+    ADD CONSTRAINT recipe_recommendation_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES public.recipe(id) ON DELETE CASCADE;
+
+
+--
+-- Name: recipe_recommendation recipe_recommendation_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe_recommendation
+    ADD CONSTRAINT recipe_recommendation_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE;
+
+
+--
 -- Name: recipe_share_request recipe_share_request_recipe_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -658,4 +702,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20250827005941'),
     ('20250827021238'),
     ('20250827022009'),
-    ('20250831115304');
+    ('20250831115304'),
+    ('20250831115922');
