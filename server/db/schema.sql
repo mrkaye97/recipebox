@@ -92,7 +92,8 @@ CREATE TABLE public.cooking_history (
     user_id uuid NOT NULL,
     made_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL
 );
 
 
@@ -135,7 +136,8 @@ CREATE TABLE public.recipe (
 CREATE TABLE public.recipe_dietary_restriction_met (
     user_id uuid NOT NULL,
     recipe_id uuid NOT NULL,
-    dietary_restriction public.dietary_restriction NOT NULL
+    dietary_restriction public.dietary_restriction NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL
 );
 
 
@@ -150,7 +152,8 @@ CREATE TABLE public.recipe_ingredient (
     quantity double precision NOT NULL,
     units text NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL
 );
 
 
@@ -164,7 +167,8 @@ CREATE TABLE public.recipe_instruction (
     step_number integer NOT NULL,
     content text NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL
 );
 
 
@@ -188,7 +192,8 @@ CREATE TABLE public.recipe_share_request (
 CREATE TABLE public.recipe_tag (
     user_id uuid NOT NULL,
     recipe_id uuid NOT NULL,
-    tag text NOT NULL
+    tag text NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL
 );
 
 
@@ -232,7 +237,7 @@ CREATE TABLE public.user_password (
 --
 
 ALTER TABLE ONLY public.cooking_history
-    ADD CONSTRAINT cooking_history_pkey PRIMARY KEY (user_id, made_at, recipe_id);
+    ADD CONSTRAINT cooking_history_pkey PRIMARY KEY (id);
 
 
 --
@@ -248,7 +253,7 @@ ALTER TABLE ONLY public.friendship
 --
 
 ALTER TABLE ONLY public.recipe_dietary_restriction_met
-    ADD CONSTRAINT recipe_dietary_restriction_met_pkey PRIMARY KEY (recipe_id, user_id, dietary_restriction);
+    ADD CONSTRAINT recipe_dietary_restriction_met_pkey PRIMARY KEY (id);
 
 
 --
@@ -256,7 +261,7 @@ ALTER TABLE ONLY public.recipe_dietary_restriction_met
 --
 
 ALTER TABLE ONLY public.recipe_ingredient
-    ADD CONSTRAINT recipe_ingredient_pkey PRIMARY KEY (recipe_id, user_id, name, quantity, units);
+    ADD CONSTRAINT recipe_ingredient_pkey PRIMARY KEY (id);
 
 
 --
@@ -264,7 +269,7 @@ ALTER TABLE ONLY public.recipe_ingredient
 --
 
 ALTER TABLE ONLY public.recipe_instruction
-    ADD CONSTRAINT recipe_instruction_pkey PRIMARY KEY (recipe_id, user_id, step_number);
+    ADD CONSTRAINT recipe_instruction_pkey PRIMARY KEY (id);
 
 
 --
@@ -288,7 +293,7 @@ ALTER TABLE ONLY public.recipe_share_request
 --
 
 ALTER TABLE ONLY public.recipe_tag
-    ADD CONSTRAINT recipe_tag_pkey PRIMARY KEY (recipe_id, user_id, tag);
+    ADD CONSTRAINT recipe_tag_pkey PRIMARY KEY (id);
 
 
 --
@@ -324,10 +329,45 @@ ALTER TABLE ONLY public."user"
 
 
 --
+-- Name: idx_cooking_history_original_pk; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_cooking_history_original_pk ON public.cooking_history USING btree (user_id, made_at, recipe_id);
+
+
+--
+-- Name: idx_recipe_dietary_restriction_met_original_pk; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_recipe_dietary_restriction_met_original_pk ON public.recipe_dietary_restriction_met USING btree (recipe_id, user_id, dietary_restriction);
+
+
+--
+-- Name: idx_recipe_ingredient_original_pk; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_recipe_ingredient_original_pk ON public.recipe_ingredient USING btree (recipe_id, user_id, name, quantity, units);
+
+
+--
+-- Name: idx_recipe_instruction_original_pk; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_recipe_instruction_original_pk ON public.recipe_instruction USING btree (recipe_id, user_id, step_number);
+
+
+--
 -- Name: idx_recipe_last_made_at; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_recipe_last_made_at ON public.recipe USING btree (user_id, last_made_at);
+
+
+--
+-- Name: idx_recipe_tag_original_pk; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_recipe_tag_original_pk ON public.recipe_tag USING btree (recipe_id, user_id, tag);
 
 
 --
@@ -362,7 +402,7 @@ CREATE INDEX idx_users_name_email_trgm ON public."user" USING gin ((((name || ' 
 -- Name: recipe_ingredient_search_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX recipe_ingredient_search_idx ON public.recipe_ingredient USING bm25 (name, recipe_id, user_id) WITH (key_field=recipe_id, text_fields='{"name": {"tokenizer": {"type": "default", "stemmer": "English"}}}');
+CREATE INDEX recipe_ingredient_search_idx ON public.recipe_ingredient USING bm25 (id, name, recipe_id, user_id) WITH (key_field=id, text_fields='{"name": {"tokenizer": {"type": "default", "stemmer": "English"}}}');
 
 
 --
@@ -514,4 +554,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20250827005941'),
     ('20250827021238'),
     ('20250827022009'),
-    ('20250830115304');
+    ('20250831014518'),
+    ('20250831115304');

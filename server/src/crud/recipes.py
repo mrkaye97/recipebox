@@ -58,7 +58,7 @@ SELECT
     dietary_restriction
 FROM restrictions
 ON CONFLICT DO NOTHING
-RETURNING user_id, recipe_id, dietary_restriction
+RETURNING user_id, recipe_id, dietary_restriction, id
 """
 
 
@@ -79,7 +79,7 @@ SELECT
     units
 FROM ingredients
 ON CONFLICT DO NOTHING
-RETURNING recipe_id, user_id, name, quantity, units, created_at, updated_at
+RETURNING recipe_id, user_id, name, quantity, units, created_at, updated_at, id
 """
 
 
@@ -106,7 +106,7 @@ SELECT
     content
 FROM instructions
 ON CONFLICT DO NOTHING
-RETURNING recipe_id, user_id, step_number, content, created_at, updated_at
+RETURNING recipe_id, user_id, step_number, content, created_at, updated_at, id
 """
 
 
@@ -122,7 +122,7 @@ SELECT
     tag
 FROM tags
 ON CONFLICT DO NOTHING
-RETURNING user_id, recipe_id, tag
+RETURNING user_id, recipe_id, tag, id
 """
 
 
@@ -144,7 +144,7 @@ AND user_id = :p2\\:\\:UUID
 
 
 LIST_RECIPE_DIETARY_RESTRICTIONS_MET = """-- name: list_recipe_dietary_restrictions_met \\:many
-SELECT user_id, recipe_id, dietary_restriction
+SELECT user_id, recipe_id, dietary_restriction, id
 FROM recipe_dietary_restriction_met
 WHERE
     recipe_id = ANY(:p1\\:\\:UUID[])
@@ -153,7 +153,7 @@ WHERE
 
 
 LIST_RECIPE_INGREDIENTS = """-- name: list_recipe_ingredients \\:many
-SELECT recipe_id, user_id, name, quantity, units, created_at, updated_at
+SELECT recipe_id, user_id, name, quantity, units, created_at, updated_at, id
 FROM recipe_ingredient
 WHERE
     recipe_id = ANY(:p1\\:\\:UUID[])
@@ -162,7 +162,7 @@ WHERE
 
 
 LIST_RECIPE_INSTRUCTIONS = """-- name: list_recipe_instructions \\:many
-SELECT recipe_id, user_id, step_number, content, created_at, updated_at
+SELECT recipe_id, user_id, step_number, content, created_at, updated_at, id
 FROM recipe_instruction
 WHERE
     recipe_id = ANY(:p1\\:\\:UUID[])
@@ -172,7 +172,7 @@ ORDER BY step_number ASC
 
 
 LIST_RECIPE_TAGS = """-- name: list_recipe_tags \\:many
-SELECT user_id, recipe_id, tag
+SELECT user_id, recipe_id, tag, id
 FROM recipe_tag
 WHERE
     recipe_id = ANY(:p1\\:\\:UUID[])
@@ -190,6 +190,37 @@ WHERE
         OR id @@@ paradedb.parse(:p2\\:\\:TEXT, lenient => true)
     )
 ORDER BY updated_at DESC
+"""
+
+
+RECOMMEND_RECIPE = """-- name: recommend_recipe \\:one
+WITH ingredient_seasonality_score AS (
+    SELECT
+        recipe_id,
+        user_id,
+        SUM(paradedb.score(id)) as total_ingredient_score
+    FROM recipe_ingredient
+    WHERE
+        id @@@ paradedb.parse(:p2\\:\\:TEXT, lenient => true)
+        AND user_id = :p1\\:\\:UUID
+    GROUP BY recipe_id, user_id
+)
+
+SELECT r.id, r.user_id, r.name, r.author, r.cuisine, r.location, r.time_estimate_minutes, r.notes, r.last_made_at, r.created_at, r.updated_at
+FROM recipe r
+JOIN ingredient_seasonality_score iss ON (r.id, r.user_id) = (iss.recipe_id, iss.user_id)
+WHERE r.user_id = :p1\\:\\:UUID
+ORDER BY (
+    CASE
+        WHEN EXTRACT(ISODOW FROM NOW()\\:\\:DATE) IN (6, 7) AND r.time_estimate_minutes > 60 THEN 0.5
+        ELSE 1.0
+    END +
+    CASE
+        WHEN r.last_made_at IS NULL THEN 1.0
+        ELSE GREATEST(1.0, LEAST(3.0, (NOW()\\:\\:DATE - r.last_made_at\\:\\:DATE) / 30.0))
+    END + iss.total_ingredient_score
+) DESC
+LIMIT 1
 """
 
 
@@ -274,6 +305,7 @@ class AsyncQuerier:
                 user_id=row[0],
                 recipe_id=row[1],
                 dietary_restriction=row[2],
+                id=row[3],
             )
 
     async def create_recipe_ingredients(
@@ -298,6 +330,7 @@ class AsyncQuerier:
                 units=row[4],
                 created_at=row[5],
                 updated_at=row[6],
+                id=row[7],
             )
 
     async def create_recipe_instructions(
@@ -325,6 +358,7 @@ class AsyncQuerier:
                 content=row[3],
                 created_at=row[4],
                 updated_at=row[5],
+                id=row[6],
             )
 
     async def create_recipe_tags(
@@ -339,6 +373,7 @@ class AsyncQuerier:
                 user_id=row[0],
                 recipe_id=row[1],
                 tag=row[2],
+                id=row[3],
             )
 
     async def delete_recipe(self, *, recipeid: uuid.UUID, userid: uuid.UUID) -> None:
@@ -382,6 +417,7 @@ class AsyncQuerier:
                 user_id=row[0],
                 recipe_id=row[1],
                 dietary_restriction=row[2],
+                id=row[3],
             )
 
     async def list_recipe_ingredients(
@@ -399,6 +435,7 @@ class AsyncQuerier:
                 units=row[4],
                 created_at=row[5],
                 updated_at=row[6],
+                id=row[7],
             )
 
     async def list_recipe_instructions(
@@ -415,6 +452,7 @@ class AsyncQuerier:
                 content=row[3],
                 created_at=row[4],
                 updated_at=row[5],
+                id=row[6],
             )
 
     async def list_recipe_tags(
@@ -428,6 +466,7 @@ class AsyncQuerier:
                 user_id=row[0],
                 recipe_id=row[1],
                 tag=row[2],
+                id=row[3],
             )
 
     async def list_recipes(
@@ -450,6 +489,31 @@ class AsyncQuerier:
                 created_at=row[9],
                 updated_at=row[10],
             )
+
+    async def recommend_recipe(
+        self, *, userid: uuid.UUID, seasonalingredients: str
+    ) -> models.Recipe | None:
+        row = (
+            await self._conn.execute(
+                sqlalchemy.text(RECOMMEND_RECIPE),
+                {"p1": userid, "p2": seasonalingredients},
+            )
+        ).first()
+        if row is None:
+            return None
+        return models.Recipe(
+            id=row[0],
+            user_id=row[1],
+            name=row[2],
+            author=row[3],
+            cuisine=row[4],
+            location=row[5],
+            time_estimate_minutes=row[6],
+            notes=row[7],
+            last_made_at=row[8],
+            created_at=row[9],
+            updated_at=row[10],
+        )
 
     async def update_recipe(self, arg: UpdateRecipeParams) -> models.Recipe | None:
         row = (

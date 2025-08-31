@@ -34,6 +34,7 @@ class CookingHistory(pydantic.BaseModel):
     made_at: datetime.datetime
     created_at: datetime.datetime
     updated_at: datetime.datetime
+    id: uuid.UUID
 
 
 class Friendship(pydantic.BaseModel):
@@ -62,6 +63,7 @@ class RecipeDietaryRestrictionMet(pydantic.BaseModel):
     user_id: uuid.UUID
     recipe_id: uuid.UUID
     dietary_restriction: DietaryRestriction
+    id: uuid.UUID
 
 
 class RecipeIngredient(pydantic.BaseModel):
@@ -72,6 +74,7 @@ class RecipeIngredient(pydantic.BaseModel):
     units: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
+    id: uuid.UUID
 
 
 class RecipeInstruction(pydantic.BaseModel):
@@ -81,6 +84,7 @@ class RecipeInstruction(pydantic.BaseModel):
     content: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
+    id: uuid.UUID
 
 
 class RecipeShareRequest(pydantic.BaseModel):
@@ -95,6 +99,7 @@ class RecipeTag(pydantic.BaseModel):
     user_id: uuid.UUID
     recipe_id: uuid.UUID
     tag: str
+    id: uuid.UUID
 
 
 class SchemaMigration(pydantic.BaseModel):

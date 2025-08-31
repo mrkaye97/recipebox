@@ -24,7 +24,8 @@ CREATE TABLE cooking_history (
     user_id uuid NOT NULL,
     made_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL
 );
 CREATE TABLE friendship (
     user_id uuid NOT NULL,
@@ -49,7 +50,8 @@ CREATE TABLE recipe (
 CREATE TABLE recipe_dietary_restriction_met (
     user_id uuid NOT NULL,
     recipe_id uuid NOT NULL,
-    dietary_restriction dietary_restriction NOT NULL
+    dietary_restriction dietary_restriction NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL
 );
 CREATE TABLE recipe_ingredient (
     recipe_id uuid NOT NULL,
@@ -58,7 +60,8 @@ CREATE TABLE recipe_ingredient (
     quantity double precision NOT NULL,
     units text NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL
 );
 CREATE TABLE recipe_instruction (
     recipe_id uuid NOT NULL,
@@ -66,7 +69,8 @@ CREATE TABLE recipe_instruction (
     step_number integer NOT NULL,
     content text NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL
 );
 CREATE TABLE recipe_share_request (
     token text NOT NULL,
@@ -78,7 +82,8 @@ CREATE TABLE recipe_share_request (
 CREATE TABLE recipe_tag (
     user_id uuid NOT NULL,
     recipe_id uuid NOT NULL,
-    tag text NOT NULL
+    tag text NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL
 );
 CREATE TABLE schema_migrations (
     version character varying(128) NOT NULL
@@ -98,21 +103,21 @@ CREATE TABLE user_password (
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 ALTER TABLE ONLY cooking_history
-    ADD CONSTRAINT cooking_history_pkey PRIMARY KEY (user_id, made_at, recipe_id);
+    ADD CONSTRAINT cooking_history_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY friendship
     ADD CONSTRAINT friendship_pkey PRIMARY KEY (user_id, friend_user_id);
 ALTER TABLE ONLY recipe_dietary_restriction_met
-    ADD CONSTRAINT recipe_dietary_restriction_met_pkey PRIMARY KEY (recipe_id, user_id, dietary_restriction);
+    ADD CONSTRAINT recipe_dietary_restriction_met_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY recipe_ingredient
-    ADD CONSTRAINT recipe_ingredient_pkey PRIMARY KEY (recipe_id, user_id, name, quantity, units);
+    ADD CONSTRAINT recipe_ingredient_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY recipe_instruction
-    ADD CONSTRAINT recipe_instruction_pkey PRIMARY KEY (recipe_id, user_id, step_number);
+    ADD CONSTRAINT recipe_instruction_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY recipe
     ADD CONSTRAINT recipe_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY recipe_share_request
     ADD CONSTRAINT recipe_share_request_pkey PRIMARY KEY (token);
 ALTER TABLE ONLY recipe_tag
-    ADD CONSTRAINT recipe_tag_pkey PRIMARY KEY (recipe_id, user_id, tag);
+    ADD CONSTRAINT recipe_tag_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY schema_migrations
     ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
 ALTER TABLE ONLY "user"
@@ -121,12 +126,17 @@ ALTER TABLE ONLY user_password
     ADD CONSTRAINT user_password_pkey PRIMARY KEY (user_id);
 ALTER TABLE ONLY "user"
     ADD CONSTRAINT user_pkey PRIMARY KEY (id);
+CREATE UNIQUE INDEX idx_cooking_history_original_pk ON cooking_history USING btree (user_id, made_at, recipe_id);
+CREATE UNIQUE INDEX idx_recipe_dietary_restriction_met_original_pk ON recipe_dietary_restriction_met USING btree (recipe_id, user_id, dietary_restriction);
+CREATE UNIQUE INDEX idx_recipe_ingredient_original_pk ON recipe_ingredient USING btree (recipe_id, user_id, name, quantity, units);
+CREATE UNIQUE INDEX idx_recipe_instruction_original_pk ON recipe_instruction USING btree (recipe_id, user_id, step_number);
 CREATE INDEX idx_recipe_last_made_at ON recipe USING btree (user_id, last_made_at);
+CREATE UNIQUE INDEX idx_recipe_tag_original_pk ON recipe_tag USING btree (recipe_id, user_id, tag);
 CREATE INDEX idx_recipe_time_estimate ON recipe USING btree (user_id, time_estimate_minutes);
 CREATE INDEX idx_recipe_updated_at ON recipe USING btree (user_id, updated_at);
 CREATE UNIQUE INDEX idx_recipe_user_name ON recipe USING btree (user_id, name);
 CREATE INDEX idx_users_name_email_trgm ON "user" USING gin ((((name || ' '::text) || email)) gin_trgm_ops);
-CREATE INDEX recipe_ingredient_search_idx ON recipe_ingredient USING bm25 (name, recipe_id, user_id) WITH (key_field=recipe_id, text_fields='{"name": {"tokenizer": {"type": "default", "stemmer": "English"}}}');
+CREATE INDEX recipe_ingredient_search_idx ON recipe_ingredient USING bm25 (id, name, recipe_id, user_id) WITH (key_field=id, text_fields='{"name": {"tokenizer": {"type": "default", "stemmer": "English"}}}');
 CREATE INDEX recipe_search_idx ON recipe USING bm25 (name, author, cuisine, notes, id) WITH (key_field=id, text_fields='{"name": {"tokenizer": {"type": "default", "stemmer": "English"}}, "notes": {"tokenizer": {"type": "default", "stemmer": "English"}}}');
 ALTER TABLE ONLY cooking_history
     ADD CONSTRAINT cooking_history_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE;
@@ -165,4 +175,5 @@ INSERT INTO schema_migrations (version) VALUES
     ('20250827005941'),
     ('20250827021238'),
     ('20250827022009'),
-    ('20250830115304');
+    ('20250831014518'),
+    ('20250831115304');

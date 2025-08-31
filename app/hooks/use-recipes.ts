@@ -45,6 +45,19 @@ export const useRecipes = ({
     },
   );
 
+  const recommendedRecipeQuery = $api.useQuery(
+    "get",
+    "/recipes/recommendation",
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+    {
+      enabled: !!token,
+    },
+  );
+
   const { mutateAsync: createOnlineRecipe, isPending: onlinePending } =
     $api.useMutation("post", "/recipes/online", {
       onSuccess: async () => {
@@ -230,6 +243,9 @@ export const useRecipes = ({
       isLoading: pendingSharesQuery.isLoading,
       isError: pendingSharesQuery.isError,
       refetch: pendingSharesQuery.refetch,
+    },
+    recommendation: {
+      ...recommendedRecipeQuery,
     },
   };
 };

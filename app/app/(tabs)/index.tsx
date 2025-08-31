@@ -176,10 +176,8 @@ export default function RecipesScreen() {
     isLoading,
     error,
     refetch,
-    pendingShares: {
-      data: pendingShares = [],
-      isLoading: pendingSharesLoading,
-    },
+    pendingShares: { data: pendingShares = [] },
+    recommendation: { data: recommendedRecipe },
   } = useRecipes({ search: searchQuery });
 
   const [sharesDrawerVisible, setSharesDrawerVisible] = useState(false);
@@ -189,10 +187,9 @@ export default function RecipesScreen() {
   }, [refetch]);
 
   const getRandomRecipe = () => {
-    if (!recipes || recipes.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * recipes.length);
-    const randomRecipe = recipes[randomIndex];
-    router.push(`/recipe/${randomRecipe.id}`);
+    if (!recommendedRecipe) return;
+
+    router.push(`/recipe/${recommendedRecipe.id}`);
   };
 
   if (!isAuthenticated && !isAuthLoading) {

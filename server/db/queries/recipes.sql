@@ -160,3 +160,32 @@ WHERE
     AND user_id = @userId::UUID
 ORDER BY step_number ASC
 ;
+
+-- name: RecommendRecipe :one
+WITH ingredient_seasonality_score AS (
+    SELECT
+        recipe_id,
+        user_id,
+        SUM(paradedb.score(id)) as total_ingredient_score
+    FROM recipe_ingredient
+    WHERE
+        id @@@ paradedb.parse(@seasonalIngredients::TEXT, lenient => true)
+        AND user_id = @userId::UUID
+    GROUP BY recipe_id, user_id
+)
+
+SELECT r.*
+FROM recipe r
+JOIN ingredient_seasonality_score iss ON (r.id, r.user_id) = (iss.recipe_id, iss.user_id)
+WHERE r.user_id = @userId::UUID
+ORDER BY (
+    CASE
+        WHEN EXTRACT(ISODOW FROM NOW()::DATE) IN (6, 7) AND r.time_estimate_minutes > 60 THEN 0.5
+        ELSE 1.0
+    END +
+    CASE
+        WHEN r.last_made_at IS NULL THEN 1.0
+        ELSE GREATEST(1.0, LEAST(3.0, (NOW()::DATE - r.last_made_at::DATE) / 30.0))
+    END + iss.total_ingredient_score
+) DESC
+LIMIT 1;

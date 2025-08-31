@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Literal
 from uuid import UUID
 
@@ -27,6 +27,100 @@ from src.services.recipe import ingest_recipe, populate_recipe_data
 recipes = APIRouter(prefix="/recipes")
 logger = get_logger(__name__)
 
+ingredient_to_peak_months = {
+    "apples": [8, 9, 10, 11, 12, 1, 2, 3],
+    "arugula": [4, 5, 6, 9, 10, 11],
+    "asparagus": [4, 5],
+    "basil": [6, 7, 8, 9],
+    "beans": [7, 8, 9],
+    "beets": [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12],
+    "blackberries": [7, 8],
+    "blueberries": [7, 8, 9],
+    "bok_choy": [4, 5, 9, 10, 11],
+    "broccoli": [5, 6, 9, 10, 11],
+    "broccoli_rabe": [4, 5, 9, 10, 11],
+    "brussels_sprouts": [9, 10, 11, 12, 1],
+    "butternut_squash": [9, 10, 11, 12, 1, 2],
+    "cabbage": [1, 2, 6, 7, 8, 9, 10, 11, 12],
+    "carrots": [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12],
+    "cauliflower": [6, 7, 8, 9, 10, 11],
+    "celeriac": [10, 11, 12, 1, 2],
+    "celery": [7, 8, 9, 10],
+    "chard": [5, 6, 7, 8, 9, 10, 11],
+    "chives": [4, 5, 6, 7, 8, 9, 10],
+    "cilantro": [5, 6, 7, 8, 9, 10],
+    "collard_greens": [1, 2, 6, 7, 8, 9, 10, 11, 12],
+    "corn": [7, 8, 9],
+    "cranberries": [10, 11],
+    "cucumber": [7, 8, 9],
+    "currants": [7],
+    "dill": [6, 7, 8, 9],
+    "eggplant": [7, 8, 9],
+    "endive": [9, 10, 11],
+    "escarole": [9, 10, 11],
+    "fennel": [8, 9, 10, 11],
+    "figs": [8, 9],
+    "garlic": [7, 8, 9],
+    "garlic_scapes": [6],
+    "gooseberries": [7],
+    "green_beans": [7, 8, 9],
+    "herbs": [5, 6, 7, 8, 9, 10],
+    "jerusalem_artichokes": [10, 11, 12, 1],
+    "kale": [1, 2, 3, 4, 5, 6, 9, 10, 11, 12],
+    "kohlrabi": [6, 7, 8, 9, 10],
+    "leeks": [8, 9, 10, 11, 12, 1, 2],
+    "lettuce": [5, 6, 7, 8, 9, 10],
+    "maple_syrup": [3, 4],
+    "mesclun": [4, 5, 6, 9, 10],
+    "mint": [6, 7, 8, 9],
+    "mushrooms": [9, 10, 11],
+    "mustard_greens": [4, 5, 9, 10, 11],
+    "okra": [8, 9],
+    "onions": [1, 2, 3, 7, 8, 9, 10, 11, 12],
+    "oregano": [6, 7, 8, 9],
+    "parsley": [5, 6, 7, 8, 9, 10, 11],
+    "parsnips": [1, 2, 3, 4, 10, 11, 12],
+    "peaches": [8, 9],
+    "pears": [9, 10, 11],
+    "peas": [5, 6],
+    "peppers": [7, 8, 9, 10],
+    "plums": [8, 9],
+    "potatoes": [1, 2, 3, 7, 8, 9, 10, 11, 12],
+    "pumpkins": [9, 10, 11],
+    "radishes": [4, 5, 6, 9, 10, 11],
+    "ramps": [4, 5],
+    "raspberries": [7, 8],
+    "rhubarb": [5, 6, 7],
+    "rosemary": [6, 7, 8, 9, 10, 11],
+    "rutabaga": [10, 11, 12, 1, 2],
+    "sage": [6, 7, 8, 9, 10, 11],
+    "scallions": [4, 5, 6, 7, 8, 9, 10],
+    "shallots": [7, 8, 9],
+    "snap_peas": [5, 6, 7],
+    "spinach": [4, 5, 6, 9, 10, 11],
+    "strawberries": [6, 7],
+    "summer_squash": [6, 7, 8, 9],
+    "sweet_corn": [7, 8, 9],
+    "sweet_potatoes": [9, 10, 11, 12],
+    "swiss_chard": [5, 6, 7, 8, 9, 10, 11],
+    "tatsoi": [4, 5, 9, 10, 11],
+    "thyme": [6, 7, 8, 9, 10],
+    "tomatoes": [7, 8, 9, 10],
+    "turnips": [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12],
+    "watercress": [4, 5, 6, 9, 10],
+    "winter_squash": [1, 2, 9, 10, 11, 12],
+    "zucchini": [6, 7, 8, 9],
+}
+
+month_to_ingredients = {
+    month: [
+        ingredient.replace("_", " ")
+        for ingredient, peak_months in ingredient_to_peak_months.items()
+        if month in peak_months
+    ]
+    for month in range(1, 13)
+}
+
 
 async def list_recipes_from_db(
     user_id: UUID, search: str | None, db: AsyncQuerier
@@ -42,6 +136,35 @@ async def list_recipes(
 ) -> list[Recipe]:
     db = AsyncQuerier(conn)
     return await list_recipes_from_db(user_id=user.id, db=db, search=search)
+
+
+def get_seasonal_search_query() -> str:
+    month = datetime.now(UTC).month
+
+    seasonal_ingredients = month_to_ingredients[month]
+
+    # Create OR query for ParadeDB
+    return " OR ".join([f"name:{ingredient}" for ingredient in seasonal_ingredients])
+
+
+@recipes.get("/recommendation")
+async def recommend_recipe(
+    conn: Connection,
+    user: User,
+) -> Recipe:
+    db = AsyncQuerier(conn)
+    recipe = await db.recommend_recipe(
+        userid=user.id, seasonalingredients=get_seasonal_search_query()
+    )
+
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+
+    return await populate_recipe_data(
+        db=db,
+        user_id=user.id,
+        recipes=recipe,
+    )
 
 
 @recipes.get("/{id}")
