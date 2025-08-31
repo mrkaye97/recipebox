@@ -110,7 +110,11 @@ function RecipeHeader({
             !hasRecipes && styles.randomButtonDisabled,
           ]}
         >
-          <IconSymbol name="dice" size={16} color={Colors.textSecondary} />
+          <IconSymbol
+            name="wand.and.stars"
+            size={16}
+            color={Colors.textSecondary}
+          />
         </TouchableOpacity>
       </View>
     </View>

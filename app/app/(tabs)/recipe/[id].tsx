@@ -176,7 +176,7 @@ export default function RecipeDetailScreen() {
             style={styles.cookedButton}
           >
             <IconSymbol
-              name="checkmark.circle.fill"
+              name="checkmark.circle"
               size={24}
               color={Colors.primary}
             />
