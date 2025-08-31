@@ -184,7 +184,7 @@ WITH ingredient_seasonality_score AS (
 
 SELECT r.*
 FROM recipe r
-JOIN ingredient_seasonality_score iss ON (r.id, r.user_id) = (iss.recipe_id, iss.user_id)
+LEFT JOIN ingredient_seasonality_score iss ON (r.id, r.user_id) = (iss.recipe_id, iss.user_id)
 LEFT JOIN last_recommended_at_score lras ON (r.id, r.user_id) = (lras.recipe_id, lras.user_id)
 WHERE r.user_id = @userId::UUID
 ORDER BY (
@@ -197,7 +197,7 @@ ORDER BY (
         ELSE GREATEST(1.0, LEAST(3.0, (NOW()::DATE - r.last_made_at::DATE) / 30.0))
     END *
     COALESCE(lras.last_recommended_at_factor, 1.0) *
-    iss.total_ingredient_score
+    COALESCE(iss.total_ingredient_score + 1.0, 1.0)
 ) DESC
 LIMIT 1;
 
