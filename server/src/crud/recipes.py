@@ -58,7 +58,7 @@ SELECT
     dietary_restriction
 FROM restrictions
 ON CONFLICT DO NOTHING
-RETURNING user_id, recipe_id, dietary_restriction, id
+RETURNING id, user_id, recipe_id, dietary_restriction
 """
 
 
@@ -79,7 +79,7 @@ SELECT
     units
 FROM ingredients
 ON CONFLICT DO NOTHING
-RETURNING recipe_id, user_id, name, quantity, units, created_at, updated_at, id
+RETURNING id, recipe_id, user_id, name, quantity, units, created_at, updated_at
 """
 
 
@@ -106,7 +106,7 @@ SELECT
     content
 FROM instructions
 ON CONFLICT DO NOTHING
-RETURNING recipe_id, user_id, step_number, content, created_at, updated_at, id
+RETURNING id, recipe_id, user_id, step_number, content, created_at, updated_at
 """
 
 
@@ -122,7 +122,7 @@ SELECT
     tag
 FROM tags
 ON CONFLICT DO NOTHING
-RETURNING user_id, recipe_id, tag, id
+RETURNING id, user_id, recipe_id, tag
 """
 
 
@@ -144,7 +144,7 @@ AND user_id = :p2\\:\\:UUID
 
 
 LIST_RECIPE_DIETARY_RESTRICTIONS_MET = """-- name: list_recipe_dietary_restrictions_met \\:many
-SELECT user_id, recipe_id, dietary_restriction, id
+SELECT id, user_id, recipe_id, dietary_restriction
 FROM recipe_dietary_restriction_met
 WHERE
     recipe_id = ANY(:p1\\:\\:UUID[])
@@ -153,7 +153,7 @@ WHERE
 
 
 LIST_RECIPE_INGREDIENTS = """-- name: list_recipe_ingredients \\:many
-SELECT recipe_id, user_id, name, quantity, units, created_at, updated_at, id
+SELECT id, recipe_id, user_id, name, quantity, units, created_at, updated_at
 FROM recipe_ingredient
 WHERE
     recipe_id = ANY(:p1\\:\\:UUID[])
@@ -162,7 +162,7 @@ WHERE
 
 
 LIST_RECIPE_INSTRUCTIONS = """-- name: list_recipe_instructions \\:many
-SELECT recipe_id, user_id, step_number, content, created_at, updated_at, id
+SELECT id, recipe_id, user_id, step_number, content, created_at, updated_at
 FROM recipe_instruction
 WHERE
     recipe_id = ANY(:p1\\:\\:UUID[])
@@ -172,7 +172,7 @@ ORDER BY step_number ASC
 
 
 LIST_RECIPE_TAGS = """-- name: list_recipe_tags \\:many
-SELECT user_id, recipe_id, tag, id
+SELECT id, user_id, recipe_id, tag
 FROM recipe_tag
 WHERE
     recipe_id = ANY(:p1\\:\\:UUID[])
@@ -302,10 +302,10 @@ class AsyncQuerier:
         )
         async for row in result:
             yield models.RecipeDietaryRestrictionMet(
-                user_id=row[0],
-                recipe_id=row[1],
-                dietary_restriction=row[2],
-                id=row[3],
+                id=row[0],
+                user_id=row[1],
+                recipe_id=row[2],
+                dietary_restriction=row[3],
             )
 
     async def create_recipe_ingredients(
@@ -323,14 +323,14 @@ class AsyncQuerier:
         )
         async for row in result:
             yield models.RecipeIngredient(
-                recipe_id=row[0],
-                user_id=row[1],
-                name=row[2],
-                quantity=row[3],
-                units=row[4],
-                created_at=row[5],
-                updated_at=row[6],
-                id=row[7],
+                id=row[0],
+                recipe_id=row[1],
+                user_id=row[2],
+                name=row[3],
+                quantity=row[4],
+                units=row[5],
+                created_at=row[6],
+                updated_at=row[7],
             )
 
     async def create_recipe_instructions(
@@ -352,13 +352,13 @@ class AsyncQuerier:
         )
         async for row in result:
             yield models.RecipeInstruction(
-                recipe_id=row[0],
-                user_id=row[1],
-                step_number=row[2],
-                content=row[3],
-                created_at=row[4],
-                updated_at=row[5],
-                id=row[6],
+                id=row[0],
+                recipe_id=row[1],
+                user_id=row[2],
+                step_number=row[3],
+                content=row[4],
+                created_at=row[5],
+                updated_at=row[6],
             )
 
     async def create_recipe_tags(
@@ -370,10 +370,10 @@ class AsyncQuerier:
         )
         async for row in result:
             yield models.RecipeTag(
-                user_id=row[0],
-                recipe_id=row[1],
-                tag=row[2],
-                id=row[3],
+                id=row[0],
+                user_id=row[1],
+                recipe_id=row[2],
+                tag=row[3],
             )
 
     async def delete_recipe(self, *, recipeid: uuid.UUID, userid: uuid.UUID) -> None:
@@ -414,10 +414,10 @@ class AsyncQuerier:
         )
         async for row in result:
             yield models.RecipeDietaryRestrictionMet(
-                user_id=row[0],
-                recipe_id=row[1],
-                dietary_restriction=row[2],
-                id=row[3],
+                id=row[0],
+                user_id=row[1],
+                recipe_id=row[2],
+                dietary_restriction=row[3],
             )
 
     async def list_recipe_ingredients(
@@ -428,14 +428,14 @@ class AsyncQuerier:
         )
         async for row in result:
             yield models.RecipeIngredient(
-                recipe_id=row[0],
-                user_id=row[1],
-                name=row[2],
-                quantity=row[3],
-                units=row[4],
-                created_at=row[5],
-                updated_at=row[6],
-                id=row[7],
+                id=row[0],
+                recipe_id=row[1],
+                user_id=row[2],
+                name=row[3],
+                quantity=row[4],
+                units=row[5],
+                created_at=row[6],
+                updated_at=row[7],
             )
 
     async def list_recipe_instructions(
@@ -446,13 +446,13 @@ class AsyncQuerier:
         )
         async for row in result:
             yield models.RecipeInstruction(
-                recipe_id=row[0],
-                user_id=row[1],
-                step_number=row[2],
-                content=row[3],
-                created_at=row[4],
-                updated_at=row[5],
-                id=row[6],
+                id=row[0],
+                recipe_id=row[1],
+                user_id=row[2],
+                step_number=row[3],
+                content=row[4],
+                created_at=row[5],
+                updated_at=row[6],
             )
 
     async def list_recipe_tags(
@@ -463,10 +463,10 @@ class AsyncQuerier:
         )
         async for row in result:
             yield models.RecipeTag(
-                user_id=row[0],
-                recipe_id=row[1],
-                tag=row[2],
-                id=row[3],
+                id=row[0],
+                user_id=row[1],
+                recipe_id=row[2],
+                tag=row[3],
             )
 
     async def list_recipes(

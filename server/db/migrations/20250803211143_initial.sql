@@ -51,26 +51,32 @@ CREATE INDEX idx_recipe_time_estimate ON recipe (user_id, time_estimate_minutes)
 CREATE UNIQUE INDEX idx_recipe_user_name ON recipe (user_id, name);
 
 CREATE TABLE recipe_tag (
+    id UUID NOT NULL PRIMARY KEY DEFAULT GEN_RANDOM_UUID(),
     user_id UUID NOT NULL,
     recipe_id UUID NOT NULL,
     tag TEXT NOT NULL,
 
-    PRIMARY KEY (recipe_id, user_id, tag),
     FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE,
     FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE
 );
 
+CREATE UNIQUE INDEX recipe_tag_recipe_id_user_id_tag ON recipe_tag (recipe_id, user_id, tag);
+
 CREATE TABLE recipe_dietary_restriction_met (
+    id UUID NOT NULL PRIMARY KEY DEFAULT GEN_RANDOM_UUID(),
     user_id UUID NOT NULL,
     recipe_id UUID NOT NULL,
     dietary_restriction dietary_restriction NOT NULL,
 
-    PRIMARY KEY (recipe_id, user_id, dietary_restriction),
     FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE,
     FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE
 );
 
+CREATE UNIQUE INDEX recipe_dietary_restriction_met_recipe_id_user_id_dietary_restriction
+ON recipe_dietary_restriction_met (recipe_id, user_id, dietary_restriction);
+
 CREATE TABLE recipe_ingredient (
+    id UUID NOT NULL PRIMARY KEY DEFAULT GEN_RANDOM_UUID(),
     recipe_id UUID NOT NULL,
     user_id UUID NOT NULL,
     name TEXT NOT NULL,
@@ -79,12 +85,14 @@ CREATE TABLE recipe_ingredient (
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    PRIMARY KEY (recipe_id, user_id, name, quantity, units),
     FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE,
     FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE
 );
 
+CREATE UNIQUE INDEX recipe_ingredient_recipe_id_user_id_name_units ON recipe_ingredient (recipe_id, user_id, name, quantity, units);
+
 CREATE TABLE recipe_instruction (
+    id UUID NOT NULL PRIMARY KEY DEFAULT GEN_RANDOM_UUID(),
     recipe_id UUID NOT NULL,
     user_id UUID NOT NULL,
     step_number INTEGER NOT NULL,
@@ -92,10 +100,11 @@ CREATE TABLE recipe_instruction (
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    PRIMARY KEY (recipe_id, user_id, step_number),
     FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE,
     FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE
 );
+
+CREATE UNIQUE INDEX recipe_instruction_recipe_id_user_id_step_number ON recipe_instruction (recipe_id, user_id, step_number);
 
 CREATE TABLE cooking_history (
     recipe_id UUID NOT NULL,

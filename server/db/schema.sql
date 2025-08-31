@@ -11,10 +11,66 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: pg_ivm; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_ivm WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION pg_ivm; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pg_ivm IS 'incremental view maintenance on PostgreSQL';
+
+
+--
 -- Name: paradedb; Type: SCHEMA; Schema: -; Owner: -
 --
 
 CREATE SCHEMA paradedb;
+
+
+--
+-- Name: tiger; Type: SCHEMA; Schema: -; Owner: -
+--
+
+CREATE SCHEMA tiger;
+
+
+--
+-- Name: tiger_data; Type: SCHEMA; Schema: -; Owner: -
+--
+
+CREATE SCHEMA tiger_data;
+
+
+--
+-- Name: topology; Type: SCHEMA; Schema: -; Owner: -
+--
+
+CREATE SCHEMA topology;
+
+
+--
+-- Name: SCHEMA topology; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON SCHEMA topology IS 'PostGIS Topology schema';
+
+
+--
+-- Name: fuzzystrmatch; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS fuzzystrmatch WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION fuzzystrmatch; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION fuzzystrmatch IS 'determine similarities and distance between strings';
 
 
 --
@@ -43,6 +99,62 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
 --
 
 COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
+
+
+--
+-- Name: postgis; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION postgis; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION postgis IS 'PostGIS geometry and geography spatial types and functions';
+
+
+--
+-- Name: postgis_tiger_geocoder; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder WITH SCHEMA tiger;
+
+
+--
+-- Name: EXTENSION postgis_tiger_geocoder; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION postgis_tiger_geocoder IS 'PostGIS tiger geocoder and reverse geocoder';
+
+
+--
+-- Name: postgis_topology; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS postgis_topology WITH SCHEMA topology;
+
+
+--
+-- Name: EXTENSION postgis_topology; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION postgis_topology IS 'PostGIS topology spatial types and functions';
+
+
+--
+-- Name: vector; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION vector; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION vector IS 'vector data type and ivfflat and hnsw access methods';
 
 
 --
@@ -92,8 +204,7 @@ CREATE TABLE public.cooking_history (
     user_id uuid NOT NULL,
     made_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    id uuid DEFAULT gen_random_uuid() NOT NULL
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
@@ -134,10 +245,10 @@ CREATE TABLE public.recipe (
 --
 
 CREATE TABLE public.recipe_dietary_restriction_met (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid NOT NULL,
     recipe_id uuid NOT NULL,
-    dietary_restriction public.dietary_restriction NOT NULL,
-    id uuid DEFAULT gen_random_uuid() NOT NULL
+    dietary_restriction public.dietary_restriction NOT NULL
 );
 
 
@@ -146,14 +257,14 @@ CREATE TABLE public.recipe_dietary_restriction_met (
 --
 
 CREATE TABLE public.recipe_ingredient (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     recipe_id uuid NOT NULL,
     user_id uuid NOT NULL,
     name text NOT NULL,
     quantity double precision NOT NULL,
     units text NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    id uuid DEFAULT gen_random_uuid() NOT NULL
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
@@ -162,13 +273,13 @@ CREATE TABLE public.recipe_ingredient (
 --
 
 CREATE TABLE public.recipe_instruction (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     recipe_id uuid NOT NULL,
     user_id uuid NOT NULL,
     step_number integer NOT NULL,
     content text NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    id uuid DEFAULT gen_random_uuid() NOT NULL
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
@@ -190,10 +301,10 @@ CREATE TABLE public.recipe_share_request (
 --
 
 CREATE TABLE public.recipe_tag (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid NOT NULL,
     recipe_id uuid NOT NULL,
-    tag text NOT NULL,
-    id uuid DEFAULT gen_random_uuid() NOT NULL
+    tag text NOT NULL
 );
 
 
@@ -237,7 +348,7 @@ CREATE TABLE public.user_password (
 --
 
 ALTER TABLE ONLY public.cooking_history
-    ADD CONSTRAINT cooking_history_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT cooking_history_pkey PRIMARY KEY (user_id, made_at, recipe_id);
 
 
 --
@@ -329,45 +440,10 @@ ALTER TABLE ONLY public."user"
 
 
 --
--- Name: idx_cooking_history_original_pk; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX idx_cooking_history_original_pk ON public.cooking_history USING btree (user_id, made_at, recipe_id);
-
-
---
--- Name: idx_recipe_dietary_restriction_met_original_pk; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX idx_recipe_dietary_restriction_met_original_pk ON public.recipe_dietary_restriction_met USING btree (recipe_id, user_id, dietary_restriction);
-
-
---
--- Name: idx_recipe_ingredient_original_pk; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX idx_recipe_ingredient_original_pk ON public.recipe_ingredient USING btree (recipe_id, user_id, name, quantity, units);
-
-
---
--- Name: idx_recipe_instruction_original_pk; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX idx_recipe_instruction_original_pk ON public.recipe_instruction USING btree (recipe_id, user_id, step_number);
-
-
---
 -- Name: idx_recipe_last_made_at; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_recipe_last_made_at ON public.recipe USING btree (user_id, last_made_at);
-
-
---
--- Name: idx_recipe_tag_original_pk; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX idx_recipe_tag_original_pk ON public.recipe_tag USING btree (recipe_id, user_id, tag);
 
 
 --
@@ -399,6 +475,20 @@ CREATE INDEX idx_users_name_email_trgm ON public."user" USING gin ((((name || ' 
 
 
 --
+-- Name: recipe_dietary_restriction_met_recipe_id_user_id_dietary_restri; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX recipe_dietary_restriction_met_recipe_id_user_id_dietary_restri ON public.recipe_dietary_restriction_met USING btree (recipe_id, user_id, dietary_restriction);
+
+
+--
+-- Name: recipe_ingredient_recipe_id_user_id_name_units; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX recipe_ingredient_recipe_id_user_id_name_units ON public.recipe_ingredient USING btree (recipe_id, user_id, name, quantity, units);
+
+
+--
 -- Name: recipe_ingredient_search_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -406,10 +496,24 @@ CREATE INDEX recipe_ingredient_search_idx ON public.recipe_ingredient USING bm25
 
 
 --
+-- Name: recipe_instruction_recipe_id_user_id_step_number; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX recipe_instruction_recipe_id_user_id_step_number ON public.recipe_instruction USING btree (recipe_id, user_id, step_number);
+
+
+--
 -- Name: recipe_search_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX recipe_search_idx ON public.recipe USING bm25 (name, author, cuisine, notes, id) WITH (key_field=id, text_fields='{"name": {"tokenizer": {"type": "default", "stemmer": "English"}}, "notes": {"tokenizer": {"type": "default", "stemmer": "English"}}}');
+
+
+--
+-- Name: recipe_tag_recipe_id_user_id_tag; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX recipe_tag_recipe_id_user_id_tag ON public.recipe_tag USING btree (recipe_id, user_id, tag);
 
 
 --
@@ -554,5 +658,4 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20250827005941'),
     ('20250827021238'),
     ('20250827022009'),
-    ('20250831014518'),
     ('20250831115304');

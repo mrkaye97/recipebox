@@ -1,5 +1,5 @@
 -- migrate:up
-CREATE EXTENSION pg_search;
+CREATE EXTENSION IF NOT EXISTS pg_search;
 CREATE INDEX recipe_search_idx ON recipe
 USING bm25 (name, author, cuisine, notes, id)
 WITH (
