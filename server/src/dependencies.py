@@ -29,7 +29,7 @@ async def create_db_connection() -> AsyncGenerator[AsyncConnection]:
 
 
 async def get_db() -> AsyncGenerator[AsyncConnection]:
-    async with create_db_connection() as conn:
+    async with create_db_connection() as conn, conn.begin():
         try:
             yield conn
         except Exception as e:
