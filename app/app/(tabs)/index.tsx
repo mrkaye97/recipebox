@@ -40,6 +40,7 @@ interface RecipeHeaderProps {
   onShowShares: () => void;
   onRandomRecipe: () => void;
   hasRecipes: boolean;
+  hasRecommendedRecipe: boolean;
 }
 
 function RecipeHeader({
@@ -50,6 +51,7 @@ function RecipeHeader({
   onShowShares,
   onRandomRecipe,
   hasRecipes,
+  hasRecommendedRecipe,
 }: RecipeHeaderProps) {
   return (
     <View style={styles.compactHeader}>
@@ -102,20 +104,22 @@ function RecipeHeader({
             )}
           </TouchableOpacity>
         )}
-        <TouchableOpacity
-          onPress={onRandomRecipe}
-          disabled={!hasRecipes}
-          style={[
-            styles.randomButton,
-            !hasRecipes && styles.randomButtonDisabled,
-          ]}
-        >
-          <IconSymbol
-            name="wand.and.stars"
-            size={16}
-            color={Colors.textSecondary}
-          />
-        </TouchableOpacity>
+        {hasRecommendedRecipe && (
+          <TouchableOpacity
+            onPress={onRandomRecipe}
+            disabled={!hasRecipes}
+            style={[
+              styles.randomButton,
+              !hasRecipes && styles.randomButtonDisabled,
+            ]}
+          >
+            <IconSymbol
+              name="wand.and.stars"
+              size={16}
+              color={Colors.textSecondary}
+            />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -275,6 +279,7 @@ export default function RecipesScreen() {
         onShowShares={() => setSharesDrawerVisible(true)}
         onRandomRecipe={getRandomRecipe}
         hasRecipes={Boolean(recipes && recipes.length > 0)}
+        hasRecommendedRecipe={!!recommendedRecipe}
       />
 
       {renderContent()}
