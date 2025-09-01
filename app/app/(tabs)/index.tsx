@@ -1,4 +1,5 @@
 import { PendingRecipeShares } from "@/components/pending-recipe-shares";
+import { RecipeCard } from "@/components/recipe-card";
 import { RecipeCreationDrawer } from "@/components/recipe-creation-drawer";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -25,25 +26,6 @@ import {
   View,
 } from "react-native";
 
-interface RecipeCardProps {
-  id: string;
-  name: string;
-  author: string;
-  cuisine: string;
-  timeEstimate: number;
-}
-
-interface RecipeHeaderProps {
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
-  onClearSearch: () => void;
-  pendingSharesCount: number;
-  onShowShares: () => void;
-  onRandomRecipe: () => void;
-  hasRecipes: boolean;
-  hasRecommendedRecipe: boolean;
-}
-
 function RecipeHeader({
   searchQuery,
   onSearchChange,
@@ -53,35 +35,19 @@ function RecipeHeader({
   onRandomRecipe,
   hasRecipes,
   hasRecommendedRecipe,
-}: RecipeHeaderProps) {
+}: {
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
+  onClearSearch: () => void;
+  pendingSharesCount: number;
+  onShowShares: () => void;
+  onRandomRecipe: () => void;
+  hasRecipes: boolean;
+  hasRecommendedRecipe: boolean;
+}) {
   return (
-    <View style={styles.compactHeader}>
-      <View style={styles.searchInputContainer}>
-        <IconSymbol
-          name="magnifyingglass"
-          size={16}
-          color={Colors.textSecondary}
-          style={styles.searchIcon}
-        />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search recipes..."
-          placeholderTextColor={Colors.textSecondary}
-          value={searchQuery}
-          onChangeText={onSearchChange}
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-        {searchQuery.length > 0 && (
-          <TouchableOpacity onPress={onClearSearch} style={styles.clearButton}>
-            <IconSymbol
-              name="xmark.circle.fill"
-              size={16}
-              color={Colors.textSecondary}
-            />
-          </TouchableOpacity>
-        )}
-      </View>
+    <View style={styles.header}>
+      <ThemedText type="title">Recipes</ThemedText>
       <View style={styles.headerActions}>
         {pendingSharesCount > 0 && (
           <TouchableOpacity
@@ -126,49 +92,44 @@ function RecipeHeader({
   );
 }
 
-function RecipeCard({
-  id,
-  name,
-  author,
-  cuisine,
-  timeEstimate,
-}: RecipeCardProps) {
-  const handlePress = () => {
-    router.push(`/recipe/${id}`);
-  };
-
+function SearchBar({
+  searchQuery,
+  onSearchChange,
+  onClearSearch,
+}: {
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
+  onClearSearch: () => void;
+}) {
   return (
-    <TouchableOpacity
-      style={styles.recipeCard}
-      onPress={handlePress}
-      activeOpacity={0.7}
-    >
-      <View style={styles.recipeCardContent}>
-        <View style={styles.recipeHeader}>
-          <ThemedText type="defaultSemiBold" style={styles.recipeName}>
-            {name}
-          </ThemedText>
-          <IconSymbol
-            name="chevron.right"
-            size={16}
-            color={Colors.textSecondary}
-            style={styles.chevronIcon}
-          />
-        </View>
-        <ThemedText style={styles.recipeAuthor}>by {author}</ThemedText>
-        <View style={styles.recipeMetadata}>
-          <View style={styles.cuisineContainer}>
-            <ThemedText style={styles.recipeCuisine}>{cuisine}</ThemedText>
-          </View>
-          <View style={styles.timeContainer}>
-            <IconSymbol name="clock" size={12} color={Colors.textSecondary} />
-            <ThemedText style={styles.recipeTime}>
-              {timeEstimate} min
-            </ThemedText>
-          </View>
-        </View>
+    <View style={styles.searchContainer}>
+      <View style={styles.searchInputContainer}>
+        <IconSymbol
+          name="magnifyingglass"
+          size={16}
+          color={Colors.textSecondary}
+          style={styles.searchIcon}
+        />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search recipes..."
+          placeholderTextColor={Colors.textSecondary}
+          value={searchQuery}
+          onChangeText={onSearchChange}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity onPress={onClearSearch} style={styles.clearButton}>
+            <IconSymbol
+              name="xmark.circle.fill"
+              size={16}
+              color={Colors.textSecondary}
+            />
+          </TouchableOpacity>
+        )}
       </View>
-    </TouchableOpacity>
+    </View>
   );
 }
 
@@ -268,6 +229,7 @@ export default function RecipesScreen() {
               author={recipe.author}
               cuisine={recipe.cuisine}
               timeEstimate={recipe.time_estimate_minutes}
+              cookedAt={recipe.last_made_at}
             />
           ))}
         </View>
@@ -286,6 +248,12 @@ export default function RecipesScreen() {
         onRandomRecipe={getRandomRecipe}
         hasRecipes={Boolean(recipes && recipes.length > 0)}
         hasRecommendedRecipe={!!recommendedRecipe}
+      />
+
+      <SearchBar
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onClearSearch={() => setSearchQuery("")}
       />
 
       {renderContent()}
@@ -336,8 +304,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
     paddingTop: Layout.headerHeight,
   },
-  compactHeader: {
+  header: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: Layout.screenPadding,
     paddingVertical: Spacing.lg,
@@ -345,6 +314,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.borderLight,
     ...Shadows.sm,
+  },
+  searchContainer: {
+    paddingHorizontal: Layout.screenPadding,
+    paddingVertical: Spacing.lg,
+    backgroundColor: Colors.background,
   },
   randomButton: {
     padding: Spacing.sm,
@@ -393,73 +367,6 @@ const styles = StyleSheet.create({
   },
   recipesGrid: {
     gap: Spacing.xl,
-  },
-  recipeCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.xl,
-    padding: 0,
-    marginBottom: Spacing.lg,
-    ...Shadows.xl,
-    borderWidth: 1,
-    borderColor: Colors.borderLight,
-    overflow: "hidden",
-  },
-  recipeCardContent: {
-    padding: Spacing["2xl"],
-  },
-  recipeHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: Spacing.md,
-  },
-  recipeName: {
-    flex: 1,
-    fontSize: Typography.fontSizes["2xl"],
-    fontWeight: Typography.fontWeights.bold,
-    color: Colors.text,
-    marginRight: Spacing.lg,
-    lineHeight: Typography.fontSizes["2xl"] * Typography.lineHeights.tight,
-    letterSpacing: Typography.letterSpacing.tight,
-  },
-  recipeAuthor: {
-    fontSize: Typography.fontSizes.base,
-    color: Colors.textSecondary,
-    marginBottom: Spacing.lg,
-    fontWeight: Typography.fontWeights.normal,
-    lineHeight: Typography.fontSizes.base * Typography.lineHeights.normal,
-  },
-  recipeMetadata: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: Spacing.lg,
-  },
-  cuisineContainer: {
-    backgroundColor: Colors.backgroundSubtle,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs,
-    borderRadius: BorderRadius.sm,
-  },
-  recipeCuisine: {
-    fontSize: Typography.fontSizes.xs,
-    fontWeight: Typography.fontWeights.medium,
-    color: Colors.textSecondary,
-    textTransform: "uppercase",
-    letterSpacing: Typography.letterSpacing.wide,
-  },
-  timeContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.xs,
-  },
-  recipeTime: {
-    fontSize: Typography.fontSizes.sm,
-    color: Colors.textSecondary,
-    fontWeight: Typography.fontWeights.medium,
-  },
-  chevronIcon: {
-    // No additional styling needed - handled by container
   },
   shareAcceptSection: {
     marginTop: Spacing["3xl"],
@@ -533,12 +440,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: Colors.background,
     borderRadius: BorderRadius.lg,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.xs,
     borderWidth: 1,
     borderColor: Colors.borderLight,
     ...Shadows.sm,
-    marginRight: Spacing.md,
+    minHeight: 52,
   },
   searchIcon: {
     marginRight: Spacing.sm,
@@ -547,7 +454,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: Typography.fontSizes.base,
     color: Colors.text,
-    paddingVertical: Spacing.xs,
+    paddingVertical: 0,
   },
   clearButton: {
     padding: Spacing.xs,

@@ -116,6 +116,7 @@ class RecipeCreate(BaseRecipeCreate):
 
 class Recipe(RecipeCreate):
     id: UUID
+    last_made_at: datetime | None
 
     @classmethod
     def from_db(
@@ -138,4 +139,5 @@ class Recipe(RecipeCreate):
             dietary_restrictions_met=dietary_restrictions_met,
             ingredients=[RecipeIngredient.from_db(i) for i in ingredients],
             instructions=[RecipeInstruction.from_db(i) for i in instructions],
+            last_made_at=recipe.last_made_at,
         )

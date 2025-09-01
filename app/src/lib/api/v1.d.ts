@@ -674,6 +674,8 @@ export interface components {
       readonly ingredients: readonly components["schemas"]["RecipeIngredient"][];
       /** Instructions */
       readonly instructions: readonly components["schemas"]["RecipeInstruction"][];
+      /** Last Made At */
+      readonly last_made_at: string | null;
       readonly location: components["schemas"]["RecipeLocation"];
       /** Name */
       readonly name: string;
