@@ -8,7 +8,7 @@ import { useRecipeDetails } from "@/hooks/use-recipe-details";
 import { useRecipes } from "@/hooks/use-recipes";
 import { components } from "@/src/lib/api/v1";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -23,6 +23,9 @@ import {
 
 type RecipeLocation = components["schemas"]["RecipeLocation"];
 type DietaryRestriction = components["schemas"]["DietaryRestriction"];
+type RecipeIngredient = components["schemas"]["RecipeIngredient"];
+type RecipeInstruction = components["schemas"]["RecipeInstruction"];
+type RecipePatch = components["schemas"]["RecipePatch"];
 
 const DIETARY_RESTRICTIONS: { value: DietaryRestriction; label: string }[] = [
   { value: "gluten_free", label: "Gluten Free" },
@@ -105,7 +108,7 @@ export default function RecipeDetailScreen() {
   const [shareModalVisible, setShareModalVisible] = useState(false);
   const [justMarkedCooked, setJustMarkedCooked] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedRecipe, setEditedRecipe] = useState<any>(null);
+  const [editedRecipe, setEditedRecipe] = useState<RecipePatch | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
 
   const { data: recipe, isLoading, refetch } = useRecipeDetails(id);
@@ -214,7 +217,16 @@ export default function RecipeDetailScreen() {
     }
   };
 
-  const updateEditedField = (field: string, value: any) => {
+  const updateEditedField = (
+    field: keyof RecipePatch,
+    value:
+      | string
+      | number
+      | string[]
+      | RecipeIngredient[]
+      | RecipeInstruction[]
+      | DietaryRestriction[]
+  ) => {
     if (editedRecipe) {
       setEditedRecipe({ ...editedRecipe, [field]: value });
     }
@@ -234,7 +246,7 @@ export default function RecipeDetailScreen() {
   const deleteIngredient = (index: number) => {
     if (editedRecipe?.ingredients) {
       const updatedIngredients = editedRecipe.ingredients.filter(
-        (_: any, i: number) => i !== index,
+        (_: RecipeIngredient, i: number) => i !== index
       );
       setEditedRecipe({ ...editedRecipe, ingredients: updatedIngredients });
     }
@@ -262,8 +274,8 @@ export default function RecipeDetailScreen() {
   const deleteInstruction = (index: number) => {
     if (editedRecipe?.instructions) {
       const updatedInstructions = editedRecipe.instructions
-        .filter((_: any, i: number) => i !== index)
-        .map((instruction: any, newIndex: number) => ({
+        .filter((_: RecipeInstruction, i: number) => i !== index)
+        .map((instruction: RecipeInstruction, newIndex: number) => ({
           ...instruction,
           step_number: newIndex + 1,
         }));
@@ -330,7 +342,7 @@ export default function RecipeDetailScreen() {
   const deleteTag = (index: number) => {
     if (editedRecipe?.tags) {
       const updatedTags = editedRecipe.tags.filter(
-        (_: any, i: number) => i !== index,
+        (_: string, i: number) => i !== index
       );
       setEditedRecipe({ ...editedRecipe, tags: updatedTags });
     }
@@ -525,7 +537,7 @@ export default function RecipeDetailScreen() {
                     onChangeText={(text) =>
                       updateEditedField(
                         "time_estimate_minutes",
-                        parseInt(text) || 0,
+                        parseInt(text) || 0
                       )
                     }
                     placeholder="30"
@@ -722,7 +734,7 @@ export default function RecipeDetailScreen() {
                 </View>
                 <View style={styles.editableItemsList}>
                   {editedRecipe?.ingredients?.map(
-                    (ingredient: any, index: number) => (
+                    (ingredient: RecipeIngredient, index: number) => (
                       <View key={index} style={styles.editableIngredientRow}>
                         <View style={styles.ingredientInputs}>
                           <TextInput
@@ -761,7 +773,7 @@ export default function RecipeDetailScreen() {
                           />
                         </TouchableOpacity>
                       </View>
-                    ),
+                    )
                   )}
                   {(!editedRecipe?.ingredients ||
                     editedRecipe.ingredients.length === 0) && (
@@ -856,7 +868,7 @@ export default function RecipeDetailScreen() {
                 </View>
                 <View style={styles.editableItemsList}>
                   {editedRecipe?.instructions?.map(
-                    (instruction: any, index: number) => (
+                    (instruction: RecipeInstruction, index: number) => (
                       <View key={index} style={styles.editableInstructionRow}>
                         <View style={styles.stepNumber}>
                           <ThemedText style={styles.stepNumberText}>
@@ -926,7 +938,7 @@ export default function RecipeDetailScreen() {
                           </TouchableOpacity>
                         </View>
                       </View>
-                    ),
+                    )
                   )}
                   {(!editedRecipe?.instructions ||
                     editedRecipe.instructions.length === 0) && (
