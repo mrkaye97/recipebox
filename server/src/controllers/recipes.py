@@ -215,7 +215,6 @@ async def update_recipe(
     body: RecipePatch,
 ) -> Recipe | None:
     db = AsyncQuerier(conn)
-
     recipe = await db.update_recipe(
         UpdateRecipeParams(
             name=body.name,
@@ -234,17 +233,25 @@ async def update_recipe(
 
     if body.tags:
         await db.delete_recipe_tags_by_recipe_id(recipeid=id, userid=user.id)
-        db.create_recipe_tags(recipeid=id, userid=user.id, tags=body.tags)
+        [
+            _
+            async for _ in db.create_recipe_tags(
+                recipeid=id, userid=user.id, tags=body.tags
+            )
+        ]
 
     if body.dietary_restrictions_met:
         await db.delete_recipe_dietary_restrictions_met_by_recipe_id(
             recipeid=id, userid=user.id
         )
-        db.create_recipe_dietary_restrictions_met(
-            recipeid=id,
-            userid=user.id,
-            dietaryrestrictionsmets=body.dietary_restrictions_met,
-        )
+        [
+            _
+            async for _ in db.create_recipe_dietary_restrictions_met(
+                recipeid=id,
+                userid=user.id,
+                dietaryrestrictionsmets=body.dietary_restrictions_met,
+            )
+        ]
 
     if body.ingredients:
         await db.delete_recipe_ingredients_by_recipe_id(recipeid=id, userid=user.id)
@@ -256,17 +263,20 @@ async def update_recipe(
             quantities=[ingredient.quantity for ingredient in body.ingredients],
             units=[ingredient.units for ingredient in body.ingredients],
         )
-        db.create_recipe_ingredients(params)
+        [_ async for _ in db.create_recipe_ingredients(params)]
 
     if body.instructions:
         await db.delete_recipe_instructions_by_recipe_id(recipeid=id, userid=user.id)
 
-        db.create_recipe_instructions(
-            recipeid=id,
-            userid=user.id,
-            stepnumbers=[inst.step_number for inst in body.instructions],
-            contents=[inst.content for inst in body.instructions],
-        )
+        [
+            _
+            async for _ in db.create_recipe_instructions(
+                recipeid=id,
+                userid=user.id,
+                stepnumbers=[inst.step_number for inst in body.instructions],
+                contents=[inst.content for inst in body.instructions],
+            )
+        ]
 
     return await populate_recipe_data(
         db=db,

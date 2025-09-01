@@ -8,7 +8,7 @@ import { useRecipeDetails } from "@/hooks/use-recipe-details";
 import { useRecipes } from "@/hooks/use-recipes";
 import { components } from "@/src/lib/api/v1";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -22,6 +22,16 @@ import {
 } from "react-native";
 
 type RecipeLocation = components["schemas"]["RecipeLocation"];
+type DietaryRestriction = components["schemas"]["DietaryRestriction"];
+
+const DIETARY_RESTRICTIONS: { value: DietaryRestriction; label: string }[] = [
+  { value: "gluten_free", label: "Gluten Free" },
+  { value: "dairy_free", label: "Dairy Free" },
+  { value: "nut_free", label: "Nut Free" },
+  { value: "vegan", label: "Vegan" },
+  { value: "vegetarian", label: "Vegetarian" },
+  { value: "pescatarian", label: "Pescatarian" },
+];
 
 const RecipeLocationUI = ({ location }: { location: RecipeLocation }) => {
   switch (location.location.location) {
@@ -96,6 +106,7 @@ export default function RecipeDetailScreen() {
   const [justMarkedCooked, setJustMarkedCooked] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedRecipe, setEditedRecipe] = useState<any>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const { data: recipe, isLoading, refetch } = useRecipeDetails(id);
   const {
@@ -151,6 +162,8 @@ export default function RecipeDetailScreen() {
         ingredients: recipe.ingredients || [],
         instructions: recipe.instructions || [],
         time_estimate_minutes: recipe.time_estimate_minutes,
+        dietary_restrictions_met: recipe.dietary_restrictions_met || [],
+        location: recipe.location,
       });
       setIsEditing(true);
     }
@@ -162,13 +175,39 @@ export default function RecipeDetailScreen() {
   };
 
   const handleSaveEdit = async () => {
-    if (!editedRecipe || !id) return;
+    if (!editedRecipe || !id || !recipe) return;
 
     try {
-      await updateRecipe(id, editedRecipe);
+      const completeUpdate = {
+        name: editedRecipe.name,
+        author: editedRecipe.author,
+        cuisine: editedRecipe.cuisine,
+        notes: editedRecipe.notes || null,
+        tags:
+          editedRecipe.tags && editedRecipe.tags.length > 0
+            ? editedRecipe.tags.filter((tag: string) => tag.trim().length > 0)
+            : null,
+        ingredients:
+          editedRecipe.ingredients && editedRecipe.ingredients.length > 0
+            ? editedRecipe.ingredients
+            : null,
+        instructions:
+          editedRecipe.instructions && editedRecipe.instructions.length > 0
+            ? editedRecipe.instructions
+            : null,
+        time_estimate_minutes: editedRecipe.time_estimate_minutes,
+        dietary_restrictions_met: recipe.dietary_restrictions_met,
+        location: recipe.location,
+      };
+
+      await updateRecipe(id, completeUpdate);
       await refetch();
       setIsEditing(false);
       setEditedRecipe(null);
+
+      // Scroll to top of the page
+      scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+
       Alert.alert("Success", "Recipe updated successfully!");
     } catch {
       Alert.alert("Error", "Failed to update recipe");
@@ -179,6 +218,145 @@ export default function RecipeDetailScreen() {
     if (editedRecipe) {
       setEditedRecipe({ ...editedRecipe, [field]: value });
     }
+  };
+
+  const updateIngredient = (index: number, field: string, value: string) => {
+    if (editedRecipe?.ingredients) {
+      const updatedIngredients = [...editedRecipe.ingredients];
+      updatedIngredients[index] = {
+        ...updatedIngredients[index],
+        [field]: field === "quantity" ? parseFloat(value) || 0 : value,
+      };
+      setEditedRecipe({ ...editedRecipe, ingredients: updatedIngredients });
+    }
+  };
+
+  const deleteIngredient = (index: number) => {
+    if (editedRecipe?.ingredients) {
+      const updatedIngredients = editedRecipe.ingredients.filter(
+        (_: any, i: number) => i !== index,
+      );
+      setEditedRecipe({ ...editedRecipe, ingredients: updatedIngredients });
+    }
+  };
+
+  const addIngredient = () => {
+    if (editedRecipe) {
+      const newIngredient = { quantity: 0, units: "", name: "" };
+      const updatedIngredients = [
+        ...(editedRecipe.ingredients || []),
+        newIngredient,
+      ];
+      setEditedRecipe({ ...editedRecipe, ingredients: updatedIngredients });
+    }
+  };
+
+  const updateInstruction = (index: number, content: string) => {
+    if (editedRecipe?.instructions) {
+      const updatedInstructions = [...editedRecipe.instructions];
+      updatedInstructions[index] = { ...updatedInstructions[index], content };
+      setEditedRecipe({ ...editedRecipe, instructions: updatedInstructions });
+    }
+  };
+
+  const deleteInstruction = (index: number) => {
+    if (editedRecipe?.instructions) {
+      const updatedInstructions = editedRecipe.instructions
+        .filter((_: any, i: number) => i !== index)
+        .map((instruction: any, newIndex: number) => ({
+          ...instruction,
+          step_number: newIndex + 1,
+        }));
+      setEditedRecipe({ ...editedRecipe, instructions: updatedInstructions });
+    }
+  };
+
+  const addInstruction = () => {
+    if (editedRecipe) {
+      const newInstruction = {
+        step_number: (editedRecipe.instructions?.length || 0) + 1,
+        content: "",
+      };
+      const updatedInstructions = [
+        ...(editedRecipe.instructions || []),
+        newInstruction,
+      ];
+      setEditedRecipe({ ...editedRecipe, instructions: updatedInstructions });
+    }
+  };
+
+  const moveInstructionUp = (index: number) => {
+    if (!editedRecipe?.instructions || index === 0) return;
+
+    const instructions = [...editedRecipe.instructions];
+    const [movedItem] = instructions.splice(index, 1);
+    instructions.splice(index - 1, 0, movedItem);
+
+    const updatedInstructions = instructions.map((instruction, idx) => ({
+      ...instruction,
+      step_number: idx + 1,
+    }));
+
+    setEditedRecipe({ ...editedRecipe, instructions: updatedInstructions });
+  };
+
+  const moveInstructionDown = (index: number) => {
+    if (
+      !editedRecipe?.instructions ||
+      index === editedRecipe.instructions.length - 1
+    )
+      return;
+
+    const instructions = [...editedRecipe.instructions];
+    const [movedItem] = instructions.splice(index, 1);
+    instructions.splice(index + 1, 0, movedItem);
+
+    const updatedInstructions = instructions.map((instruction, idx) => ({
+      ...instruction,
+      step_number: idx + 1,
+    }));
+
+    setEditedRecipe({ ...editedRecipe, instructions: updatedInstructions });
+  };
+
+  const updateTag = (index: number, value: string) => {
+    if (editedRecipe?.tags) {
+      const updatedTags = [...editedRecipe.tags];
+      updatedTags[index] = value;
+      setEditedRecipe({ ...editedRecipe, tags: updatedTags });
+    }
+  };
+
+  const deleteTag = (index: number) => {
+    if (editedRecipe?.tags) {
+      const updatedTags = editedRecipe.tags.filter(
+        (_: any, i: number) => i !== index,
+      );
+      setEditedRecipe({ ...editedRecipe, tags: updatedTags });
+    }
+  };
+
+  const addTag = () => {
+    if (editedRecipe) {
+      const updatedTags = [...(editedRecipe.tags || []), ""];
+      setEditedRecipe({ ...editedRecipe, tags: updatedTags });
+    }
+  };
+
+  const toggleDietaryRestriction = (restriction: DietaryRestriction) => {
+    if (!editedRecipe) return;
+
+    const currentRestrictions = editedRecipe.dietary_restrictions_met || [];
+    const isSelected = currentRestrictions.includes(restriction);
+
+    const updatedRestrictions = isSelected
+      ? currentRestrictions.filter((r: DietaryRestriction) => r !== restriction)
+      : [...currentRestrictions, restriction];
+
+    setEditedRecipe({
+      ...editedRecipe,
+      dietary_restrictions_met: updatedRestrictions,
+    });
   };
 
   if (isLoading) {
@@ -276,6 +454,7 @@ export default function RecipeDetailScreen() {
       </View>
 
       <ScrollView
+        ref={scrollViewRef}
         style={styles.content}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
@@ -338,9 +517,27 @@ export default function RecipeDetailScreen() {
             <View style={styles.infoItem}>
               <IconSymbol name="clock" size={16} color={Colors.primary} />
               <ThemedText style={styles.infoLabel}>Time:</ThemedText>
-              <ThemedText style={styles.infoValue}>
-                {recipe.time_estimate_minutes} min
-              </ThemedText>
+              {isEditing ? (
+                <View style={styles.timeEditContainer}>
+                  <TextInput
+                    style={[styles.editableInput, styles.timeInput]}
+                    value={String(editedRecipe?.time_estimate_minutes || "")}
+                    onChangeText={(text) =>
+                      updateEditedField(
+                        "time_estimate_minutes",
+                        parseInt(text) || 0,
+                      )
+                    }
+                    placeholder="30"
+                    keyboardType="numeric"
+                  />
+                  <ThemedText style={styles.timeLabel}>min</ThemedText>
+                </View>
+              ) : (
+                <ThemedText style={styles.infoValue}>
+                  {recipe.time_estimate_minutes} min
+                </ThemedText>
+              )}
             </View>
           </View>
         </View>
@@ -349,105 +546,251 @@ export default function RecipeDetailScreen() {
 
         {(recipe.tags && recipe.tags.length > 0) || isEditing ? (
           <View style={styles.section}>
-            <ThemedText type="subtitle" style={styles.sectionTitle}>
-              Tags
-            </ThemedText>
             {isEditing ? (
-              <TextInput
-                style={[styles.editableInput, styles.tagsInput]}
-                value={editedRecipe?.tags?.join(", ") || ""}
-                onChangeText={(text) =>
-                  updateEditedField(
-                    "tags",
-                    text
-                      .split(",")
-                      .map((tag) => tag.trim())
-                      .filter((tag) => tag.length > 0),
-                  )
-                }
-                placeholder="Enter tags separated by commas"
-                multiline
-              />
+              <>
+                <View style={styles.sectionHeaderWithButton}>
+                  <ThemedText type="subtitle" style={styles.sectionTitle}>
+                    Tags
+                  </ThemedText>
+                  <TouchableOpacity onPress={addTag} style={styles.addButton}>
+                    <IconSymbol
+                      name="plus.circle"
+                      size={24}
+                      color={Colors.primary}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.editableItemsList}>
+                  {editedRecipe?.tags?.map((tag: string, index: number) => (
+                    <View key={index} style={styles.editableTagRow}>
+                      <TextInput
+                        style={[styles.editableInput, styles.tagInput]}
+                        value={tag}
+                        onChangeText={(text) => updateTag(index, text)}
+                        placeholder="Enter tag"
+                      />
+                      <TouchableOpacity
+                        onPress={() => deleteTag(index)}
+                        style={styles.deleteButton}
+                      >
+                        <IconSymbol
+                          name="xmark.circle"
+                          size={20}
+                          color="#FF6B6B"
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                  {(!editedRecipe?.tags || editedRecipe.tags.length === 0) && (
+                    <TouchableOpacity
+                      onPress={addTag}
+                      style={styles.emptyStateButton}
+                    >
+                      <ThemedText style={styles.emptyStateText}>
+                        + Add first tag
+                      </ThemedText>
+                    </TouchableOpacity>
+                  )}
+                  {editedRecipe?.tags && editedRecipe.tags.length > 0 && (
+                    <TouchableOpacity
+                      onPress={addTag}
+                      style={styles.addMoreButton}
+                    >
+                      <IconSymbol
+                        name="plus.circle"
+                        size={20}
+                        color={Colors.primary}
+                      />
+                      <ThemedText style={styles.addMoreText}>
+                        Add tag
+                      </ThemedText>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </>
             ) : (
-              <View style={styles.tagsContainer}>
-                {recipe.tags.map((tag, index) => (
-                  <View
-                    key={index}
-                    style={[
-                      styles.tag,
-                      {
-                        backgroundColor: Colors.secondary,
-                      },
-                    ]}
-                  >
-                    <ThemedText style={styles.tagText}>{tag}</ThemedText>
-                  </View>
-                ))}
-              </View>
+              <>
+                <ThemedText type="subtitle" style={styles.sectionTitle}>
+                  Tags
+                </ThemedText>
+                <View style={styles.tagsContainer}>
+                  {recipe.tags.map((tag, index) => (
+                    <View
+                      key={index}
+                      style={[
+                        styles.tag,
+                        {
+                          backgroundColor: Colors.secondary,
+                        },
+                      ]}
+                    >
+                      <ThemedText style={styles.tagText}>{tag}</ThemedText>
+                    </View>
+                  ))}
+                </View>
+              </>
             )}
           </View>
         ) : null}
 
-        {recipe.dietary_restrictions_met &&
-          recipe.dietary_restrictions_met.length > 0 && (
-            <View style={styles.section}>
-              <ThemedText type="subtitle" style={styles.sectionTitle}>
-                Dietary Restrictions
-              </ThemedText>
-              <View style={styles.restrictionsContainer}>
-                {recipe.dietary_restrictions_met.map((restriction, index) => (
-                  <View key={index} style={styles.restriction}>
-                    <IconSymbol name="heart" size={16} color={Colors.primary} />
-                    <ThemedText style={styles.restrictionText}>
-                      {restriction.replace("_", " ").toUpperCase()}
-                    </ThemedText>
-                  </View>
-                ))}
-              </View>
-            </View>
-          )}
+        {(recipe.dietary_restrictions_met &&
+          recipe.dietary_restrictions_met.length > 0) ||
+        isEditing ? (
+          <View style={styles.section}>
+            {isEditing ? (
+              <>
+                <ThemedText type="subtitle" style={styles.sectionTitle}>
+                  Dietary Restrictions
+                </ThemedText>
+                <View style={styles.checkboxList}>
+                  {DIETARY_RESTRICTIONS.map((restriction) => {
+                    const isSelected = (
+                      editedRecipe?.dietary_restrictions_met || []
+                    ).includes(restriction.value);
+                    return (
+                      <TouchableOpacity
+                        key={restriction.value}
+                        style={styles.checkboxRow}
+                        onPress={() =>
+                          toggleDietaryRestriction(restriction.value)
+                        }
+                      >
+                        <View
+                          style={[
+                            styles.checkbox,
+                            isSelected && styles.checkboxSelected,
+                          ]}
+                        >
+                          {isSelected && (
+                            <IconSymbol
+                              name="checkmark"
+                              size={16}
+                              color="#fff"
+                            />
+                          )}
+                        </View>
+                        <ThemedText style={styles.checkboxLabel}>
+                          {restriction.label}
+                        </ThemedText>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </>
+            ) : (
+              <>
+                <ThemedText type="subtitle" style={styles.sectionTitle}>
+                  Dietary Restrictions
+                </ThemedText>
+                <View style={styles.restrictionsContainer}>
+                  {recipe.dietary_restrictions_met.map((restriction, index) => (
+                    <View key={index} style={styles.restriction}>
+                      <IconSymbol
+                        name="heart"
+                        size={16}
+                        color={Colors.primary}
+                      />
+                      <ThemedText style={styles.restrictionText}>
+                        {restriction.replace("_", " ").toUpperCase()}
+                      </ThemedText>
+                    </View>
+                  ))}
+                </View>
+              </>
+            )}
+          </View>
+        ) : null}
 
         {(recipe.ingredients && recipe.ingredients.length > 0) || isEditing ? (
           <View style={styles.section}>
             {isEditing ? (
               <>
-                <ThemedText type="subtitle" style={styles.sectionTitle}>
-                  Ingredients
-                </ThemedText>
-                <ThemedText style={styles.editingInstructions}>
-                  Enter each ingredient on a new line in format: &quot;quantity
-                  units name&quot;
-                </ThemedText>
-                <TextInput
-                  style={[styles.editableInput, styles.ingredientsInput]}
-                  value={
-                    editedRecipe?.ingredients
-                      ?.map(
-                        (ing: any) =>
-                          `${ing.quantity} ${ing.units} ${ing.name}`,
-                      )
-                      .join("\n") || ""
-                  }
-                  onChangeText={(text) => {
-                    const ingredients = text
-                      .split("\n")
-                      .filter((line) => line.trim())
-                      .map((line, index) => {
-                        const parts = line.trim().split(" ");
-                        if (parts.length >= 3) {
-                          const quantity = parts[0];
-                          const units = parts[1];
-                          const name = parts.slice(2).join(" ");
-                          return { quantity, units, name };
-                        }
-                        return { quantity: "", units: "", name: line.trim() };
-                      });
-                    updateEditedField("ingredients", ingredients);
-                  }}
-                  placeholder="1 cup flour\n2 tbsp sugar\n3 eggs"
-                  multiline
-                  numberOfLines={6}
-                />
+                <View style={styles.sectionHeaderWithButton}>
+                  <ThemedText type="subtitle" style={styles.sectionTitle}>
+                    Ingredients
+                  </ThemedText>
+                  <TouchableOpacity
+                    onPress={addIngredient}
+                    style={styles.addButton}
+                  >
+                    <IconSymbol
+                      name="plus.circle"
+                      size={24}
+                      color={Colors.primary}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.editableItemsList}>
+                  {editedRecipe?.ingredients?.map(
+                    (ingredient: any, index: number) => (
+                      <View key={index} style={styles.editableIngredientRow}>
+                        <View style={styles.ingredientInputs}>
+                          <TextInput
+                            style={[styles.editableInput, styles.quantityInput]}
+                            value={String(ingredient.quantity || "")}
+                            onChangeText={(text) =>
+                              updateIngredient(index, "quantity", text)
+                            }
+                            placeholder="1"
+                          />
+                          <TextInput
+                            style={[styles.editableInput, styles.unitsInput]}
+                            value={ingredient.units}
+                            onChangeText={(text) =>
+                              updateIngredient(index, "units", text)
+                            }
+                            placeholder="cup"
+                          />
+                          <TextInput
+                            style={[styles.editableInput, styles.nameInput]}
+                            value={ingredient.name}
+                            onChangeText={(text) =>
+                              updateIngredient(index, "name", text)
+                            }
+                            placeholder="ingredient name"
+                          />
+                        </View>
+                        <TouchableOpacity
+                          onPress={() => deleteIngredient(index)}
+                          style={styles.deleteButton}
+                        >
+                          <IconSymbol
+                            name="xmark.circle"
+                            size={20}
+                            color="#FF6B6B"
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    ),
+                  )}
+                  {(!editedRecipe?.ingredients ||
+                    editedRecipe.ingredients.length === 0) && (
+                    <TouchableOpacity
+                      onPress={addIngredient}
+                      style={styles.emptyStateButton}
+                    >
+                      <ThemedText style={styles.emptyStateText}>
+                        + Add first ingredient
+                      </ThemedText>
+                    </TouchableOpacity>
+                  )}
+                  {editedRecipe?.ingredients &&
+                    editedRecipe.ingredients.length > 0 && (
+                      <TouchableOpacity
+                        onPress={addIngredient}
+                        style={styles.addMoreButton}
+                      >
+                        <IconSymbol
+                          name="plus.circle"
+                          size={20}
+                          color={Colors.primary}
+                        />
+                        <ThemedText style={styles.addMoreText}>
+                          Add ingredient
+                        </ThemedText>
+                      </TouchableOpacity>
+                    )}
+                </View>
               </>
             ) : (
               <>
@@ -494,35 +837,125 @@ export default function RecipeDetailScreen() {
         {(recipe.instructions && recipe.instructions.length > 0) ||
         isEditing ? (
           <View style={styles.section}>
-            <ThemedText type="subtitle" style={styles.sectionTitle}>
-              Instructions
-            </ThemedText>
             {isEditing ? (
               <>
-                <ThemedText style={styles.editingInstructions}>
-                  Enter each step on a new line
-                </ThemedText>
-                <TextInput
-                  style={[styles.editableInput, styles.instructionsInput]}
-                  value={
-                    editedRecipe?.instructions
-                      ?.map((inst: any) => inst.content)
-                      .join("\n") || ""
-                  }
-                  onChangeText={(text) => {
-                    const instructions = text
-                      .split("\n")
-                      .filter((line) => line.trim())
-                      .map((content, index) => ({
-                        step_number: index + 1,
-                        content: content.trim(),
-                      }));
-                    updateEditedField("instructions", instructions);
-                  }}
-                  placeholder="Heat oil in a large pan\nAdd onions and cook until soft\nAdd remaining ingredients"
-                  multiline
-                  numberOfLines={8}
-                />
+                <View style={styles.sectionHeaderWithButton}>
+                  <ThemedText type="subtitle" style={styles.sectionTitle}>
+                    Instructions
+                  </ThemedText>
+                  <TouchableOpacity
+                    onPress={addInstruction}
+                    style={styles.addButton}
+                  >
+                    <IconSymbol
+                      name="plus.circle"
+                      size={24}
+                      color={Colors.primary}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.editableItemsList}>
+                  {editedRecipe?.instructions?.map(
+                    (instruction: any, index: number) => (
+                      <View key={index} style={styles.editableInstructionRow}>
+                        <View style={styles.stepNumber}>
+                          <ThemedText style={styles.stepNumberText}>
+                            {instruction.step_number}
+                          </ThemedText>
+                        </View>
+                        <TextInput
+                          style={[
+                            styles.editableInput,
+                            styles.instructionContentInput,
+                          ]}
+                          value={instruction.content}
+                          onChangeText={(text) =>
+                            updateInstruction(index, text)
+                          }
+                          placeholder="Enter instruction step..."
+                          multiline
+                        />
+                        <View style={styles.instructionControls}>
+                          <TouchableOpacity
+                            onPress={() => moveInstructionUp(index)}
+                            style={[
+                              styles.reorderButton,
+                              index === 0 && styles.disabledButton,
+                            ]}
+                            disabled={index === 0}
+                          >
+                            <IconSymbol
+                              name="chevron.up"
+                              size={16}
+                              color={index === 0 ? "#ccc" : Colors.primary}
+                            />
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            onPress={() => moveInstructionDown(index)}
+                            style={[
+                              styles.reorderButton,
+                              index ===
+                                (editedRecipe?.instructions?.length || 0) - 1 &&
+                                styles.disabledButton,
+                            ]}
+                            disabled={
+                              index ===
+                              (editedRecipe?.instructions?.length || 0) - 1
+                            }
+                          >
+                            <IconSymbol
+                              name="chevron.down"
+                              size={16}
+                              color={
+                                index ===
+                                (editedRecipe?.instructions?.length || 0) - 1
+                                  ? "#ccc"
+                                  : Colors.primary
+                              }
+                            />
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            onPress={() => deleteInstruction(index)}
+                            style={styles.deleteButton}
+                          >
+                            <IconSymbol
+                              name="xmark.circle"
+                              size={20}
+                              color="#FF6B6B"
+                            />
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    ),
+                  )}
+                  {(!editedRecipe?.instructions ||
+                    editedRecipe.instructions.length === 0) && (
+                    <TouchableOpacity
+                      onPress={addInstruction}
+                      style={styles.emptyStateButton}
+                    >
+                      <ThemedText style={styles.emptyStateText}>
+                        + Add first instruction
+                      </ThemedText>
+                    </TouchableOpacity>
+                  )}
+                  {editedRecipe?.instructions &&
+                    editedRecipe.instructions.length > 0 && (
+                      <TouchableOpacity
+                        onPress={addInstruction}
+                        style={styles.addMoreButton}
+                      >
+                        <IconSymbol
+                          name="plus.circle"
+                          size={20}
+                          color={Colors.primary}
+                        />
+                        <ThemedText style={styles.addMoreText}>
+                          Add step
+                        </ThemedText>
+                      </TouchableOpacity>
+                    )}
+                </View>
               </>
             ) : (
               recipe.instructions.map((instruction, index) => (
@@ -883,5 +1316,145 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     marginBottom: 8,
     fontStyle: "italic",
+  },
+  sectionHeaderWithButton: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  addButton: {
+    padding: 4,
+  },
+  editableItemsList: {
+    gap: 12,
+  },
+  editableIngredientRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 4,
+  },
+  ingredientInputs: {
+    flexDirection: "row",
+    flex: 1,
+    gap: 8,
+  },
+  quantityInput: {
+    width: 60,
+    textAlign: "center",
+  },
+  unitsInput: {
+    width: 80,
+  },
+  nameInput: {
+    flex: 1,
+  },
+  editableInstructionRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 12,
+    paddingVertical: 4,
+  },
+  instructionContentInput: {
+    flex: 1,
+    minHeight: 40,
+    textAlignVertical: "top",
+  },
+  deleteButton: {
+    padding: 4,
+  },
+  emptyStateButton: {
+    borderWidth: 2,
+    borderColor: Colors.borderLight,
+    borderStyle: "dashed",
+    borderRadius: 8,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    alignItems: "center",
+  },
+  emptyStateText: {
+    color: Colors.textSecondary,
+    fontSize: 16,
+  },
+  instructionControls: {
+    flexDirection: "column",
+    gap: 2,
+  },
+  reorderButton: {
+    padding: 4,
+    borderRadius: 4,
+  },
+  disabledButton: {
+    opacity: 0.3,
+  },
+  addMoreButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    borderRadius: 8,
+    backgroundColor: "transparent",
+    gap: 8,
+  },
+  addMoreText: {
+    color: Colors.primary,
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  timeEditContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+    marginLeft: 8,
+    gap: 4,
+  },
+  timeInput: {
+    width: 60,
+    textAlign: "center",
+  },
+  timeLabel: {
+    fontSize: 14,
+    color: Colors.text,
+  },
+  editableTagRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 4,
+  },
+  tagInput: {
+    flex: 1,
+  },
+  checkboxList: {
+    gap: 12,
+  },
+  checkboxRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingVertical: 8,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderWidth: 2,
+    borderColor: Colors.borderLight,
+    borderRadius: 4,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
+  checkboxSelected: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  checkboxLabel: {
+    fontSize: 16,
+    flex: 1,
   },
 });
