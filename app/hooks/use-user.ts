@@ -1,7 +1,7 @@
 import { $api } from "@/src/lib/api/client";
 import { components } from "@/src/lib/api/v1";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Storage from "react-native-storage";
 
 type AccessToken = string;
@@ -13,12 +13,16 @@ export const useUser = () => {
   const [token, setToken] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  const storage = new Storage({
-    size: 1000,
-    storageBackend: AsyncStorage,
-    defaultExpires: 1000 * 3600 * 24 * 31,
-    enableCache: true,
-  });
+  const storage = useMemo(
+    () =>
+      new Storage({
+        size: 1000,
+        storageBackend: AsyncStorage,
+        defaultExpires: 1000 * 3600 * 24 * 31,
+        enableCache: true,
+      }),
+    [],
+  );
 
   const { mutateAsync: loginMutation, isPending: isLoginPending } =
     $api.useMutation("post", "/auth/login");
@@ -36,7 +40,7 @@ export const useUser = () => {
           },
         });
         setToken(token);
-      } catch (error) {
+      } catch {
         // Do nothing
       }
     },

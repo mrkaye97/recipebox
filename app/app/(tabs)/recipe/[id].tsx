@@ -3,11 +3,11 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/design-system";
-import { useRecipeDetails } from "@/hooks/use-recipe-details";
 import { useActivity } from "@/hooks/use-activity";
+import { useRecipeDetails } from "@/hooks/use-recipe-details";
 import { components } from "@/src/lib/api/v1";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -21,7 +21,7 @@ import {
 
 type RecipeLocation = components["schemas"]["RecipeLocation"];
 
-const RecipeLocation = ({ location }: { location: RecipeLocation }) => {
+const RecipeLocationUI = ({ location }: { location: RecipeLocation }) => {
   switch (location.location.location) {
     case "made_up":
       return null;
@@ -99,7 +99,7 @@ export default function RecipeDetailScreen() {
       perform: markAsCookedRecently,
       isPending: isMarkingCooked,
     },
-  } = useActivity();
+  } = useActivity({ who: "me" });
 
   const handleBack = () => {
     router.back();
@@ -111,7 +111,7 @@ export default function RecipeDetailScreen() {
     try {
       await markAsCookedRecently(id);
       setJustMarkedCooked(true);
-    } catch (error) {
+    } catch {
       Alert.alert("Error", "Failed to mark recipe as cooked");
     }
   };
@@ -225,7 +225,7 @@ export default function RecipeDetailScreen() {
           </View>
         </View>
 
-        <RecipeLocation location={recipe.location} />
+        <RecipeLocationUI location={recipe.location} />
 
         {recipe.tags && recipe.tags.length > 0 && (
           <View style={styles.section}>

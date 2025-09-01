@@ -28,9 +28,7 @@ export default function ProfileScreen() {
   const router = useRouter();
   const [showSignup, setShowSignup] = React.useState(false);
 
-  // Use empty string for friends queries since they don't need search term
   const {
-    search,
     requests,
     friends,
     sendRequest,

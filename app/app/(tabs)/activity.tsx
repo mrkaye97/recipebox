@@ -29,7 +29,7 @@ export default function ActivityScreen() {
   const [who, setWho] = useState<Who>("me");
 
   const { recentCooks, isRecentCooksLoading, isRecentCooksError } = useActivity(
-    { who }
+    { who },
   );
 
   if (!isAuthenticated && !isAuthLoading) {

@@ -109,7 +109,7 @@ export function RecipeShareModal({
           {friendsList.length === 0 ? (
             <View style={styles.emptyState}>
               <ThemedText style={styles.emptyText}>
-                You don't have any friends yet. Add some friends to share
+                You don&apos;t have any friends yet. Add some friends to share
                 recipes!
               </ThemedText>
             </View>

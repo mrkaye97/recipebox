@@ -119,7 +119,7 @@ export function PendingRecipeShares() {
               No pending recipe shares
             </ThemedText>
             <ThemedText style={styles.emptySubtext}>
-              When friends share recipes with you, they'll appear here
+              When friends share recipes with you, they&apos;ll appear here
             </ThemedText>
           </View>
         </View>
