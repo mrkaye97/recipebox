@@ -7,7 +7,7 @@ CREATE TABLE recipe_recommendation (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE UNIQUE INDEX idx_recipe_recommendation_user_recipe ON recipe_recommendation(user_id, recipe_id);
+CREATE UNIQUE INDEX idx_recipe_recommendation_user_recipe_created_at ON recipe_recommendation(user_id, recipe_id, created_at);
 
 -- migrate:down
 DROP TABLE recipe_recommendation;

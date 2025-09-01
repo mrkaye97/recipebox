@@ -7,10 +7,11 @@ import { useRecipeDetails } from "@/hooks/use-recipe-details";
 import { useActivity } from "@/hooks/use-activity";
 import { components } from "@/src/lib/api/v1";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Animated,
   Button,
   Linking,
   ScrollView,
@@ -91,6 +92,9 @@ export default function RecipeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [ingredientsCollapsed, setIngredientsCollapsed] = useState(false);
   const [shareModalVisible, setShareModalVisible] = useState(false);
+  const [justMarkedCooked, setJustMarkedCooked] = useState(false);
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const backgroundColorAnim = useRef(new Animated.Value(0)).current;
 
   const { data: recipe, isLoading } = useRecipeDetails(id);
   const {
@@ -109,10 +113,50 @@ export default function RecipeDetailScreen() {
 
     try {
       await markAsCookedRecently(id);
+      setJustMarkedCooked(true);
+
+      // Success animation sequence
+      Animated.sequence([
+        // Quick scale up
+        Animated.timing(scaleAnim, {
+          toValue: 1.2,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+        // Scale back to normal
+        Animated.timing(scaleAnim, {
+          toValue: 1,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      // Background color animation
+      Animated.timing(backgroundColorAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: false,
+      }).start();
     } catch (error) {
       Alert.alert("Error", "Failed to mark recipe as cooked");
     }
   };
+
+  useEffect(() => {
+    if (justMarkedCooked) {
+      const timeout = setTimeout(() => {
+        setJustMarkedCooked(false);
+
+        // Fade out the background color
+        Animated.timing(backgroundColorAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: false,
+        }).start();
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [justMarkedCooked]);
 
   const handleShareRecipe = () => {
     setShareModalVisible(true);
@@ -170,17 +214,38 @@ export default function RecipeDetailScreen() {
               color={Colors.primary}
             />
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handleMarkAsCooked}
-            disabled={isMarkingCooked}
-            style={styles.cookedButton}
+          <Animated.View
+            style={[
+              {
+                transform: [{ scale: scaleAnim }],
+                backgroundColor: backgroundColorAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ["transparent", Colors.primary],
+                }),
+                borderRadius: backgroundColorAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, 20],
+                }),
+              },
+              styles.cookedButton,
+            ]}
           >
-            <IconSymbol
-              name="checkmark.circle"
-              size={24}
-              color={Colors.primary}
-            />
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleMarkAsCooked}
+              disabled={isMarkingCooked}
+              style={styles.cookedButtonInner}
+            >
+              <IconSymbol
+                name={
+                  justMarkedCooked
+                    ? "checkmark.circle.fill"
+                    : "checkmark.circle"
+                }
+                size={24}
+                color={justMarkedCooked ? Colors.surface : Colors.primary}
+              />
+            </TouchableOpacity>
+          </Animated.View>
         </View>
       </View>
 
@@ -362,6 +427,9 @@ const styles = StyleSheet.create({
   },
   cookedButton: {
     padding: 8,
+  },
+  cookedButtonInner: {
+    // Remove any additional padding since the parent already has it
   },
   content: {
     flex: 1,

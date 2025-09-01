@@ -48,46 +48,6 @@ function RecipeHeader({
   return (
     <View style={styles.header}>
       <ThemedText type="title">Recipes</ThemedText>
-      <View style={styles.headerActions}>
-        {pendingSharesCount > 0 && (
-          <TouchableOpacity
-            onPress={onShowShares}
-            style={[
-              styles.sharesButton,
-              pendingSharesCount > 0 && styles.sharesButtonWithBadge,
-            ]}
-          >
-            <IconSymbol
-              name="tray.and.arrow.down"
-              size={18}
-              color={Colors.textSecondary}
-            />
-            {pendingSharesCount > 0 && (
-              <View style={styles.sharesBadge}>
-                <ThemedText style={styles.sharesBadgeText}>
-                  {pendingSharesCount}
-                </ThemedText>
-              </View>
-            )}
-          </TouchableOpacity>
-        )}
-        {hasRecommendedRecipe && (
-          <TouchableOpacity
-            onPress={onRandomRecipe}
-            disabled={!hasRecipes}
-            style={[
-              styles.randomButton,
-              !hasRecipes && styles.randomButtonDisabled,
-            ]}
-          >
-            <IconSymbol
-              name="wand.and.stars"
-              size={16}
-              color={Colors.textSecondary}
-            />
-          </TouchableOpacity>
-        )}
-      </View>
     </View>
   );
 }
@@ -96,33 +56,81 @@ function SearchBar({
   searchQuery,
   onSearchChange,
   onClearSearch,
+  onRandomRecipe,
+  hasRecipes,
+  hasRecommendedRecipe,
+  pendingSharesCount,
+  onShowShares,
 }: {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onClearSearch: () => void;
+  onRandomRecipe: () => void;
+  hasRecipes: boolean;
+  hasRecommendedRecipe: boolean;
+  pendingSharesCount: number;
+  onShowShares: () => void;
 }) {
   return (
     <View style={styles.searchContainer}>
-      <View style={styles.searchInputContainer}>
-        <IconSymbol
-          name="magnifyingglass"
-          size={16}
-          color={Colors.textSecondary}
-          style={styles.searchIcon}
-        />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search recipes..."
-          placeholderTextColor={Colors.textSecondary}
-          value={searchQuery}
-          onChangeText={onSearchChange}
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-        {searchQuery.length > 0 && (
-          <TouchableOpacity onPress={onClearSearch} style={styles.clearButton}>
+      <View style={styles.searchRow}>
+        <View style={styles.searchInputContainer}>
+          <IconSymbol
+            name="magnifyingglass"
+            size={16}
+            color={Colors.textSecondary}
+            style={styles.searchIcon}
+          />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search recipes..."
+            placeholderTextColor={Colors.textSecondary}
+            value={searchQuery}
+            onChangeText={onSearchChange}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              onPress={onClearSearch}
+              style={styles.clearButton}
+            >
+              <IconSymbol
+                name="xmark.circle.fill"
+                size={16}
+                color={Colors.textSecondary}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
+        {pendingSharesCount > 0 && (
+          <TouchableOpacity
+            onPress={onShowShares}
+            style={[styles.actionButton, styles.sharesButtonWithBadge]}
+          >
             <IconSymbol
-              name="xmark.circle.fill"
+              name="tray.and.arrow.down"
+              size={18}
+              color={Colors.textSecondary}
+            />
+            <View style={styles.sharesBadge}>
+              <ThemedText style={styles.sharesBadgeText}>
+                {pendingSharesCount}
+              </ThemedText>
+            </View>
+          </TouchableOpacity>
+        )}
+        {hasRecommendedRecipe && (
+          <TouchableOpacity
+            onPress={onRandomRecipe}
+            disabled={!hasRecipes}
+            style={[
+              styles.actionButton,
+              !hasRecipes && styles.randomButtonDisabled,
+            ]}
+          >
+            <IconSymbol
+              name="wand.and.stars"
               size={16}
               color={Colors.textSecondary}
             />
@@ -229,7 +237,7 @@ export default function RecipesScreen() {
               author={recipe.author}
               cuisine={recipe.cuisine}
               timeEstimate={recipe.time_estimate_minutes}
-              cookedAt={recipe.last_made_at}
+              cookedAt={recipe.last_made_at ?? undefined}
             />
           ))}
         </View>
@@ -254,6 +262,11 @@ export default function RecipesScreen() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onClearSearch={() => setSearchQuery("")}
+        onRandomRecipe={getRandomRecipe}
+        hasRecipes={Boolean(recipes && recipes.length > 0)}
+        hasRecommendedRecipe={!!recommendedRecipe}
+        pendingSharesCount={pendingShares.length}
+        onShowShares={() => setSharesDrawerVisible(true)}
       />
 
       {renderContent()}
@@ -320,12 +333,21 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.lg,
     backgroundColor: Colors.background,
   },
-  randomButton: {
-    padding: Spacing.sm,
-    backgroundColor: "transparent",
-    borderRadius: BorderRadius.md,
+  searchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.md,
+  },
+  actionButton: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
     borderWidth: 1,
     borderColor: Colors.borderLight,
+    width: 52,
+    height: 52,
+    justifyContent: "center",
+    alignItems: "center",
+    ...Shadows.sm,
   },
   randomButtonDisabled: {
     opacity: 0.5,
@@ -388,14 +410,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: Spacing.sm,
   },
-  sharesButton: {
-    position: "relative",
-    padding: Spacing.sm,
-    backgroundColor: "transparent",
-    borderRadius: BorderRadius.md,
-  },
   sharesButtonWithBadge: {
-    marginRight: Spacing.xs,
+    position: "relative",
   },
   sharesBadge: {
     position: "absolute",
