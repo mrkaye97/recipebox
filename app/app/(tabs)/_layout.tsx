@@ -1,12 +1,11 @@
 import {
-  BorderRadius,
   Colors,
   Layout,
   Shadows,
 } from "@/constants/design-system";
 import { Tabs } from "expo-router";
 import React from "react";
-import { Platform, View } from "react-native";
+import { Platform } from "react-native";
 
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -62,24 +61,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="recipes"
         options={{
-          title: "",
-          tabBarIcon: ({ focused }) => (
-            <View
-              style={{
-                backgroundColor: Colors.primary,
-                borderRadius: BorderRadius["2xl"],
-                width: 56,
-                height: 56,
-                justifyContent: "center",
-                alignItems: "center",
-                marginBottom: Platform.OS === "ios" ? 12 : 8,
-                ...Shadows.primaryLarge,
-              }}
-            >
-              <IconSymbol size={28} name="plus" color="#ffffff" />
-            </View>
-          ),
-          tabBarLabelStyle: { display: "none" },
+          href: null,
         }}
       />
       <Tabs.Screen

@@ -1,4 +1,5 @@
 import { PendingRecipeShares } from "@/components/pending-recipe-shares";
+import { RecipeCreationDrawer } from "@/components/recipe-creation-drawer";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -185,6 +186,7 @@ export default function RecipesScreen() {
   } = useRecipes({ search: searchQuery });
 
   const [sharesDrawerVisible, setSharesDrawerVisible] = useState(false);
+  const [creationDrawerVisible, setCreationDrawerVisible] = useState(false);
 
   const onRefresh = React.useCallback(() => {
     refetch();
@@ -194,6 +196,10 @@ export default function RecipesScreen() {
     if (!recommendedRecipe) return;
 
     router.push(`/recipe/${recommendedRecipe.id}`);
+  };
+
+  const handleCreateRecipe = (option: "online" | "manual" | "cookbook") => {
+    router.push(`/recipes?option=${option}`);
   };
 
   if (!isAuthenticated && !isAuthLoading) {
@@ -307,6 +313,19 @@ export default function RecipesScreen() {
           <PendingRecipeShares />
         </ThemedView>
       </Modal>
+
+      <TouchableOpacity
+        style={styles.floatingButton}
+        onPress={() => setCreationDrawerVisible(true)}
+      >
+        <IconSymbol size={28} name="plus" color="#ffffff" />
+      </TouchableOpacity>
+
+      <RecipeCreationDrawer
+        visible={creationDrawerVisible}
+        onClose={() => setCreationDrawerVisible(false)}
+        onSelectOption={handleCreateRecipe}
+      />
     </ThemedView>
   );
 }
@@ -533,5 +552,18 @@ const styles = StyleSheet.create({
   clearButton: {
     padding: Spacing.xs,
     marginLeft: Spacing.sm,
+  },
+  floatingButton: {
+    position: "absolute",
+    right: Layout.screenPadding,
+    bottom: 100,
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius["2xl"],
+    width: 56,
+    height: 56,
+    justifyContent: "center",
+    alignItems: "center",
+    ...Shadows.primaryLarge,
+    zIndex: 1000,
   },
 });

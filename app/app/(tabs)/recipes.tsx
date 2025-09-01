@@ -24,7 +24,7 @@ import {
 import { useRecipes } from "@/hooks/use-recipes";
 import { useUser } from "@/hooks/use-user";
 import * as ImagePicker from "expo-image-picker";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 
 type CreateOption = "online" | "manual" | "cookbook";
 
@@ -368,8 +368,9 @@ function CookbookRecipeForm({ onBack }: { onBack: () => void }) {
 }
 
 export default function CreateRecipeScreen() {
+  const { option } = useLocalSearchParams<{ option?: CreateOption }>();
   const [selectedOption, setSelectedOption] = useState<CreateOption | null>(
-    null,
+    option || null,
   );
   const { isAuthenticated } = useUser();
 
@@ -409,10 +410,7 @@ export default function CreateRecipeScreen() {
   return (
     <ThemedView style={styles.container}>
       <View style={styles.header}>
-        <ThemedText type="title">Create Recipe</ThemedText>
-        <ThemedText style={styles.subtitle}>
-          Choose how you&apos;d like to add a new recipe
-        </ThemedText>
+        <ThemedText type="title">Create a recipe</ThemedText>
       </View>
 
       <View style={styles.optionsContainer}>
@@ -437,12 +435,8 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: Layout.screenPadding,
-    paddingVertical: Spacing["3xl"],
+    paddingVertical: Spacing["md"],
     alignItems: "center",
-    backgroundColor: Colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.borderLight,
-    ...Shadows.sm,
   },
   subtitle: {
     textAlign: "center",
