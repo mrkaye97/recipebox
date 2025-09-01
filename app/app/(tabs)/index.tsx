@@ -199,7 +199,7 @@ export default function RecipesScreen() {
   };
 
   const handleCreateRecipe = (option: "online" | "manual" | "cookbook") => {
-    router.push(`/recipes?option=${option}`);
+    router.push(`/(tabs)/recipes?option=${option}`);
   };
 
   if (!isAuthenticated && !isAuthLoading) {

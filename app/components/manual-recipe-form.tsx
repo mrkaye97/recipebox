@@ -10,7 +10,6 @@ import {
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { IconSymbol } from "@/components/ui/icon-symbol";
 import {
   BorderRadius,
   Colors,
@@ -141,14 +140,6 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
 
   return (
     <ThemedView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onCancel} style={styles.cancelButton}>
-          <IconSymbol name="xmark" size={24} color={Colors.text} />
-        </TouchableOpacity>
-        <ThemedText type="title">Manual Recipe</ThemedText>
-        <View style={styles.placeholder} />
-      </View>
-
       <ScrollView style={styles.form} showsVerticalScrollIndicator={false}>
         <View style={styles.formSection}>
           <ThemedText type="subtitle" style={styles.sectionTitle}>
@@ -273,7 +264,12 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
             placeholderTextColor={Colors.textSecondary}
           />
         </View>
+      </ScrollView>
 
+      <View style={styles.buttonRow}>
+        <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
+          <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
+        </TouchableOpacity>
         <TouchableOpacity
           style={[
             styles.submitButton,
@@ -286,9 +282,7 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
             {create.isPending ? "Creating Recipe..." : "Create Recipe"}
           </ThemedText>
         </TouchableOpacity>
-
-        <View style={styles.bottomPadding} />
-      </ScrollView>
+      </View>
     </ThemedView>
   );
 }
@@ -310,20 +304,13 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.borderLight,
     ...Shadows.sm,
   },
-  cancelButton: {
-    width: 44,
-    height: 44,
-    borderRadius: BorderRadius.full,
-    backgroundColor: Colors.backgroundSubtle,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   placeholder: {
     width: 44,
   },
   form: {
     flex: 1,
     paddingHorizontal: Layout.screenPadding,
+    paddingTop: Spacing["4xl"],
   },
   formSection: {
     ...Components.formSection,
@@ -375,10 +362,9 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     ...Components.button,
+    flex: 1,
     backgroundColor: Colors.buttonPrimary,
     alignItems: "center",
-    marginTop: Spacing["3xl"],
-    marginHorizontal: Layout.screenPadding,
     ...Shadows.primary,
   },
   submitButtonDisabled: {
@@ -393,5 +379,39 @@ const styles = StyleSheet.create({
   },
   bottomPadding: {
     height: Layout.bottomPadding.form,
+  },
+  closeButton: {
+    alignSelf: "flex-end",
+    margin: Layout.screenPadding,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.full,
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    ...Shadows.md,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    gap: Spacing.md,
+    padding: Layout.screenPadding,
+    paddingBottom: 120,
+  },
+  cancelButton: {
+    flex: 1,
+    backgroundColor: Colors.surface,
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing["2xl"],
+    borderRadius: BorderRadius.lg,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+    ...Shadows.sm,
+  },
+  cancelButtonText: {
+    color: Colors.text,
+    fontSize: Typography.fontSizes.lg,
+    fontWeight: Typography.fontWeights.semibold,
+    letterSpacing: Typography.letterSpacing.wider,
   },
 });

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Alert,
   ScrollView,
@@ -88,7 +88,7 @@ function CreateOptionButton({
   );
 }
 
-function OnlineRecipeForm({ onBack }: { onBack: () => void }) {
+function OnlineRecipeForm() {
   const [url, setUrl] = useState("");
   const [notes, setNotes] = useState("");
   const { create } = useRecipes();
@@ -113,14 +113,8 @@ function OnlineRecipeForm({ onBack }: { onBack: () => void }) {
   };
 
   return (
-    <ScrollView style={styles.formContainer}>
-      <View style={styles.formHeader}>
-        <TouchableOpacity onPress={onBack}>
-          <IconSymbol name="chevron.left" size={24} color={Colors.primary} />
-        </TouchableOpacity>
-        <ThemedText type="title">Import from URL</ThemedText>
-        <View style={styles.placeholder} />
-      </View>
+    <View style={{ flex: 1 }}>
+      <ScrollView style={styles.formContainer}>
 
       <View style={styles.inputGroup}>
         <ThemedText type="defaultSemiBold">Recipe URL</ThemedText>
@@ -148,23 +142,34 @@ function OnlineRecipeForm({ onBack }: { onBack: () => void }) {
         />
       </View>
 
-      <TouchableOpacity
-        style={[
-          styles.submitButton,
-          create.isPending && styles.submitButtonDisabled,
-        ]}
-        onPress={handleSubmit}
-        disabled={create.isPending}
-      >
-        <ThemedText style={styles.submitButtonText}>
-          {create.isPending ? "Creating..." : "Import Recipe"}
-        </ThemedText>
-      </TouchableOpacity>
-    </ScrollView>
+      </ScrollView>
+      <View style={styles.buttonRow}>
+        <TouchableOpacity
+          style={styles.cancelButton}
+          onPress={() => router.back()}
+        >
+          <ThemedText style={styles.cancelButtonText}>
+            Cancel
+          </ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.submitButton,
+            create.isPending && styles.submitButtonDisabled,
+          ]}
+          onPress={handleSubmit}
+          disabled={create.isPending}
+        >
+          <ThemedText style={styles.submitButtonText}>
+            {create.isPending ? "Creating..." : "Import Recipe"}
+          </ThemedText>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
 
-function CookbookRecipeForm({ onBack }: { onBack: () => void }) {
+function CookbookRecipeForm() {
   const [cookbookName, setCookbookName] = useState("");
   const [author, setAuthor] = useState("");
   const [pageNumber, setPageNumber] = useState("");
@@ -265,14 +270,8 @@ function CookbookRecipeForm({ onBack }: { onBack: () => void }) {
   };
 
   return (
-    <ScrollView style={styles.formContainer}>
-      <View style={styles.formHeader}>
-        <TouchableOpacity onPress={onBack}>
-          <IconSymbol name="chevron.left" size={24} color={Colors.primary} />
-        </TouchableOpacity>
-        <ThemedText type="title">Cookbook Photo</ThemedText>
-        <View style={styles.placeholder} />
-      </View>
+    <View style={{ flex: 1 }}>
+      <ScrollView style={styles.formContainer}>
 
       <View style={styles.inputGroup}>
         <ThemedText type="defaultSemiBold">Cookbook Name</ThemedText>
@@ -351,19 +350,30 @@ function CookbookRecipeForm({ onBack }: { onBack: () => void }) {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity
-        style={[
-          styles.submitButton,
-          create.isPending && styles.submitButtonDisabled,
-        ]}
-        onPress={handleSubmit}
-        disabled={create.isPending}
-      >
-        <ThemedText style={styles.submitButtonText}>
-          {create.isPending ? "Creating..." : "Create Recipe"}
-        </ThemedText>
-      </TouchableOpacity>
-    </ScrollView>
+      </ScrollView>
+      <View style={styles.buttonRow}>
+        <TouchableOpacity
+          style={styles.cancelButton}
+          onPress={() => router.back()}
+        >
+          <ThemedText style={styles.cancelButtonText}>
+            Cancel
+          </ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.submitButton,
+            create.isPending && styles.submitButtonDisabled,
+          ]}
+          onPress={handleSubmit}
+          disabled={create.isPending}
+        >
+          <ThemedText style={styles.submitButtonText}>
+            {create.isPending ? "Creating..." : "Create Recipe"}
+          </ThemedText>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
 
@@ -373,6 +383,12 @@ export default function CreateRecipeScreen() {
     option || null,
   );
   const { isAuthenticated } = useUser();
+
+  useEffect(() => {
+    if (option) {
+      setSelectedOption(option);
+    }
+  }, [option]);
 
   if (!isAuthenticated) {
     return (
@@ -387,22 +403,22 @@ export default function CreateRecipeScreen() {
     );
   }
 
-  if (selectedOption === "online") {
+  if (option === "online" || selectedOption === "online") {
     return (
       <ThemedView style={styles.container}>
-        <OnlineRecipeForm onBack={() => setSelectedOption(null)} />
+        <OnlineRecipeForm />
       </ThemedView>
     );
   }
 
-  if (selectedOption === "manual") {
-    return <ManualRecipeForm onCancel={() => setSelectedOption(null)} />;
+  if (option === "manual" || selectedOption === "manual") {
+    return <ManualRecipeForm onCancel={() => router.back()} />;
   }
 
-  if (selectedOption === "cookbook") {
+  if (option === "cookbook" || selectedOption === "cookbook") {
     return (
       <ThemedView style={styles.container}>
-        <CookbookRecipeForm onBack={() => setSelectedOption(null)} />
+        <CookbookRecipeForm />
       </ThemedView>
     );
   }
@@ -557,13 +573,12 @@ const styles = StyleSheet.create({
     paddingTop: 14,
   },
   submitButton: {
+    flex: 1,
     backgroundColor: Colors.primary,
     paddingVertical: 18,
     paddingHorizontal: 32,
     borderRadius: 16,
     alignItems: "center",
-    marginTop: 32,
-    marginBottom: 96,
     shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
@@ -617,5 +632,39 @@ const styles = StyleSheet.create({
   changePhotoText: {
     fontSize: 14,
     color: "#6c757d",
+  },
+  closeButton: {
+    alignSelf: "flex-end",
+    margin: Layout.screenPadding,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.full,
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    ...Shadows.md,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    gap: Spacing.md,
+    padding: Layout.screenPadding,
+    paddingBottom: Layout.bottomPadding.list,
+  },
+  cancelButton: {
+    flex: 1,
+    backgroundColor: Colors.surface,
+    paddingVertical: 18,
+    paddingHorizontal: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+    ...Shadows.sm,
+  },
+  cancelButtonText: {
+    color: Colors.text,
+    fontSize: 17,
+    fontWeight: "600",
+    letterSpacing: 0.2,
   },
 });
