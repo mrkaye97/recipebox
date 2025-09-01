@@ -38,7 +38,6 @@ export function LoginForm() {
         Alert.alert("Error", "Login failed - no token received");
       }
     } catch (error) {
-      console.error("Login error:", error);
       Alert.alert(
         "Login Failed",
         error instanceof Error ? error.message : "An unexpected error occurred",

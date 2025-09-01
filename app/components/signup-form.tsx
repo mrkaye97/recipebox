@@ -1,7 +1,7 @@
-import { Picker } from "@react-native-picker/picker";
 import * as _ from "lodash";
 import React, { useState } from "react";
 import {
+  ActionSheetIOS,
   Alert,
   StyleSheet,
   Text,
@@ -125,23 +125,31 @@ export function SignupForm() {
         <ThemedText type="defaultSemiBold" style={styles.label}>
           Profile Visibility
         </ThemedText>
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={privacyPreference}
-            onValueChange={(itemValue) => setPrivacyPreference(itemValue)}
-            style={styles.picker}
-            mode="dropdown"
-            itemStyle={styles.pickerItem} // Add this for iOS
-          >
-            {PrivacyPreferences.map((preference) => (
-              <Picker.Item
-                key={preference}
-                label={_.capitalize(preference)}
-                value={preference}
-              />
-            ))}
-          </Picker>
-        </View>
+        <TouchableOpacity
+          style={styles.pickerButton}
+          onPress={() => {
+            ActionSheetIOS.showActionSheetWithOptions(
+              {
+                options: [
+                  "Cancel",
+                  ...PrivacyPreferences.map((p) => _.capitalize(p)),
+                ],
+                cancelButtonIndex: 0,
+                title: "Select Profile Visibility",
+              },
+              (buttonIndex) => {
+                if (buttonIndex > 0) {
+                  setPrivacyPreference(PrivacyPreferences[buttonIndex - 1]);
+                }
+              },
+            );
+          }}
+        >
+          <Text style={styles.pickerButtonText}>
+            {_.capitalize(privacyPreference)}
+          </Text>
+          <Text style={styles.pickerArrow}>▼</Text>
+        </TouchableOpacity>
       </View>
 
       <TouchableOpacity
@@ -181,21 +189,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: "#fff",
   },
-  pickerContainer: {
+  pickerButton: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     borderWidth: 1,
     borderColor: "#ddd",
     borderRadius: 8,
+    padding: 12,
     backgroundColor: "#fff",
-    overflow: "hidden",
+    minHeight: 50,
   },
-  picker: {
-    height: 50,
-    margin: 0,
-    padding: 0,
-  },
-  pickerItem: {
-    height: 50,
+  pickerButtonText: {
     fontSize: 16,
+    color: "#000",
+    flex: 1,
+  },
+  pickerArrow: {
+    fontSize: 12,
+    color: "#666",
+    marginLeft: 8,
   },
   signupButton: {
     backgroundColor: "#34C759",

@@ -2,7 +2,14 @@ import { $api } from "@/src/lib/api/client";
 import { components } from "@/src/lib/api/v1";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import Storage from "react-native-storage";
 
 type AccessToken = string;
@@ -16,7 +23,32 @@ interface TokenPayload {
   [key: string]: any;
 }
 
-export const useUser = () => {
+interface UserContextType {
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  isLoginPending: boolean;
+  isRegisterPending: boolean;
+  isInitialized: boolean;
+  userInfo: { userId: string; exp: number } | null;
+  login: (username: string, password: string) => Promise<AccessToken>;
+  register: (
+    email: string,
+    name: string,
+    password: string,
+    privacy_preference: PrivacyPreference,
+  ) => Promise<AccessToken>;
+  logout: () => Promise<void>;
+  getToken: () => Promise<string | null>;
+  saveToken: (token: string) => Promise<void>;
+  removeToken: () => Promise<void>;
+}
+
+const UserContext = createContext<UserContextType | undefined>(undefined);
+
+export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [token, setToken] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -61,9 +93,7 @@ export const useUser = () => {
           },
         });
         setToken(token);
-      } catch {
-        // Do nothing
-      }
+      } catch {}
     },
     [storage],
   );
@@ -176,7 +206,7 @@ export const useUser = () => {
   const isAuthenticated = !!token;
   const isLoading = isLoginPending || isRegisterPending || !isInitialized;
 
-  return {
+  const value: UserContextType = {
     token,
     isAuthenticated,
     isLoading,
@@ -184,13 +214,21 @@ export const useUser = () => {
     isRegisterPending,
     isInitialized,
     userInfo,
-
     login,
     register,
     logout,
-
     getToken,
     saveToken,
     removeToken,
   };
+
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
+};
+
+export const useUser = () => {
+  const context = useContext(UserContext);
+  if (context === undefined) {
+    throw new Error("useUser must be used within a UserProvider");
+  }
+  return context;
 };

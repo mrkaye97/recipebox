@@ -5,6 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { UserProvider } from "@/hooks/use-user";
 import "../global.css";
 
 export default function RootLayout() {
@@ -21,11 +22,13 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={DefaultTheme}>
       <QueryClientProvider client={queryClient}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="auto" />
+        <UserProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <StatusBar style="auto" />
+        </UserProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );
