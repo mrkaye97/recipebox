@@ -1,5 +1,5 @@
 import { $api } from "@/src/lib/api/client";
-import { components } from "@/src/lib/api/v1";
+import { components, paths } from "@/src/lib/api/v1";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { useDebounce } from "use-debounce";
@@ -88,7 +88,7 @@ export const useRecipes = ({
     },
   });
 
-  const { mutateAsync: updateRecipe, isPending: updatePending } =
+  const { mutateAsync: updateRecipeMutation, isPending: updatePending } =
     $api.useMutation("patch", "/recipes/{id}", {
       onSuccess: async () => {
         await queryClient.invalidateQueries({
@@ -96,6 +96,20 @@ export const useRecipes = ({
         });
       },
     });
+
+  const updateRecipe = useCallback(async (id: string, body: paths["/recipes/{id}"]["patch"]["requestBody"]["content"]["application/json"]) => {
+    await updateRecipeMutation({
+      body,
+      params: {
+        path: {
+          id
+        }
+      },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    })
+  }, [updateRecipeMutation, token]);
 
   const { mutateAsync: shareRecipe, isPending: sharePending } =
     $api.useMutation("post", "/sharing", {
@@ -227,5 +241,9 @@ export const useRecipes = ({
     recommendation: {
       ...recommendedRecipeQuery,
     },
+    updateRecipe: {
+      perform: updateRecipe,
+      isPending: updatePending,
+    }
   };
 };
