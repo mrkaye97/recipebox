@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import {
   Alert,
+  Keyboard,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 
@@ -48,54 +50,60 @@ export function LoginForm() {
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title" style={styles.title}>
-        Login
-      </ThemedText>
-
-      <View style={styles.inputContainer}>
-        <ThemedText type="defaultSemiBold" style={styles.label}>
-          Email
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <ThemedView style={styles.container}>
+        <ThemedText type="title" style={styles.title}>
+          Login
         </ThemedText>
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          placeholder="Enter your email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-          editable={!isLoading}
-        />
-      </View>
 
-      <View style={styles.inputContainer}>
-        <ThemedText type="defaultSemiBold" style={styles.label}>
-          Password
-        </ThemedText>
-        <TextInput
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          placeholder="Enter your password"
-          secureTextEntry
-          autoCapitalize="none"
-          autoCorrect={false}
-          editable={!isLoading}
-        />
-      </View>
+        <View style={styles.inputContainer}>
+          <ThemedText type="defaultSemiBold" style={styles.label}>
+            Email
+          </ThemedText>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Enter your email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            editable={!isLoading}
+            returnKeyType="next"
+            blurOnSubmit={false}
+          />
+        </View>
 
-      <TouchableOpacity
-        style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
-        onPress={handleLogin}
-        disabled={isLoading}
-        activeOpacity={0.8}
-      >
-        <Text style={styles.loginButtonText}>
-          {isLoading ? "Logging in..." : "Login"}
-        </Text>
-      </TouchableOpacity>
-    </ThemedView>
+        <View style={styles.inputContainer}>
+          <ThemedText type="defaultSemiBold" style={styles.label}>
+            Password
+          </ThemedText>
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Enter your password"
+            secureTextEntry
+            autoCapitalize="none"
+            autoCorrect={false}
+            editable={!isLoading}
+            returnKeyType="done"
+            onSubmitEditing={handleLogin}
+          />
+        </View>
+
+        <TouchableOpacity
+          style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
+          onPress={handleLogin}
+          disabled={isLoading}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.loginButtonText}>
+            {isLoading ? "Logging in..." : "Login"}
+          </Text>
+        </TouchableOpacity>
+      </ThemedView>
+    </TouchableWithoutFeedback>
   );
 }
 

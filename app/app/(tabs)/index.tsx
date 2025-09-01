@@ -17,34 +17,18 @@ import { useUser } from "@/hooks/use-user";
 import { Redirect, router } from "expo-router";
 import React, { useState } from "react";
 import {
+  Keyboard,
   Modal,
   RefreshControl,
   ScrollView,
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 
-function RecipeHeader({
-  searchQuery,
-  onSearchChange,
-  onClearSearch,
-  pendingSharesCount,
-  onShowShares,
-  onRandomRecipe,
-  hasRecipes,
-  hasRecommendedRecipe,
-}: {
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
-  onClearSearch: () => void;
-  pendingSharesCount: number;
-  onShowShares: () => void;
-  onRandomRecipe: () => void;
-  hasRecipes: boolean;
-  hasRecommendedRecipe: boolean;
-}) {
+function RecipeHeader() {
   return (
     <View style={styles.header}>
       <ThemedText type="title">Recipes</ThemedText>
@@ -89,6 +73,9 @@ function SearchBar({
             onChangeText={onSearchChange}
             autoCapitalize="none"
             autoCorrect={false}
+            returnKeyType="done"
+            onSubmitEditing={Keyboard.dismiss}
+            blurOnSubmit={true}
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity
@@ -246,68 +233,61 @@ export default function RecipesScreen() {
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <RecipeHeader
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        onClearSearch={() => setSearchQuery("")}
-        pendingSharesCount={pendingShares.length}
-        onShowShares={() => setSharesDrawerVisible(true)}
-        onRandomRecipe={getRandomRecipe}
-        hasRecipes={Boolean(recipes && recipes.length > 0)}
-        hasRecommendedRecipe={!!recommendedRecipe}
-      />
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <ThemedView style={styles.container}>
+        <RecipeHeader />
 
-      <SearchBar
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        onClearSearch={() => setSearchQuery("")}
-        onRandomRecipe={getRandomRecipe}
-        hasRecipes={Boolean(recipes && recipes.length > 0)}
-        hasRecommendedRecipe={!!recommendedRecipe}
-        pendingSharesCount={pendingShares.length}
-        onShowShares={() => setSharesDrawerVisible(true)}
-      />
+        <SearchBar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onClearSearch={() => setSearchQuery("")}
+          onRandomRecipe={getRandomRecipe}
+          hasRecipes={Boolean(recipes && recipes.length > 0)}
+          hasRecommendedRecipe={!!recommendedRecipe}
+          pendingSharesCount={pendingShares.length}
+          onShowShares={() => setSharesDrawerVisible(true)}
+        />
 
-      {renderContent()}
+        {renderContent()}
 
-      <Modal
-        visible={sharesDrawerVisible}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={() => setSharesDrawerVisible(false)}
-      >
-        <ThemedView style={styles.drawerContainer}>
-          <View style={styles.drawerHeader}>
-            <ThemedText type="title">Shared Recipes</ThemedText>
-            <TouchableOpacity
-              onPress={() => setSharesDrawerVisible(false)}
-              style={styles.closeButton}
-            >
-              <IconSymbol
-                name="xmark.circle.fill"
-                size={28}
-                color={Colors.textSecondary}
-              />
-            </TouchableOpacity>
-          </View>
-          <PendingRecipeShares />
-        </ThemedView>
-      </Modal>
+        <Modal
+          visible={sharesDrawerVisible}
+          animationType="slide"
+          presentationStyle="pageSheet"
+          onRequestClose={() => setSharesDrawerVisible(false)}
+        >
+          <ThemedView style={styles.drawerContainer}>
+            <View style={styles.drawerHeader}>
+              <ThemedText type="title">Shared Recipes</ThemedText>
+              <TouchableOpacity
+                onPress={() => setSharesDrawerVisible(false)}
+                style={styles.closeButton}
+              >
+                <IconSymbol
+                  name="xmark.circle.fill"
+                  size={28}
+                  color={Colors.textSecondary}
+                />
+              </TouchableOpacity>
+            </View>
+            <PendingRecipeShares />
+          </ThemedView>
+        </Modal>
 
-      <TouchableOpacity
-        style={styles.floatingButton}
-        onPress={() => setCreationDrawerVisible(true)}
-      >
-        <IconSymbol size={28} name="plus" color="#ffffff" />
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.floatingButton}
+          onPress={() => setCreationDrawerVisible(true)}
+        >
+          <IconSymbol size={28} name="plus" color="#ffffff" />
+        </TouchableOpacity>
 
-      <RecipeCreationDrawer
-        visible={creationDrawerVisible}
-        onClose={() => setCreationDrawerVisible(false)}
-        onSelectOption={handleCreateRecipe}
-      />
-    </ThemedView>
+        <RecipeCreationDrawer
+          visible={creationDrawerVisible}
+          onClose={() => setCreationDrawerVisible(false)}
+          onSelectOption={handleCreateRecipe}
+        />
+      </ThemedView>
+    </TouchableWithoutFeedback>
   );
 }
 

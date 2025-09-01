@@ -14,10 +14,12 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Keyboard,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 
@@ -83,48 +85,55 @@ export function UserSearchCombobox({
   );
 
   return (
-    <ThemedView style={styles.container}>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          value={query}
-          onChangeText={handleInputChange}
-          placeholder={placeholder}
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-      </View>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <ThemedView style={styles.container}>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            value={query}
+            onChangeText={handleInputChange}
+            placeholder={placeholder}
+            autoCapitalize="none"
+            autoCorrect={false}
+            returnKeyType="done"
+            onSubmitEditing={Keyboard.dismiss}
+            blurOnSubmit={true}
+          />
+        </View>
 
-      {isOpen && (
-        <View style={styles.dropdownContainer}>
-          {search.isLoading && debouncedQuery.length > 0 && (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="small" color={Colors.primary} />
-              <ThemedText style={styles.loadingText}>Searching...</ThemedText>
-            </View>
-          )}
-
-          {!search.isLoading &&
-            users.length === 0 &&
-            debouncedQuery.length > 0 && (
-              <View style={styles.emptyContainer}>
-                <ThemedText style={styles.emptyText}>No users found</ThemedText>
+        {isOpen && (
+          <View style={styles.dropdownContainer}>
+            {search.isLoading && debouncedQuery.length > 0 && (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="small" color={Colors.primary} />
+                <ThemedText style={styles.loadingText}>Searching...</ThemedText>
               </View>
             )}
 
-          {users.length > 0 && (
-            <FlatList
-              data={users}
-              renderItem={renderUserItem}
-              keyExtractor={(user) => user.id}
-              style={styles.userList}
-              showsVerticalScrollIndicator={false}
-              keyboardShouldPersistTaps="handled"
-            />
-          )}
-        </View>
-      )}
-    </ThemedView>
+            {!search.isLoading &&
+              users.length === 0 &&
+              debouncedQuery.length > 0 && (
+                <View style={styles.emptyContainer}>
+                  <ThemedText style={styles.emptyText}>
+                    No users found
+                  </ThemedText>
+                </View>
+              )}
+
+            {users.length > 0 && (
+              <FlatList
+                data={users}
+                renderItem={renderUserItem}
+                keyExtractor={(user) => user.id}
+                style={styles.userList}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+              />
+            )}
+          </View>
+        )}
+      </ThemedView>
+    </TouchableWithoutFeedback>
   );
 }
 

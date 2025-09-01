@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import {
   Alert,
+  Keyboard,
   ScrollView,
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 
@@ -113,55 +115,64 @@ function OnlineRecipeForm() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView style={styles.formContainer}>
-        <View style={styles.inputGroup}>
-          <ThemedText type="defaultSemiBold">Recipe URL</ThemedText>
-          <TextInput
-            style={styles.input}
-            value={url}
-            onChangeText={setUrl}
-            placeholder="https://example.com/recipe"
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!create.isPending}
-          />
-        </View>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={{ flex: 1 }}>
+        <ScrollView
+          style={styles.formContainer}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.inputGroup}>
+            <ThemedText type="defaultSemiBold">Recipe URL</ThemedText>
+            <TextInput
+              style={styles.input}
+              value={url}
+              onChangeText={setUrl}
+              placeholder="https://example.com/recipe"
+              autoCapitalize="none"
+              autoCorrect={false}
+              editable={!create.isPending}
+              returnKeyType="next"
+              blurOnSubmit={false}
+            />
+          </View>
 
-        <View style={styles.inputGroup}>
-          <ThemedText type="defaultSemiBold">Notes (optional)</ThemedText>
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            value={notes}
-            onChangeText={setNotes}
-            placeholder="Add any notes about this recipe..."
-            multiline
-            numberOfLines={4}
-            editable={!create.isPending}
-          />
+          <View style={styles.inputGroup}>
+            <ThemedText type="defaultSemiBold">Notes (optional)</ThemedText>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              value={notes}
+              onChangeText={setNotes}
+              placeholder="Add any notes about this recipe..."
+              multiline
+              numberOfLines={4}
+              editable={!create.isPending}
+              returnKeyType="done"
+              blurOnSubmit={true}
+            />
+          </View>
+        </ScrollView>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={() => router.back()}
+          >
+            <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.submitButton,
+              create.isPending && styles.submitButtonDisabled,
+            ]}
+            onPress={handleSubmit}
+            disabled={create.isPending}
+          >
+            <ThemedText style={styles.submitButtonText}>
+              {create.isPending ? "Creating..." : "Import Recipe"}
+            </ThemedText>
+          </TouchableOpacity>
         </View>
-      </ScrollView>
-      <View style={styles.buttonRow}>
-        <TouchableOpacity
-          style={styles.cancelButton}
-          onPress={() => router.back()}
-        >
-          <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.submitButton,
-            create.isPending && styles.submitButtonDisabled,
-          ]}
-          onPress={handleSubmit}
-          disabled={create.isPending}
-        >
-          <ThemedText style={styles.submitButtonText}>
-            {create.isPending ? "Creating..." : "Import Recipe"}
-          </ThemedText>
-        </TouchableOpacity>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -266,110 +277,123 @@ function CookbookRecipeForm() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView style={styles.formContainer}>
-        <View style={styles.inputGroup}>
-          <ThemedText type="defaultSemiBold">Cookbook Name</ThemedText>
-          <TextInput
-            style={styles.input}
-            value={cookbookName}
-            onChangeText={setCookbookName}
-            placeholder="e.g., Joy of Cooking"
-            editable={!create.isPending}
-          />
-        </View>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={{ flex: 1 }}>
+        <ScrollView
+          style={styles.formContainer}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.inputGroup}>
+            <ThemedText type="defaultSemiBold">Cookbook Name</ThemedText>
+            <TextInput
+              style={styles.input}
+              value={cookbookName}
+              onChangeText={setCookbookName}
+              placeholder="e.g., Joy of Cooking"
+              editable={!create.isPending}
+              returnKeyType="next"
+              blurOnSubmit={false}
+            />
+          </View>
 
-        <View style={styles.inputGroup}>
-          <ThemedText type="defaultSemiBold">Author</ThemedText>
-          <TextInput
-            style={styles.input}
-            value={author}
-            onChangeText={setAuthor}
-            placeholder="e.g., Julia Child"
-            editable={!create.isPending}
-          />
-        </View>
+          <View style={styles.inputGroup}>
+            <ThemedText type="defaultSemiBold">Author</ThemedText>
+            <TextInput
+              style={styles.input}
+              value={author}
+              onChangeText={setAuthor}
+              placeholder="e.g., Julia Child"
+              editable={!create.isPending}
+              returnKeyType="next"
+              blurOnSubmit={false}
+            />
+          </View>
 
-        <View style={styles.inputGroup}>
-          <ThemedText type="defaultSemiBold">Page Number</ThemedText>
-          <TextInput
-            style={styles.input}
-            value={pageNumber}
-            onChangeText={setPageNumber}
-            placeholder="e.g., 42"
-            keyboardType="numeric"
-            editable={!create.isPending}
-          />
-        </View>
+          <View style={styles.inputGroup}>
+            <ThemedText type="defaultSemiBold">Page Number</ThemedText>
+            <TextInput
+              style={styles.input}
+              value={pageNumber}
+              onChangeText={setPageNumber}
+              placeholder="e.g., 42"
+              keyboardType="numeric"
+              editable={!create.isPending}
+              returnKeyType="next"
+              blurOnSubmit={false}
+            />
+          </View>
 
-        <View style={styles.inputGroup}>
-          <ThemedText type="defaultSemiBold">Notes (optional)</ThemedText>
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            value={notes}
-            onChangeText={setNotes}
-            placeholder="Add any notes about this recipe..."
-            multiline
-            numberOfLines={4}
-            editable={!create.isPending}
-          />
-        </View>
+          <View style={styles.inputGroup}>
+            <ThemedText type="defaultSemiBold">Notes (optional)</ThemedText>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              value={notes}
+              onChangeText={setNotes}
+              placeholder="Add any notes about this recipe..."
+              multiline
+              numberOfLines={4}
+              editable={!create.isPending}
+              returnKeyType="done"
+              blurOnSubmit={true}
+            />
+          </View>
 
-        <View style={styles.inputGroup}>
-          <ThemedText type="defaultSemiBold">Recipe Photo</ThemedText>
-          <TouchableOpacity
-            style={styles.imagePickerButton}
-            onPress={showImagePickerOptions}
-            disabled={create.isPending}
-          >
-            {selectedImage ? (
-              <View style={styles.selectedImageContainer}>
-                <View style={styles.selectedImagePreview}>
-                  <IconSymbol name="photo" size={24} color={Colors.primary} />
-                  <ThemedText style={styles.imageSelectedText}>
-                    Photo Selected
+          <View style={styles.inputGroup}>
+            <ThemedText type="defaultSemiBold">Recipe Photo</ThemedText>
+            <TouchableOpacity
+              style={styles.imagePickerButton}
+              onPress={showImagePickerOptions}
+              disabled={create.isPending}
+            >
+              {selectedImage ? (
+                <View style={styles.selectedImageContainer}>
+                  <View style={styles.selectedImagePreview}>
+                    <IconSymbol name="photo" size={24} color={Colors.primary} />
+                    <ThemedText style={styles.imageSelectedText}>
+                      Photo Selected
+                    </ThemedText>
+                  </View>
+                  <ThemedText style={styles.changePhotoText}>
+                    Tap to change
                   </ThemedText>
                 </View>
-                <ThemedText style={styles.changePhotoText}>
-                  Tap to change
-                </ThemedText>
-              </View>
-            ) : (
-              <View style={styles.imagePickerContent}>
-                <IconSymbol
-                  name="camera.fill"
-                  size={24}
-                  color={Colors.primary}
-                />
-                <ThemedText style={styles.imagePickerText}>
-                  Take Photo or Select from Library
-                </ThemedText>
-              </View>
-            )}
+              ) : (
+                <View style={styles.imagePickerContent}>
+                  <IconSymbol
+                    name="camera.fill"
+                    size={24}
+                    color={Colors.primary}
+                  />
+                  <ThemedText style={styles.imagePickerText}>
+                    Take Photo or Select from Library
+                  </ThemedText>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={() => router.back()}
+          >
+            <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.submitButton,
+              create.isPending && styles.submitButtonDisabled,
+            ]}
+            onPress={handleSubmit}
+            disabled={create.isPending}
+          >
+            <ThemedText style={styles.submitButtonText}>
+              {create.isPending ? "Creating..." : "Create Recipe"}
+            </ThemedText>
           </TouchableOpacity>
         </View>
-      </ScrollView>
-      <View style={styles.buttonRow}>
-        <TouchableOpacity
-          style={styles.cancelButton}
-          onPress={() => router.back()}
-        >
-          <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.submitButton,
-            create.isPending && styles.submitButtonDisabled,
-          ]}
-          onPress={handleSubmit}
-          disabled={create.isPending}
-        >
-          <ThemedText style={styles.submitButtonText}>
-            {create.isPending ? "Creating..." : "Create Recipe"}
-          </ThemedText>
-        </TouchableOpacity>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 
