@@ -23,9 +23,13 @@ WITH recipes_cooked AS (
     OFFSET :p2\\:\\:INT
 )
 
-SELECT r.id, r.user_id, r.name, r.author, r.cuisine, r.location, r.time_estimate_minutes, r.notes, r.last_made_at, r.created_at, r.updated_at, rc.cooked_at
+SELECT
+    r.id, r.user_id, r.name, r.author, r.cuisine, r.location, r.time_estimate_minutes, r.notes, r.last_made_at, r.created_at, r.updated_at,
+    rc.cooked_at,
+    u.name AS user_name
 FROM recipes_cooked rc
 JOIN recipe r ON r.id = rc.recipe_id
+JOIN "user" u ON (u.id = r.user_id)
 ORDER BY rc.cooked_at DESC
 """
 
@@ -43,6 +47,7 @@ class ListRecentRecipeCooksRow(pydantic.BaseModel):
     created_at: datetime.datetime
     updated_at: datetime.datetime
     cooked_at: datetime.datetime
+    user_name: str
 
 
 MARK_RECIPE_COOKED = """-- name: mark_recipe_cooked \\:one
@@ -92,6 +97,7 @@ class AsyncQuerier:
                 created_at=row[9],
                 updated_at=row[10],
                 cooked_at=row[11],
+                user_name=row[12],
             )
 
     async def mark_recipe_cooked(

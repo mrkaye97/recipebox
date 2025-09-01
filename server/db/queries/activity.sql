@@ -8,9 +8,13 @@ WITH recipes_cooked AS (
     OFFSET @recentCooksOffset::INT
 )
 
-SELECT r.*, rc.cooked_at
+SELECT
+    r.*,
+    rc.cooked_at,
+    u.name AS user_name
 FROM recipes_cooked rc
 JOIN recipe r ON r.id = rc.recipe_id
+JOIN "user" u ON (u.id = r.user_id)
 ORDER BY rc.cooked_at DESC
 ;
 

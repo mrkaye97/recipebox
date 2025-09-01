@@ -507,6 +507,8 @@ export interface components {
        * Format: uuid
        */
       readonly user_id: string;
+      /** User Name */
+      readonly user_name: string;
     };
     /** MadeUpRecipeLocation */
     readonly MadeUpRecipeLocation: {

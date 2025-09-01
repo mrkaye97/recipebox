@@ -18,6 +18,9 @@ export interface RecipeCardProps {
   cuisine: string;
   timeEstimate: number;
   cookedAt?: string;
+  userId?: string;
+  userName?: string;
+  currentUserId?: string;
 }
 
 const formatCookedDate = (cookedAt: string) => {
@@ -54,10 +57,15 @@ export function RecipeCard({
   cuisine,
   timeEstimate,
   cookedAt,
+  userId,
+  userName,
+  currentUserId,
 }: RecipeCardProps) {
   const handlePress = () => {
     router.push(`/recipe/${id}`);
   };
+
+  const isOtherUser = userId && currentUserId && userId !== currentUserId;
 
   return (
     <TouchableOpacity
@@ -97,6 +105,18 @@ export function RecipeCard({
             />
             <ThemedText style={styles.cookedDateText}>
               {formatCookedDate(cookedAt)}
+            </ThemedText>
+          </View>
+        )}
+        {isOtherUser && userName && (
+          <View style={styles.cookedByContainer}>
+            <IconSymbol
+              name="person.fill"
+              size={16}
+              color={Colors.textSecondary}
+            />
+            <ThemedText style={styles.cookedByText}>
+              Cooked by {userName}
             </ThemedText>
           </View>
         )}
@@ -183,6 +203,22 @@ const styles = StyleSheet.create({
   cookedDateText: {
     fontSize: Typography.fontSizes.sm,
     color: Colors.primary,
+    fontWeight: Typography.fontWeights.medium,
+  },
+  cookedByContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.sm,
+    backgroundColor: Colors.backgroundSubtle,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    alignSelf: "flex-start",
+    marginTop: Spacing.sm,
+  },
+  cookedByText: {
+    fontSize: Typography.fontSizes.sm,
+    color: Colors.textSecondary,
     fontWeight: Typography.fontWeights.medium,
   },
 });

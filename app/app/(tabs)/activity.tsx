@@ -26,7 +26,7 @@ import { Redirect } from "expo-router";
 type ActivityItem = components["schemas"]["ListRecentRecipeCooksRow"];
 
 export default function ActivityScreen() {
-  const { isAuthenticated, isLoading: isAuthLoading } = useUser();
+  const { isAuthenticated, isLoading: isAuthLoading, userInfo } = useUser();
   const [who, setWho] = useState<Who>("me");
 
   const {
@@ -84,6 +84,9 @@ export default function ActivityScreen() {
       cuisine={item.cuisine}
       timeEstimate={item.time_estimate_minutes}
       cookedAt={item.cooked_at}
+      userId={item.user_id}
+      userName={item.user_name}
+      currentUserId={userInfo?.userId}
     />
   );
 

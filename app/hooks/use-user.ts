@@ -1,6 +1,7 @@
 import { $api } from "@/src/lib/api/client";
 import { components } from "@/src/lib/api/v1";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { jwtDecode } from "jwt-decode";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Storage from "react-native-storage";
 
@@ -9,9 +10,29 @@ type AccessToken = string;
 export type PrivacyPreference = components["schemas"]["UserPrivacyPreference"];
 export const PrivacyPreferences: PrivacyPreference[] = ["public", "private"];
 
+interface TokenPayload {
+  sub: string; // user ID
+  exp: number;
+  [key: string]: any;
+}
+
 export const useUser = () => {
   const [token, setToken] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  const userInfo = useMemo(() => {
+    if (!token) return null;
+    try {
+      const decoded = jwtDecode<TokenPayload>(token);
+      return {
+        userId: decoded.sub,
+        exp: decoded.exp,
+      };
+    } catch (error) {
+      console.error("Failed to decode token:", error);
+      return null;
+    }
+  }, [token]);
 
   const storage = useMemo(
     () =>
@@ -162,6 +183,7 @@ export const useUser = () => {
     isLoginPending,
     isRegisterPending,
     isInitialized,
+    userInfo,
 
     login,
     register,
