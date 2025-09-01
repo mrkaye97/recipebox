@@ -97,19 +97,25 @@ export const useRecipes = ({
       },
     });
 
-  const updateRecipe = useCallback(async (id: string, body: paths["/recipes/{id}"]["patch"]["requestBody"]["content"]["application/json"]) => {
-    await updateRecipeMutation({
-      body,
-      params: {
-        path: {
-          id
-        }
-      },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      }
-    })
-  }, [updateRecipeMutation, token]);
+  const updateRecipe = useCallback(
+    async (
+      id: string,
+      body: paths["/recipes/{id}"]["patch"]["requestBody"]["content"]["application/json"],
+    ) => {
+      await updateRecipeMutation({
+        body,
+        params: {
+          path: {
+            id,
+          },
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    [updateRecipeMutation, token],
+  );
 
   const { mutateAsync: shareRecipe, isPending: sharePending } =
     $api.useMutation("post", "/sharing", {
@@ -244,6 +250,6 @@ export const useRecipes = ({
     updateRecipe: {
       perform: updateRecipe,
       isPending: updatePending,
-    }
+    },
   };
 };
