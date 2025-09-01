@@ -739,6 +739,8 @@ export interface operations {
   readonly list_recent_activity_activity_get: {
     readonly parameters: {
       readonly query: {
+        readonly limit: number;
+        readonly offset: number;
         readonly who: "me" | "friends" | "both";
       };
       readonly header?: never;

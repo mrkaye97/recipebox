@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
+  ActivityIndicator,
   FlatList,
   RefreshControl,
   StyleSheet,
@@ -28,15 +29,29 @@ export default function ActivityScreen() {
   const { isAuthenticated, isLoading: isAuthLoading } = useUser();
   const [who, setWho] = useState<Who>("me");
 
-  const { recentCooks, isRecentCooksLoading, isRecentCooksError } = useActivity(
-    { who },
-  );
+  const {
+    recentCooks,
+    isRecentCooksLoading,
+    isRecentCooksError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useActivity({ who });
+
+  const handleLoadMore = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   if (!isAuthenticated && !isAuthLoading) {
     return <Redirect href={"/(tabs)/profile"} />;
   }
 
-  if ((isRecentCooksLoading && (!recentCooks || recentCooks.length === 0)) || isAuthLoading) {
+  if (
+    (isRecentCooksLoading && (!recentCooks || recentCooks.length === 0)) ||
+    isAuthLoading
+  ) {
     return (
       <ThemedView style={styles.container}>
         <View style={styles.centerContainer}>
@@ -72,6 +87,15 @@ export default function ActivityScreen() {
     />
   );
 
+  const renderFooter = () => {
+    if (!isFetchingNextPage) return null;
+    return (
+      <View style={styles.loadingFooter}>
+        <ActivityIndicator size="small" color={Colors.primary} />
+      </View>
+    );
+  };
+
   return (
     <ThemedView style={styles.container}>
       <View style={styles.header}>
@@ -104,9 +128,15 @@ export default function ActivityScreen() {
           keyExtractor={(item) => `${item.id}-${item.cooked_at}`}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={renderFooter}
           refreshControl={
             <RefreshControl
-              refreshing={isRecentCooksLoading}
+              refreshing={
+                isRecentCooksLoading &&
+                (!recentCooks || recentCooks.length === 0)
+              }
               onRefresh={() => {}}
               tintColor={Colors.primary}
               colors={[Colors.primary]}
@@ -167,5 +197,9 @@ const styles = StyleSheet.create({
   listContent: {
     padding: Layout.screenPadding,
     paddingBottom: Layout.bottomPadding.list,
+  },
+  loadingFooter: {
+    paddingVertical: Spacing.xl,
+    alignItems: "center",
   },
 });

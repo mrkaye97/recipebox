@@ -225,7 +225,7 @@ export default function RecipeDetailScreen() {
       | string[]
       | RecipeIngredient[]
       | RecipeInstruction[]
-      | DietaryRestriction[]
+      | DietaryRestriction[],
   ) => {
     if (editedRecipe) {
       setEditedRecipe({ ...editedRecipe, [field]: value });
@@ -246,7 +246,7 @@ export default function RecipeDetailScreen() {
   const deleteIngredient = (index: number) => {
     if (editedRecipe?.ingredients) {
       const updatedIngredients = editedRecipe.ingredients.filter(
-        (_: RecipeIngredient, i: number) => i !== index
+        (_: RecipeIngredient, i: number) => i !== index,
       );
       setEditedRecipe({ ...editedRecipe, ingredients: updatedIngredients });
     }
@@ -342,7 +342,7 @@ export default function RecipeDetailScreen() {
   const deleteTag = (index: number) => {
     if (editedRecipe?.tags) {
       const updatedTags = editedRecipe.tags.filter(
-        (_: string, i: number) => i !== index
+        (_: string, i: number) => i !== index,
       );
       setEditedRecipe({ ...editedRecipe, tags: updatedTags });
     }
@@ -537,7 +537,7 @@ export default function RecipeDetailScreen() {
                     onChangeText={(text) =>
                       updateEditedField(
                         "time_estimate_minutes",
-                        parseInt(text) || 0
+                        parseInt(text) || 0,
                       )
                     }
                     placeholder="30"
@@ -773,7 +773,7 @@ export default function RecipeDetailScreen() {
                           />
                         </TouchableOpacity>
                       </View>
-                    )
+                    ),
                   )}
                   {(!editedRecipe?.ingredients ||
                     editedRecipe.ingredients.length === 0) && (
@@ -938,7 +938,7 @@ export default function RecipeDetailScreen() {
                           </TouchableOpacity>
                         </View>
                       </View>
-                    )
+                    ),
                   )}
                   {(!editedRecipe?.instructions ||
                     editedRecipe.instructions.length === 0) && (

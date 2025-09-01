@@ -35,14 +35,18 @@ async def mark_recipe_cooked(
 
 @activity.get("")
 async def list_recent_activity(
-    conn: Connection, user: User, who: Literal["me", "friends", "both"]
+    conn: Connection,
+    user: User,
+    who: Literal["me", "friends", "both"],
+    limit: int,
+    offset: int,
 ) -> list[ListRecentRecipeCooksRow]:
     activity = ActivityQuerier(conn)
     users = UserQuerier(conn)
 
     if who == "me":
         cooks = activity.list_recent_recipe_cooks(
-            userids=[user.id], recentcookslimit=10, recentcooksoffset=0
+            userids=[user.id], recentcookslimit=limit, recentcooksoffset=offset
         )
 
         return [c async for c in cooks]
@@ -53,7 +57,7 @@ async def list_recent_activity(
         user_ids.append(user.id)
 
     cooks = activity.list_recent_recipe_cooks(
-        userids=user_ids, recentcookslimit=10, recentcooksoffset=0
+        userids=user_ids, recentcookslimit=limit, recentcooksoffset=offset
     )
 
     return [c async for c in cooks]
