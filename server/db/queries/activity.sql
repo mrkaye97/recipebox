@@ -2,7 +2,7 @@
 WITH recipes_cooked AS (
     SELECT *
     FROM recipe_cooking_log
-    WHERE user_id = @userId::UUID
+    WHERE user_id = ANY(@userIds::UUID[])
     ORDER BY cooked_at DESC
     LIMIT @recentCooksLimit::INT
     OFFSET @recentCooksOffset::INT

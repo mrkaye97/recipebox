@@ -11,27 +11,11 @@ export interface paths {
       readonly path?: never;
       readonly cookie?: never;
     };
-    readonly get?: never;
+    /** List Recent Activity */
+    readonly get: operations["list_recent_activity_activity_get"];
     readonly put?: never;
     /** Mark Recipe Cooked */
     readonly post: operations["mark_recipe_cooked_activity_post"];
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/activity/me": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    /** List Recent Activity */
-    readonly get: operations["list_recent_activity_activity_me_get"];
-    readonly put?: never;
-    readonly post?: never;
     readonly delete?: never;
     readonly options?: never;
     readonly head?: never;
@@ -738,6 +722,37 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+  readonly list_recent_activity_activity_get: {
+    readonly parameters: {
+      readonly query: {
+        readonly who: "me" | "friends" | "both";
+      };
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": readonly components["schemas"]["ListRecentRecipeCooksRow"][];
+        };
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
   readonly mark_recipe_cooked_activity_post: {
     readonly parameters: {
       readonly query?: never;
@@ -769,26 +784,6 @@ export interface operations {
         };
         content: {
           readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  readonly list_recent_activity_activity_me_get: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": readonly components["schemas"]["ListRecentRecipeCooksRow"][];
         };
       };
     };

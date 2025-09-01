@@ -17,7 +17,7 @@ LIST_RECENT_RECIPE_COOKS = """-- name: list_recent_recipe_cooks \\:many
 WITH recipes_cooked AS (
     SELECT user_id, recipe_id, cooked_at
     FROM recipe_cooking_log
-    WHERE user_id = :p1\\:\\:UUID
+    WHERE user_id = ANY(:p1\\:\\:UUID[])
     ORDER BY cooked_at DESC
     LIMIT :p3\\:\\:INT
     OFFSET :p2\\:\\:INT
@@ -72,11 +72,11 @@ class AsyncQuerier:
         self._conn = conn
 
     async def list_recent_recipe_cooks(
-        self, *, userid: uuid.UUID, recentcooksoffset: int, recentcookslimit: int
+        self, *, userids: list[uuid.UUID], recentcooksoffset: int, recentcookslimit: int
     ) -> AsyncIterator[ListRecentRecipeCooksRow]:
         result = await self._conn.stream(
             sqlalchemy.text(LIST_RECENT_RECIPE_COOKS),
-            {"p1": userid, "p2": recentcooksoffset, "p3": recentcookslimit},
+            {"p1": userids, "p2": recentcooksoffset, "p3": recentcookslimit},
         )
         async for row in result:
             yield ListRecentRecipeCooksRow(

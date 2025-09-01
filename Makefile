@@ -32,3 +32,7 @@ gen-sqlc:
 
 gen-api:
 	(cd app && npm run gen-schema)
+
+gen-all:
+	make gen-api
+	make gen-sqlc
