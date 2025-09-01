@@ -523,8 +523,6 @@ export interface components {
       readonly author?: string | null;
       /** Cuisine */
       readonly cuisine?: string | null;
-      /** Last Made At */
-      readonly last_made_at?: string | null;
       readonly location?: components["schemas"]["RecipeLocation"] | null;
       /** Name */
       readonly name?: string | null;
