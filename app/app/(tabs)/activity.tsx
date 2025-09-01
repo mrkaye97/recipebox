@@ -4,13 +4,12 @@ import {
   RefreshControl,
   StyleSheet,
   Switch,
-  TouchableOpacity,
   View,
 } from "react-native";
 
+import { RecipeCard } from "@/components/recipe-card";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { IconSymbol } from "@/components/ui/icon-symbol";
 import {
   Colors,
   Layout,
@@ -18,8 +17,7 @@ import {
   Spacing,
   Typography,
 } from "@/constants/design-system";
-import { RecipeCard } from "@/components/recipe-card";
-import { useActivity } from "@/hooks/use-activity";
+import { useActivity, Who } from "@/hooks/use-activity";
 import { useUser } from "@/hooks/use-user";
 import { components } from "@/src/lib/api/v1";
 import { Redirect } from "expo-router";
@@ -28,10 +26,11 @@ type ActivityItem = components["schemas"]["ListRecentRecipeCooksRow"];
 
 export default function ActivityScreen() {
   const { isAuthenticated, isLoading: isAuthLoading } = useUser();
-  const [includeFriends, setIncludeFriends] = useState(false);
+  const [who, setWho] = useState<Who>("me");
 
-  const { recentCooks, isRecentCooksLoading, isRecentCooksError } =
-    useActivity();
+  const { recentCooks, isRecentCooksLoading, isRecentCooksError } = useActivity(
+    { who }
+  );
 
   if (!isAuthenticated && !isAuthLoading) {
     return <Redirect href={"/(tabs)/profile"} />;
@@ -80,8 +79,8 @@ export default function ActivityScreen() {
         <View style={styles.switchContainer}>
           <ThemedText style={styles.switchLabel}>Include Friends</ThemedText>
           <Switch
-            value={includeFriends}
-            onValueChange={setIncludeFriends}
+            value={who === "both"}
+            onValueChange={(value) => setWho(value ? "both" : "me")}
             trackColor={{
               false: Colors.backgroundSubtle,
               true: Colors.primary,

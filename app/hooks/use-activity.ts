@@ -1,9 +1,12 @@
 import { $api } from "@/src/lib/api/client";
+import { paths } from "@/src/lib/api/v1";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { useUser } from "./use-user";
 
-export const useActivity = () => {
+export type Who = paths["/activity"]["get"]["parameters"]["query"]["who"];
+
+export const useActivity = ({ who }: { who: Who }) => {
   const { token } = useUser();
   const queryClient = useQueryClient();
 
@@ -13,10 +16,15 @@ export const useActivity = () => {
     isError: isRecentCooksError,
   } = $api.useQuery(
     "get",
-    "/activity/me",
+    "/activity",
     {
       headers: {
         Authorization: `Bearer ${token}`,
+      },
+      params: {
+        query: {
+          who,
+        },
       },
     },
     {

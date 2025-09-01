@@ -11,6 +11,8 @@ lint:
 	(cd server && poetry run ruff check --fix)
 	(cd server && poetry run mypy .)
 	(cd app && npx prettier --write .)
+	(cd app && npx tsc)
+	(cd app && npx eslint . --fix)
 
 gen-migration:
 	(cd server && dbmate new "$(name)")
