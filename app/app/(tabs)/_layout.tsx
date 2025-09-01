@@ -1,8 +1,4 @@
-import {
-  Colors,
-  Layout,
-  Shadows,
-} from "@/constants/design-system";
+import { Colors, Layout, Shadows } from "@/constants/design-system";
 import { Tabs } from "expo-router";
 import React from "react";
 import { Platform } from "react-native";

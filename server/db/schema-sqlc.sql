@@ -62,6 +62,11 @@ CREATE TABLE recipe (
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
+CREATE TABLE recipe_cooking_log (
+    user_id uuid NOT NULL,
+    recipe_id uuid NOT NULL,
+    cooked_at timestamp with time zone DEFAULT now() NOT NULL
+);
 CREATE TABLE recipe_dietary_restriction_met (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid NOT NULL,
@@ -128,6 +133,8 @@ ALTER TABLE ONLY cooking_history
     ADD CONSTRAINT cooking_history_pkey PRIMARY KEY (user_id, made_at, recipe_id);
 ALTER TABLE ONLY friendship
     ADD CONSTRAINT friendship_pkey PRIMARY KEY (user_id, friend_user_id);
+ALTER TABLE ONLY recipe_cooking_log
+    ADD CONSTRAINT recipe_cooking_log_pkey PRIMARY KEY (user_id, cooked_at, recipe_id);
 ALTER TABLE ONLY recipe_dietary_restriction_met
     ADD CONSTRAINT recipe_dietary_restriction_met_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY recipe_ingredient
@@ -170,6 +177,10 @@ ALTER TABLE ONLY friendship
     ADD CONSTRAINT friendship_friend_user_id_fkey FOREIGN KEY (friend_user_id) REFERENCES "user"(id) ON DELETE CASCADE;
 ALTER TABLE ONLY friendship
     ADD CONSTRAINT friendship_user_id_fkey FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE;
+ALTER TABLE ONLY recipe_cooking_log
+    ADD CONSTRAINT recipe_cooking_log_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE;
+ALTER TABLE ONLY recipe_cooking_log
+    ADD CONSTRAINT recipe_cooking_log_user_id_fkey FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE;
 ALTER TABLE ONLY recipe_dietary_restriction_met
     ADD CONSTRAINT recipe_dietary_restriction_met_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE;
 ALTER TABLE ONLY recipe_dietary_restriction_met
@@ -204,4 +215,5 @@ INSERT INTO schema_migrations (version) VALUES
     ('20250827021238'),
     ('20250827022009'),
     ('20250831115304'),
-    ('20250831115922');
+    ('20250831115922'),
+    ('20250901022533');

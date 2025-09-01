@@ -241,6 +241,17 @@ CREATE TABLE public.recipe (
 
 
 --
+-- Name: recipe_cooking_log; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.recipe_cooking_log (
+    user_id uuid NOT NULL,
+    recipe_id uuid NOT NULL,
+    cooked_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
 -- Name: recipe_dietary_restriction_met; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -370,6 +381,14 @@ ALTER TABLE ONLY public.cooking_history
 
 ALTER TABLE ONLY public.friendship
     ADD CONSTRAINT friendship_pkey PRIMARY KEY (user_id, friend_user_id);
+
+
+--
+-- Name: recipe_cooking_log recipe_cooking_log_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe_cooking_log
+    ADD CONSTRAINT recipe_cooking_log_pkey PRIMARY KEY (user_id, cooked_at, recipe_id);
 
 
 --
@@ -577,6 +596,22 @@ ALTER TABLE ONLY public.friendship
 
 
 --
+-- Name: recipe_cooking_log recipe_cooking_log_recipe_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe_cooking_log
+    ADD CONSTRAINT recipe_cooking_log_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES public.recipe(id) ON DELETE CASCADE;
+
+
+--
+-- Name: recipe_cooking_log recipe_cooking_log_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe_cooking_log
+    ADD CONSTRAINT recipe_cooking_log_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE;
+
+
+--
 -- Name: recipe_dietary_restriction_met recipe_dietary_restriction_met_recipe_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -703,4 +738,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20250827021238'),
     ('20250827022009'),
     ('20250831115304'),
-    ('20250831115922');
+    ('20250831115922'),
+    ('20250901022533');

@@ -58,6 +58,12 @@ class Recipe(pydantic.BaseModel):
     updated_at: datetime.datetime
 
 
+class RecipeCookingLog(pydantic.BaseModel):
+    user_id: uuid.UUID
+    recipe_id: uuid.UUID
+    cooked_at: datetime.datetime
+
+
 class RecipeDietaryRestrictionMet(pydantic.BaseModel):
     id: uuid.UUID
     user_id: uuid.UUID
