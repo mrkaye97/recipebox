@@ -4,7 +4,7 @@ import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/design-system";
 import { useRecipeDetails } from "@/hooks/use-recipe-details";
-import { useRecipes } from "@/hooks/use-recipes";
+import { useActivity } from "@/hooks/use-activity";
 import { components } from "@/src/lib/api/v1";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
@@ -98,7 +98,7 @@ export default function RecipeDetailScreen() {
       perform: markAsCookedRecently,
       isPending: isMarkingCooked,
     },
-  } = useRecipes();
+  } = useActivity();
 
   const handleBack = () => {
     router.back();

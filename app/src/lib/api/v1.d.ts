@@ -4,6 +4,40 @@
  */
 
 export interface paths {
+  readonly "/activity": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get?: never;
+    readonly put?: never;
+    /** Mark Recipe Cooked */
+    readonly post: operations["mark_recipe_cooked_activity_post"];
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/activity/me": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /** List Recent Activity */
+    readonly get: operations["list_recent_activity_activity_me_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
   readonly "/auth/login": {
     readonly parameters: {
       readonly query?: never;
@@ -448,6 +482,48 @@ export interface components {
       /** Token */
       readonly token: string;
     };
+    /** ListRecentRecipeCooksRow */
+    readonly ListRecentRecipeCooksRow: {
+      /** Author */
+      readonly author: string;
+      /**
+       * Cooked At
+       * Format: date-time
+       */
+      readonly cooked_at: string;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      readonly created_at: string;
+      /** Cuisine */
+      readonly cuisine: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      readonly id: string;
+      /** Last Made At */
+      readonly last_made_at: string | null;
+      /** Location */
+      readonly location: unknown;
+      /** Name */
+      readonly name: string;
+      /** Notes */
+      readonly notes: string | null;
+      /** Time Estimate Minutes */
+      readonly time_estimate_minutes: number;
+      /**
+       * Updated At
+       * Format: date-time
+       */
+      readonly updated_at: string;
+      /**
+       * User Id
+       * Format: uuid
+       */
+      readonly user_id: string;
+    };
     /** MadeUpRecipeLocation */
     readonly MadeUpRecipeLocation: {
       /**
@@ -455,6 +531,14 @@ export interface components {
        * @enum {string}
        */
       readonly location: "made_up";
+    };
+    /** MarkRecipeCookedBody */
+    readonly MarkRecipeCookedBody: {
+      /**
+       * Recipe Id
+       * Format: uuid
+       */
+      readonly recipe_id: string;
     };
     /** OnlineRecipeLocation */
     readonly OnlineRecipeLocation: {
@@ -465,33 +549,6 @@ export interface components {
       readonly location: "online";
       /** Url */
       readonly url: string;
-    };
-    /** Recipe */
-    readonly Recipe: {
-      /** Author */
-      readonly author: string;
-      /** Cuisine */
-      readonly cuisine: string;
-      /** Dietary Restrictions Met */
-      readonly dietary_restrictions_met: readonly components["schemas"]["DietaryRestriction"][];
-      /**
-       * Id
-       * Format: uuid
-       */
-      readonly id: string;
-      /** Ingredients */
-      readonly ingredients: readonly components["schemas"]["RecipeIngredient"][];
-      /** Instructions */
-      readonly instructions: readonly components["schemas"]["RecipeInstruction"][];
-      readonly location: components["schemas"]["RecipeLocation"];
-      /** Name */
-      readonly name: string;
-      /** Notes */
-      readonly notes: string | null;
-      /** Tags */
-      readonly tags: readonly string[];
-      /** Time Estimate Minutes */
-      readonly time_estimate_minutes: number;
     };
     /** RecipeIngredient */
     readonly RecipeIngredient: {
@@ -563,6 +620,70 @@ export interface components {
        */
       readonly to_user_id: string;
     };
+    /** Recipe */
+    readonly src__crud__models__Recipe: {
+      /** Author */
+      readonly author: string;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      readonly created_at: string;
+      /** Cuisine */
+      readonly cuisine: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      readonly id: string;
+      /** Last Made At */
+      readonly last_made_at: string | null;
+      /** Location */
+      readonly location: unknown;
+      /** Name */
+      readonly name: string;
+      /** Notes */
+      readonly notes: string | null;
+      /** Time Estimate Minutes */
+      readonly time_estimate_minutes: number;
+      /**
+       * Updated At
+       * Format: date-time
+       */
+      readonly updated_at: string;
+      /**
+       * User Id
+       * Format: uuid
+       */
+      readonly user_id: string;
+    };
+    /** Recipe */
+    readonly src__schemas__Recipe: {
+      /** Author */
+      readonly author: string;
+      /** Cuisine */
+      readonly cuisine: string;
+      /** Dietary Restrictions Met */
+      readonly dietary_restrictions_met: readonly components["schemas"]["DietaryRestriction"][];
+      /**
+       * Id
+       * Format: uuid
+       */
+      readonly id: string;
+      /** Ingredients */
+      readonly ingredients: readonly components["schemas"]["RecipeIngredient"][];
+      /** Instructions */
+      readonly instructions: readonly components["schemas"]["RecipeInstruction"][];
+      readonly location: components["schemas"]["RecipeLocation"];
+      /** Name */
+      readonly name: string;
+      /** Notes */
+      readonly notes: string | null;
+      /** Tags */
+      readonly tags: readonly string[];
+      /** Time Estimate Minutes */
+      readonly time_estimate_minutes: number;
+    };
     /** Token */
     readonly Token: {
       /** Access Token */
@@ -615,6 +736,61 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+  readonly mark_recipe_cooked_activity_post: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody: {
+      readonly content: {
+        readonly "application/json": components["schemas"]["MarkRecipeCookedBody"];
+      };
+    };
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json":
+            | components["schemas"]["src__crud__models__Recipe"]
+            | null;
+        };
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  readonly list_recent_activity_activity_me_get: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": readonly components["schemas"]["ListRecentRecipeCooksRow"][];
+        };
+      };
+    };
+  };
   readonly login_auth_login_post: {
     readonly parameters: {
       readonly query?: never;
@@ -698,7 +874,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": readonly components["schemas"]["Recipe"][];
+          readonly "application/json": readonly components["schemas"]["src__schemas__Recipe"][];
         };
       };
       /** @description Validation Error */
@@ -729,7 +905,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Recipe"];
+          readonly "application/json": components["schemas"]["src__schemas__Recipe"];
         };
       };
       /** @description Validation Error */
@@ -795,7 +971,9 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Recipe"] | null;
+          readonly "application/json":
+            | components["schemas"]["src__schemas__Recipe"]
+            | null;
         };
       };
       /** @description Validation Error */
@@ -828,7 +1006,9 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Recipe"] | null;
+          readonly "application/json":
+            | components["schemas"]["src__schemas__Recipe"]
+            | null;
         };
       };
       /** @description Validation Error */
@@ -861,7 +1041,9 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Recipe"] | null;
+          readonly "application/json":
+            | components["schemas"]["src__schemas__Recipe"]
+            | null;
         };
       };
       /** @description Validation Error */
@@ -894,7 +1076,9 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Recipe"] | null;
+          readonly "application/json":
+            | components["schemas"]["src__schemas__Recipe"]
+            | null;
         };
       };
       /** @description Validation Error */
@@ -923,7 +1107,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Recipe"];
+          readonly "application/json": components["schemas"]["src__schemas__Recipe"];
         };
       };
     };
@@ -1037,7 +1221,9 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": components["schemas"]["Recipe"] | null;
+          readonly "application/json":
+            | components["schemas"]["src__schemas__Recipe"]
+            | null;
         };
       };
       /** @description Validation Error */

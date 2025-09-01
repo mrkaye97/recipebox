@@ -61,6 +61,20 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="activity"
+        options={{
+          title: "Activity",
+          tabBarIcon: ({ color, focused }) => (
+            <IconSymbol
+              size={24}
+              name="clock.fill"
+              color={focused ? color : Colors.textSecondary}
+            />
+          ),
+          tabBarLabelStyle: { fontSize: 12, marginTop: 4 },
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",

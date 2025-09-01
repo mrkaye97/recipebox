@@ -170,21 +170,6 @@ export const useRecipes = ({
     [createOnlineRecipe, createMadeUpRecipe, createCookbookRecipe, token],
   );
 
-  const markAsCookedRecently = useCallback(
-    async (recipeId: string) => {
-      return await updateRecipe({
-        params: { path: { id: recipeId } },
-        body: {
-          last_made_at: new Date().toISOString(),
-        },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-    },
-    [updateRecipe, token],
-  );
-
   const shareRecipeWithFriend = useCallback(
     async (recipeId: string, friendUserId: string) => {
       if (!token) throw new Error("Not authenticated");
@@ -224,11 +209,6 @@ export const useRecipes = ({
       perform: createRecipe,
       isPending: onlinePending || madeUpPending || cookbookPending,
       isError,
-    },
-    markAsCookedRecently: {
-      perform: markAsCookedRecently,
-      isPending: updatePending,
-      isError: recipeQuery.isError,
     },
     shareRecipe: {
       perform: shareRecipeWithFriend,
