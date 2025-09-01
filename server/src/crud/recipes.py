@@ -134,6 +134,38 @@ RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, n
 """
 
 
+DELETE_RECIPE_DIETARY_RESTRICTIONS_MET_BY_RECIPE_ID = """-- name: delete_recipe_dietary_restrictions_met_by_recipe_id \\:exec
+DELETE FROM recipe_dietary_restriction_met
+WHERE
+    recipe_id = :p1\\:\\:UUID
+    AND user_id = :p2\\:\\:UUID
+"""
+
+
+DELETE_RECIPE_INGREDIENTS_BY_RECIPE_ID = """-- name: delete_recipe_ingredients_by_recipe_id \\:exec
+DELETE FROM recipe_ingredient
+WHERE
+    recipe_id = :p1\\:\\:UUID
+    AND user_id = :p2\\:\\:UUID
+"""
+
+
+DELETE_RECIPE_INSTRUCTIONS_BY_RECIPE_ID = """-- name: delete_recipe_instructions_by_recipe_id \\:exec
+DELETE FROM recipe_instruction
+WHERE
+    recipe_id = :p1\\:\\:UUID
+    AND user_id = :p2\\:\\:UUID
+"""
+
+
+DELETE_RECIPE_TAGS_BY_RECIPE_ID = """-- name: delete_recipe_tags_by_recipe_id \\:exec
+DELETE FROM recipe_tag
+WHERE
+    recipe_id = :p1\\:\\:UUID
+    AND user_id = :p2\\:\\:UUID
+"""
+
+
 GET_RECIPE = """-- name: get_recipe \\:one
 SELECT id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at
 FROM recipe
@@ -396,6 +428,38 @@ class AsyncQuerier:
     async def delete_recipe(self, *, recipeid: uuid.UUID, userid: uuid.UUID) -> None:
         await self._conn.execute(
             sqlalchemy.text(DELETE_RECIPE), {"p1": recipeid, "p2": userid}
+        )
+
+    async def delete_recipe_dietary_restrictions_met_by_recipe_id(
+        self, *, recipeid: uuid.UUID, userid: uuid.UUID
+    ) -> None:
+        await self._conn.execute(
+            sqlalchemy.text(DELETE_RECIPE_DIETARY_RESTRICTIONS_MET_BY_RECIPE_ID),
+            {"p1": recipeid, "p2": userid},
+        )
+
+    async def delete_recipe_ingredients_by_recipe_id(
+        self, *, recipeid: uuid.UUID, userid: uuid.UUID
+    ) -> None:
+        await self._conn.execute(
+            sqlalchemy.text(DELETE_RECIPE_INGREDIENTS_BY_RECIPE_ID),
+            {"p1": recipeid, "p2": userid},
+        )
+
+    async def delete_recipe_instructions_by_recipe_id(
+        self, *, recipeid: uuid.UUID, userid: uuid.UUID
+    ) -> None:
+        await self._conn.execute(
+            sqlalchemy.text(DELETE_RECIPE_INSTRUCTIONS_BY_RECIPE_ID),
+            {"p1": recipeid, "p2": userid},
+        )
+
+    async def delete_recipe_tags_by_recipe_id(
+        self, *, recipeid: uuid.UUID, userid: uuid.UUID
+    ) -> None:
+        await self._conn.execute(
+            sqlalchemy.text(DELETE_RECIPE_TAGS_BY_RECIPE_ID),
+            {"p1": recipeid, "p2": userid},
         )
 
     async def get_recipe(

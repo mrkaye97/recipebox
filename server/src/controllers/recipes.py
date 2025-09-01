@@ -5,7 +5,12 @@ from uuid import UUID
 from fastapi import APIRouter, Form, HTTPException, UploadFile
 from pydantic import BaseModel
 
-from src.crud.recipes import AsyncQuerier, UpdateRecipeParams
+from src.crud.models import DietaryRestriction
+from src.crud.recipes import (
+    AsyncQuerier,
+    CreateRecipeIngredientsParams,
+    UpdateRecipeParams,
+)
 from src.dependencies import Connection, User
 from src.logger import get_logger
 from src.parsing import (
@@ -20,6 +25,8 @@ from src.schemas import (
     MadeUpRecipeLocation,
     OnlineRecipeLocation,
     Recipe,
+    RecipeIngredient,
+    RecipeInstruction,
     RecipeLocation,
 )
 from src.services.recipe import ingest_recipe, populate_recipe_data
@@ -194,6 +201,11 @@ class RecipePatch(BaseModel):
     time_estimate_minutes: int | None = None
     notes: str | None = None
 
+    ingredients: list[RecipeIngredient] | None = None
+    instructions: list[RecipeInstruction] | None = None
+    tags: list[str] | None = None
+    dietary_restrictions_met: list[DietaryRestriction] | None = None
+
 
 @recipes.patch("/{id}")
 async def update_recipe(
@@ -219,6 +231,42 @@ async def update_recipe(
 
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
+
+    if body.tags:
+        await db.delete_recipe_tags_by_recipe_id(recipeid=id, userid=user.id)
+        db.create_recipe_tags(recipeid=id, userid=user.id, tags=body.tags)
+
+    if body.dietary_restrictions_met:
+        await db.delete_recipe_dietary_restrictions_met_by_recipe_id(
+            recipeid=id, userid=user.id
+        )
+        db.create_recipe_dietary_restrictions_met(
+            recipeid=id,
+            userid=user.id,
+            dietaryrestrictionsmets=body.dietary_restrictions_met,
+        )
+
+    if body.ingredients:
+        await db.delete_recipe_ingredients_by_recipe_id(recipeid=id, userid=user.id)
+
+        params = CreateRecipeIngredientsParams(
+            recipeid=id,
+            userid=user.id,
+            names=[ingredient.name for ingredient in body.ingredients],
+            quantities=[ingredient.quantity for ingredient in body.ingredients],
+            units=[ingredient.units for ingredient in body.ingredients],
+        )
+        db.create_recipe_ingredients(params)
+
+    if body.instructions:
+        await db.delete_recipe_instructions_by_recipe_id(recipeid=id, userid=user.id)
+
+        db.create_recipe_instructions(
+            recipeid=id,
+            userid=user.id,
+            stepnumbers=[inst.step_number for inst in body.instructions],
+            contents=[inst.content for inst in body.instructions],
+        )
 
     return await populate_recipe_data(
         db=db,

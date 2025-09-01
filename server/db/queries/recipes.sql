@@ -20,6 +20,13 @@ VALUES (
 )
 RETURNING *;
 
+-- name: DeleteRecipeTagsByRecipeId :exec
+DELETE FROM recipe_tag
+WHERE
+    recipe_id = @recipeId::UUID
+    AND user_id = @userId::UUID
+;
+
 -- name: CreateRecipeTags :many
 WITH tags AS (
     SELECT UNNEST(@tags::TEXT[]) AS tag
@@ -34,6 +41,13 @@ FROM tags
 ON CONFLICT DO NOTHING
 RETURNING *;
 
+-- name: DeleteRecipeDietaryRestrictionsMetByRecipeId :exec
+DELETE FROM recipe_dietary_restriction_met
+WHERE
+    recipe_id = @recipeId::UUID
+    AND user_id = @userId::UUID
+;
+
 -- name: CreateRecipeDietaryRestrictionsMet :many
 WITH restrictions AS (
     SELECT UNNEST(@dietaryRestrictionsMets::dietary_restriction[]) AS dietary_restriction
@@ -47,6 +61,13 @@ SELECT
 FROM restrictions
 ON CONFLICT DO NOTHING
 RETURNING *;
+
+-- name: DeleteRecipeIngredientsByRecipeId :exec
+DELETE FROM recipe_ingredient
+WHERE
+    recipe_id = @recipeId::UUID
+    AND user_id = @userId::UUID
+;
 
 -- name: CreateRecipeIngredients :many
 WITH ingredients AS (
@@ -66,6 +87,13 @@ SELECT
 FROM ingredients
 ON CONFLICT DO NOTHING
 RETURNING *;
+
+-- name: DeleteRecipeInstructionsByRecipeId :exec
+DELETE FROM recipe_instruction
+WHERE
+    recipe_id = @recipeId::UUID
+    AND user_id = @userId::UUID
+;
 
 -- name: CreateRecipeInstructions :many
 WITH instructions AS (

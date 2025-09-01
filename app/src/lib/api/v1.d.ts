@@ -564,11 +564,25 @@ export interface components {
       readonly author?: string | null;
       /** Cuisine */
       readonly cuisine?: string | null;
+      /** Dietary Restrictions Met */
+      readonly dietary_restrictions_met?:
+        | readonly components["schemas"]["DietaryRestriction"][]
+        | null;
+      /** Ingredients */
+      readonly ingredients?:
+        | readonly components["schemas"]["RecipeIngredient"][]
+        | null;
+      /** Instructions */
+      readonly instructions?:
+        | readonly components["schemas"]["RecipeInstruction"][]
+        | null;
       readonly location?: components["schemas"]["RecipeLocation"] | null;
       /** Name */
       readonly name?: string | null;
       /** Notes */
       readonly notes?: string | null;
+      /** Tags */
+      readonly tags?: readonly string[] | null;
       /** Time Estimate Minutes */
       readonly time_estimate_minutes?: number | null;
     };
