@@ -2,7 +2,6 @@
 # versions:
 #   sqlc v1.28.0
 # source: recipes.sql
-import datetime
 import uuid
 from collections.abc import AsyncIterator
 from typing import Any
@@ -253,11 +252,10 @@ SET
     location = COALESCE(:p4\\:\\:JSONB, location),
     time_estimate_minutes = COALESCE(:p5\\:\\:INT, time_estimate_minutes),
     notes = COALESCE(:p6\\:\\:TEXT, notes),
-    last_made_at = COALESCE(:p7\\:\\:TIMESTAMPTZ, last_made_at),
     updated_at = CURRENT_TIMESTAMP
 WHERE
-    id = :p8\\:\\:UUID
-    AND user_id = :p9\\:\\:UUID
+    id = :p7\\:\\:UUID
+    AND user_id = :p8\\:\\:UUID
 RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at
 """
 
@@ -269,7 +267,6 @@ class UpdateRecipeParams(pydantic.BaseModel):
     location: Any | None
     time_estimate_minutes: int | None
     notes: str | None
-    last_made_at: datetime.datetime | None
     recipeid: uuid.UUID
     userid: uuid.UUID
 
@@ -553,9 +550,8 @@ class AsyncQuerier:
                     "p4": arg.location,
                     "p5": arg.time_estimate_minutes,
                     "p6": arg.notes,
-                    "p7": arg.last_made_at,
-                    "p8": arg.recipeid,
-                    "p9": arg.userid,
+                    "p7": arg.recipeid,
+                    "p8": arg.userid,
                 },
             )
         ).first()

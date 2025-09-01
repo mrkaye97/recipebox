@@ -112,7 +112,6 @@ SET
     location = COALESCE(sqlc.narg('location')::JSONB, location),
     time_estimate_minutes = COALESCE(sqlc.narg('time_estimate_minutes')::INT, time_estimate_minutes),
     notes = COALESCE(sqlc.narg('notes')::TEXT, notes),
-    last_made_at = COALESCE(sqlc.narg('last_made_at')::TIMESTAMPTZ, last_made_at),
     updated_at = CURRENT_TIMESTAMP
 WHERE
     id = @recipeId::UUID

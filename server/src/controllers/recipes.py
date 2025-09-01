@@ -193,7 +193,6 @@ class RecipePatch(BaseModel):
     location: RecipeLocation | None = None
     time_estimate_minutes: int | None = None
     notes: str | None = None
-    last_made_at: datetime | None = None
 
 
 @recipes.patch("/{id}")
@@ -213,7 +212,6 @@ async def update_recipe(
             location=body.location.model_dump_json() if body.location else None,
             time_estimate_minutes=body.time_estimate_minutes,
             notes=body.notes,
-            last_made_at=body.last_made_at,
             recipeid=id,
             userid=user.id,
         )

@@ -1,6 +1,10 @@
+from uuid import UUID
+
 from fastapi import APIRouter
+from pydantic import BaseModel
 
 from src.crud.activity import AsyncQuerier, ListRecentRecipeCooksRow
+from src.crud.models import Recipe
 from src.dependencies import Connection, User
 from src.logger import get_logger
 
@@ -19,3 +23,21 @@ async def list_recent_activity(
     )
 
     return [c async for c in cooks]
+
+
+class MarkRecipeCookedBody(BaseModel):
+    recipe_id: UUID
+
+
+@activity.post("")
+async def mark_recipe_cooked(
+    conn: Connection,
+    user: User,
+    body: MarkRecipeCookedBody,
+) -> Recipe | None:
+    querier = AsyncQuerier(conn)
+
+    return await querier.mark_recipe_cooked(
+        recipeid=body.recipe_id,
+        userid=user.id,
+    )

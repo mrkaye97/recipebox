@@ -11,6 +11,8 @@ import pydantic
 import sqlalchemy
 import sqlalchemy.ext.asyncio
 
+from src.crud import models
+
 LIST_RECENT_RECIPE_COOKS = """-- name: list_recent_recipe_cooks \\:many
 WITH recipes_cooked AS (
     SELECT user_id, recipe_id, cooked_at
@@ -43,6 +45,28 @@ class ListRecentRecipeCooksRow(pydantic.BaseModel):
     cooked_at: datetime.datetime
 
 
+MARK_RECIPE_COOKED = """-- name: mark_recipe_cooked \\:one
+WITH new_log AS (
+    INSERT INTO recipe_cooking_log (recipe_id, user_id, cooked_at)
+    VALUES (
+        :p1\\:\\:UUID,
+        :p2\\:\\:UUID,
+        NOW()
+    )
+    RETURNING user_id, recipe_id, cooked_at
+)
+
+UPDATE recipe
+SET
+    last_made_at = (SELECT cooked_at FROM new_log),
+    updated_at = CURRENT_TIMESTAMP
+WHERE
+    id = :p1\\:\\:UUID
+    AND user_id = :p2\\:\\:UUID
+RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at
+"""
+
+
 class AsyncQuerier:
     def __init__(self, conn: sqlalchemy.ext.asyncio.AsyncConnection):
         self._conn = conn
@@ -69,3 +93,27 @@ class AsyncQuerier:
                 updated_at=row[10],
                 cooked_at=row[11],
             )
+
+    async def mark_recipe_cooked(
+        self, *, recipeid: uuid.UUID, userid: uuid.UUID
+    ) -> models.Recipe | None:
+        row = (
+            await self._conn.execute(
+                sqlalchemy.text(MARK_RECIPE_COOKED), {"p1": recipeid, "p2": userid}
+            )
+        ).first()
+        if row is None:
+            return None
+        return models.Recipe(
+            id=row[0],
+            user_id=row[1],
+            name=row[2],
+            author=row[3],
+            cuisine=row[4],
+            location=row[5],
+            time_estimate_minutes=row[6],
+            notes=row[7],
+            last_made_at=row[8],
+            created_at=row[9],
+            updated_at=row[10],
+        )
