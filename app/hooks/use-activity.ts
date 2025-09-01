@@ -29,6 +29,7 @@ export const useActivity = ({ who }: { who: Who }) => {
     },
     {
       enabled: !!token,
+      placeholderData: (previousData) => previousData,
     },
   );
 

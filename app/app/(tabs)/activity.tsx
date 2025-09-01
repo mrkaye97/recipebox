@@ -36,7 +36,7 @@ export default function ActivityScreen() {
     return <Redirect href={"/(tabs)/profile"} />;
   }
 
-  if (isRecentCooksLoading || isAuthLoading) {
+  if ((isRecentCooksLoading && (!recentCooks || recentCooks.length === 0)) || isAuthLoading) {
     return (
       <ThemedView style={styles.container}>
         <View style={styles.centerContainer}>
