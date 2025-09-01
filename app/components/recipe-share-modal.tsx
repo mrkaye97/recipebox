@@ -22,7 +22,7 @@ import {
 } from "react-native";
 
 type User = components["schemas"]["User"];
-type Recipe = components["schemas"]["Recipe"];
+type Recipe = components["schemas"]["src__schemas__Recipe"];
 
 interface RecipeShareModalProps {
   visible: boolean;
