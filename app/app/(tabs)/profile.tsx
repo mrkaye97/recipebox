@@ -27,15 +27,12 @@ export default function ProfileScreen() {
   const { isAuthenticated, logout } = useUser();
   const router = useRouter();
   const [showSignup, setShowSignup] = React.useState(false);
+  const [acceptingUserId, setAcceptingUserId] = React.useState<string | null>(
+    null,
+  );
 
-  const {
-    requests,
-    friends,
-    sendRequest,
-    acceptRequest,
-    sendingRequest,
-    acceptingRequest,
-  } = useFriends({ query: "" });
+  const { requests, friends, sendRequest, acceptRequest, sendingRequest } =
+    useFriends({ query: "" });
 
   const handleLogout = async () => {
     Alert.alert("Logout", "Are you sure you want to log out?", [
@@ -66,6 +63,7 @@ export default function ProfileScreen() {
 
   const handleAcceptRequest = async (user: User) => {
     try {
+      setAcceptingUserId(user.id);
       await acceptRequest(user.id);
     } catch (error) {
       console.error("Error accepting friend request:", error);
@@ -73,6 +71,8 @@ export default function ProfileScreen() {
         "Error",
         "Failed to accept friend request. Please try again.",
       );
+    } finally {
+      setAcceptingUserId(null);
     }
   };
 
@@ -142,13 +142,14 @@ export default function ProfileScreen() {
                   <TouchableOpacity
                     style={[
                       styles.acceptButton,
-                      acceptingRequest && styles.acceptButtonDisabled,
+                      acceptingUserId === user.id &&
+                        styles.acceptButtonDisabled,
                     ]}
                     onPress={() => handleAcceptRequest(user)}
-                    disabled={acceptingRequest}
+                    disabled={acceptingUserId === user.id}
                   >
                     <ThemedText style={styles.acceptButtonText}>
-                      {acceptingRequest ? "Accepting..." : "Accept"}
+                      {acceptingUserId === user.id ? "Accepting..." : "Accept"}
                     </ThemedText>
                   </TouchableOpacity>
                 </View>

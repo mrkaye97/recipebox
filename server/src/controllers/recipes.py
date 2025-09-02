@@ -179,16 +179,18 @@ async def get_recipe(
     conn: Connection,
     user: User,
     id: UUID,
+    belongs_to_friend_user_id: UUID | None = None,
 ) -> Recipe:
     db = AsyncQuerier(conn)
-    recipe = await db.get_recipe(recipeid=id, userid=user.id)
+    user_id = belongs_to_friend_user_id or user.id
+    recipe = await db.get_recipe(recipeid=id, userid=user_id)
 
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
 
     return await populate_recipe_data(
         db=db,
-        user_id=user.id,
+        user_id=user_id,
         recipes=recipe,
     )
 

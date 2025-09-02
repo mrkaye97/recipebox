@@ -24,6 +24,7 @@ export const useActivity = ({ who }: { who: Who }) => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    refetch,
   } = $api.useInfiniteQuery(
     "get",
     "/activity",
@@ -113,6 +114,7 @@ export const useActivity = ({ who }: { who: Who }) => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    refetch,
     markAsCookedRecently: {
       perform: markAsCookedRecently,
       isPending: isMarkingCooked,

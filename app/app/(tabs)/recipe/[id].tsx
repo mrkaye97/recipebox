@@ -103,17 +103,26 @@ const RecipeLocationUI = ({ location }: { location: RecipeLocation }) => {
 };
 
 export default function RecipeDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, belongs_to_friend_user_id } = useLocalSearchParams<{
+    id: string;
+    belongs_to_friend_user_id?: string;
+  }>();
   const [ingredientsCollapsed, setIngredientsCollapsed] = useState(false);
   const [shareModalVisible, setShareModalVisible] = useState(false);
   const [justMarkedCooked, setJustMarkedCooked] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedRecipe, setEditedRecipe] = useState<RecipePatch | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
 
-  const { data: recipe, isLoading, refetch } = useRecipeDetails(id);
+  const {
+    data: recipe,
+    isLoading,
+    refetch,
+  } = useRecipeDetails(id, belongs_to_friend_user_id);
   const {
     updateRecipe: { perform: updateRecipe, isPending: isUpdating },
+    create,
   } = useRecipes();
   const {
     markAsCookedRecently: {
@@ -148,6 +157,47 @@ export default function RecipeDetailScreen() {
 
   const handleShareRecipe = () => {
     setShareModalVisible(true);
+  };
+
+  const handleSaveRecipe = async () => {
+    if (!recipe) return;
+
+    try {
+      setIsSaving(true);
+
+      const recipeData = {
+        name: recipe.name,
+        author: recipe.author,
+        cuisine: recipe.cuisine,
+        time_estimate_minutes: recipe.time_estimate_minutes,
+        tags: recipe.tags || [],
+        dietary_restrictions_met: recipe.dietary_restrictions_met || [],
+        ingredients: recipe.ingredients || [],
+        instructions: recipe.instructions || [],
+        notes: recipe.notes,
+        location: "made_up" as const,
+      };
+
+      const newRecipe = await create.perform(recipeData);
+
+      if (newRecipe) {
+        Alert.alert("Success", "Recipe saved to your collection!", [
+          {
+            text: "View Recipe",
+            onPress: () => router.replace(`/recipe/${newRecipe.id}`),
+          },
+          {
+            text: "OK",
+            style: "default",
+          },
+        ]);
+      }
+    } catch (error) {
+      console.error("Error saving recipe:", error);
+      Alert.alert("Error", "Failed to save recipe. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCloseShareModal = () => {
@@ -425,6 +475,35 @@ export default function RecipeDetailScreen() {
                 <ThemedText style={styles.saveButtonText}>
                   {isUpdating ? "Saving..." : "Save"}
                 </ThemedText>
+              </TouchableOpacity>
+            </>
+          ) : belongs_to_friend_user_id ? (
+            <>
+              <TouchableOpacity
+                onPress={handleSaveRecipe}
+                disabled={isSaving}
+                style={styles.saveRecipeButton}
+              >
+                <IconSymbol
+                  name="square.and.arrow.down"
+                  size={24}
+                  color={Colors.primary}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleMarkAsCooked}
+                disabled={isMarkingCooked}
+                style={styles.cookedButton}
+              >
+                <IconSymbol
+                  name={
+                    justMarkedCooked
+                      ? "checkmark.circle.fill"
+                      : "checkmark.circle"
+                  }
+                  size={24}
+                  color={justMarkedCooked ? "#10B981" : Colors.primary}
+                />
               </TouchableOpacity>
             </>
           ) : (
@@ -1045,6 +1124,9 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   editButton: {
+    padding: 8,
+  },
+  saveRecipeButton: {
     padding: 8,
   },
   cancelButton: {

@@ -905,7 +905,9 @@ export interface operations {
   };
   readonly get_recipe_recipes__id__get: {
     readonly parameters: {
-      readonly query?: never;
+      readonly query?: {
+        readonly belongs_to_friend_user_id?: string | null;
+      };
       readonly header?: never;
       readonly path: {
         readonly id: string;

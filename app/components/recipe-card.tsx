@@ -62,7 +62,11 @@ export function RecipeCard({
   currentUserId,
 }: RecipeCardProps) {
   const handlePress = () => {
-    router.push(`/recipe/${id}`);
+    if (isOtherUser && userId) {
+      router.push(`/recipe/${id}?belongs_to_friend_user_id=${userId}`);
+    } else {
+      router.push(`/recipe/${id}`);
+    }
   };
 
   const isOtherUser = userId && currentUserId && userId !== currentUserId;

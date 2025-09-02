@@ -36,6 +36,7 @@ export default function ActivityScreen() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    refetch,
   } = useActivity({ who });
 
   const handleLoadMore = useCallback(() => {
@@ -136,11 +137,8 @@ export default function ActivityScreen() {
           ListFooterComponent={renderFooter}
           refreshControl={
             <RefreshControl
-              refreshing={
-                isRecentCooksLoading &&
-                (!recentCooks || recentCooks.length === 0)
-              }
-              onRefresh={() => {}}
+              refreshing={isRecentCooksLoading}
+              onRefresh={refetch}
               tintColor={Colors.primary}
               colors={[Colors.primary]}
             />
