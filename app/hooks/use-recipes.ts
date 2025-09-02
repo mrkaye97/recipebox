@@ -136,6 +136,15 @@ export const useRecipes = ({
       },
     });
 
+  const { mutateAsync: deleteRecipeShare, isPending: deletePending } =
+    $api.useMutation("delete", "/sharing", {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: ["get", "/recipes/share"],
+        });
+      },
+    });
+
   const pendingSharesQuery = $api.useQuery(
     "get",
     "/sharing",
@@ -230,6 +239,22 @@ export const useRecipes = ({
     [acceptRecipeShare, token],
   );
 
+  const deleteRecipeShareRequest = useCallback(
+    async (shareToken: string) => {
+      if (!token) throw new Error("Not authenticated");
+
+      return await deleteRecipeShare({
+        body: {
+          token: shareToken,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    [deleteRecipeShare, token],
+  );
+
   return {
     ...recipeQuery,
     create: {
@@ -244,6 +269,10 @@ export const useRecipes = ({
     acceptShare: {
       perform: acceptRecipeShareRequest,
       isPending: acceptPending,
+    },
+    deleteShare: {
+      perform: deleteRecipeShareRequest,
+      isPending: deletePending,
     },
     pendingShares: {
       data: pendingSharesQuery.data,

@@ -80,7 +80,7 @@ class ActOnShareRequestBody(BaseModel):
     token: str
 
 
-@sharing.delete("/{request_id}")
+@sharing.delete("")
 async def deny_share_request(
     conn: Connection,
     user: User,

@@ -172,24 +172,8 @@ export interface paths {
     readonly put?: never;
     /** Create Recipe Share Link */
     readonly post: operations["create_recipe_share_link_sharing_post"];
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/sharing/{request_id}": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly get?: never;
-    readonly put?: never;
-    readonly post?: never;
     /** Deny Share Request */
-    readonly delete: operations["deny_share_request_sharing__request_id__delete"];
+    readonly delete: operations["deny_share_request_sharing_delete"];
     readonly options?: never;
     readonly head?: never;
     readonly patch?: never;
@@ -1191,7 +1175,7 @@ export interface operations {
       };
     };
   };
-  readonly deny_share_request_sharing__request_id__delete: {
+  readonly deny_share_request_sharing_delete: {
     readonly parameters: {
       readonly query?: never;
       readonly header?: never;
