@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Keyboard,
@@ -394,7 +394,7 @@ function CookbookRecipeForm() {
             disabled={create.isPending}
           >
             <ThemedText style={styles.submitButtonText}>
-              {create.isPending ? "Creating..." : "Create Recipe"}
+              {create.isPending ? "Creating..." : "Create"}
             </ThemedText>
           </TouchableOpacity>
         </View>

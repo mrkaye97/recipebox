@@ -302,7 +302,7 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
             disabled={create.isPending}
           >
             <ThemedText style={styles.submitButtonText}>
-              {create.isPending ? "Creating Recipe..." : "Create Recipe"}
+              {create.isPending ? "Creating Recipe..." : "Create"}
             </ThemedText>
           </TouchableOpacity>
         </View>
