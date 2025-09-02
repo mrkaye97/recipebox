@@ -63,6 +63,13 @@ export function UserSearchCombobox({
     onAddFriend?.(user);
     setQuery("");
     setIsOpen(false);
+    Keyboard.dismiss();
+  };
+
+  const handleInputBlur = () => {
+    setTimeout(() => {
+      setIsOpen(false);
+    }, 150);
   };
 
   const renderUserItem = ({ item: user }: { item: User }) => (
@@ -92,7 +99,9 @@ export function UserSearchCombobox({
             style={styles.input}
             value={query}
             onChangeText={handleInputChange}
+            onBlur={handleInputBlur}
             placeholder={placeholder}
+            placeholderTextColor={Colors.textSecondary}
             autoCapitalize="none"
             autoCorrect={false}
             returnKeyType="done"

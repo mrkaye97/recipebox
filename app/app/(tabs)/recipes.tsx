@@ -128,6 +128,7 @@ function OnlineRecipeForm() {
               value={url}
               onChangeText={setUrl}
               placeholder="https://example.com/recipe"
+              placeholderTextColor={Colors.textSecondary}
               autoCapitalize="none"
               autoCorrect={false}
               editable={!create.isPending}
@@ -143,6 +144,7 @@ function OnlineRecipeForm() {
               value={notes}
               onChangeText={setNotes}
               placeholder="Add any notes about this recipe..."
+              placeholderTextColor={Colors.textSecondary}
               multiline
               numberOfLines={4}
               editable={!create.isPending}
@@ -167,7 +169,7 @@ function OnlineRecipeForm() {
             disabled={create.isPending}
           >
             <ThemedText style={styles.submitButtonText}>
-              {create.isPending ? "Creating..." : "Import Recipe"}
+              {create.isPending ? "Creating..." : "Import"}
             </ThemedText>
           </TouchableOpacity>
         </View>
@@ -290,6 +292,7 @@ function CookbookRecipeForm() {
               value={cookbookName}
               onChangeText={setCookbookName}
               placeholder="e.g., Joy of Cooking"
+              placeholderTextColor={Colors.textSecondary}
               editable={!create.isPending}
               returnKeyType="next"
               blurOnSubmit={false}
@@ -303,6 +306,7 @@ function CookbookRecipeForm() {
               value={author}
               onChangeText={setAuthor}
               placeholder="e.g., Julia Child"
+              placeholderTextColor={Colors.textSecondary}
               editable={!create.isPending}
               returnKeyType="next"
               blurOnSubmit={false}
@@ -316,6 +320,7 @@ function CookbookRecipeForm() {
               value={pageNumber}
               onChangeText={setPageNumber}
               placeholder="e.g., 42"
+              placeholderTextColor={Colors.textSecondary}
               keyboardType="numeric"
               editable={!create.isPending}
               returnKeyType="next"
@@ -330,6 +335,7 @@ function CookbookRecipeForm() {
               value={notes}
               onChangeText={setNotes}
               placeholder="Add any notes about this recipe..."
+              placeholderTextColor={Colors.textSecondary}
               multiline
               numberOfLines={4}
               editable={!create.isPending}

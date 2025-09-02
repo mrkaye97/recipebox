@@ -181,7 +181,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: Spacing["3xl"],
+    paddingHorizontal: Spacing["3xl"],
+    paddingVertical: Spacing.lg,
   },
   errorText: {
     textAlign: "center",
