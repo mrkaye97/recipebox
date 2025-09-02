@@ -1,9 +1,10 @@
 import secrets
 from datetime import UTC, datetime, timedelta
+from typing import Literal
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 from src.crud.models import RecipeShareRequest
 from src.crud.recipes import AsyncQuerier as Recipes
@@ -36,6 +37,17 @@ async def list_pending_recipe_share_requests(
 class ShareRecipeBody(BaseModel):
     recipe_id: UUID
     to_user_id: UUID
+    source: Literal["outbound_share", "download_button"]
+    source_user_id: UUID | None = None
+
+    @model_validator(mode="after")
+    def validate_source_user_id(self) -> "ShareRecipeBody":
+        if self.source == "download_button" and not self.source_user_id:
+            raise ValueError(
+                "source_user_id is required when source is download_button"
+            )
+
+        return self
 
 
 @sharing.post("")
@@ -46,7 +58,9 @@ async def create_recipe_share_link(
 ) -> RecipeShareRequest | None:
     recipes = Recipes(conn)
     sharing = Sharing(conn)
-    recipe = await recipes.get_recipe(recipeid=body.recipe_id, userid=user.id)
+    user_id = user.id if body.source == "outbound_share" else body.source_user_id
+
+    recipe = await recipes.get_recipe(recipeid=body.recipe_id, userid=user_id)
 
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
