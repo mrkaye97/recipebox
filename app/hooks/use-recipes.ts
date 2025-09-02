@@ -191,13 +191,20 @@ export const useRecipes = ({
   );
 
   const shareRecipeWithFriend = useCallback(
-    async (recipeId: string, friendUserId: string) => {
+    async (
+      recipeId: string,
+      friendUserId: string,
+      source: paths["/sharing"]["post"]["requestBody"]["content"]["application/json"]["source"],
+      sourceUserId: string | undefined,
+    ) => {
       if (!token) throw new Error("Not authenticated");
 
       return await shareRecipe({
         body: {
           recipe_id: recipeId,
           to_user_id: friendUserId,
+          source,
+          source_user_id: sourceUserId,
         },
         headers: {
           Authorization: `Bearer ${token}`,

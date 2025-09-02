@@ -60,6 +60,9 @@ async def create_recipe_share_link(
     sharing = Sharing(conn)
     user_id = user.id if body.source == "outbound_share" else body.source_user_id
 
+    if not user_id:
+        raise HTTPException(status_code=400, detail="source_user_id is required")
+
     recipe = await recipes.get_recipe(recipeid=body.recipe_id, userid=user_id)
 
     if not recipe:

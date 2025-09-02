@@ -6,6 +6,7 @@ import { Colors } from "@/constants/design-system";
 import { useActivity } from "@/hooks/use-activity";
 import { useRecipeDetails } from "@/hooks/use-recipe-details";
 import { useRecipes } from "@/hooks/use-recipes";
+import { useUser } from "@/hooks/use-user";
 import { components } from "@/src/lib/api/v1";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
@@ -122,8 +123,10 @@ export default function RecipeDetailScreen() {
   } = useRecipeDetails(id, belongs_to_friend_user_id);
   const {
     updateRecipe: { perform: updateRecipe, isPending: isUpdating },
-    create,
+    shareRecipe,
+    acceptShare,
   } = useRecipes();
+  const { userInfo } = useUser();
   const {
     markAsCookedRecently: {
       perform: markAsCookedRecently,
@@ -160,32 +163,22 @@ export default function RecipeDetailScreen() {
   };
 
   const handleSaveRecipe = async () => {
-    if (!recipe) return;
+    if (!recipe || !userInfo || !belongs_to_friend_user_id) return;
 
     try {
       setIsSaving(true);
 
-      const recipeData = {
-        name: recipe.name,
-        author: recipe.author,
-        cuisine: recipe.cuisine,
-        time_estimate_minutes: recipe.time_estimate_minutes,
-        tags: recipe.tags || [],
-        dietary_restrictions_met: recipe.dietary_restrictions_met || [],
-        ingredients: recipe.ingredients || [],
-        instructions: recipe.instructions || [],
-        notes: recipe.notes,
-        location: "made_up" as const,
-      };
+      const shareRequest = await shareRecipe.perform(
+        recipe.id,
+        userInfo.userId,
+        "download_button",
+        belongs_to_friend_user_id,
+      );
 
-      const newRecipe = await create.perform(recipeData);
+      if (shareRequest?.token) {
+        await acceptShare.perform(shareRequest.token);
 
-      if (newRecipe) {
         Alert.alert("Success", "Recipe saved to your collection!", [
-          {
-            text: "View Recipe",
-            onPress: () => router.replace(`/recipe/${newRecipe.id}`),
-          },
           {
             text: "OK",
             style: "default",
