@@ -141,12 +141,12 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 25}
-    >
-      <ThemedView style={styles.container}>
+    <ThemedView style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoidContent}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 25}
+      >
         <ScrollView
           style={styles.form}
           contentContainerStyle={styles.scrollContent}
@@ -291,26 +291,26 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
             />
           </View>
         </ScrollView>
+      </KeyboardAvoidingView>
 
-        <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
-            <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.submitButton,
-              create.isPending && styles.submitButtonDisabled,
-            ]}
-            onPress={handleSubmit}
-            disabled={create.isPending}
-          >
-            <ThemedText style={styles.submitButtonText}>
-              {create.isPending ? "Creating..." : "Create"}
-            </ThemedText>
-          </TouchableOpacity>
-        </View>
-      </ThemedView>
-    </KeyboardAvoidingView>
+      <View style={styles.buttonRow}>
+        <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
+          <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.submitButton,
+            create.isPending && styles.submitButtonDisabled,
+          ]}
+          onPress={handleSubmit}
+          disabled={create.isPending}
+        >
+          <ThemedText style={styles.submitButtonText}>
+            {create.isPending ? "Creating..." : "Create"}
+          </ThemedText>
+        </TouchableOpacity>
+      </View>
+    </ThemedView>
   );
 }
 
@@ -318,6 +318,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.backgroundSubtle,
+  },
+  keyboardAvoidContent: {
+    flex: 1,
   },
   header: {
     flexDirection: "row",

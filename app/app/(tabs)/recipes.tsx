@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import {
   Alert,
-  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 
@@ -115,12 +115,17 @@ function OnlineRecipeForm() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: Colors.backgroundSubtle }}>
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoidContent}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 25}
+      >
         <ScrollView
           style={styles.formContainer}
           contentContainerStyle={styles.formContent}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.inputGroup}>
@@ -151,28 +156,29 @@ function OnlineRecipeForm() {
             />
           </View>
         </ScrollView>
-        <View style={styles.buttonRow}>
-          <TouchableOpacity
-            style={styles.cancelButton}
-            onPress={() => router.back()}
-          >
-            <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.submitButton,
-              create.isPending && styles.submitButtonDisabled,
-            ]}
-            onPress={handleSubmit}
-            disabled={create.isPending}
-          >
-            <ThemedText style={styles.submitButtonText}>
-              {create.isPending ? "Creating..." : "Import"}
-            </ThemedText>
-          </TouchableOpacity>
-        </View>
+      </KeyboardAvoidingView>
+
+      <View style={styles.buttonRow}>
+        <TouchableOpacity
+          style={styles.cancelButton}
+          onPress={() => router.back()}
+        >
+          <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.submitButton,
+            create.isPending && styles.submitButtonDisabled,
+          ]}
+          onPress={handleSubmit}
+          disabled={create.isPending}
+        >
+          <ThemedText style={styles.submitButtonText}>
+            {create.isPending ? "Creating..." : "Import"}
+          </ThemedText>
+        </TouchableOpacity>
       </View>
-    </TouchableWithoutFeedback>
+    </View>
   );
 }
 
@@ -277,12 +283,17 @@ function CookbookRecipeForm() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: Colors.backgroundSubtle }}>
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoidContent}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 25}
+      >
         <ScrollView
           style={styles.formContainer}
           contentContainerStyle={styles.formContent}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.inputGroup}>
@@ -370,28 +381,29 @@ function CookbookRecipeForm() {
             </TouchableOpacity>
           </View>
         </ScrollView>
-        <View style={styles.buttonRow}>
-          <TouchableOpacity
-            style={styles.cancelButton}
-            onPress={() => router.back()}
-          >
-            <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.submitButton,
-              create.isPending && styles.submitButtonDisabled,
-            ]}
-            onPress={handleSubmit}
-            disabled={create.isPending}
-          >
-            <ThemedText style={styles.submitButtonText}>
-              {create.isPending ? "Creating..." : "Create"}
-            </ThemedText>
-          </TouchableOpacity>
-        </View>
+      </KeyboardAvoidingView>
+
+      <View style={styles.buttonRow}>
+        <TouchableOpacity
+          style={styles.cancelButton}
+          onPress={() => router.back()}
+        >
+          <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.submitButton,
+            create.isPending && styles.submitButtonDisabled,
+          ]}
+          onPress={handleSubmit}
+          disabled={create.isPending}
+        >
+          <ThemedText style={styles.submitButtonText}>
+            {create.isPending ? "Creating..." : "Create"}
+          </ThemedText>
+        </TouchableOpacity>
       </View>
-    </TouchableWithoutFeedback>
+    </View>
   );
 }
 
@@ -666,11 +678,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     ...Shadows.md,
   },
+  keyboardAvoidContent: {
+    flex: 1,
+  },
   buttonRow: {
     flexDirection: "row",
     gap: Spacing.md,
     padding: Layout.screenPadding,
-    paddingBottom: Layout.bottomPadding.list,
+    paddingBottom: 120,
   },
   cancelButton: {
     flex: 1,
