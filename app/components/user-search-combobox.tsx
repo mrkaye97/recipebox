@@ -104,9 +104,7 @@ export function UserSearchCombobox({
             placeholderTextColor={Colors.textSecondary}
             autoCapitalize="none"
             autoCorrect={false}
-            returnKeyType="done"
             onSubmitEditing={Keyboard.dismiss}
-            blurOnSubmit={true}
           />
         </View>
 

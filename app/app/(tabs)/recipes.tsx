@@ -134,8 +134,6 @@ function OnlineRecipeForm() {
               autoCapitalize="none"
               autoCorrect={false}
               editable={!create.isPending}
-              returnKeyType="next"
-              blurOnSubmit={false}
             />
           </View>
 
@@ -150,8 +148,6 @@ function OnlineRecipeForm() {
               multiline
               numberOfLines={4}
               editable={!create.isPending}
-              returnKeyType="done"
-              blurOnSubmit={true}
             />
           </View>
         </ScrollView>
@@ -298,8 +294,6 @@ function CookbookRecipeForm() {
               placeholder="e.g., Joy of Cooking"
               placeholderTextColor={Colors.textSecondary}
               editable={!create.isPending}
-              returnKeyType="next"
-              blurOnSubmit={false}
             />
           </View>
 
@@ -312,8 +306,6 @@ function CookbookRecipeForm() {
               placeholder="e.g., Julia Child"
               placeholderTextColor={Colors.textSecondary}
               editable={!create.isPending}
-              returnKeyType="next"
-              blurOnSubmit={false}
             />
           </View>
 
@@ -327,8 +319,6 @@ function CookbookRecipeForm() {
               placeholderTextColor={Colors.textSecondary}
               keyboardType="numeric"
               editable={!create.isPending}
-              returnKeyType="next"
-              blurOnSubmit={false}
             />
           </View>
 
@@ -343,8 +333,6 @@ function CookbookRecipeForm() {
               multiline
               numberOfLines={4}
               editable={!create.isPending}
-              returnKeyType="done"
-              blurOnSubmit={true}
             />
           </View>
 
@@ -551,9 +539,9 @@ const styles = StyleSheet.create({
   formContainer: {
     flex: 1,
     backgroundColor: "#fafafa",
-    paddingHorizontal: 24,
   },
   formContent: {
+    paddingHorizontal: 24,
     paddingTop: 24,
     paddingBottom: 24,
   },

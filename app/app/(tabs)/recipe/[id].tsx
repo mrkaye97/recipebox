@@ -14,11 +14,13 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Alert,
   Button,
+  Keyboard,
   Linking,
   ScrollView,
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 
@@ -508,119 +510,125 @@ export default function RecipeDetailScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleBack} style={styles.backIconButton}>
-          <IconSymbol
-            name="chevron.left"
-            size={24}
-            color={Colors.textSecondary}
-          />
-        </TouchableOpacity>
-        <ThemedText type="title" style={styles.headerTitle}>
-          {isEditing ? "Edit Recipe" : "Recipe"}
-        </ThemedText>
-        <View style={styles.headerActions}>
-          {isEditing ? (
-            <>
-              <TouchableOpacity
-                onPress={handleCancelEdit}
-                style={styles.cancelButton}
-              >
-                <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleSaveEdit}
-                disabled={isUpdating}
-                style={styles.saveButton}
-              >
-                <ThemedText style={styles.saveButtonText}>
-                  {isUpdating ? "Saving..." : "Save"}
-                </ThemedText>
-              </TouchableOpacity>
-            </>
-          ) : belongs_to_friend_user_id ? (
-            <>
-              <TouchableOpacity
-                onPress={handleSaveRecipe}
-                disabled={isSaving}
-                style={styles.saveRecipeButton}
-              >
-                <IconSymbol
-                  name="square.and.arrow.down"
-                  size={24}
-                  color={Colors.primary}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleMarkAsCooked}
-                disabled={isMarkingCooked}
-                style={styles.cookedButton}
-              >
-                <IconSymbol
-                  name={
-                    justMarkedCooked
-                      ? "checkmark.circle.fill"
-                      : "checkmark.circle"
-                  }
-                  size={24}
-                  color={justMarkedCooked ? "#10B981" : Colors.primary}
-                />
-              </TouchableOpacity>
-            </>
-          ) : (
-            <>
-              <TouchableOpacity
-                onPress={handleEditRecipe}
-                style={styles.editButton}
-              >
-                <IconSymbol name="pencil" size={24} color={Colors.primary} />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleShareRecipe}
-                style={styles.shareButton}
-              >
-                <IconSymbol
-                  name="square.and.arrow.up"
-                  size={24}
-                  color={Colors.primary}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleDeleteRecipe}
-                disabled={isDeleting}
-                style={styles.deleteButton}
-              >
-                <IconSymbol
-                  name="trash"
-                  size={24}
-                  color={isDeleting ? Colors.textSecondary : "#EF4444"}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleMarkAsCooked}
-                disabled={isMarkingCooked}
-                style={styles.cookedButton}
-              >
-                <IconSymbol
-                  name={
-                    justMarkedCooked
-                      ? "checkmark.circle.fill"
-                      : "checkmark.circle"
-                  }
-                  size={24}
-                  color={justMarkedCooked ? "#10B981" : Colors.primary}
-                />
-              </TouchableOpacity>
-            </>
-          )}
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={handleBack} style={styles.backIconButton}>
+            <IconSymbol
+              name="chevron.left"
+              size={24}
+              color={Colors.textSecondary}
+            />
+          </TouchableOpacity>
+          <ThemedText type="title" style={styles.headerTitle}>
+            {isEditing ? "Edit Recipe" : "Recipe"}
+          </ThemedText>
+          <View style={styles.headerActions}>
+            {isEditing ? (
+              <>
+                <TouchableOpacity
+                  onPress={handleCancelEdit}
+                  style={styles.cancelButton}
+                >
+                  <ThemedText style={styles.cancelButtonText}>
+                    Cancel
+                  </ThemedText>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleSaveEdit}
+                  disabled={isUpdating}
+                  style={styles.saveButton}
+                >
+                  <ThemedText style={styles.saveButtonText}>
+                    {isUpdating ? "Saving..." : "Save"}
+                  </ThemedText>
+                </TouchableOpacity>
+              </>
+            ) : belongs_to_friend_user_id ? (
+              <>
+                <TouchableOpacity
+                  onPress={handleSaveRecipe}
+                  disabled={isSaving}
+                  style={styles.saveRecipeButton}
+                >
+                  <IconSymbol
+                    name="square.and.arrow.down"
+                    size={24}
+                    color={Colors.primary}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleMarkAsCooked}
+                  disabled={isMarkingCooked}
+                  style={styles.cookedButton}
+                >
+                  <IconSymbol
+                    name={
+                      justMarkedCooked
+                        ? "checkmark.circle.fill"
+                        : "checkmark.circle"
+                    }
+                    size={24}
+                    color={justMarkedCooked ? "#10B981" : Colors.primary}
+                  />
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <TouchableOpacity
+                  onPress={handleEditRecipe}
+                  style={styles.editButton}
+                >
+                  <IconSymbol name="pencil" size={24} color={Colors.primary} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleShareRecipe}
+                  style={styles.shareButton}
+                >
+                  <IconSymbol
+                    name="square.and.arrow.up"
+                    size={24}
+                    color={Colors.primary}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleDeleteRecipe}
+                  disabled={isDeleting}
+                  style={styles.deleteButton}
+                >
+                  <IconSymbol
+                    name="trash"
+                    size={24}
+                    color={isDeleting ? Colors.textSecondary : "#EF4444"}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleMarkAsCooked}
+                  disabled={isMarkingCooked}
+                  style={styles.cookedButton}
+                >
+                  <IconSymbol
+                    name={
+                      justMarkedCooked
+                        ? "checkmark.circle.fill"
+                        : "checkmark.circle"
+                    }
+                    size={24}
+                    color={justMarkedCooked ? "#10B981" : Colors.primary}
+                  />
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
 
       <ScrollView
         ref={scrollViewRef}
         style={styles.content}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       >
         <View style={styles.recipeHeader}>
           {isEditing ? (

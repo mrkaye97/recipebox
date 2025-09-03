@@ -14,13 +14,13 @@ import {
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { Colors } from "@/constants/design-system";
 import {
   PrivacyPreference,
   PrivacyPreferences,
   useUser,
 } from "@/hooks/use-user";
 import { useRouter } from "expo-router";
-import { Colors } from "@/constants/design-system";
 
 export function SignupForm() {
   const [email, setEmail] = useState("");
@@ -72,7 +72,7 @@ export function SignupForm() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{ flex: 1 }}>
       <ThemedView style={styles.container}>
         <ThemedText type="title" style={styles.title}>
           Sign Up
@@ -90,8 +90,6 @@ export function SignupForm() {
             autoCapitalize="words"
             autoCorrect={false}
             editable={!isLoading}
-            returnKeyType="next"
-            blurOnSubmit={false}
           />
         </View>
 
@@ -108,8 +106,6 @@ export function SignupForm() {
             autoCapitalize="none"
             autoCorrect={false}
             editable={!isLoading}
-            returnKeyType="next"
-            blurOnSubmit={false}
           />
         </View>
 
@@ -126,7 +122,6 @@ export function SignupForm() {
             autoCapitalize="none"
             autoCorrect={false}
             editable={!isLoading}
-            returnKeyType="done"
             onSubmitEditing={handleSignup}
           />
         </View>
@@ -172,7 +167,7 @@ export function SignupForm() {
           activeOpacity={0.8}
         >
           <Text style={styles.signupButtonText}>
-            {isLoading ? "Creating account..." : "Sign Up"}
+            {isLoading ? "Creating..." : "Sign Up"}
           </Text>
         </TouchableOpacity>
       </ThemedView>

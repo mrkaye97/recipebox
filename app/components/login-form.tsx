@@ -51,7 +51,7 @@ export function LoginForm() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{ flex: 1 }}>
       <ThemedView style={styles.container}>
         <ThemedText type="title" style={styles.title}>
           Log In
@@ -70,8 +70,6 @@ export function LoginForm() {
             autoCapitalize="none"
             autoCorrect={false}
             editable={!isLoading}
-            returnKeyType="next"
-            blurOnSubmit={false}
           />
         </View>
 
@@ -88,7 +86,6 @@ export function LoginForm() {
             autoCapitalize="none"
             autoCorrect={false}
             editable={!isLoading}
-            returnKeyType="done"
             onSubmitEditing={handleLogin}
           />
         </View>

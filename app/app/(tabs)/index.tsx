@@ -74,9 +74,7 @@ function SearchBar({
             onChangeText={onSearchChange}
             autoCapitalize="none"
             autoCorrect={false}
-            returnKeyType="done"
             onSubmitEditing={Keyboard.dismiss}
-            blurOnSubmit={true}
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity
@@ -240,7 +238,7 @@ export default function RecipesScreen() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{ flex: 1 }}>
       <ThemedView style={styles.container}>
         <RecipeHeader />
 
