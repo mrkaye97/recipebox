@@ -9,6 +9,7 @@ import {
 } from "react-native";
 
 import { RecipeCard } from "@/components/recipe-card";
+import { ActivitySkeleton } from "@/components/skeleton";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import {
@@ -49,18 +50,58 @@ export default function ActivityScreen() {
     return <Redirect href={"/(tabs)/profile"} />;
   }
 
-  if (
-    (isRecentCooksLoading && (!recentCooks || recentCooks.length === 0)) ||
-    isAuthLoading
-  ) {
-    return (
-      <ThemedView style={styles.container}>
-        <View style={styles.centerContainer}>
-          <ThemedText type="title">Loading Activity...</ThemedText>
+  const renderActivityContent = () => {
+    if (
+      (isRecentCooksLoading && (!recentCooks || recentCooks.length === 0)) ||
+      isAuthLoading
+    ) {
+      return (
+        <View style={styles.listContent}>
+          {Array.from({ length: 4 }).map((_, index) => (
+            <ActivitySkeleton key={index} />
+          ))}
         </View>
-      </ThemedView>
+      );
+    }
+
+    if (allItems.length === 0) {
+      return (
+        <View style={styles.centerContainer}>
+          <ThemedText type="subtitle">No activity yet</ThemedText>
+          <ThemedText style={styles.emptyStateText}>
+            Start cooking some recipes to see your activity here!
+          </ThemedText>
+        </View>
+      );
+    }
+
+    return (
+      <FlatList
+        data={allItems}
+        renderItem={renderItem}
+        keyExtractor={(item) => `${item.id}-${item.cooked_at}`}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRecentCooksLoading}
+            onRefresh={refetch}
+            tintColor={Colors.primary}
+            colors={[Colors.primary]}
+          />
+        }
+        ListFooterComponent={
+          hasNextPage ? (
+            <View style={styles.loadingFooter}>
+              <ActivityIndicator size="small" color={Colors.primary} />
+            </View>
+          ) : null
+        }
+      />
     );
-  }
+  };
 
   if (isRecentCooksError) {
     return (
@@ -91,15 +132,6 @@ export default function ActivityScreen() {
     />
   );
 
-  const renderFooter = () => {
-    if (!isFetchingNextPage) return null;
-    return (
-      <View style={styles.loadingFooter}>
-        <ActivityIndicator size="small" color={Colors.primary} />
-      </View>
-    );
-  };
-
   return (
     <ThemedView style={styles.container}>
       <View style={styles.header}>
@@ -118,33 +150,7 @@ export default function ActivityScreen() {
         </View>
       </View>
 
-      {allItems.length === 0 ? (
-        <View style={styles.centerContainer}>
-          <ThemedText type="subtitle">No activity yet</ThemedText>
-          <ThemedText style={styles.emptyStateText}>
-            Start cooking some recipes to see your activity here!
-          </ThemedText>
-        </View>
-      ) : (
-        <FlatList
-          data={allItems}
-          renderItem={renderItem}
-          keyExtractor={(item) => `${item.id}-${item.cooked_at}`}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
-          ListFooterComponent={renderFooter}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRecentCooksLoading}
-              onRefresh={refetch}
-              tintColor={Colors.primary}
-              colors={[Colors.primary]}
-            />
-          }
-        />
-      )}
+      {renderActivityContent()}
     </ThemedView>
   );
 }

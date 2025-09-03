@@ -1,6 +1,7 @@
 import { PendingRecipeShares } from "@/components/pending-recipe-shares";
 import { RecipeCard } from "@/components/recipe-card";
 import { RecipeCreationDrawer } from "@/components/recipe-creation-drawer";
+import { RecipeSkeleton } from "@/components/skeleton";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -162,16 +163,6 @@ export default function RecipesScreen() {
     return <Redirect href={"/(tabs)/profile"} />;
   }
 
-  if (isLoading || isAuthLoading) {
-    return (
-      <ThemedView style={styles.container}>
-        <View style={styles.centerContainer}>
-          <ThemedText type="title">Loading Recipes...</ThemedText>
-        </View>
-      </ThemedView>
-    );
-  }
-
   if (error) {
     return (
       <ThemedView style={styles.container}>
@@ -186,6 +177,22 @@ export default function RecipesScreen() {
   }
 
   const renderContent = () => {
+    if (isLoading || isAuthLoading) {
+      return (
+        <ScrollView
+          style={styles.recipesList}
+          contentContainerStyle={styles.recipesListContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.recipesGrid}>
+            {Array.from({ length: 6 }).map((_, index) => (
+              <RecipeSkeleton key={index} />
+            ))}
+          </View>
+        </ScrollView>
+      );
+    }
+
     if (!recipes || recipes.length === 0) {
       return (
         <View style={styles.centerContainer}>

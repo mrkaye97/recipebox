@@ -1,4 +1,5 @@
 import { RecipeShareModal } from "@/components/recipe-share-modal";
+import { Skeleton } from "@/components/skeleton";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -11,7 +12,6 @@ import { components } from "@/src/lib/api/v1";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
   Alert,
   Button,
   Linking,
@@ -428,10 +428,35 @@ export default function RecipeDetailScreen() {
   if (isLoading) {
     return (
       <ThemedView style={styles.container}>
-        <ThemedView style={styles.centerContainer}>
-          <ActivityIndicator size="large" />
-          <ThemedText style={styles.loadingText}>Loading recipe...</ThemedText>
-        </ThemedView>
+        <ScrollView
+          style={styles.content}
+          contentContainerStyle={styles.contentContainer}
+        >
+          <View style={styles.recipeHeader}>
+            <Skeleton
+              width="100%"
+              height={250}
+              borderRadius={0}
+              style={styles.imageSkeleton}
+            />
+          </View>
+          <Skeleton width="80%" height={32} style={styles.titleSkeleton} />
+          <Skeleton width="60%" height={20} style={styles.subtitleSkeleton} />
+          <View style={styles.metaContainer}>
+            <Skeleton width={100} height={16} />
+            <Skeleton width={80} height={16} />
+          </View>
+          <Skeleton
+            width="100%"
+            height={100}
+            style={styles.descriptionSkeleton}
+          />
+          <Skeleton
+            width="100%"
+            height={150}
+            style={styles.ingredientsSkeleton}
+          />
+        </ScrollView>
       </ThemedView>
     );
   }
@@ -1554,5 +1579,25 @@ const styles = StyleSheet.create({
   checkboxLabel: {
     fontSize: 16,
     flex: 1,
+  },
+  imageSkeleton: {
+    marginBottom: 20,
+  },
+  titleSkeleton: {
+    marginBottom: 8,
+  },
+  subtitleSkeleton: {
+    marginBottom: 16,
+  },
+  metaContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+  descriptionSkeleton: {
+    marginBottom: 24,
+  },
+  ingredientsSkeleton: {
+    marginBottom: 20,
   },
 });

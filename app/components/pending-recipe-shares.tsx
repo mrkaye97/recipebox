@@ -1,6 +1,7 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { PendingShareSkeleton } from "@/components/skeleton";
 import {
   BorderRadius,
   Colors,
@@ -90,9 +91,9 @@ export function PendingRecipeShares() {
           <ThemedText type="subtitle" style={styles.sectionTitle}>
             Pending Recipe Shares
           </ThemedText>
-          <ThemedText style={styles.loadingText}>
-            Loading pending shares...
-          </ThemedText>
+          {Array.from({ length: 2 }).map((_, index) => (
+            <PendingShareSkeleton key={index} />
+          ))}
         </View>
       </ThemedView>
     );
