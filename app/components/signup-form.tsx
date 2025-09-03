@@ -20,6 +20,7 @@ import {
   useUser,
 } from "@/hooks/use-user";
 import { useRouter } from "expo-router";
+import { Colors } from "@/constants/design-system";
 
 export function SignupForm() {
   const [email, setEmail] = useState("");
@@ -196,45 +197,45 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: Colors.borderLight,
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
   },
   pickerButton: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: Colors.borderLight,
     borderRadius: 8,
     padding: 12,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
     minHeight: 50,
   },
   pickerButtonText: {
     fontSize: 16,
-    color: "#000",
+    color: Colors.text,
     flex: 1,
   },
   pickerArrow: {
     fontSize: 12,
-    color: "#666",
+    color: Colors.textSecondary,
     marginLeft: 8,
   },
   signupButton: {
-    backgroundColor: "#34C759",
+    backgroundColor: Colors.buttonPrimary,
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
     marginTop: 10,
   },
   signupButtonDisabled: {
-    backgroundColor: "#ccc",
+    backgroundColor: Colors.buttonDisabled,
   },
   signupButtonText: {
-    color: "#fff",
+    color: Colors.surface,
     fontSize: 16,
     fontWeight: "600",
   },

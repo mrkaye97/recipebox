@@ -12,6 +12,7 @@ import {
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { Colors } from "@/constants/design-system";
 import { useUser } from "@/hooks/use-user";
 import { useRouter } from "expo-router";
 
@@ -42,7 +43,7 @@ export function LoginForm() {
     } catch (error) {
       Alert.alert(
         "Login Failed",
-        error instanceof Error ? error.message : "An unexpected error occurred",
+        error instanceof Error ? error.message : "An unexpected error occurred"
       );
     } finally {
       setIsLoading(false);
@@ -53,7 +54,7 @@ export function LoginForm() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <ThemedView style={styles.container}>
         <ThemedText type="title" style={styles.title}>
-          Login
+          Log In
         </ThemedText>
 
         <View style={styles.inputContainer}>
@@ -111,6 +112,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     gap: 20,
+    marginTop: -80,
   },
   title: {
     textAlign: "center",
@@ -124,24 +126,24 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: Colors.borderLight,
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
   },
   loginButton: {
-    backgroundColor: "#007AFF",
+    backgroundColor: Colors.buttonPrimary,
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
     marginTop: 10,
   },
   loginButtonDisabled: {
-    backgroundColor: "#ccc",
+    backgroundColor: Colors.buttonDisabled,
   },
   loginButtonText: {
-    color: "#fff",
+    color: Colors.surface,
     fontSize: 16,
     fontWeight: "600",
   },
