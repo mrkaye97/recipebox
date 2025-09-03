@@ -1,5 +1,10 @@
 import React from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
 
 import { LoginForm } from "@/components/login-form";
 import { ThemedView } from "@/components/themed-view";
@@ -7,15 +12,24 @@ import { ThemedView } from "@/components/themed-view";
 export default function LoginScreen() {
   return (
     <ThemedView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <LoginForm />
-      </ScrollView>
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoid}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 25}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <LoginForm />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  keyboardAvoid: {
     flex: 1,
   },
   scrollContent: {

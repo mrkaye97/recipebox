@@ -1,5 +1,12 @@
 import React from "react";
-import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 import { LoginForm } from "@/components/login-form";
 import { SignupForm } from "@/components/signup-form";
@@ -80,22 +87,28 @@ export default function ProfileScreen() {
   if (!isAuthenticated) {
     return (
       <ThemedView style={styles.container}>
-        <View style={styles.loginContainer}>
-          {showSignup ? <SignupForm /> : <LoginForm />}
+        <KeyboardAvoidingView
+          style={styles.keyboardAvoid}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 25}
+        >
+          <View style={styles.loginContainer}>
+            {showSignup ? <SignupForm /> : <LoginForm />}
 
-          <View style={styles.toggleContainer}>
-            <ThemedText style={styles.toggleText}>
-              {showSignup
-                ? "Already have an account?"
-                : "Don't have an account?"}
-            </ThemedText>
-            <TouchableOpacity onPress={() => setShowSignup(!showSignup)}>
-              <ThemedText style={styles.toggleLink}>
-                {showSignup ? "Log In" : "Sign Up"}
+            <View style={styles.toggleContainer}>
+              <ThemedText style={styles.toggleText}>
+                {showSignup
+                  ? "Already have an account?"
+                  : "Don't have an account?"}
               </ThemedText>
-            </TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowSignup(!showSignup)}>
+                <ThemedText style={styles.toggleLink}>
+                  {showSignup ? "Log In" : "Sign Up"}
+                </ThemedText>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </ThemedView>
     );
   }
@@ -348,6 +361,9 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSizes.xs,
     color: Colors.textSecondary,
     textAlign: "center",
+  },
+  keyboardAvoid: {
+    flex: 1,
   },
   loginContainer: {
     flex: 1,

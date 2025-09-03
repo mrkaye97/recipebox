@@ -123,6 +123,7 @@ export default function RecipeDetailScreen() {
   } = useRecipeDetails(id, belongs_to_friend_user_id);
   const {
     updateRecipe: { perform: updateRecipe, isPending: isUpdating },
+    deleteRecipe: { perform: deleteRecipe, isPending: isDeleting },
     shareRecipe,
     acceptShare,
     deleteShare,
@@ -206,6 +207,37 @@ export default function RecipeDetailScreen() {
 
   const handleCloseShareModal = () => {
     setShareModalVisible(false);
+  };
+
+  const handleDeleteRecipe = async () => {
+    if (!recipe) return;
+
+    Alert.alert(
+      "Delete Recipe",
+      "Are you sure you want to delete this recipe? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteRecipe(recipe.id);
+              router.back();
+            } catch (error) {
+              console.error("Error deleting recipe:", error);
+              Alert.alert(
+                "Error",
+                "Failed to delete recipe. Please try again.",
+              );
+            }
+          },
+        },
+      ],
+    );
   };
 
   const handleEditRecipe = () => {
@@ -551,6 +583,17 @@ export default function RecipeDetailScreen() {
                   name="square.and.arrow.up"
                   size={24}
                   color={Colors.primary}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleDeleteRecipe}
+                disabled={isDeleting}
+                style={styles.deleteButton}
+              >
+                <IconSymbol
+                  name="trash"
+                  size={24}
+                  color={isDeleting ? Colors.textSecondary : "#EF4444"}
                 />
               </TouchableOpacity>
               <TouchableOpacity
@@ -1155,6 +1198,9 @@ const styles = StyleSheet.create({
   editButton: {
     padding: 8,
   },
+  deleteButton: {
+    padding: 8,
+  },
   saveRecipeButton: {
     padding: 8,
   },
@@ -1483,9 +1529,6 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 40,
     textAlignVertical: "top",
-  },
-  deleteButton: {
-    padding: 4,
   },
   emptyStateButton: {
     borderWidth: 2,

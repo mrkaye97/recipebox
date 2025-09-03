@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import {
   Alert,
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   TextInput,
@@ -141,173 +143,185 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <ThemedView style={styles.container}>
-        <ScrollView
-          style={styles.form}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={styles.formSection}>
-            <ThemedText type="subtitle" style={styles.sectionTitle}>
-              Basic Information
-            </ThemedText>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 25}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ThemedView style={styles.container}>
+          <ScrollView
+            style={styles.form}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            bounces={false}
+          >
+            <View style={styles.formSection}>
+              <ThemedText type="subtitle" style={styles.sectionTitle}>
+                Basic Information
+              </ThemedText>
 
-            <View style={styles.inputGroup}>
-              <ThemedText style={styles.label}>Recipe Name *</ThemedText>
-              <TextInput
-                style={[styles.input, { color: Colors.text }]}
-                value={formData.name}
-                onChangeText={(value) => updateFormData("name", value)}
-                placeholder="Enter recipe name"
-                placeholderTextColor={Colors.textSecondary}
-                returnKeyType="next"
-                blurOnSubmit={false}
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <ThemedText style={styles.label}>Author *</ThemedText>
-              <TextInput
-                style={[styles.input, { color: Colors.text }]}
-                value={formData.author}
-                onChangeText={(value) => updateFormData("author", value)}
-                placeholder="Recipe author or source"
-                placeholderTextColor={Colors.textSecondary}
-                returnKeyType="next"
-                blurOnSubmit={false}
-              />
-            </View>
-
-            <View style={styles.row}>
-              <View style={[styles.inputGroup, styles.halfWidth]}>
-                <ThemedText style={styles.label}>Cuisine *</ThemedText>
+              <View style={styles.inputGroup}>
+                <ThemedText style={styles.label}>Recipe Name *</ThemedText>
                 <TextInput
                   style={[styles.input, { color: Colors.text }]}
-                  value={formData.cuisine}
-                  onChangeText={(value) => updateFormData("cuisine", value)}
-                  placeholder="Italian, Mexican, etc."
+                  value={formData.name}
+                  onChangeText={(value) => updateFormData("name", value)}
+                  placeholder="Enter recipe name"
                   placeholderTextColor={Colors.textSecondary}
                   returnKeyType="next"
                   blurOnSubmit={false}
                 />
               </View>
 
-              <View style={[styles.inputGroup, styles.halfWidth]}>
-                <ThemedText style={styles.label}>Total Time (min)</ThemedText>
+              <View style={styles.inputGroup}>
+                <ThemedText style={styles.label}>Author *</ThemedText>
                 <TextInput
                   style={[styles.input, { color: Colors.text }]}
-                  value={formData.time_estimate_minutes}
-                  onChangeText={(value) =>
-                    updateFormData("time_estimate_minutes", value)
-                  }
-                  placeholder="45"
+                  value={formData.author}
+                  onChangeText={(value) => updateFormData("author", value)}
+                  placeholder="Recipe author or source"
                   placeholderTextColor={Colors.textSecondary}
-                  keyboardType="numeric"
                   returnKeyType="next"
                   blurOnSubmit={false}
                 />
               </View>
+
+              <View style={styles.row}>
+                <View style={[styles.inputGroup, styles.halfWidth]}>
+                  <ThemedText style={styles.label}>Cuisine *</ThemedText>
+                  <TextInput
+                    style={[styles.input, { color: Colors.text }]}
+                    value={formData.cuisine}
+                    onChangeText={(value) => updateFormData("cuisine", value)}
+                    placeholder="Italian, Mexican, etc."
+                    placeholderTextColor={Colors.textSecondary}
+                    returnKeyType="next"
+                    blurOnSubmit={false}
+                  />
+                </View>
+
+                <View style={[styles.inputGroup, styles.halfWidth]}>
+                  <ThemedText style={styles.label}>Total Time (min)</ThemedText>
+                  <TextInput
+                    style={[styles.input, { color: Colors.text }]}
+                    value={formData.time_estimate_minutes}
+                    onChangeText={(value) =>
+                      updateFormData("time_estimate_minutes", value)
+                    }
+                    placeholder="45"
+                    placeholderTextColor={Colors.textSecondary}
+                    keyboardType="numeric"
+                    returnKeyType="next"
+                    blurOnSubmit={false}
+                  />
+                </View>
+              </View>
+
+              <View style={styles.inputGroup}>
+                <ThemedText style={styles.label}>Notes</ThemedText>
+                <TextInput
+                  style={[
+                    styles.input,
+                    styles.textArea,
+                    { color: Colors.text },
+                  ]}
+                  value={formData.notes}
+                  onChangeText={(value) => updateFormData("notes", value)}
+                  placeholder="Any additional notes about the recipe"
+                  placeholderTextColor={Colors.textSecondary}
+                  multiline
+                  numberOfLines={3}
+                />
+              </View>
             </View>
 
-            <View style={styles.inputGroup}>
-              <ThemedText style={styles.label}>Notes</ThemedText>
+            <View style={styles.formSection}>
+              <ThemedText type="subtitle" style={styles.sectionTitle}>
+                Ingredients *
+              </ThemedText>
+              <ThemedText style={styles.helperText}>
+                Enter each ingredient on a new line
+              </ThemedText>
+
               <TextInput
-                style={[styles.input, styles.textArea, { color: Colors.text }]}
-                value={formData.notes}
-                onChangeText={(value) => updateFormData("notes", value)}
-                placeholder="Any additional notes about the recipe"
+                style={[
+                  styles.input,
+                  styles.largeTextArea,
+                  { color: Colors.text },
+                ]}
+                value={formData.ingredients}
+                onChangeText={(value) => updateFormData("ingredients", value)}
+                placeholder={`2 cups flour\n1 tsp salt\n3 eggs\n1 cup milk`}
                 placeholderTextColor={Colors.textSecondary}
                 multiline
-                numberOfLines={3}
+                numberOfLines={6}
               />
             </View>
-          </View>
 
-          <View style={styles.formSection}>
-            <ThemedText type="subtitle" style={styles.sectionTitle}>
-              Ingredients *
-            </ThemedText>
-            <ThemedText style={styles.helperText}>
-              Enter each ingredient on a new line
-            </ThemedText>
+            <View style={styles.formSection}>
+              <ThemedText type="subtitle" style={styles.sectionTitle}>
+                Instructions *
+              </ThemedText>
+              <ThemedText style={styles.helperText}>
+                Enter each step on a new line
+              </ThemedText>
 
-            <TextInput
+              <TextInput
+                style={[
+                  styles.input,
+                  styles.largeTextArea,
+                  { color: Colors.text },
+                ]}
+                value={formData.instructions}
+                onChangeText={(value) => updateFormData("instructions", value)}
+                placeholder={`Preheat oven to 350°F\nMix dry ingredients in a bowl\nAdd wet ingredients and stir\nBake for 25-30 minutes`}
+                placeholderTextColor={Colors.textSecondary}
+                multiline
+                numberOfLines={8}
+              />
+            </View>
+
+            <View style={styles.formSection}>
+              <ThemedText type="subtitle" style={styles.sectionTitle}>
+                Tags
+              </ThemedText>
+              <ThemedText style={styles.helperText}>
+                Separate tags with commas (e.g., &quot;dinner, italian,
+                vegetarian&quot;)
+              </ThemedText>
+
+              <TextInput
+                style={[styles.input, { color: Colors.text }]}
+                value={formData.tags}
+                onChangeText={(value) => updateFormData("tags", value)}
+                placeholder="dinner, italian, vegetarian"
+                placeholderTextColor={Colors.textSecondary}
+              />
+            </View>
+          </ScrollView>
+
+          <View style={styles.buttonRow}>
+            <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
+              <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
+            </TouchableOpacity>
+            <TouchableOpacity
               style={[
-                styles.input,
-                styles.largeTextArea,
-                { color: Colors.text },
+                styles.submitButton,
+                create.isPending && styles.submitButtonDisabled,
               ]}
-              value={formData.ingredients}
-              onChangeText={(value) => updateFormData("ingredients", value)}
-              placeholder={`2 cups flour\n1 tsp salt\n3 eggs\n1 cup milk`}
-              placeholderTextColor={Colors.textSecondary}
-              multiline
-              numberOfLines={6}
-            />
+              onPress={handleSubmit}
+              disabled={create.isPending}
+            >
+              <ThemedText style={styles.submitButtonText}>
+                {create.isPending ? "Creating Recipe..." : "Create"}
+              </ThemedText>
+            </TouchableOpacity>
           </View>
-
-          <View style={styles.formSection}>
-            <ThemedText type="subtitle" style={styles.sectionTitle}>
-              Instructions *
-            </ThemedText>
-            <ThemedText style={styles.helperText}>
-              Enter each step on a new line
-            </ThemedText>
-
-            <TextInput
-              style={[
-                styles.input,
-                styles.largeTextArea,
-                { color: Colors.text },
-              ]}
-              value={formData.instructions}
-              onChangeText={(value) => updateFormData("instructions", value)}
-              placeholder={`Preheat oven to 350°F\nMix dry ingredients in a bowl\nAdd wet ingredients and stir\nBake for 25-30 minutes`}
-              placeholderTextColor={Colors.textSecondary}
-              multiline
-              numberOfLines={8}
-            />
-          </View>
-
-          <View style={styles.formSection}>
-            <ThemedText type="subtitle" style={styles.sectionTitle}>
-              Tags
-            </ThemedText>
-            <ThemedText style={styles.helperText}>
-              Separate tags with commas (e.g., &quot;dinner, italian,
-              vegetarian&quot;)
-            </ThemedText>
-
-            <TextInput
-              style={[styles.input, { color: Colors.text }]}
-              value={formData.tags}
-              onChangeText={(value) => updateFormData("tags", value)}
-              placeholder="dinner, italian, vegetarian"
-              placeholderTextColor={Colors.textSecondary}
-            />
-          </View>
-        </ScrollView>
-
-        <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
-            <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.submitButton,
-              create.isPending && styles.submitButtonDisabled,
-            ]}
-            onPress={handleSubmit}
-            disabled={create.isPending}
-          >
-            <ThemedText style={styles.submitButtonText}>
-              {create.isPending ? "Creating Recipe..." : "Create"}
-            </ThemedText>
-          </TouchableOpacity>
-        </View>
-      </ThemedView>
-    </TouchableWithoutFeedback>
+        </ThemedView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -335,6 +349,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: Layout.screenPadding,
     paddingTop: Spacing["4xl"],
+  },
+  scrollContent: {
+    paddingBottom: Spacing["4xl"],
   },
   formSection: {
     ...Components.formSection,

@@ -97,6 +97,15 @@ export const useRecipes = ({
       },
     });
 
+  const { mutateAsync: deleteRecipeMutation, isPending: deleteRecipePending } =
+    $api.useMutation("delete", "/recipes/{id}", {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: ["get", "/recipes"],
+        });
+      },
+    });
+
   const updateRecipe = useCallback(
     async (
       id: string,
@@ -115,6 +124,22 @@ export const useRecipes = ({
       });
     },
     [updateRecipeMutation, token],
+  );
+
+  const deleteRecipe = useCallback(
+    async (id: string) => {
+      await deleteRecipeMutation({
+        params: {
+          path: {
+            id,
+          },
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    [deleteRecipeMutation, token],
   );
 
   const { mutateAsync: shareRecipe, isPending: sharePending } =
@@ -286,6 +311,10 @@ export const useRecipes = ({
     updateRecipe: {
       perform: updateRecipe,
       isPending: updatePending,
+    },
+    deleteRecipe: {
+      perform: deleteRecipe,
+      isPending: deleteRecipePending,
     },
   };
 };
