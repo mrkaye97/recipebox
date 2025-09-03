@@ -22,12 +22,21 @@ import {
 type PendingShare = components["schemas"]["ListPendingRecipeShareRequestsRow"];
 
 export function PendingRecipeShares() {
-  const { pendingShares, acceptShare } = useRecipes();
+  const { pendingShares, acceptShare, deleteShare } = useRecipes();
 
   const handleAcceptShare = async (share: PendingShare) => {
     try {
       await acceptShare.perform(share.token);
     } catch (error) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "detail" in error &&
+        (error as { detail?: string }).detail === "duplicate"
+      ) {
+        await deleteShare.perform(share.token);
+        return;
+      }
       console.error("Error accepting recipe share:", error);
       Alert.alert("Error", "Failed to accept recipe share. Please try again.");
     }

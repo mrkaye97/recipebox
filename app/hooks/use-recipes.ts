@@ -128,10 +128,10 @@ export const useRecipes = ({
     $api.useMutation("post", "/sharing/accept", {
       onSuccess: async () => {
         await queryClient.invalidateQueries({
-          queryKey: ["get", "/recipes"],
+          queryKey: ["get", "/sharing"],
         });
         await queryClient.invalidateQueries({
-          queryKey: ["get", "/recipes/share"],
+          queryKey: ["get", "/sharing"],
         });
       },
     });
@@ -140,7 +140,7 @@ export const useRecipes = ({
     $api.useMutation("delete", "/sharing", {
       onSuccess: async () => {
         await queryClient.invalidateQueries({
-          queryKey: ["get", "/recipes/share"],
+          queryKey: ["get", "/sharing"],
         });
       },
     });
