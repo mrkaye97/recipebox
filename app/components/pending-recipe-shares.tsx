@@ -1,7 +1,7 @@
+import { PendingShareSkeleton } from "@/components/skeleton";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { PendingShareSkeleton } from "@/components/skeleton";
 import {
   BorderRadius,
   Colors,
@@ -67,7 +67,9 @@ export function PendingRecipeShares() {
       <TouchableOpacity
         style={[
           styles.acceptButton,
-          acceptShare.isPending && styles.acceptButtonDisabled,
+          acceptShare.isPending &&
+            acceptShare.pendingAcceptShareToken === share.token &&
+            styles.acceptButtonDisabled,
         ]}
         onPress={() => handleAcceptShare(share)}
         disabled={acceptShare.isPending}
@@ -75,10 +77,18 @@ export function PendingRecipeShares() {
         <IconSymbol
           name="checkmark.circle"
           size={20}
-          color={acceptShare.isPending ? Colors.textSecondary : Colors.surface}
+          color={
+            acceptShare.isPending &&
+            acceptShare.pendingAcceptShareToken === share.token
+              ? Colors.textSecondary
+              : Colors.surface
+          }
         />
         <ThemedText style={styles.acceptButtonText}>
-          {acceptShare.isPending ? "Adding..." : "Accept"}
+          {acceptShare.isPending &&
+          acceptShare.pendingAcceptShareToken === share.token
+            ? "Adding..."
+            : "Accept"}
         </ThemedText>
       </TouchableOpacity>
     </View>

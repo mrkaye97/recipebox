@@ -1,7 +1,8 @@
 import { $api } from "@/src/lib/api/client";
 import { components, paths } from "@/src/lib/api/v1";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
+import { Alert } from "react-native";
 import { useDebounce } from "use-debounce";
 import { useUser } from "./use-user";
 
@@ -25,6 +26,8 @@ export const useRecipes = ({
   const queryClient = useQueryClient();
 
   const [debouncedSearch] = useDebounce(search || "", 300);
+  const [pendingAcceptShareToken, setPendingAcceptShareToken] =
+    useState<string | null>(null);
 
   const recipeQuery = $api.useQuery(
     "get",
@@ -145,12 +148,15 @@ export const useRecipes = ({
   const { mutateAsync: shareRecipe, isPending: sharePending } =
     $api.useMutation("post", "/sharing", {
       onSuccess: async () => {
-        // Could invalidate shared recipes query if we had one
+        Alert.alert("Success", "Recipe shared successfully");
       },
     });
 
   const { mutateAsync: acceptRecipeShare, isPending: acceptPending } =
     $api.useMutation("post", "/sharing/accept", {
+      onMutate: async (variables) => {
+        setPendingAcceptShareToken(variables.body.token);
+      },
       onSuccess: async () => {
         await queryClient.invalidateQueries({
           queryKey: ["get", "/sharing"],
@@ -159,6 +165,9 @@ export const useRecipes = ({
           queryKey: ["get", "/recipes"],
         });
       },
+      onSettled: () => {
+        setPendingAcceptShareToken(null);
+      }
     });
 
   const { mutateAsync: deleteRecipeShare, isPending: deletePending } =
@@ -294,6 +303,7 @@ export const useRecipes = ({
     acceptShare: {
       perform: acceptRecipeShareRequest,
       isPending: acceptPending,
+      pendingAcceptShareToken,
     },
     deleteShare: {
       perform: deleteRecipeShareRequest,
