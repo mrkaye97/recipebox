@@ -119,7 +119,9 @@ function OnlineRecipeForm() {
       <View style={{ flex: 1 }}>
         <ScrollView
           style={styles.formContainer}
+          contentContainerStyle={styles.formContent}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
           <View style={styles.inputGroup}>
             <ThemedText type="defaultSemiBold">Recipe URL</ThemedText>
@@ -283,7 +285,9 @@ function CookbookRecipeForm() {
       <View style={{ flex: 1 }}>
         <ScrollView
           style={styles.formContainer}
+          contentContainerStyle={styles.formContent}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
           <View style={styles.inputGroup}>
             <ThemedText type="defaultSemiBold">Cookbook Name</ThemedText>
@@ -548,6 +552,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fafafa",
     paddingHorizontal: 24,
+  },
+  formContent: {
+    paddingTop: 24,
+    paddingBottom: 24,
   },
   formHeader: {
     flexDirection: "row",

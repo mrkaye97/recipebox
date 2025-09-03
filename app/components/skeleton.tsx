@@ -120,6 +120,29 @@ export function PendingShareSkeleton() {
   );
 }
 
+export function FriendSkeleton() {
+  return (
+    <View style={styles.friendCard}>
+      <View style={styles.friendInfo}>
+        <Skeleton width="70%" height={18} style={styles.friendName} />
+        <Skeleton width="50%" height={14} />
+      </View>
+    </View>
+  );
+}
+
+export function FriendRequestSkeleton() {
+  return (
+    <View style={styles.friendCard}>
+      <View style={styles.friendInfo}>
+        <Skeleton width="60%" height={18} style={styles.friendName} />
+        <Skeleton width="40%" height={14} />
+      </View>
+      <Skeleton width={70} height={32} borderRadius={8} />
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   recipeCard: {
     backgroundColor: Colors.surface,
@@ -196,5 +219,23 @@ const styles = StyleSheet.create({
   shareActions: {
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  friendCard: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+    marginBottom: 12,
+  },
+  friendInfo: {
+    flex: 1,
+    marginRight: 12,
+  },
+  friendName: {
+    marginBottom: 4,
   },
 });

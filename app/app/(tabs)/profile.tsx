@@ -7,6 +7,7 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { UserSearchCombobox } from "@/components/user-search-combobox";
+import { FriendSkeleton, FriendRequestSkeleton } from "@/components/skeleton";
 import {
   BorderRadius,
   Colors,
@@ -102,6 +103,10 @@ export default function ProfileScreen() {
   const pendingRequests = requests.data || [];
   const friendsList = friends.data || [];
 
+  const showFriendRequestsSection =
+    requests.isLoading || pendingRequests.length > 0;
+  const showFriendsSection = friends.isLoading || friendsList.length > 0;
+
   return (
     <ThemedView style={styles.container}>
       <View style={styles.header}>
@@ -122,7 +127,7 @@ export default function ProfileScreen() {
           />
         </View>
 
-        {pendingRequests.length > 0 && (
+        {showFriendRequestsSection && (
           <View style={styles.section}>
             <ThemedText type="subtitle" style={styles.sectionTitle}>
               Friend Requests
@@ -131,34 +136,42 @@ export default function ProfileScreen() {
               People who want to be your friend
             </ThemedText>
             <View style={styles.usersList}>
-              {pendingRequests.map((user) => (
-                <View key={user.id} style={styles.userCard}>
-                  <View style={styles.userInfo}>
-                    <ThemedText type="defaultSemiBold">{user.name}</ThemedText>
-                    <ThemedText style={styles.userEmail}>
-                      {user.email}
-                    </ThemedText>
-                  </View>
-                  <TouchableOpacity
-                    style={[
-                      styles.acceptButton,
-                      acceptingUserId === user.id &&
-                        styles.acceptButtonDisabled,
-                    ]}
-                    onPress={() => handleAcceptRequest(user)}
-                    disabled={acceptingUserId === user.id}
-                  >
-                    <ThemedText style={styles.acceptButtonText}>
-                      {acceptingUserId === user.id ? "Accepting..." : "Accept"}
-                    </ThemedText>
-                  </TouchableOpacity>
-                </View>
-              ))}
+              {requests.isLoading
+                ? Array.from({ length: 2 }).map((_, index) => (
+                    <FriendRequestSkeleton key={index} />
+                  ))
+                : pendingRequests.map((user) => (
+                    <View key={user.id} style={styles.userCard}>
+                      <View style={styles.userInfo}>
+                        <ThemedText type="defaultSemiBold">
+                          {user.name}
+                        </ThemedText>
+                        <ThemedText style={styles.userEmail}>
+                          {user.email}
+                        </ThemedText>
+                      </View>
+                      <TouchableOpacity
+                        style={[
+                          styles.acceptButton,
+                          acceptingUserId === user.id &&
+                            styles.acceptButtonDisabled,
+                        ]}
+                        onPress={() => handleAcceptRequest(user)}
+                        disabled={acceptingUserId === user.id}
+                      >
+                        <ThemedText style={styles.acceptButtonText}>
+                          {acceptingUserId === user.id
+                            ? "Accepting..."
+                            : "Accept"}
+                        </ThemedText>
+                      </TouchableOpacity>
+                    </View>
+                  ))}
             </View>
           </View>
         )}
 
-        {friendsList.length > 0 && (
+        {showFriendsSection && (
           <View style={styles.section}>
             <ThemedText type="subtitle" style={styles.sectionTitle}>
               Friends
@@ -167,16 +180,22 @@ export default function ProfileScreen() {
               Your recipe sharing buddies
             </ThemedText>
             <View style={styles.usersList}>
-              {friendsList.map((user) => (
-                <View key={user.id} style={styles.userCard}>
-                  <View style={styles.userInfo}>
-                    <ThemedText type="defaultSemiBold">{user.name}</ThemedText>
-                    <ThemedText style={styles.userEmail}>
-                      {user.email}
-                    </ThemedText>
-                  </View>
-                </View>
-              ))}
+              {friends.isLoading
+                ? Array.from({ length: 3 }).map((_, index) => (
+                    <FriendSkeleton key={index} />
+                  ))
+                : friendsList.map((user) => (
+                    <View key={user.id} style={styles.userCard}>
+                      <View style={styles.userInfo}>
+                        <ThemedText type="defaultSemiBold">
+                          {user.name}
+                        </ThemedText>
+                        <ThemedText style={styles.userEmail}>
+                          {user.email}
+                        </ThemedText>
+                      </View>
+                    </View>
+                  ))}
             </View>
           </View>
         )}
