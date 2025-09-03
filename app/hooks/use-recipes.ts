@@ -156,7 +156,7 @@ export const useRecipes = ({
           queryKey: ["get", "/sharing"],
         });
         await queryClient.invalidateQueries({
-          queryKey: ["get", "/sharing"],
+          queryKey: ["get", "/recipes"],
         });
       },
     });

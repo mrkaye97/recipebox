@@ -1,6 +1,7 @@
 import { $api } from "@/src/lib/api/client";
 import { components } from "@/src/lib/api/v1";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useQueryClient } from "@tanstack/react-query";
 import { jwtDecode } from "jwt-decode";
 import React, {
   createContext,
@@ -51,6 +52,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [token, setToken] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const queryClient = useQueryClient();
 
   const userInfo = useMemo(() => {
     if (!token) return null;
@@ -192,6 +194,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const logout = useCallback(async () => {
     await removeToken();
+    queryClient.clear()
   }, [removeToken]);
 
   useEffect(() => {
