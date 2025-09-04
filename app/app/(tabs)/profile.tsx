@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: Layout.screenPadding,
     paddingTop: Spacing.lg,
-    gap: Spacing["3xl"],
+    gap: Spacing.xl,
     justifyContent: "flex-start",
   },
   centerContainer: {
@@ -291,6 +291,12 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: Spacing.lg,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.xl,
+    ...Shadows.md,
+    borderWidth: 0.5,
+    borderColor: Colors.borderLight,
   },
   sectionTitle: {
     marginBottom: Spacing.sm,

@@ -12,7 +12,13 @@ import {
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { Colors } from "@/constants/design-system";
+import {
+  BorderRadius,
+  Colors,
+  Shadows,
+  Spacing,
+  Typography,
+} from "@/constants/design-system";
 import { useUser } from "@/hooks/use-user";
 import { useRouter } from "expo-router";
 
@@ -107,41 +113,61 @@ export function LoginForm() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    gap: 20,
+    padding: Spacing.xl,
+    gap: Spacing.xl,
     marginTop: -80,
+    flex: 1,
+    backgroundColor: Colors.background,
   },
   title: {
     textAlign: "center",
-    marginBottom: 10,
+    marginBottom: Spacing.lg,
+    fontSize: Typography.fontSizes["2xl"],
+    fontWeight: Typography.fontWeights.bold,
+    color: Colors.text,
+    letterSpacing: Typography.letterSpacing.tight,
   },
   inputContainer: {
-    gap: 8,
+    gap: Spacing.sm,
   },
   label: {
-    fontSize: 16,
+    fontSize: Typography.fontSizes.base,
+    fontWeight: Typography.fontWeights.semibold,
+    color: Colors.text,
+    marginBottom: Spacing.xs,
+    letterSpacing: Typography.letterSpacing.wide,
   },
   input: {
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: Colors.borderLight,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
+    borderRadius: BorderRadius.lg,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    fontSize: Typography.fontSizes.base,
     backgroundColor: Colors.surface,
+    color: Colors.text,
+    minHeight: 52,
+    ...Shadows.sm,
   },
   loginButton: {
-    backgroundColor: Colors.buttonPrimary,
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: Colors.primary,
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.lg,
+    borderRadius: BorderRadius.xl,
     alignItems: "center",
-    marginTop: 10,
+    justifyContent: "center",
+    marginTop: Spacing.xl,
+    minHeight: 56,
+    ...Shadows.primaryLarge,
   },
   loginButtonDisabled: {
-    backgroundColor: Colors.buttonDisabled,
+    backgroundColor: Colors.textSecondary,
+    ...Shadows.sm,
   },
   loginButtonText: {
     color: Colors.surface,
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: Typography.fontSizes.lg,
+    fontWeight: Typography.fontWeights.bold,
+    letterSpacing: Typography.letterSpacing.wide,
   },
 });
