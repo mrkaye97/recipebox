@@ -570,6 +570,7 @@ export interface components {
         | readonly components["schemas"]["RecipeInstruction"][]
         | null;
       readonly location?: components["schemas"]["RecipeLocation"] | null;
+      readonly meal?: components["schemas"]["Meal"] | null;
       /** Name */
       readonly name?: string | null;
       /** Notes */
@@ -578,6 +579,7 @@ export interface components {
       readonly tags?: readonly string[] | null;
       /** Time Estimate Minutes */
       readonly time_estimate_minutes?: number | null;
+      readonly type?: components["schemas"]["RecipeType"] | null;
     };
     /** RecipeShareRequest */
     readonly RecipeShareRequest: {

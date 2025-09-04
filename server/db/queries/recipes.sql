@@ -7,7 +7,9 @@ INSERT INTO recipe (
     cuisine,
     location,
     time_estimate_minutes,
-    notes
+    notes,
+    type,
+    meal
 )
 VALUES (
     @userId::UUID,
@@ -16,7 +18,9 @@ VALUES (
     @cuisine::TEXT,
     @location::JSONB,
     @timeEstimateMinutes::INTEGER,
-    sqlc.narg('notes')::TEXT
+    sqlc.narg('notes')::TEXT,
+    @type::recipe_type,
+    @meal::meal
 )
 RETURNING *;
 
@@ -140,6 +144,8 @@ SET
     location = COALESCE(sqlc.narg('location')::JSONB, location),
     time_estimate_minutes = COALESCE(sqlc.narg('time_estimate_minutes')::INT, time_estimate_minutes),
     notes = COALESCE(sqlc.narg('notes')::TEXT, notes),
+    meal = COALESCE(sqlc.narg('meal')::meal, meal),
+    type = COALESCE(sqlc.narg('type')::recipe_type, type),
     updated_at = CURRENT_TIMESTAMP
 WHERE
     id = @recipeId::UUID
@@ -234,3 +240,11 @@ VALUES (
     @recipeId::UUID,
     @userId::UUID
 );
+
+-- name: ListRecipeFilterOptions :one
+SELECT
+    ARRAY_AGG(DISTINCT meal)::meal[] AS meals,
+    ARRAY_AGG(DISTINCT type)::recipe_type[] AS types,
+    ARRAY_AGG(DISTINCT cuisine)::TEXT AS cuisines
+FROM recipe
+WHERE user_id = @userId::UUID;

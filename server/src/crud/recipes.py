@@ -20,7 +20,9 @@ INSERT INTO recipe (
     cuisine,
     location,
     time_estimate_minutes,
-    notes
+    notes,
+    type,
+    meal
 )
 VALUES (
     :p1\\:\\:UUID,
@@ -29,7 +31,9 @@ VALUES (
     :p4\\:\\:TEXT,
     :p5\\:\\:JSONB,
     :p6\\:\\:INTEGER,
-    :p7\\:\\:TEXT
+    :p7\\:\\:TEXT,
+    :p8\\:\\:recipe_type,
+    :p9\\:\\:meal
 )
 RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal
 """
@@ -43,6 +47,8 @@ class CreateRecipeParams(pydantic.BaseModel):
     location: Any
     timeestimateminutes: int
     notes: str | None
+    type: models.RecipeType
+    meal: models.Meal
 
 
 CREATE_RECIPE_DIETARY_RESTRICTIONS_MET = """-- name: create_recipe_dietary_restrictions_met \\:many
@@ -183,6 +189,22 @@ WHERE
 """
 
 
+LIST_RECIPE_FILTER_OPTIONS = """-- name: list_recipe_filter_options \\:one
+SELECT
+    ARRAY_AGG(DISTINCT meal)\\:\\:meal[] AS meals,
+    ARRAY_AGG(DISTINCT type)\\:\\:recipe_type[] AS types,
+    ARRAY_AGG(DISTINCT cuisine)\\:\\:TEXT AS cuisines
+FROM recipe
+WHERE user_id = :p1\\:\\:UUID
+"""
+
+
+class ListRecipeFilterOptionsRow(pydantic.BaseModel):
+    meals: list[models.Meal]
+    types: list[models.RecipeType]
+    cuisines: str
+
+
 LIST_RECIPE_INGREDIENTS = """-- name: list_recipe_ingredients \\:many
 SELECT id, recipe_id, user_id, name, quantity, units, created_at, updated_at
 FROM recipe_ingredient
@@ -284,10 +306,12 @@ SET
     location = COALESCE(:p4\\:\\:JSONB, location),
     time_estimate_minutes = COALESCE(:p5\\:\\:INT, time_estimate_minutes),
     notes = COALESCE(:p6\\:\\:TEXT, notes),
+    meal = COALESCE(:p7\\:\\:meal, meal),
+    type = COALESCE(:p8\\:\\:recipe_type, type),
     updated_at = CURRENT_TIMESTAMP
 WHERE
-    id = :p7\\:\\:UUID
-    AND user_id = :p8\\:\\:UUID
+    id = :p9\\:\\:UUID
+    AND user_id = :p10\\:\\:UUID
 RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal
 """
 
@@ -299,6 +323,8 @@ class UpdateRecipeParams(pydantic.BaseModel):
     location: Any | None
     time_estimate_minutes: int | None
     notes: str | None
+    meal: models.Meal | None
+    type: models.RecipeType | None
     recipeid: uuid.UUID
     userid: uuid.UUID
 
@@ -319,6 +345,8 @@ class AsyncQuerier:
                     "p5": arg.location,
                     "p6": arg.timeestimateminutes,
                     "p7": arg.notes,
+                    "p8": arg.type,
+                    "p9": arg.meal,
                 },
             )
         ).first()
@@ -505,6 +533,22 @@ class AsyncQuerier:
                 dietary_restriction=row[3],
             )
 
+    async def list_recipe_filter_options(
+        self, *, userid: uuid.UUID
+    ) -> ListRecipeFilterOptionsRow | None:
+        row = (
+            await self._conn.execute(
+                sqlalchemy.text(LIST_RECIPE_FILTER_OPTIONS), {"p1": userid}
+            )
+        ).first()
+        if row is None:
+            return None
+        return ListRecipeFilterOptionsRow(
+            meals=row[0],
+            types=row[1],
+            cuisines=row[2],
+        )
+
     async def list_recipe_ingredients(
         self, *, recipeids: list[uuid.UUID], userid: uuid.UUID
     ) -> AsyncIterator[models.RecipeIngredient]:
@@ -622,8 +666,10 @@ class AsyncQuerier:
                     "p4": arg.location,
                     "p5": arg.time_estimate_minutes,
                     "p6": arg.notes,
-                    "p7": arg.recipeid,
-                    "p8": arg.userid,
+                    "p7": arg.meal,
+                    "p8": arg.type,
+                    "p9": arg.recipeid,
+                    "p10": arg.userid,
                 },
             )
         ).first()

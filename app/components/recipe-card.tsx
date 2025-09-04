@@ -94,24 +94,20 @@ export function RecipeCard({
           />
         </View>
         <ThemedText style={styles.recipeAuthor}>by {author}</ThemedText>
-        <View style={styles.recipeMetadata}>
-          <View style={styles.tagsRow}>
-            <View style={styles.cuisineContainer}>
-              <ThemedText style={styles.recipeCuisine}>{cuisine}</ThemedText>
-            </View>
-            <View style={styles.mealContainer}>
-              <ThemedText style={styles.recipeMeal}>{meal}</ThemedText>
-            </View>
-            <View style={styles.typeContainer}>
-              <ThemedText style={styles.recipeType}>{type}</ThemedText>
-            </View>
+        <View style={styles.tagsContainer}>
+          <View style={styles.cuisineContainer}>
+            <ThemedText style={styles.recipeCuisine}>{cuisine}</ThemedText>
           </View>
-          <View style={styles.timeContainer}>
-            <IconSymbol name="clock" size={12} color={Colors.textSecondary} />
-            <ThemedText style={styles.recipeTime}>
-              {timeEstimate} min
-            </ThemedText>
+          <View style={styles.mealContainer}>
+            <ThemedText style={styles.recipeMeal}>{meal}</ThemedText>
           </View>
+          <View style={styles.typeContainer}>
+            <ThemedText style={styles.recipeType}>{type}</ThemedText>
+          </View>
+        </View>
+        <View style={styles.timeContainer}>
+          <IconSymbol name="clock" size={12} color={Colors.textSecondary} />
+          <ThemedText style={styles.recipeTime}>{timeEstimate} min</ThemedText>
         </View>
         {cookedAt && (
           <View style={styles.cookedDateContainer}>
@@ -178,17 +174,12 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeights.normal,
     lineHeight: Typography.fontSizes.base * Typography.lineHeights.normal,
   },
-  recipeMetadata: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: Spacing.lg,
-  },
-  tagsRow: {
+  tagsContainer: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.sm,
-    flex: 1,
+    marginBottom: Spacing.md,
+    flexWrap: "wrap",
   },
   cuisineContainer: {
     backgroundColor: Colors.backgroundSubtle,
@@ -233,6 +224,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.xs,
+    marginBottom: Spacing.md,
   },
   recipeTime: {
     fontSize: Typography.fontSizes.sm,

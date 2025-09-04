@@ -5,10 +5,11 @@ from uuid import UUID
 from fastapi import APIRouter, Form, HTTPException, UploadFile
 from pydantic import BaseModel
 
-from src.crud.models import DietaryRestriction
+from src.crud.models import DietaryRestriction, Meal, RecipeType
 from src.crud.recipes import (
     AsyncQuerier,
     CreateRecipeIngredientsParams,
+    ListRecipeFilterOptionsRow,
     UpdateRecipeParams,
 )
 from src.dependencies import Connection, User
@@ -174,6 +175,21 @@ async def recommend_recipe(
     )
 
 
+class RecipeFilterOptions(BaseModel):
+    meals: list[Meal]
+    types: list[RecipeType]
+    cuisines: list[str]
+
+
+@recipes.get("/filter-options")
+async def list_filter_options(
+    conn: Connection,
+    user: User,
+) -> ListRecipeFilterOptionsRow | None:
+    db = AsyncQuerier(conn)
+    return await db.list_recipe_filter_options(userid=user.id)
+
+
 @recipes.get("/{id}")
 async def get_recipe(
     conn: Connection,
@@ -207,6 +223,8 @@ class RecipePatch(BaseModel):
     instructions: list[RecipeInstruction] | None = None
     tags: list[str] | None = None
     dietary_restrictions_met: list[DietaryRestriction] | None = None
+    meal: Meal | None = None
+    type: RecipeType | None = None
 
 
 @recipes.patch("/{id}")
@@ -227,6 +245,8 @@ async def update_recipe(
             notes=body.notes,
             recipeid=id,
             userid=user.id,
+            meal=body.meal,
+            type=body.type,
         )
     )
 

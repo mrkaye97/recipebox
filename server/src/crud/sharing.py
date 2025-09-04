@@ -79,7 +79,9 @@ class AsyncQuerier:
     def __init__(self, conn: sqlalchemy.ext.asyncio.AsyncConnection):
         self._conn = conn
 
-    async def accept_recipe_share_request(self, *, token: str) -> models.Recipe | None:
+    async def accept_recipe_share_request(
+        self, *, token: str
+    ) -> models.Recipe | None:
         row = (
             await self._conn.execute(
                 sqlalchemy.text(ACCEPT_RECIPE_SHARE_REQUEST), {"p1": token}

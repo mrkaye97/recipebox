@@ -100,6 +100,8 @@ async def ingest_recipe(
             location=location.model_dump_json(),
             timeestimateminutes=params.time_estimate_minutes,
             notes=notes,
+            meal=params.meal,
+            type=params.type,
         )
     )
 
