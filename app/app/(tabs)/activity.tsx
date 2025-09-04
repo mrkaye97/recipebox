@@ -136,20 +136,17 @@ export default function ActivityScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <View style={styles.header}>
-        <ThemedText type="title">Activity</ThemedText>
-        <View style={styles.switchContainer}>
-          <ThemedText style={styles.switchLabel}>Include Friends</ThemedText>
-          <Switch
-            value={who === "both"}
-            onValueChange={(value) => setWho(value ? "both" : "me")}
-            trackColor={{
-              false: Colors.backgroundSubtle,
-              true: Colors.primary,
-            }}
-            thumbColor={Colors.surface}
-          />
-        </View>
+      <View style={styles.switchContainer}>
+        <ThemedText style={styles.switchLabel}>Include Friends</ThemedText>
+        <Switch
+          value={who === "both"}
+          onValueChange={(value) => setWho(value ? "both" : "me")}
+          trackColor={{
+            false: Colors.backgroundSubtle,
+            true: Colors.primary,
+          }}
+          thumbColor={Colors.surface}
+        />
       </View>
 
       {renderActivityContent()}
@@ -163,25 +160,27 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
     paddingTop: Layout.headerHeight,
   },
-  header: {
+  switchContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: Layout.screenPadding,
     paddingVertical: Spacing.lg,
     backgroundColor: Colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.borderLight,
-    ...Shadows.sm,
-  },
-  switchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    marginHorizontal: Layout.screenPadding,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.lg,
+    borderRadius: 16,
     gap: Spacing.sm,
+    ...Shadows.sm,
+    borderWidth: 0.5,
+    borderColor: Colors.borderLight,
   },
   switchLabel: {
-    fontSize: Typography.fontSizes.sm,
-    color: Colors.textSecondary,
+    fontSize: Typography.fontSizes.base,
+    color: Colors.text,
+    fontWeight: Typography.fontWeights.medium,
+    letterSpacing: Typography.letterSpacing.wide,
   },
   centerContainer: {
     flex: 1,

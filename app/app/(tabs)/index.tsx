@@ -32,14 +32,6 @@ import {
   View,
 } from "react-native";
 
-function RecipeHeader() {
-  return (
-    <View style={styles.header}>
-      <ThemedText type="title">Recipes</ThemedText>
-    </View>
-  );
-}
-
 function SearchBar({
   searchQuery,
   onSearchChange,
@@ -307,8 +299,6 @@ export default function RecipesScreen() {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{ flex: 1 }}>
       <ThemedView style={styles.container}>
-        <RecipeHeader />
-
         <SearchBar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -390,20 +380,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
     paddingTop: Layout.headerHeight,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: Layout.screenPadding,
-    paddingVertical: Spacing.xl,
-    backgroundColor: Colors.surface,
-    borderBottomWidth: 0.5,
-    borderBottomColor: Colors.borderLight,
-    ...Shadows.md,
-  },
   searchContainer: {
     paddingHorizontal: Layout.screenPadding,
-    paddingTop: Spacing.xl,
+    paddingTop: Spacing.md,
     paddingBottom: Spacing.lg,
     backgroundColor: Colors.background,
   },
