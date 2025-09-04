@@ -275,7 +275,20 @@ WITH ingredient_seasonality_score AS (
     WHERE rr.user_id = :p2\\:\\:UUID
     GROUP BY recipe_id, user_id
 ), candidates AS (
-    SELECT r.id
+    SELECT
+        r.id,
+        (
+            CASE
+                WHEN EXTRACT(ISODOW FROM NOW()\\:\\:DATE) IN (6, 7) AND r.time_estimate_minutes > 60 THEN 0.5
+                ELSE 1.0
+            END *
+            CASE
+                WHEN r.last_made_at IS NULL THEN 1.0
+                ELSE GREATEST(1.0, LEAST(3.0, (NOW()\\:\\:DATE - r.last_made_at\\:\\:DATE) / 30.0))
+            END *
+            COALESCE(lras.last_recommended_at_factor, 1.0) *
+            COALESCE(iss.total_ingredient_score + 1.0, 1.0)
+        ) AS score
     FROM recipe r
     LEFT JOIN ingredient_seasonality_score iss ON (r.id, r.user_id) = (iss.recipe_id, iss.user_id)
     LEFT JOIN last_recommended_at_score lras ON (r.id, r.user_id) = (lras.recipe_id, lras.user_id)
@@ -292,16 +305,28 @@ WITH ingredient_seasonality_score AS (
         COALESCE(lras.last_recommended_at_factor, 1.0) *
         COALESCE(iss.total_ingredient_score + 1.0, 1.0)
     ) DESC
-    LIMIT 10
+    LIMIT 15
+), weights AS (
+    SELECT
+        id,
+        score / SUM(score) OVER () AS weight
+    FROM candidates
+), cumulative_weights AS (
+    SELECT
+        id,
+        weight,
+        SUM(weight) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING) AS cumulative_weight
+    FROM weights
+), random_threshold AS (
+    SELECT RANDOM() AS threshold
 )
 
-SELECT id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal
-FROM recipe
-WHERE id IN (
-    SELECT id
-    FROM candidates
-)
-ORDER BY RANDOM()
+SELECT r.id, r.user_id, r.name, r.author, r.cuisine, r.location, r.time_estimate_minutes, r.notes, r.last_made_at, r.created_at, r.updated_at, r.type, r.meal
+FROM recipe r
+JOIN cumulative_weights cw ON r.id = cw.id
+CROSS JOIN random_threshold rt
+WHERE cw.cumulative_weight >= rt.threshold
+ORDER BY cw.cumulative_weight
 LIMIT 1
 """
 
