@@ -20,7 +20,7 @@ def create_access_token(user_id: UUID) -> str:
             "exp": datetime.now(UTC)
             + timedelta(minutes=settings.jwt_access_token_expire_minutes),
         },
-        settings.jwt_secret_key,
+        settings.jwt_secret_key.get_secret_value(),
         algorithm=settings.jwt_algorithm,
     )
 
@@ -28,7 +28,9 @@ def create_access_token(user_id: UUID) -> str:
 def parse_token(token: str) -> TokenData:
     try:
         decoded = jwt.decode(
-            token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm]
+            token,
+            settings.jwt_secret_key.get_secret_value(),
+            algorithms=[settings.jwt_algorithm],
         )
 
         return TokenData(

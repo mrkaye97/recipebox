@@ -109,6 +109,23 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
+  readonly "/recipes/filter-options": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /** List Filter Options */
+    readonly get: operations["list_filter_options_recipes_filter_options_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
   readonly "/recipes/made-up": {
     readonly parameters: {
       readonly query?: never;
@@ -495,6 +512,15 @@ export interface components {
       readonly user_id: string;
       /** User Name */
       readonly user_name: string;
+    };
+    /** ListRecipeFilterOptionsRow */
+    readonly ListRecipeFilterOptionsRow: {
+      /** Cuisines */
+      readonly cuisines: string;
+      /** Meals */
+      readonly meals: readonly components["schemas"]["Meal"][];
+      /** Types */
+      readonly types: readonly components["schemas"]["RecipeType"][];
     };
     /** MadeUpRecipeLocation */
     readonly MadeUpRecipeLocation: {
@@ -1052,6 +1078,28 @@ export interface operations {
         };
         content: {
           readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  readonly list_filter_options_recipes_filter_options_get: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json":
+            | components["schemas"]["ListRecipeFilterOptionsRow"]
+            | null;
         };
       };
     };

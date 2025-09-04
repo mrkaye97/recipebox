@@ -22,7 +22,9 @@ logger = get_logger(__name__)
 @asynccontextmanager
 async def create_db_connection() -> AsyncGenerator[AsyncConnection]:
     engine = create_async_engine(
-        settings.database_url.replace("postgresql", "postgresql+asyncpg").split("?")[0],
+        settings.database_url.get_secret_value()
+        .replace("postgresql", "postgresql+asyncpg")
+        .split("?")[0],
     )
     async with engine.connect() as conn:
         yield conn

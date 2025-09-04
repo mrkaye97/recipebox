@@ -8,6 +8,7 @@ from src.crud.users import AsyncQuerier
 from src.dependencies import Connection
 from src.logger import get_logger
 from src.schemas import Token, UserRegistration
+from src.settings import settings
 
 auth = APIRouter(prefix="/auth")
 logger = get_logger(__name__)
@@ -15,6 +16,11 @@ logger = get_logger(__name__)
 
 @auth.post("/register", response_model=Token)
 async def register(user_data: UserRegistration, conn: Connection) -> Token:
+    if user_data.signup_token != settings.signup_token.get_secret_value():
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid signup token"
+        )
+
     querier = AsyncQuerier(conn)
     user = await querier.create_user(
         email=user_data.email,

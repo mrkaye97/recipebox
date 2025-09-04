@@ -15,7 +15,9 @@ from src.settings import settings
 recipe_agent = Agent(
     model=AnthropicModel(
         model_name="claude-sonnet-4-0",
-        provider=AnthropicProvider(api_key=settings.anthropic_api_key),
+        provider=AnthropicProvider(
+            api_key=settings.anthropic_api_key.get_secret_value()
+        ),
     ),
     output_type=BaseRecipeCreate,
     system_prompt=f"""
