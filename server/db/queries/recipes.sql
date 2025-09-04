@@ -231,7 +231,7 @@ WITH ingredient_seasonality_score AS (
         COALESCE(lras.last_recommended_at_factor, 1.0) *
         COALESCE(iss.total_ingredient_score + 1.0, 1.0)
     ) DESC
-    LIMIT 20
+    LIMIT 10
 )
 
 SELECT *

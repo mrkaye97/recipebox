@@ -292,7 +292,7 @@ WITH ingredient_seasonality_score AS (
         COALESCE(lras.last_recommended_at_factor, 1.0) *
         COALESCE(iss.total_ingredient_score + 1.0, 1.0)
     ) DESC
-    LIMIT 20
+    LIMIT 10
 )
 
 SELECT id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal
