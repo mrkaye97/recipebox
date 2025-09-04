@@ -218,8 +218,9 @@ WITH ingredient_seasonality_score AS (
         r.id,
         (
             CASE
-                WHEN EXTRACT(ISODOW FROM NOW()::DATE) IN (6, 7) AND r.time_estimate_minutes > 90 THEN 0.0
-                WHEN EXTRACT(ISODOW FROM NOW()::DATE) IN (6, 7) AND r.time_estimate_minutes > 60 THEN 0.2
+                -- don't recommend long recipes on weekdays
+                WHEN EXTRACT(ISODOW FROM NOW()::DATE) IN (1, 2, 3, 4, 5) AND r.time_estimate_minutes > 90 THEN 0.0
+                WHEN EXTRACT(ISODOW FROM NOW()::DATE) IN (1, 2, 3, 4, 5) AND r.time_estimate_minutes > 60 THEN 0.2
                 ELSE 1.0
             END *
             CASE
