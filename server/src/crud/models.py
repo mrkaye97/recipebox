@@ -23,6 +23,24 @@ class FriendshipStatus(str, enum.Enum):
     ACCEPTED = "accepted"
 
 
+class Meal(str, enum.Enum):
+    BREAKFAST = "breakfast"
+    LUNCH = "lunch"
+    DINNER = "dinner"
+    OTHER = "other"
+
+
+class RecipeType(str, enum.Enum):
+    STARTER = "starter"
+    MAIN = "main"
+    SALAD = "salad"
+    DESSERT = "dessert"
+    SNACK = "snack"
+    COCKTAIL = "cocktail"
+    CONDIMENT = "condiment"
+    OTHER = "other"
+
+
 class UserPrivacyPreference(str, enum.Enum):
     PUBLIC = "public"
     PRIVATE = "private"
@@ -56,6 +74,8 @@ class Recipe(pydantic.BaseModel):
     last_made_at: datetime.datetime | None
     created_at: datetime.datetime
     updated_at: datetime.datetime
+    type: RecipeType
+    meal: Meal
 
 
 class RecipeCookingLog(pydantic.BaseModel):

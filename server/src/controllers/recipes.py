@@ -318,6 +318,10 @@ async def create_made_up_recipe(
     """
 
     base = await markdown_to_recipe(md)
+
+    if not base:
+        raise HTTPException(status_code=400, detail="Could not parse recipe from input")
+
     location = RecipeLocation(location=MadeUpRecipeLocation(location="made_up"))
 
     return await ingest_recipe(
@@ -341,6 +345,10 @@ async def create_cookbook_recipe(
     image_bytes = await file.read()
 
     base = await image_to_recipe(image_bytes)
+
+    if not base:
+        raise HTTPException(status_code=400, detail="Could not parse recipe from image")
+
     base.author = author
 
     created_location = RecipeLocation(
@@ -363,6 +371,9 @@ async def create_online_recipe(
     db = AsyncQuerier(conn)
     md = await extract_recipe_markdown_from_url(params.url)
     base = await markdown_to_recipe(md)
+
+    if not base:
+        raise HTTPException(status_code=400, detail="Could not parse recipe from URL")
 
     location = RecipeLocation(
         location=OnlineRecipeLocation(

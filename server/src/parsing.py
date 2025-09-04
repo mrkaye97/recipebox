@@ -29,6 +29,10 @@ recipe_agent = Agent(
 
     The tags should be a list of strings that are relevant to the recipe, such as "quick", "winter", "family-friendly", "vegan", etc., and can also highlight specific ingredients. These should be derived from the content of the recipe.
 
+    The type should be an enum value of `type` which best describes the recipe.
+
+    The meal should be an enum value of `meal` which best describes the recipe.
+
     You must return the result as a JSON object matching the BaseRecipeCreate schema, which looks like this:
 
     {BaseRecipeCreate.model_json_schema()}
@@ -82,7 +86,19 @@ async def extract_recipe_markdown_from_url(url: str) -> str:
     return cast(str, soup.prettify())
 
 
-async def markdown_to_recipe(markdown: str) -> BaseRecipeCreate:
+async def agent_result_to_maybe_recipe(
+    result: BaseRecipeCreate,
+) -> BaseRecipeCreate | None:
+    if "unknown" in result.name.lower():
+        return None
+
+    if not result.name or not result.ingredients or not result.instructions:
+        return None
+
+    return result
+
+
+async def markdown_to_recipe(markdown: str) -> BaseRecipeCreate | None:
     binary_io = io.BytesIO(markdown.encode("utf-8"))
 
     md = MarkItDown()
@@ -90,15 +106,19 @@ async def markdown_to_recipe(markdown: str) -> BaseRecipeCreate:
 
     prompt = f"Extract the recipe from the following webpage content:\n\n{content}"
 
-    return (await recipe_agent.run(prompt, output_type=BaseRecipeCreate)).output
+    result = (await recipe_agent.run(prompt, output_type=BaseRecipeCreate)).output
+
+    return await agent_result_to_maybe_recipe(result)
 
 
-async def image_to_recipe(image_bytes: bytes) -> BaseRecipeCreate:
+async def image_to_recipe(image_bytes: bytes) -> BaseRecipeCreate | None:
     prompt = "Extract the recipe from the following image."
 
-    return (
+    result = (
         await recipe_agent.run(
             [prompt, BinaryContent(image_bytes, media_type="image/jpeg")],
             output_type=BaseRecipeCreate,
         )
     ).output
+
+    return await agent_result_to_maybe_recipe(result)

@@ -26,8 +26,9 @@ export const useRecipes = ({
   const queryClient = useQueryClient();
 
   const [debouncedSearch] = useDebounce(search || "", 300);
-  const [pendingAcceptShareToken, setPendingAcceptShareToken] =
-    useState<string | null>(null);
+  const [pendingAcceptShareToken, setPendingAcceptShareToken] = useState<
+    string | null
+  >(null);
 
   const recipeQuery = $api.useQuery(
     "get",
@@ -167,7 +168,7 @@ export const useRecipes = ({
       },
       onSettled: () => {
         setPendingAcceptShareToken(null);
-      }
+      },
     });
 
   const { mutateAsync: deleteRecipeShare, isPending: deletePending } =

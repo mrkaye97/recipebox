@@ -24,7 +24,7 @@ WITH recipes_cooked AS (
 )
 
 SELECT
-    r.id, r.user_id, r.name, r.author, r.cuisine, r.location, r.time_estimate_minutes, r.notes, r.last_made_at, r.created_at, r.updated_at,
+    r.id, r.user_id, r.name, r.author, r.cuisine, r.location, r.time_estimate_minutes, r.notes, r.last_made_at, r.created_at, r.updated_at, r.type, r.meal,
     rc.cooked_at,
     u.name AS user_name
 FROM recipes_cooked rc
@@ -46,6 +46,8 @@ class ListRecentRecipeCooksRow(pydantic.BaseModel):
     last_made_at: datetime.datetime | None
     created_at: datetime.datetime
     updated_at: datetime.datetime
+    type: models.RecipeType
+    meal: models.Meal
     cooked_at: datetime.datetime
     user_name: str
 
@@ -68,7 +70,7 @@ SET
 WHERE
     id = :p1\\:\\:UUID
     AND user_id = :p2\\:\\:UUID
-RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at
+RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal
 """
 
 
@@ -96,8 +98,10 @@ class AsyncQuerier:
                 last_made_at=row[8],
                 created_at=row[9],
                 updated_at=row[10],
-                cooked_at=row[11],
-                user_name=row[12],
+                type=row[11],
+                meal=row[12],
+                cooked_at=row[13],
+                user_name=row[14],
             )
 
     async def mark_recipe_cooked(
@@ -122,4 +126,6 @@ class AsyncQuerier:
             last_made_at=row[8],
             created_at=row[9],
             updated_at=row[10],
+            type=row[11],
+            meal=row[12],
         )

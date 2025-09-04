@@ -21,7 +21,7 @@ WITH deleted_request AS (
       AND rsr.expires_at > NOW()
     RETURNING rsr.recipe_id
 )
-SELECT r.id, r.user_id, r.name, r.author, r.cuisine, r.location, r.time_estimate_minutes, r.notes, r.last_made_at, r.created_at, r.updated_at
+SELECT r.id, r.user_id, r.name, r.author, r.cuisine, r.location, r.time_estimate_minutes, r.notes, r.last_made_at, r.created_at, r.updated_at, r.type, r.meal
 FROM recipe r
 JOIN deleted_request dr ON r.id = dr.recipe_id
 """
@@ -79,7 +79,9 @@ class AsyncQuerier:
     def __init__(self, conn: sqlalchemy.ext.asyncio.AsyncConnection):
         self._conn = conn
 
-    async def accept_recipe_share_request(self, *, token: str) -> models.Recipe | None:
+    async def accept_recipe_share_request(
+        self, *, token: str
+    ) -> models.Recipe | None:
         row = (
             await self._conn.execute(
                 sqlalchemy.text(ACCEPT_RECIPE_SHARE_REQUEST), {"p1": token}
@@ -99,6 +101,8 @@ class AsyncQuerier:
             last_made_at=row[8],
             created_at=row[9],
             updated_at=row[10],
+            type=row[11],
+            meal=row[12],
         )
 
     async def create_recipe_share_request(

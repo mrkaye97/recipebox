@@ -107,6 +107,8 @@ class BaseRecipeCreate(BaseModel):
     dietary_restrictions_met: list[models.DietaryRestriction]
     ingredients: list[RecipeIngredient]
     instructions: list[RecipeInstruction]
+    type: models.RecipeType
+    meal: models.Meal
 
 
 class RecipeCreate(BaseRecipeCreate):
@@ -140,4 +142,6 @@ class Recipe(RecipeCreate):
             ingredients=[RecipeIngredient.from_db(i) for i in ingredients],
             instructions=[RecipeInstruction.from_db(i) for i in instructions],
             last_made_at=recipe.last_made_at,
+            type=recipe.type,
+            meal=recipe.meal,
         )

@@ -182,6 +182,34 @@ CREATE TYPE public.friendship_status AS ENUM (
 
 
 --
+-- Name: meal; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.meal AS ENUM (
+    'breakfast',
+    'lunch',
+    'dinner',
+    'other'
+);
+
+
+--
+-- Name: recipe_type; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.recipe_type AS ENUM (
+    'starter',
+    'main',
+    'salad',
+    'dessert',
+    'snack',
+    'cocktail',
+    'condiment',
+    'other'
+);
+
+
+--
 -- Name: user_privacy_preference; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -236,7 +264,9 @@ CREATE TABLE public.recipe (
     notes text,
     last_made_at timestamp with time zone,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    type public.recipe_type DEFAULT 'main'::public.recipe_type NOT NULL,
+    meal public.meal DEFAULT 'dinner'::public.meal NOT NULL
 );
 
 
@@ -487,10 +517,10 @@ CREATE INDEX idx_recipe_last_made_at ON public.recipe USING btree (user_id, last
 
 
 --
--- Name: idx_recipe_recommendation_user_recipe; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_recipe_recommendation_user_recipe_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX idx_recipe_recommendation_user_recipe ON public.recipe_recommendation USING btree (user_id, recipe_id);
+CREATE UNIQUE INDEX idx_recipe_recommendation_user_recipe_created_at ON public.recipe_recommendation USING btree (user_id, recipe_id, created_at);
 
 
 --
@@ -739,4 +769,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20250827022009'),
     ('20250831115304'),
     ('20250831115922'),
-    ('20250901022533');
+    ('20250901022533'),
+    ('20250904004250');

@@ -31,6 +31,22 @@ CREATE TYPE friendship_status AS ENUM (
     'pending',
     'accepted'
 );
+CREATE TYPE meal AS ENUM (
+    'breakfast',
+    'lunch',
+    'dinner',
+    'other'
+);
+CREATE TYPE recipe_type AS ENUM (
+    'starter',
+    'main',
+    'salad',
+    'dessert',
+    'snack',
+    'cocktail',
+    'condiment',
+    'other'
+);
 CREATE TYPE user_privacy_preference AS ENUM (
     'public',
     'private'
@@ -60,7 +76,9 @@ CREATE TABLE recipe (
     notes text,
     last_made_at timestamp with time zone,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    type recipe_type DEFAULT 'main'::recipe_type NOT NULL,
+    meal meal DEFAULT 'dinner'::meal NOT NULL
 );
 CREATE TABLE recipe_cooking_log (
     user_id uuid NOT NULL,
@@ -158,7 +176,7 @@ ALTER TABLE ONLY user_password
 ALTER TABLE ONLY "user"
     ADD CONSTRAINT user_pkey PRIMARY KEY (id);
 CREATE INDEX idx_recipe_last_made_at ON recipe USING btree (user_id, last_made_at);
-CREATE UNIQUE INDEX idx_recipe_recommendation_user_recipe ON recipe_recommendation USING btree (user_id, recipe_id);
+CREATE UNIQUE INDEX idx_recipe_recommendation_user_recipe_created_at ON recipe_recommendation USING btree (user_id, recipe_id, created_at);
 CREATE INDEX idx_recipe_time_estimate ON recipe USING btree (user_id, time_estimate_minutes);
 CREATE INDEX idx_recipe_updated_at ON recipe USING btree (user_id, updated_at);
 CREATE UNIQUE INDEX idx_recipe_user_name ON recipe USING btree (user_id, name);
@@ -216,4 +234,5 @@ INSERT INTO schema_migrations (version) VALUES
     ('20250827022009'),
     ('20250831115304'),
     ('20250831115922'),
-    ('20250901022533');
+    ('20250901022533'),
+    ('20250904004250');

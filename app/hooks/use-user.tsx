@@ -194,8 +194,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const logout = useCallback(async () => {
     await removeToken();
-    queryClient.clear()
-  }, [removeToken]);
+    queryClient.clear();
+  }, [removeToken, queryClient]);
 
   useEffect(() => {
     const initializeAuth = async () => {

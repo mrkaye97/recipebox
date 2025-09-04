@@ -31,7 +31,7 @@ VALUES (
     :p6\\:\\:INTEGER,
     :p7\\:\\:TEXT
 )
-RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at
+RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal
 """
 
 
@@ -130,7 +130,7 @@ DELETE FROM recipe
 WHERE
     id = :p1\\:\\:UUID
     AND user_id = :p2\\:\\:UUID
-RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at
+RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal
 """
 
 
@@ -167,7 +167,7 @@ WHERE
 
 
 GET_RECIPE = """-- name: get_recipe \\:one
-SELECT id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at
+SELECT id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal
 FROM recipe
 WHERE id = :p1\\:\\:UUID
 AND user_id = :p2\\:\\:UUID
@@ -212,7 +212,7 @@ WHERE
 
 
 LIST_RECIPES = """-- name: list_recipes \\:many
-SELECT id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at
+SELECT id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal
 FROM recipe
 WHERE
     user_id = :p1\\:\\:UUID
@@ -254,7 +254,7 @@ WITH ingredient_seasonality_score AS (
     GROUP BY recipe_id, user_id
 )
 
-SELECT r.id, r.user_id, r.name, r.author, r.cuisine, r.location, r.time_estimate_minutes, r.notes, r.last_made_at, r.created_at, r.updated_at
+SELECT r.id, r.user_id, r.name, r.author, r.cuisine, r.location, r.time_estimate_minutes, r.notes, r.last_made_at, r.created_at, r.updated_at, r.type, r.meal
 FROM recipe r
 LEFT JOIN ingredient_seasonality_score iss ON (r.id, r.user_id) = (iss.recipe_id, iss.user_id)
 LEFT JOIN last_recommended_at_score lras ON (r.id, r.user_id) = (lras.recipe_id, lras.user_id)
@@ -288,7 +288,7 @@ SET
 WHERE
     id = :p7\\:\\:UUID
     AND user_id = :p8\\:\\:UUID
-RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at
+RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal
 """
 
 
@@ -336,6 +336,8 @@ class AsyncQuerier:
             last_made_at=row[8],
             created_at=row[9],
             updated_at=row[10],
+            type=row[11],
+            meal=row[12],
         )
 
     async def create_recipe_dietary_restrictions_met(
@@ -484,6 +486,8 @@ class AsyncQuerier:
             last_made_at=row[8],
             created_at=row[9],
             updated_at=row[10],
+            type=row[11],
+            meal=row[12],
         )
 
     async def list_recipe_dietary_restrictions_met(
@@ -569,6 +573,8 @@ class AsyncQuerier:
                 last_made_at=row[8],
                 created_at=row[9],
                 updated_at=row[10],
+                type=row[11],
+                meal=row[12],
             )
 
     async def log_recipe_recommendation(
@@ -601,6 +607,8 @@ class AsyncQuerier:
             last_made_at=row[8],
             created_at=row[9],
             updated_at=row[10],
+            type=row[11],
+            meal=row[12],
         )
 
     async def update_recipe(self, arg: UpdateRecipeParams) -> models.Recipe | None:
@@ -633,4 +641,6 @@ class AsyncQuerier:
             last_made_at=row[8],
             created_at=row[9],
             updated_at=row[10],
+            type=row[11],
+            meal=row[12],
         )

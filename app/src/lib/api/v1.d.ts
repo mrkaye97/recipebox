@@ -475,12 +475,14 @@ export interface components {
       readonly last_made_at: string | null;
       /** Location */
       readonly location: unknown;
+      readonly meal: components["schemas"]["Meal"];
       /** Name */
       readonly name: string;
       /** Notes */
       readonly notes: string | null;
       /** Time Estimate Minutes */
       readonly time_estimate_minutes: number;
+      readonly type: components["schemas"]["RecipeType"];
       /**
        * Updated At
        * Format: date-time
@@ -510,6 +512,11 @@ export interface components {
        */
       readonly recipe_id: string;
     };
+    /**
+     * Meal
+     * @enum {string}
+     */
+    readonly Meal: "breakfast" | "lunch" | "dinner" | "other";
     /** OnlineRecipeLocation */
     readonly OnlineRecipeLocation: {
       /**
@@ -591,6 +598,19 @@ export interface components {
       /** Token */
       readonly token: string;
     };
+    /**
+     * RecipeType
+     * @enum {string}
+     */
+    readonly RecipeType:
+      | "starter"
+      | "main"
+      | "salad"
+      | "dessert"
+      | "snack"
+      | "cocktail"
+      | "condiment"
+      | "other";
     /** ShareRecipeBody */
     readonly ShareRecipeBody: {
       /**
@@ -631,12 +651,14 @@ export interface components {
       readonly last_made_at: string | null;
       /** Location */
       readonly location: unknown;
+      readonly meal: components["schemas"]["Meal"];
       /** Name */
       readonly name: string;
       /** Notes */
       readonly notes: string | null;
       /** Time Estimate Minutes */
       readonly time_estimate_minutes: number;
+      readonly type: components["schemas"]["RecipeType"];
       /**
        * Updated At
        * Format: date-time
@@ -668,6 +690,7 @@ export interface components {
       /** Last Made At */
       readonly last_made_at: string | null;
       readonly location: components["schemas"]["RecipeLocation"];
+      readonly meal: components["schemas"]["Meal"];
       /** Name */
       readonly name: string;
       /** Notes */
@@ -676,6 +699,7 @@ export interface components {
       readonly tags: readonly string[];
       /** Time Estimate Minutes */
       readonly time_estimate_minutes: number;
+      readonly type: components["schemas"]["RecipeType"];
     };
     /** Token */
     readonly Token: {
