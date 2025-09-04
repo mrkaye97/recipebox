@@ -21,6 +21,8 @@ export interface RecipeCardProps {
   userId?: string;
   userName?: string;
   currentUserId?: string;
+  meal: string;
+  type: string;
 }
 
 const formatCookedDate = (cookedAt: string) => {
@@ -60,7 +62,10 @@ export function RecipeCard({
   userId,
   userName,
   currentUserId,
+  meal,
+  type,
 }: RecipeCardProps) {
+  console.log({ meal, type });
   const handlePress = () => {
     if (isOtherUser && userId) {
       router.push(`/recipe/${id}?belongs_to_friend_user_id=${userId}`);
@@ -90,8 +95,16 @@ export function RecipeCard({
         </View>
         <ThemedText style={styles.recipeAuthor}>by {author}</ThemedText>
         <View style={styles.recipeMetadata}>
-          <View style={styles.cuisineContainer}>
-            <ThemedText style={styles.recipeCuisine}>{cuisine}</ThemedText>
+          <View style={styles.tagsRow}>
+            <View style={styles.cuisineContainer}>
+              <ThemedText style={styles.recipeCuisine}>{cuisine}</ThemedText>
+            </View>
+            <View style={styles.mealContainer}>
+              <ThemedText style={styles.recipeMeal}>{meal}</ThemedText>
+            </View>
+            <View style={styles.typeContainer}>
+              <ThemedText style={styles.recipeType}>{type}</ThemedText>
+            </View>
           </View>
           <View style={styles.timeContainer}>
             <IconSymbol name="clock" size={12} color={Colors.textSecondary} />
@@ -171,6 +184,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: Spacing.lg,
   },
+  tagsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.sm,
+    flex: 1,
+  },
   cuisineContainer: {
     backgroundColor: Colors.backgroundSubtle,
     paddingHorizontal: Spacing.sm,
@@ -178,6 +197,32 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.sm,
   },
   recipeCuisine: {
+    fontSize: Typography.fontSizes.xs,
+    fontWeight: Typography.fontWeights.medium,
+    color: Colors.textSecondary,
+    textTransform: "uppercase",
+    letterSpacing: Typography.letterSpacing.wide,
+  },
+  mealContainer: {
+    backgroundColor: Colors.backgroundSubtle,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.sm,
+  },
+  recipeMeal: {
+    fontSize: Typography.fontSizes.xs,
+    fontWeight: Typography.fontWeights.medium,
+    color: Colors.textSecondary,
+    textTransform: "uppercase",
+    letterSpacing: Typography.letterSpacing.wide,
+  },
+  typeContainer: {
+    backgroundColor: Colors.backgroundSubtle,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.sm,
+  },
+  recipeType: {
     fontSize: Typography.fontSizes.xs,
     fontWeight: Typography.fontWeights.medium,
     color: Colors.textSecondary,

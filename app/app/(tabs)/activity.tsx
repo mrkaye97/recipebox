@@ -129,6 +129,8 @@ export default function ActivityScreen() {
       userId={item.user_id}
       userName={item.user_name}
       currentUserId={userInfo?.userId}
+      meal={item.meal}
+      type={item.type}
     />
   );
 

@@ -230,6 +230,8 @@ export default function RecipesScreen() {
               cuisine={recipe.cuisine}
               timeEstimate={recipe.time_estimate_minutes}
               cookedAt={recipe.last_made_at ?? undefined}
+              meal={recipe.meal}
+              type={recipe.type}
             />
           ))}
         </View>
