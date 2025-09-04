@@ -20,7 +20,6 @@ import {
   Colors,
   Components,
   Layout,
-  Shadows,
   Spacing,
   Typography,
 } from "@/constants/design-system";
@@ -122,9 +121,6 @@ export default function ProfileScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <View style={styles.header}>
-        <ThemedText type="title">Profile</ThemedText>
-      </View>
       <View style={styles.content}>
         <View style={styles.section}>
           <ThemedText type="subtitle" style={styles.sectionTitle}>
@@ -229,20 +225,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: Layout.headerHeight,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: Layout.screenPadding,
-    paddingVertical: Spacing.lg,
-    backgroundColor: Colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.borderLight,
-    ...Shadows.sm,
-  },
   content: {
     flex: 1,
     padding: Layout.screenPadding,
+    paddingTop: Spacing.lg,
     gap: Spacing["3xl"],
     justifyContent: "flex-start",
   },

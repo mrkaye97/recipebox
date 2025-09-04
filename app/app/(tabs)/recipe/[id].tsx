@@ -555,7 +555,7 @@ export default function RecipeDetailScreen() {
             />
           </TouchableOpacity>
           <ThemedText type="title" style={styles.headerTitle}>
-            {isEditing ? "Edit Recipe" : "Recipe"}
+            {isEditing ? "Edit Recipe" : ""}
           </ThemedText>
           <View style={styles.headerActions}>
             {isEditing ? (
@@ -1263,15 +1263,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingBottom: 24,
-    backgroundColor: Colors.surface,
-    borderBottomWidth: 0.5,
-    borderBottomColor: Colors.borderLight,
-    shadowColor: Colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    paddingBottom: 16,
+    backgroundColor: "transparent",
+    borderBottomWidth: 0,
   },
   backIconButton: {
     padding: 8,
