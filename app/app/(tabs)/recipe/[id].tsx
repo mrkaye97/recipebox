@@ -1361,6 +1361,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   recipeHeader: {
+    marginTop: 24,
     marginBottom: 24,
     paddingBottom: 20,
     borderBottomWidth: 1,
@@ -1394,6 +1395,7 @@ const styles = StyleSheet.create({
   recipeName: {
     fontSize: 28,
     fontWeight: "bold",
+    marginTop: 8,
     marginBottom: 8,
     lineHeight: 34,
   },
