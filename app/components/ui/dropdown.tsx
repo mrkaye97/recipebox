@@ -153,6 +153,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: Colors.borderLight,
+    borderRadius: BorderRadius.lg,
   },
   selectedOption: {
     backgroundColor: Colors.backgroundSubtle,

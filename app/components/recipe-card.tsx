@@ -30,11 +30,11 @@ const formatCookedDate = (cookedAt: string) => {
   const now = new Date();
 
   const dateStart = new Date(
-    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
   );
-  const nowStart = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
-  );
+  const nowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   const diffTime = nowStart.getTime() - dateStart.getTime();
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
