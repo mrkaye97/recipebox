@@ -40,7 +40,7 @@ export function Dropdown({
 
   const handleSelect = (optionValue: string) => {
     if (optionValue === value) {
-      onValueChange(undefined); // Clear selection
+      onValueChange(undefined);
     } else {
       onValueChange(optionValue);
     }

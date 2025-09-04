@@ -16,6 +16,8 @@ import {
 } from "@/constants/design-system";
 import { useRecipes } from "@/hooks/use-recipes";
 import { useUser } from "@/hooks/use-user";
+import { RECIPE_MEALS, RECIPE_TYPES } from "./recipe/[id]";
+
 import { Redirect, router } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -148,7 +150,6 @@ export default function RecipesScreen() {
   const [sharesDrawerVisible, setSharesDrawerVisible] = useState(false);
   const [creationDrawerVisible, setCreationDrawerVisible] = useState(false);
 
-  // Filter recipes based on selected filters
   const filteredRecipes = React.useMemo(() => {
     if (!recipes) return [];
 
@@ -160,36 +161,15 @@ export default function RecipesScreen() {
     });
   }, [recipes, selectedMeal, selectedType, selectedCuisine]);
 
-  // Create dropdown options from filter options or available data
-  const mealOptions: DropdownOption[] = React.useMemo(() => {
-    if (filterOptions?.meals) {
-      return filterOptions.meals.map((meal) => ({
-        label: meal.charAt(0).toUpperCase() + meal.slice(1),
-        value: meal,
-      }));
-    }
-    // Fallback to extracting from recipes
-    const uniqueMeals = Array.from(new Set(recipes?.map((r) => r.meal) || []));
-    return uniqueMeals.map((meal) => ({
-      label: meal.charAt(0).toUpperCase() + meal.slice(1),
-      value: meal,
-    }));
-  }, [filterOptions?.meals, recipes]);
+  const mealOptions: DropdownOption[] = RECIPE_MEALS.map((meal) => ({
+    label: meal.label,
+    value: meal.value,
+  }));
 
-  const typeOptions: DropdownOption[] = React.useMemo(() => {
-    if (filterOptions?.types) {
-      return filterOptions.types.map((type) => ({
-        label: type.charAt(0).toUpperCase() + type.slice(1),
-        value: type,
-      }));
-    }
-    // Fallback to extracting from recipes
-    const uniqueTypes = Array.from(new Set(recipes?.map((r) => r.type) || []));
-    return uniqueTypes.map((type) => ({
-      label: type.charAt(0).toUpperCase() + type.slice(1),
-      value: type,
-    }));
-  }, [filterOptions?.types, recipes]);
+  const typeOptions: DropdownOption[] = RECIPE_TYPES.map((type) => ({
+    label: type.label,
+    value: type.value,
+  }));
 
   const cuisineOptions: DropdownOption[] = React.useMemo(() => {
     if (filterOptions?.cuisines) {
@@ -198,7 +178,6 @@ export default function RecipesScreen() {
         value: cuisine,
       }));
     }
-    // Fallback to extracting from recipes
     const uniqueCuisines = Array.from(
       new Set(recipes?.map((r) => r.cuisine) || []),
     );

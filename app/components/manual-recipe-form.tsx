@@ -82,7 +82,6 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
             name: match[3],
           };
         } else {
-          // If can't parse, assume quantity 1 and no units
           return {
             quantity: 1,
             units: "",

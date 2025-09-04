@@ -33,30 +33,33 @@ type RecipeType = components["schemas"]["RecipeType"];
 type RecipeMeal = components["schemas"]["Meal"];
 type RecipePatch = components["schemas"]["RecipePatch"];
 
-const DIETARY_RESTRICTIONS: { value: DietaryRestriction; label: string }[] = [
-  { value: "gluten_free", label: "Gluten Free" },
+export const DIETARY_RESTRICTIONS: {
+  value: DietaryRestriction;
+  label: string;
+}[] = [
   { value: "dairy_free", label: "Dairy Free" },
+  { value: "gluten_free", label: "Gluten Free" },
   { value: "nut_free", label: "Nut Free" },
+  { value: "pescatarian", label: "Pescatarian" },
   { value: "vegan", label: "Vegan" },
   { value: "vegetarian", label: "Vegetarian" },
-  { value: "pescatarian", label: "Pescatarian" },
 ];
 
-const RECIPE_TYPES: { value: RecipeType; label: string }[] = [
-  { value: "starter", label: "Starter" },
-  { value: "main", label: "Main" },
-  { value: "salad", label: "Salad" },
-  { value: "dessert", label: "Dessert" },
-  { value: "snack", label: "Snack" },
+export const RECIPE_TYPES: { value: RecipeType; label: string }[] = [
   { value: "cocktail", label: "Cocktail" },
   { value: "condiment", label: "Condiment" },
+  { value: "dessert", label: "Dessert" },
+  { value: "main", label: "Main" },
   { value: "other", label: "Other" },
+  { value: "salad", label: "Salad" },
+  { value: "snack", label: "Snack" },
+  { value: "starter", label: "Starter" },
 ];
 
-const RECIPE_MEALS: { value: RecipeMeal; label: string }[] = [
+export const RECIPE_MEALS: { value: RecipeMeal; label: string }[] = [
   { value: "breakfast", label: "Breakfast" },
-  { value: "lunch", label: "Lunch" },
   { value: "dinner", label: "Dinner" },
+  { value: "lunch", label: "Lunch" },
   { value: "other", label: "Other" },
 ];
 
