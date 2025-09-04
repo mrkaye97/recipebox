@@ -46,14 +46,6 @@ class UserPrivacyPreference(str, enum.Enum):
     PRIVATE = "private"
 
 
-class CookingHistory(pydantic.BaseModel):
-    recipe_id: uuid.UUID
-    user_id: uuid.UUID
-    made_at: datetime.datetime
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
-
-
 class Friendship(pydantic.BaseModel):
     user_id: uuid.UUID
     friend_user_id: uuid.UUID

@@ -51,13 +51,6 @@ CREATE TYPE user_privacy_preference AS ENUM (
     'public',
     'private'
 );
-CREATE TABLE cooking_history (
-    recipe_id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    made_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
-);
 CREATE TABLE friendship (
     user_id uuid NOT NULL,
     friend_user_id uuid NOT NULL,
@@ -147,8 +140,6 @@ CREATE TABLE user_password (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
-ALTER TABLE ONLY cooking_history
-    ADD CONSTRAINT cooking_history_pkey PRIMARY KEY (user_id, made_at, recipe_id);
 ALTER TABLE ONLY friendship
     ADD CONSTRAINT friendship_pkey PRIMARY KEY (user_id, friend_user_id);
 ALTER TABLE ONLY recipe_cooking_log
@@ -187,10 +178,6 @@ CREATE INDEX recipe_ingredient_search_idx ON recipe_ingredient USING bm25 (id, n
 CREATE UNIQUE INDEX recipe_instruction_recipe_id_user_id_step_number ON recipe_instruction USING btree (recipe_id, user_id, step_number);
 CREATE INDEX recipe_search_idx ON recipe USING bm25 (name, author, cuisine, notes, id) WITH (key_field=id, text_fields='{"name": {"tokenizer": {"type": "default", "stemmer": "English"}}, "notes": {"tokenizer": {"type": "default", "stemmer": "English"}}}');
 CREATE UNIQUE INDEX recipe_tag_recipe_id_user_id_tag ON recipe_tag USING btree (recipe_id, user_id, tag);
-ALTER TABLE ONLY cooking_history
-    ADD CONSTRAINT cooking_history_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE;
-ALTER TABLE ONLY cooking_history
-    ADD CONSTRAINT cooking_history_user_id_fkey FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE;
 ALTER TABLE ONLY friendship
     ADD CONSTRAINT friendship_friend_user_id_fkey FOREIGN KEY (friend_user_id) REFERENCES "user"(id) ON DELETE CASCADE;
 ALTER TABLE ONLY friendship
@@ -235,4 +222,5 @@ INSERT INTO schema_migrations (version) VALUES
     ('20250831115304'),
     ('20250831115922'),
     ('20250901022533'),
-    ('20250904004250');
+    ('20250904004250'),
+    ('20250904214144');

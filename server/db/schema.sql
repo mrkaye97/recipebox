@@ -224,19 +224,6 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: cooking_history; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.cooking_history (
-    recipe_id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    made_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
-);
-
-
---
 -- Name: friendship; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -395,14 +382,6 @@ CREATE TABLE public.user_password (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
-
-
---
--- Name: cooking_history cooking_history_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.cooking_history
-    ADD CONSTRAINT cooking_history_pkey PRIMARY KEY (user_id, made_at, recipe_id);
 
 
 --
@@ -594,22 +573,6 @@ CREATE UNIQUE INDEX recipe_tag_recipe_id_user_id_tag ON public.recipe_tag USING 
 
 
 --
--- Name: cooking_history cooking_history_recipe_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.cooking_history
-    ADD CONSTRAINT cooking_history_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES public.recipe(id) ON DELETE CASCADE;
-
-
---
--- Name: cooking_history cooking_history_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.cooking_history
-    ADD CONSTRAINT cooking_history_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE;
-
-
---
 -- Name: friendship friendship_friend_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -770,4 +733,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20250831115304'),
     ('20250831115922'),
     ('20250901022533'),
-    ('20250904004250');
+    ('20250904004250'),
+    ('20250904214144');
