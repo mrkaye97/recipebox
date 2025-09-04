@@ -218,7 +218,7 @@ WITH ingredient_seasonality_score AS (
         r.id,
         (
             CASE
-                WHEN EXTRACT(ISODOW FROM NOW()::DATE) IN (6, 7) AND r.time_estimate_minutes > 60 THEN 0.5
+                WHEN EXTRACT(ISODOW FROM NOW()::DATE) IN (6, 7) AND r.time_estimate_minutes > 60 THEN 0.0
                 ELSE 1.0
             END *
             CASE
