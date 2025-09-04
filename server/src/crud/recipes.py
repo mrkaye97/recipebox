@@ -263,8 +263,8 @@ WITH ingredient_seasonality_score AS (
         SUM(paradedb.score(id)) as total_ingredient_score
     FROM recipe_ingredient
     WHERE
-        id @@@ paradedb.parse(:p2\\:\\:TEXT, lenient => true)
-        AND user_id = :p1\\:\\:UUID
+        id @@@ paradedb.parse(:p1\\:\\:TEXT, lenient => true)
+        AND user_id = :p2\\:\\:UUID
     GROUP BY recipe_id, user_id
 ), last_recommended_at_score AS (
     SELECT
@@ -272,27 +272,36 @@ WITH ingredient_seasonality_score AS (
         user_id,
         GREATEST(1.0, LEAST(3.0, (NOW()\\:\\:DATE - COALESCE(MAX(rr.created_at)\\:\\:DATE, '1970-01-01'\\:\\:DATE)) / 30.0)) AS last_recommended_at_factor
     FROM recipe_recommendation rr
-    WHERE rr.user_id = :p1\\:\\:UUID
+    WHERE rr.user_id = :p2\\:\\:UUID
     GROUP BY recipe_id, user_id
+), candidates AS (
+    SELECT r.id
+    FROM recipe r
+    LEFT JOIN ingredient_seasonality_score iss ON (r.id, r.user_id) = (iss.recipe_id, iss.user_id)
+    LEFT JOIN last_recommended_at_score lras ON (r.id, r.user_id) = (lras.recipe_id, lras.user_id)
+    WHERE r.user_id = :p2\\:\\:UUID
+    ORDER BY (
+        CASE
+            WHEN EXTRACT(ISODOW FROM NOW()\\:\\:DATE) IN (6, 7) AND r.time_estimate_minutes > 60 THEN 0.5
+            ELSE 1.0
+        END *
+        CASE
+            WHEN r.last_made_at IS NULL THEN 1.0
+            ELSE GREATEST(1.0, LEAST(3.0, (NOW()\\:\\:DATE - r.last_made_at\\:\\:DATE) / 30.0))
+        END *
+        COALESCE(lras.last_recommended_at_factor, 1.0) *
+        COALESCE(iss.total_ingredient_score + 1.0, 1.0)
+    ) DESC
+    LIMIT 20
 )
 
-SELECT r.id, r.user_id, r.name, r.author, r.cuisine, r.location, r.time_estimate_minutes, r.notes, r.last_made_at, r.created_at, r.updated_at, r.type, r.meal
-FROM recipe r
-LEFT JOIN ingredient_seasonality_score iss ON (r.id, r.user_id) = (iss.recipe_id, iss.user_id)
-LEFT JOIN last_recommended_at_score lras ON (r.id, r.user_id) = (lras.recipe_id, lras.user_id)
-WHERE r.user_id = :p1\\:\\:UUID
-ORDER BY (
-    CASE
-        WHEN EXTRACT(ISODOW FROM NOW()\\:\\:DATE) IN (6, 7) AND r.time_estimate_minutes > 60 THEN 0.5
-        ELSE 1.0
-    END *
-    CASE
-        WHEN r.last_made_at IS NULL THEN 1.0
-        ELSE GREATEST(1.0, LEAST(3.0, (NOW()\\:\\:DATE - r.last_made_at\\:\\:DATE) / 30.0))
-    END *
-    COALESCE(lras.last_recommended_at_factor, 1.0) *
-    COALESCE(iss.total_ingredient_score + 1.0, 1.0)
-) DESC
+SELECT id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal
+FROM recipe
+WHERE id IN (
+    SELECT id
+    FROM candidates
+)
+ORDER BY RANDOM()
 LIMIT 1
 """
 
@@ -629,12 +638,12 @@ class AsyncQuerier:
         )
 
     async def recommend_recipe(
-        self, *, userid: uuid.UUID, seasonalingredients: str
+        self, *, seasonalingredients: str, userid: uuid.UUID
     ) -> models.Recipe | None:
         row = (
             await self._conn.execute(
                 sqlalchemy.text(RECOMMEND_RECIPE),
-                {"p1": userid, "p2": seasonalingredients},
+                {"p1": seasonalingredients, "p2": userid},
             )
         ).first()
         if row is None:
