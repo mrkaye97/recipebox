@@ -19,8 +19,14 @@ type CreateRecipeProps =
 
 export const useRecipes = ({
   search,
+  meal,
+  type,
+  cuisine,
 }: {
   search?: string;
+  meal?: string;
+  type?: string;
+  cuisine?: string;
 } = {}) => {
   const { token } = useUser();
   const queryClient = useQueryClient();
@@ -52,6 +58,19 @@ export const useRecipes = ({
   const recommendedRecipeQuery = $api.useQuery(
     "get",
     "/recipes/recommendation",
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+    {
+      enabled: !!token,
+    },
+  );
+
+  const filterOptionsQuery = $api.useQuery(
+    "get",
+    "/recipes/filter-options",
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -326,6 +345,9 @@ export const useRecipes = ({
     deleteRecipe: {
       perform: deleteRecipe,
       isPending: deleteRecipePending,
+    },
+    filterOptions: {
+      ...filterOptionsQuery,
     },
   };
 };

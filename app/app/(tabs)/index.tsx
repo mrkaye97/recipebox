@@ -5,6 +5,7 @@ import { RecipeSkeleton } from "@/components/skeleton";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { Dropdown, DropdownOption } from "@/components/ui/dropdown";
 import {
   BorderRadius,
   Colors,
@@ -130,6 +131,9 @@ function SearchBar({
 export default function RecipesScreen() {
   const { isAuthenticated, isLoading: isAuthLoading } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedMeal, setSelectedMeal] = useState<string | undefined>();
+  const [selectedType, setSelectedType] = useState<string | undefined>();
+  const [selectedCuisine, setSelectedCuisine] = useState<string | undefined>();
 
   const {
     data: recipes,
@@ -138,10 +142,71 @@ export default function RecipesScreen() {
     refetch,
     pendingShares: { data: pendingShares = [] },
     recommendation: { data: recommendedRecipe },
+    filterOptions: { data: filterOptions },
   } = useRecipes({ search: searchQuery });
 
   const [sharesDrawerVisible, setSharesDrawerVisible] = useState(false);
   const [creationDrawerVisible, setCreationDrawerVisible] = useState(false);
+
+  // Filter recipes based on selected filters
+  const filteredRecipes = React.useMemo(() => {
+    if (!recipes) return [];
+
+    return recipes.filter((recipe) => {
+      if (selectedMeal && recipe.meal !== selectedMeal) return false;
+      if (selectedType && recipe.type !== selectedType) return false;
+      if (selectedCuisine && recipe.cuisine !== selectedCuisine) return false;
+      return true;
+    });
+  }, [recipes, selectedMeal, selectedType, selectedCuisine]);
+
+  // Create dropdown options from filter options or available data
+  const mealOptions: DropdownOption[] = React.useMemo(() => {
+    if (filterOptions?.meals) {
+      return filterOptions.meals.map((meal) => ({
+        label: meal.charAt(0).toUpperCase() + meal.slice(1),
+        value: meal,
+      }));
+    }
+    // Fallback to extracting from recipes
+    const uniqueMeals = Array.from(new Set(recipes?.map((r) => r.meal) || []));
+    return uniqueMeals.map((meal) => ({
+      label: meal.charAt(0).toUpperCase() + meal.slice(1),
+      value: meal,
+    }));
+  }, [filterOptions?.meals, recipes]);
+
+  const typeOptions: DropdownOption[] = React.useMemo(() => {
+    if (filterOptions?.types) {
+      return filterOptions.types.map((type) => ({
+        label: type.charAt(0).toUpperCase() + type.slice(1),
+        value: type,
+      }));
+    }
+    // Fallback to extracting from recipes
+    const uniqueTypes = Array.from(new Set(recipes?.map((r) => r.type) || []));
+    return uniqueTypes.map((type) => ({
+      label: type.charAt(0).toUpperCase() + type.slice(1),
+      value: type,
+    }));
+  }, [filterOptions?.types, recipes]);
+
+  const cuisineOptions: DropdownOption[] = React.useMemo(() => {
+    if (filterOptions?.cuisines) {
+      return filterOptions.cuisines.map((cuisine) => ({
+        label: cuisine,
+        value: cuisine,
+      }));
+    }
+    // Fallback to extracting from recipes
+    const uniqueCuisines = Array.from(
+      new Set(recipes?.map((r) => r.cuisine) || []),
+    );
+    return uniqueCuisines.map((cuisine) => ({
+      label: cuisine,
+      value: cuisine,
+    }));
+  }, [filterOptions?.cuisines, recipes]);
 
   const onRefresh = React.useCallback(() => {
     refetch();
@@ -191,18 +256,39 @@ export default function RecipesScreen() {
       );
     }
 
-    if (!recipes || recipes.length === 0) {
+    if (!filteredRecipes || filteredRecipes.length === 0) {
+      const hasAnyRecipes = recipes && recipes.length > 0;
       return (
-        <View style={styles.centerContainer}>
-          <ThemedText type="subtitle">
-            {searchQuery ? "No recipes found" : "No recipes yet"}
-          </ThemedText>
-          <ThemedText style={styles.emptyStateText}>
-            {searchQuery
-              ? "Try adjusting your search terms"
-              : "Get started by creating your first recipe in the Create tab!"}
-          </ThemedText>
-        </View>
+        <ScrollView
+          style={styles.recipesList}
+          contentContainerStyle={styles.recipesListContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isLoading}
+              onRefresh={onRefresh}
+              tintColor={Colors.primary}
+              colors={[Colors.primary]}
+            />
+          }
+        >
+          <View style={styles.centerContainer}>
+            <ThemedText type="subtitle">
+              {hasAnyRecipes
+                ? "No matching recipes"
+                : searchQuery
+                  ? "No recipes found"
+                  : "No recipes yet"}
+            </ThemedText>
+            <ThemedText style={styles.emptyStateText}>
+              {hasAnyRecipes
+                ? "Try adjusting your filters or search terms"
+                : searchQuery
+                  ? "Try adjusting your search terms"
+                  : "Get started by creating your first recipe in the Create tab!"}
+            </ThemedText>
+          </View>
+        </ScrollView>
       );
     }
 
@@ -221,7 +307,7 @@ export default function RecipesScreen() {
         }
       >
         <View style={styles.recipesGrid}>
-          {recipes.map((recipe) => (
+          {filteredRecipes.map((recipe) => (
             <RecipeCard
               key={recipe.id}
               id={recipe.id}
@@ -249,11 +335,32 @@ export default function RecipesScreen() {
           onSearchChange={setSearchQuery}
           onClearSearch={() => setSearchQuery("")}
           onRandomRecipe={getRandomRecipe}
-          hasRecipes={Boolean(recipes && recipes.length > 0)}
+          hasRecipes={Boolean(filteredRecipes && filteredRecipes.length > 0)}
           hasRecommendedRecipe={!!recommendedRecipe}
           pendingSharesCount={pendingShares.length}
           onShowShares={() => setSharesDrawerVisible(true)}
         />
+
+        <View style={styles.filtersContainer}>
+          <Dropdown
+            options={mealOptions}
+            value={selectedMeal}
+            onValueChange={setSelectedMeal}
+            placeholder="All Meals"
+          />
+          <Dropdown
+            options={typeOptions}
+            value={selectedType}
+            onValueChange={setSelectedType}
+            placeholder="All Types"
+          />
+          <Dropdown
+            options={cuisineOptions}
+            value={selectedCuisine}
+            onValueChange={setSelectedCuisine}
+            placeholder="All Cuisines"
+          />
+        </View>
 
         {renderContent()}
 
@@ -318,6 +425,13 @@ const styles = StyleSheet.create({
   searchContainer: {
     paddingHorizontal: Layout.screenPadding,
     paddingVertical: Spacing.lg,
+    backgroundColor: Colors.background,
+  },
+  filtersContainer: {
+    flexDirection: "row",
+    paddingHorizontal: Layout.screenPadding,
+    paddingBottom: Spacing.lg,
+    gap: Spacing.md,
     backgroundColor: Colors.background,
   },
   searchRow: {

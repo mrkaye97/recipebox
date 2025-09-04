@@ -516,7 +516,7 @@ export interface components {
     /** ListRecipeFilterOptionsRow */
     readonly ListRecipeFilterOptionsRow: {
       /** Cuisines */
-      readonly cuisines: string;
+      readonly cuisines: readonly string[];
       /** Meals */
       readonly meals: readonly components["schemas"]["Meal"][];
       /** Types */
@@ -762,6 +762,8 @@ export interface components {
       /** Password */
       readonly password: string;
       readonly privacy_preference: components["schemas"]["UserPrivacyPreference"];
+      /** Signup Token */
+      readonly signup_token: string;
     };
     /** ValidationError */
     readonly ValidationError: {

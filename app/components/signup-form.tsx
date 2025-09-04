@@ -26,6 +26,7 @@ export function SignupForm() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const [signupToken, setSignupToken] = useState("");
   const [privacyPreference, setPrivacyPreference] =
     useState<PrivacyPreference>("public");
 
@@ -35,7 +36,12 @@ export function SignupForm() {
   const { register } = useUser();
 
   const handleSignup = async () => {
-    if (!email.trim() || !name.trim() || !password.trim()) {
+    if (
+      !email.trim() ||
+      !name.trim() ||
+      !password.trim() ||
+      !signupToken.trim()
+    ) {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
@@ -53,6 +59,7 @@ export function SignupForm() {
         name.trim(),
         password,
         privacyPreference,
+        signupToken.trim(),
       );
 
       if (token) {
@@ -119,6 +126,21 @@ export function SignupForm() {
             onChangeText={setPassword}
             placeholder="Enter your password (min 6 characters)"
             secureTextEntry
+            autoCapitalize="none"
+            autoCorrect={false}
+            editable={!isLoading}
+          />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <ThemedText type="defaultSemiBold" style={styles.label}>
+            Signup Token
+          </ThemedText>
+          <TextInput
+            style={styles.input}
+            value={signupToken}
+            onChangeText={setSignupToken}
+            placeholder="Enter your signup token"
             autoCapitalize="none"
             autoCorrect={false}
             editable={!isLoading}

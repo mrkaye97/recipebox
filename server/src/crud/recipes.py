@@ -193,7 +193,7 @@ LIST_RECIPE_FILTER_OPTIONS = """-- name: list_recipe_filter_options \\:one
 SELECT
     ARRAY_AGG(DISTINCT meal)\\:\\:meal[] AS meals,
     ARRAY_AGG(DISTINCT type)\\:\\:recipe_type[] AS types,
-    ARRAY_AGG(DISTINCT cuisine)\\:\\:TEXT AS cuisines
+    ARRAY_AGG(DISTINCT cuisine)\\:\\:TEXT[] AS cuisines
 FROM recipe
 WHERE user_id = :p1\\:\\:UUID
 """
@@ -202,7 +202,7 @@ WHERE user_id = :p1\\:\\:UUID
 class ListRecipeFilterOptionsRow(pydantic.BaseModel):
     meals: list[models.Meal]
     types: list[models.RecipeType]
-    cuisines: str
+    cuisines: list[str]
 
 
 LIST_RECIPE_INGREDIENTS = """-- name: list_recipe_ingredients \\:many

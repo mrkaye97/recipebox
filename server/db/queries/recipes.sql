@@ -245,6 +245,6 @@ VALUES (
 SELECT
     ARRAY_AGG(DISTINCT meal)::meal[] AS meals,
     ARRAY_AGG(DISTINCT type)::recipe_type[] AS types,
-    ARRAY_AGG(DISTINCT cuisine)::TEXT AS cuisines
+    ARRAY_AGG(DISTINCT cuisine)::TEXT[] AS cuisines
 FROM recipe
 WHERE user_id = @userId::UUID;

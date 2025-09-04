@@ -38,6 +38,7 @@ interface UserContextType {
     name: string,
     password: string,
     privacy_preference: PrivacyPreference,
+    signup_token: string,
   ) => Promise<AccessToken>;
   logout: () => Promise<void>;
   getToken: () => Promise<string | null>;
@@ -173,6 +174,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
       name: string,
       password: string,
       privacy_preference: PrivacyPreference,
+      signup_token: string,
     ): Promise<AccessToken> => {
       const { access_token } = await registerMutation({
         body: {
@@ -180,6 +182,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
           name,
           password,
           privacy_preference,
+          signup_token,
         },
       });
 
