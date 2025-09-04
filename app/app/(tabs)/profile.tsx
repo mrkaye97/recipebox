@@ -10,11 +10,11 @@ import {
 
 import { LoginForm } from "@/components/login-form";
 import { SignupForm } from "@/components/signup-form";
+import { FriendRequestSkeleton, FriendSkeleton } from "@/components/skeleton";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { UserSearchCombobox } from "@/components/user-search-combobox";
-import { FriendSkeleton, FriendRequestSkeleton } from "@/components/skeleton";
 import {
   BorderRadius,
   Colors,
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     gap: Spacing.sm,
-    marginTop: Spacing["2xl"],
+    marginTop: 50,
   },
   toggleText: {
     fontSize: Typography.fontSizes.sm,

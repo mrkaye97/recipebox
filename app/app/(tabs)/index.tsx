@@ -4,8 +4,8 @@ import { RecipeCreationDrawer } from "@/components/recipe-creation-drawer";
 import { RecipeSkeleton } from "@/components/skeleton";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Dropdown, DropdownOption } from "@/components/ui/dropdown";
+import { IconSymbol } from "@/components/ui/icon-symbol";
 import {
   BorderRadius,
   Colors,
@@ -346,19 +346,19 @@ export default function RecipesScreen() {
             options={mealOptions}
             value={selectedMeal}
             onValueChange={setSelectedMeal}
-            placeholder="All Meals"
+            placeholder="Meal"
           />
           <Dropdown
             options={typeOptions}
             value={selectedType}
             onValueChange={setSelectedType}
-            placeholder="All Types"
+            placeholder="Type"
           />
           <Dropdown
             options={cuisineOptions}
             value={selectedCuisine}
             onValueChange={setSelectedCuisine}
-            placeholder="All Cuisines"
+            placeholder="Cuisine"
           />
         </View>
 

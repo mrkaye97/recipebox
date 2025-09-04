@@ -6,8 +6,11 @@ import { Platform } from "react-native";
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import TabBarBackground from "@/components/ui/tab-bar-background";
+import { useUser } from "@/hooks/use-user";
 
 export default function TabLayout() {
+  const { isAuthenticated } = useUser();
+
   return (
     <Tabs
       screenOptions={{
@@ -15,29 +18,31 @@ export default function TabLayout() {
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            position: "absolute",
-            height: Layout.tabBarHeight.ios,
-            paddingBottom: 34,
-            paddingTop: 8,
-            backgroundColor: Colors.surface,
-            borderTopWidth: 1,
-            borderTopColor: Colors.borderLight,
-            ...Shadows.xl,
-            shadowOffset: { width: 0, height: -2 },
-          },
-          default: {
-            height: Layout.tabBarHeight.default,
-            paddingBottom: 8,
-            paddingTop: 8,
-            backgroundColor: Colors.surface,
-            borderTopWidth: 1,
-            borderTopColor: Colors.borderLight,
-            ...Shadows.xl,
-            shadowOffset: { width: 0, height: -2 },
-          },
-        }),
+        tabBarStyle: isAuthenticated
+          ? Platform.select({
+              ios: {
+                position: "absolute",
+                height: Layout.tabBarHeight.ios,
+                paddingBottom: 34,
+                paddingTop: 8,
+                backgroundColor: Colors.surface,
+                borderTopWidth: 1,
+                borderTopColor: Colors.borderLight,
+                ...Shadows.xl,
+                shadowOffset: { width: 0, height: -2 },
+              },
+              default: {
+                height: Layout.tabBarHeight.default,
+                paddingBottom: 8,
+                paddingTop: 8,
+                backgroundColor: Colors.surface,
+                borderTopWidth: 1,
+                borderTopColor: Colors.borderLight,
+                ...Shadows.xl,
+                shadowOffset: { width: 0, height: -2 },
+              },
+            })
+          : { display: "none" },
       }}
     >
       <Tabs.Screen

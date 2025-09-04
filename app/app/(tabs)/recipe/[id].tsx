@@ -2,6 +2,7 @@ import { RecipeShareModal } from "@/components/recipe-share-modal";
 import { Skeleton } from "@/components/skeleton";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { Dropdown, DropdownOption } from "@/components/ui/dropdown";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/design-system";
 import { useActivity } from "@/hooks/use-activity";
@@ -28,6 +29,8 @@ type RecipeLocation = components["schemas"]["RecipeLocation"];
 type DietaryRestriction = components["schemas"]["DietaryRestriction"];
 type RecipeIngredient = components["schemas"]["RecipeIngredient"];
 type RecipeInstruction = components["schemas"]["RecipeInstruction"];
+type RecipeType = components["schemas"]["RecipeType"];
+type RecipeMeal = components["schemas"]["Meal"];
 type RecipePatch = components["schemas"]["RecipePatch"];
 
 const DIETARY_RESTRICTIONS: { value: DietaryRestriction; label: string }[] = [
@@ -37,6 +40,24 @@ const DIETARY_RESTRICTIONS: { value: DietaryRestriction; label: string }[] = [
   { value: "vegan", label: "Vegan" },
   { value: "vegetarian", label: "Vegetarian" },
   { value: "pescatarian", label: "Pescatarian" },
+];
+
+const RECIPE_TYPES: { value: RecipeType; label: string }[] = [
+  { value: "starter", label: "Starter" },
+  { value: "main", label: "Main" },
+  { value: "salad", label: "Salad" },
+  { value: "dessert", label: "Dessert" },
+  { value: "snack", label: "Snack" },
+  { value: "cocktail", label: "Cocktail" },
+  { value: "condiment", label: "Condiment" },
+  { value: "other", label: "Other" },
+];
+
+const RECIPE_MEALS: { value: RecipeMeal; label: string }[] = [
+  { value: "breakfast", label: "Breakfast" },
+  { value: "lunch", label: "Lunch" },
+  { value: "dinner", label: "Dinner" },
+  { value: "other", label: "Other" },
 ];
 
 const RecipeLocationUI = ({ location }: { location: RecipeLocation }) => {
@@ -255,6 +276,8 @@ export default function RecipeDetailScreen() {
         time_estimate_minutes: recipe.time_estimate_minutes,
         dietary_restrictions_met: recipe.dietary_restrictions_met || [],
         location: recipe.location,
+        meal: recipe.meal,
+        type: recipe.type,
       });
       setIsEditing(true);
     }
@@ -289,6 +312,8 @@ export default function RecipeDetailScreen() {
         time_estimate_minutes: editedRecipe.time_estimate_minutes,
         dietary_restrictions_met: recipe.dietary_restrictions_met,
         location: recipe.location,
+        meal: editedRecipe.meal,
+        type: editedRecipe.type,
       };
 
       await updateRecipe(id, completeUpdate);
@@ -296,7 +321,6 @@ export default function RecipeDetailScreen() {
       setIsEditing(false);
       setEditedRecipe(null);
 
-      // Scroll to top of the page
       scrollViewRef.current?.scrollTo({ y: 0, animated: true });
 
       Alert.alert("Success", "Recipe updated successfully!");
@@ -313,7 +337,10 @@ export default function RecipeDetailScreen() {
       | string[]
       | RecipeIngredient[]
       | RecipeInstruction[]
-      | DietaryRestriction[],
+      | DietaryRestriction[]
+      | RecipeType
+      | RecipeMeal
+      | null,
   ) => {
     if (editedRecipe) {
       setEditedRecipe({ ...editedRecipe, [field]: value });
@@ -458,6 +485,11 @@ export default function RecipeDetailScreen() {
       dietary_restrictions_met: updatedRestrictions,
     });
   };
+
+  const mealOptions: DropdownOption[] = RECIPE_MEALS.map((meal) => ({
+    label: meal.label,
+    value: meal.value,
+  }));
 
   if (isLoading) {
     return (
@@ -707,6 +739,49 @@ export default function RecipeDetailScreen() {
               ) : (
                 <ThemedText style={styles.infoValue}>
                   {recipe.time_estimate_minutes} min
+                </ThemedText>
+              )}
+            </View>
+          </View>
+
+          <View style={styles.recipeBasicInfo}>
+            <View style={styles.infoItem}>
+              <IconSymbol name="calendar" size={16} color={Colors.primary} />
+              <ThemedText style={styles.infoLabel}>Meal:</ThemedText>
+              {isEditing ? (
+                <View style={styles.dropdownContainer}>
+                  <Dropdown
+                    options={mealOptions}
+                    value={editedRecipe?.meal || undefined}
+                    onValueChange={(value) =>
+                      updateEditedField("meal", value || null)
+                    }
+                    placeholder="Select meal"
+                  />
+                </View>
+              ) : (
+                <ThemedText style={styles.infoValue}>
+                  {recipe.meal.charAt(0).toUpperCase() + recipe.meal.slice(1)}
+                </ThemedText>
+              )}
+            </View>
+            <View style={styles.infoItem}>
+              <IconSymbol name="tag" size={16} color={Colors.primary} />
+              <ThemedText style={styles.infoLabel}>Type:</ThemedText>
+              {isEditing ? (
+                <View style={styles.dropdownContainer}>
+                  <Dropdown
+                    options={RECIPE_TYPES}
+                    value={editedRecipe?.type || undefined}
+                    onValueChange={(value) =>
+                      updateEditedField("type", value || null)
+                    }
+                    placeholder="Select type"
+                  />
+                </View>
+              ) : (
+                <ThemedText style={styles.infoValue}>
+                  {recipe.type.charAt(0).toUpperCase() + recipe.type.slice(1)}
                 </ThemedText>
               )}
             </View>
@@ -1594,6 +1669,10 @@ const styles = StyleSheet.create({
   timeLabel: {
     fontSize: 14,
     color: Colors.text,
+  },
+  dropdownContainer: {
+    flex: 1,
+    marginLeft: 8,
   },
   editableTagRow: {
     flexDirection: "row",

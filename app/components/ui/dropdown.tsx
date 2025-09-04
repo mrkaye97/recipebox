@@ -1,14 +1,3 @@
-import React, { useState } from "react";
-import {
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  Modal,
-  ScrollView,
-  Text,
-} from "react-native";
-import { ThemedText } from "../themed-text";
-import { IconSymbol } from "./icon-symbol";
 import {
   BorderRadius,
   Colors,
@@ -16,6 +5,16 @@ import {
   Spacing,
   Typography,
 } from "@/constants/design-system";
+import React, { useState } from "react";
+import {
+  Modal,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { ThemedText } from "../themed-text";
+import { IconSymbol } from "./icon-symbol";
 
 export interface DropdownOption {
   label: string;
