@@ -57,8 +57,8 @@ function SearchBar({
         <View style={styles.searchInputContainer}>
           <IconSymbol
             name="magnifyingglass"
-            size={16}
-            color={Colors.textSecondary}
+            size={18}
+            color={Colors.primary}
             style={styles.searchIcon}
           />
           <TextInput
@@ -78,8 +78,8 @@ function SearchBar({
             >
               <IconSymbol
                 name="xmark.circle.fill"
-                size={16}
-                color={Colors.textSecondary}
+                size={18}
+                color={Colors.primary}
               />
             </TouchableOpacity>
           )}
@@ -91,8 +91,8 @@ function SearchBar({
           >
             <IconSymbol
               name="tray.and.arrow.down"
-              size={18}
-              color={Colors.textSecondary}
+              size={20}
+              color={Colors.primary}
             />
             <View style={styles.sharesBadge}>
               <ThemedText style={styles.sharesBadgeText}>
@@ -112,8 +112,8 @@ function SearchBar({
           >
             <IconSymbol
               name="wand.and.stars"
-              size={16}
-              color={Colors.textSecondary}
+              size={18}
+              color={Colors.primary}
             />
           </TouchableOpacity>
         )}
@@ -361,7 +361,7 @@ export default function RecipesScreen() {
           style={styles.floatingButton}
           onPress={() => setCreationDrawerVisible(true)}
         >
-          <IconSymbol size={28} name="plus" color="#ffffff" />
+          <IconSymbol size={32} name="plus" color="#ffffff" />
         </TouchableOpacity>
 
         <RecipeCreationDrawer

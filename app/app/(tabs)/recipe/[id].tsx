@@ -723,7 +723,7 @@ export default function RecipeDetailScreen() {
                   placeholderTextColor={Colors.textSecondary}
                 />
               ) : (
-                <ThemedText style={styles.infoValue}>
+                <ThemedText style={styles.infoValue} numberOfLines={1}>
                   {recipe.cuisine}
                 </ThemedText>
               )}
@@ -1383,6 +1383,8 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     borderTopWidth: 1,
     borderTopColor: Colors.borderLight,
+    flexWrap: "wrap",
+    gap: 8,
   },
   infoItem: {
     flexDirection: "row",
@@ -1390,6 +1392,7 @@ const styles = StyleSheet.create({
     gap: 6,
     flex: 1,
     justifyContent: "center",
+    minWidth: 0,
   },
   infoLabel: {
     fontSize: 14,
@@ -1400,6 +1403,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: Colors.text,
+    flexShrink: 1,
+    maxWidth: 120,
   },
   recipeName: {
     fontSize: 28,

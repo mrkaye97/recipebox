@@ -5,22 +5,22 @@ export const Colors = {
   secondary: "#c3acce",
   secondaryLight: "#d8c2e3",
   secondaryDark: "#a088b5",
-  
+
   background: "#fdfefe",
   backgroundSubtle: "#f8fafb",
   backgroundTinted: "#f4f8f9",
   surface: "#ffffff",
   surfaceTinted: "#fcfdfe",
-  
+
   text: "#2c3e50",
   textSecondary: "#64748b",
   textTertiary: "#94a3b8",
-  
+
   accent1: "#e8f4f8",
   accent2: "#f0e8f4",
   accent3: "#fef7e0",
   accent4: "#f0f9ff",
-  
+
   border: "rgba(139, 160, 164, 0.2)",
   borderLight: "rgba(139, 160, 164, 0.08)",
   borderAccent: "rgba(195, 172, 206, 0.3)",

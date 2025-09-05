@@ -209,7 +209,7 @@ export default function ProfileScreen() {
 
         <View style={styles.section}>
           <TouchableOpacity style={styles.actionButton} onPress={handleLogout}>
-            <IconSymbol name="door.right.hand.open" size={16} color="#fff" />
+            <IconSymbol name="door.right.hand.open" size={18} color="#fff" />
             <ThemedText style={styles.actionButtonText}>Log Out</ThemedText>
           </TouchableOpacity>
         </View>
@@ -333,16 +333,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: Spacing.xs,
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.md,
-    borderRadius: BorderRadius.sm,
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing["2xl"],
+    paddingVertical: Spacing.lg,
+    borderRadius: BorderRadius.xl,
     marginTop: Spacing.lg,
+    ...Shadows.md,
   },
   actionButtonText: {
     color: Colors.surface,
-    fontSize: Typography.fontSizes.sm,
-    fontWeight: Typography.fontWeights.medium,
+    fontSize: Typography.fontSizes.base,
+    fontWeight: Typography.fontWeights.semibold,
+    letterSpacing: Typography.letterSpacing.wide,
   },
   footer: {
     marginTop: "auto",
