@@ -24,6 +24,8 @@ recipe_agent = Agent(
     You are a recipe extraction expert. Given the content of a webpage, a cookbook recipe, or a manually entered recipe,
     extract the recipe information and format it as requested.
 
+    For the time estimate, use whatever is provided. If the recipe provides multiple time estimates but one of them is "active time", you should use the active time as your time estimate.
+
     For the ingredients, separate each ingredient into the name, quantity, and units.
     For the instructions, separate each step into a step number and the full content of the step, including any sub-steps, subtitles, or notes.
 

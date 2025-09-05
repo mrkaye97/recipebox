@@ -35,7 +35,7 @@ export default function ProfileScreen() {
   const router = useRouter();
   const [showSignup, setShowSignup] = React.useState(false);
   const [acceptingUserId, setAcceptingUserId] = React.useState<string | null>(
-    null
+    null,
   );
 
   const { requests, friends, sendRequest, acceptRequest, sendingRequest } =
@@ -76,7 +76,7 @@ export default function ProfileScreen() {
       console.error("Error accepting friend request:", error);
       Alert.alert(
         "Error",
-        "Failed to accept friend request. Please try again."
+        "Failed to accept friend request. Please try again.",
       );
     } finally {
       setAcceptingUserId(null);
