@@ -110,6 +110,8 @@ function OnlineRecipeForm() {
     const response = await create.perform(recipeData);
 
     if (response) {
+      setUrl("");
+      setNotes("");
       router.push(`/recipe/${response.id}`);
     }
   };
@@ -278,6 +280,11 @@ function CookbookRecipeForm() {
     });
 
     if (response) {
+      setCookbookName("");
+      setAuthor("");
+      setPageNumber("");
+      setNotes("");
+      setSelectedImage(null);
       router.push(`/recipe/${response.id}`);
     }
   };

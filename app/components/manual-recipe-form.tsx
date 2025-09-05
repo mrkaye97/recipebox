@@ -128,6 +128,16 @@ export function ManualRecipeForm({ onCancel }: ManualRecipeFormProps) {
     const response = await create.perform(recipeData);
 
     if (response) {
+      setFormData({
+        name: "",
+        author: "",
+        cuisine: "",
+        time_estimate_minutes: "",
+        ingredients: "",
+        instructions: "",
+        tags: "",
+        notes: "",
+      });
       router.push(`/recipe/${response.id}`);
     }
   };
