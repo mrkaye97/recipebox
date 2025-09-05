@@ -139,18 +139,18 @@ export function RecipeCard({
 
 const styles = StyleSheet.create({
   recipeCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.xl,
+    backgroundColor: Colors.surfaceTinted,
+    borderRadius: BorderRadius["2xl"],
     padding: 0,
-    marginBottom: Spacing.lg,
-    ...Shadows.xl,
-    borderWidth: 0.5,
+    marginBottom: Spacing.xl,
+    ...Shadows.lg,
+    borderWidth: 1,
     borderColor: Colors.borderLight,
     overflow: "hidden",
     transform: [{ scale: 1 }],
   },
   recipeCardContent: {
-    padding: Spacing.xl,
+    padding: Spacing["3xl"],
   },
   recipeHeader: {
     flexDirection: "row",
@@ -183,12 +183,12 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
   cuisineContainer: {
-    backgroundColor: Colors.primary + "15",
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
+    backgroundColor: Colors.accent1,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.full,
-    borderWidth: 0.5,
-    borderColor: Colors.primary + "30",
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   recipeCuisine: {
     fontSize: Typography.fontSizes.xs,
@@ -198,12 +198,12 @@ const styles = StyleSheet.create({
     letterSpacing: Typography.letterSpacing.wider,
   },
   mealContainer: {
-    backgroundColor: Colors.backgroundSubtle,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
+    backgroundColor: Colors.accent2,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.full,
-    borderWidth: 0.5,
-    borderColor: Colors.borderLight,
+    borderWidth: 1,
+    borderColor: Colors.borderAccent,
   },
   recipeMeal: {
     fontSize: Typography.fontSizes.xs,
@@ -213,9 +213,9 @@ const styles = StyleSheet.create({
     letterSpacing: Typography.letterSpacing.wider,
   },
   typeContainer: {
-    backgroundColor: Colors.backgroundSubtle,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
+    backgroundColor: Colors.accent3,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.full,
     borderWidth: 0.5,
     borderColor: Colors.borderLight,
