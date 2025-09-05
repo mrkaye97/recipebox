@@ -206,9 +206,8 @@ export default function ProfileScreen() {
             </View>
           </View>
         )}
-
       </View>
-      
+
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <IconSymbol name="door.right.hand.open" size={18} color="#fff" />
         <ThemedText style={styles.logoutButtonText}>Log Out</ThemedText>

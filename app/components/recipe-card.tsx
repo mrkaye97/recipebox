@@ -106,22 +106,26 @@ export function RecipeCard({
             <ThemedText style={styles.recipeType}>{type}</ThemedText>
           </View>
         </View>
-        <View style={styles.timeContainer}>
-          <IconSymbol name="clock" size={14} color={Colors.primary} />
-          <ThemedText style={styles.recipeTime}>{timeEstimate} min</ThemedText>
-        </View>
-        {cookedAt && (
-          <View style={styles.cookedDateContainer}>
-            <IconSymbol
-              name="checkmark.circle.fill"
-              size={16}
-              color={Colors.primary}
-            />
-            <ThemedText style={styles.cookedDateText}>
-              {formatCookedDate(cookedAt)}
+        <View style={styles.metaRow}>
+          <View style={styles.timeContainer}>
+            <IconSymbol name="clock" size={14} color={Colors.textSecondary} />
+            <ThemedText style={styles.recipeTime}>
+              {timeEstimate} min
             </ThemedText>
           </View>
-        )}
+          {cookedAt && (
+            <View style={styles.cookedDateContainer}>
+              <IconSymbol
+                name="checkmark.circle.fill"
+                size={16}
+                color={Colors.primary}
+              />
+              <ThemedText style={styles.cookedDateText}>
+                {formatCookedDate(cookedAt)}
+              </ThemedText>
+            </View>
+          )}
+        </View>
         {isOtherUser && userName && (
           <View style={styles.cookedByContainer}>
             <IconSymbol
@@ -146,8 +150,8 @@ const styles = StyleSheet.create({
     padding: 0,
     marginBottom: Spacing.xl,
     ...Shadows.lg,
-    borderWidth: 1,
-    borderColor: Colors.borderLight,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
     overflow: "hidden",
     transform: [{ scale: 1 }],
   },
@@ -186,12 +190,19 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
     flexWrap: "wrap",
   },
+  metaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.md,
+    marginBottom: Spacing.md,
+    flexWrap: "wrap",
+  },
   cuisineContainer: {
-    backgroundColor: Colors.accent1,
+    backgroundColor: Colors.surface,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.full,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: Colors.border,
     flex: 1,
     minWidth: 0,
@@ -201,19 +212,19 @@ const styles = StyleSheet.create({
   recipeCuisine: {
     fontSize: Typography.fontSizes.xs,
     fontWeight: Typography.fontWeights.semibold,
-    color: Colors.primary,
+    color: Colors.textSecondary,
     textTransform: "uppercase",
     letterSpacing: Typography.letterSpacing.wider,
     textAlign: "center",
     lineHeight: Typography.fontSizes.xs * 1.4,
   },
   mealContainer: {
-    backgroundColor: Colors.accent2,
+    backgroundColor: Colors.surface,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    borderColor: Colors.borderAccent,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
     maxWidth: 100,
     alignSelf: "flex-start",
   },
@@ -227,14 +238,14 @@ const styles = StyleSheet.create({
     maxWidth: 100,
   },
   typeContainer: {
-    backgroundColor: Colors.accent3,
+    backgroundColor: Colors.surface,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.full,
     maxWidth: 100,
     alignSelf: "flex-start",
-    borderColor: Colors.borderLight,
-    borderWidth: 0.5,
+    borderColor: Colors.border,
+    borderWidth: 1.5,
   },
   recipeType: {
     fontSize: Typography.fontSizes.xs,
@@ -249,39 +260,36 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.sm,
-    backgroundColor: Colors.accent4,
+    backgroundColor: Colors.surface,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.full,
     alignSelf: "flex-start",
-    marginBottom: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.borderLight,
+    borderColor: Colors.border,
+    borderWidth: 1.5,
   },
   recipeTime: {
     fontSize: Typography.fontSizes.xs,
-    color: Colors.text,
-    fontWeight: Typography.fontWeights.semibold,
-    textTransform: "uppercase",
+    color: Colors.textSecondary,
+    fontWeight: Typography.fontWeights.medium,
     letterSpacing: Typography.letterSpacing.wide,
   },
   cookedDateContainer: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.sm,
-    backgroundColor: Colors.accent1,
+    backgroundColor: Colors.surface,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.full,
     alignSelf: "flex-start",
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: Colors.border,
   },
   cookedDateText: {
     fontSize: Typography.fontSizes.xs,
-    color: Colors.primary,
+    color: Colors.textSecondary,
     fontWeight: Typography.fontWeights.semibold,
-    textTransform: "uppercase",
     letterSpacing: Typography.letterSpacing.wide,
   },
   cookedByContainer: {
