@@ -10,7 +10,7 @@
     "web": "expo start --web",
     "lint": "npx prettier . --write && expo lint",
     "gen-schema": "curl localhost:8000/openapi.json > openapi.json && npx openapi-typescript --alphabetize --immutable openapi.json -o ./src/lib/api/v1.d.ts && rm openapi.json",
-    "build": "eas login && eas build --platform ios && eas submit --platform ios"
+    "build": "eas build --platform ios && eas submit --platform ios"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
