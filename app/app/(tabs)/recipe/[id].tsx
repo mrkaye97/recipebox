@@ -678,6 +678,7 @@ export default function RecipeDetailScreen() {
                 value={editedRecipe?.name || ""}
                 onChangeText={(text) => updateEditedField("name", text)}
                 placeholder="Recipe name"
+                placeholderTextColor={Colors.textSecondary}
                 multiline
               />
               <View style={styles.authorEditContainer}>
@@ -691,6 +692,7 @@ export default function RecipeDetailScreen() {
                   value={editedRecipe?.author || ""}
                   onChangeText={(text) => updateEditedField("author", text)}
                   placeholder="Author name"
+                  placeholderTextColor={Colors.textSecondary}
                 />
               </View>
             </>
@@ -718,6 +720,7 @@ export default function RecipeDetailScreen() {
                   value={editedRecipe?.cuisine || ""}
                   onChangeText={(text) => updateEditedField("cuisine", text)}
                   placeholder="Cuisine"
+                  placeholderTextColor={Colors.textSecondary}
                 />
               ) : (
                 <ThemedText style={styles.infoValue}>
@@ -740,6 +743,7 @@ export default function RecipeDetailScreen() {
                       )
                     }
                     placeholder="30"
+                    placeholderTextColor={Colors.textSecondary}
                     keyboardType="numeric"
                   />
                   <ThemedText style={styles.timeLabel}>min</ThemedText>
@@ -822,6 +826,7 @@ export default function RecipeDetailScreen() {
                         value={tag}
                         onChangeText={(text) => updateTag(index, text)}
                         placeholder="Enter tag"
+                        placeholderTextColor={Colors.textSecondary}
                       />
                       <TouchableOpacity
                         onPress={() => deleteTag(index)}
@@ -986,6 +991,7 @@ export default function RecipeDetailScreen() {
                               updateIngredient(index, "quantity", text)
                             }
                             placeholder="1"
+                            placeholderTextColor={Colors.textSecondary}
                           />
                           <TextInput
                             style={[styles.editableInput, styles.unitsInput]}
@@ -994,6 +1000,7 @@ export default function RecipeDetailScreen() {
                               updateIngredient(index, "units", text)
                             }
                             placeholder="cup"
+                            placeholderTextColor={Colors.textSecondary}
                           />
                           <TextInput
                             style={[styles.editableInput, styles.nameInput]}
@@ -1002,6 +1009,7 @@ export default function RecipeDetailScreen() {
                               updateIngredient(index, "name", text)
                             }
                             placeholder="ingredient name"
+                            placeholderTextColor={Colors.textSecondary}
                           />
                         </View>
                         <TouchableOpacity
@@ -1127,6 +1135,7 @@ export default function RecipeDetailScreen() {
                             updateInstruction(index, text)
                           }
                           placeholder="Enter instruction step..."
+                          placeholderTextColor={Colors.textSecondary}
                           multiline
                         />
                         <View style={styles.instructionControls}>
@@ -1239,6 +1248,7 @@ export default function RecipeDetailScreen() {
                 value={editedRecipe?.notes || ""}
                 onChangeText={(text) => updateEditedField("notes", text)}
                 placeholder="Add any additional notes or comments about this recipe..."
+                placeholderTextColor={Colors.textSecondary}
                 multiline
                 numberOfLines={4}
               />
