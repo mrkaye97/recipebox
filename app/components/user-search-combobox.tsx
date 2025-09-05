@@ -147,7 +147,7 @@ export function UserSearchCombobox({
 const styles = StyleSheet.create({
   container: {
     position: "relative",
-    zIndex: 1000,
+    zIndex: 10,
   },
   inputContainer: {
     position: "relative",
@@ -165,11 +165,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.borderLight,
     borderTopWidth: 0,
-    borderBottomLeftRadius: BorderRadius.md,
-    borderBottomRightRadius: BorderRadius.md,
+    borderRadius: BorderRadius.md,
     maxHeight: 200,
-    ...Shadows.lg,
-    zIndex: 1001,
+    ...Shadows.xl,
+    zIndex: 11,
   },
   userList: {
     maxHeight: 200,
@@ -182,6 +181,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: Colors.borderLight,
+    borderRadius: BorderRadius.xl,
   },
   userInfo: {
     flex: 1,

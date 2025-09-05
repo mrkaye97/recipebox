@@ -20,7 +20,6 @@ import {
   Colors,
   Components,
   Layout,
-  Shadows,
   Spacing,
   Typography,
 } from "@/constants/design-system";
@@ -36,7 +35,7 @@ export default function ProfileScreen() {
   const router = useRouter();
   const [showSignup, setShowSignup] = React.useState(false);
   const [acceptingUserId, setAcceptingUserId] = React.useState<string | null>(
-    null,
+    null
   );
 
   const { requests, friends, sendRequest, acceptRequest, sendingRequest } =
@@ -77,7 +76,7 @@ export default function ProfileScreen() {
       console.error("Error accepting friend request:", error);
       Alert.alert(
         "Error",
-        "Failed to accept friend request. Please try again.",
+        "Failed to accept friend request. Please try again."
       );
     } finally {
       setAcceptingUserId(null);
@@ -186,9 +185,6 @@ export default function ProfileScreen() {
             <ThemedText type="subtitle" style={styles.sectionTitle}>
               Friends
             </ThemedText>
-            <ThemedText style={styles.sectionSubtitle}>
-              Your recipe sharing buddies
-            </ThemedText>
             <View style={styles.usersList}>
               {friends.isLoading
                 ? Array.from({ length: 3 }).map((_, index) => (
@@ -295,7 +291,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.xl,
     padding: Spacing.xl,
-    ...Shadows.md,
     borderWidth: 0.5,
     borderColor: Colors.borderLight,
   },
