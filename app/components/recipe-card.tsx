@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: Spacing.sm,
     backgroundColor: Colors.accent1,
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.full,
     alignSelf: "flex-start",

@@ -207,13 +207,12 @@ export default function ProfileScreen() {
           </View>
         )}
 
-        <View style={styles.section}>
-          <TouchableOpacity style={styles.actionButton} onPress={handleLogout}>
-            <IconSymbol name="door.right.hand.open" size={18} color="#fff" />
-            <ThemedText style={styles.actionButtonText}>Log Out</ThemedText>
-          </TouchableOpacity>
-        </View>
       </View>
+      
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <IconSymbol name="door.right.hand.open" size={18} color="#fff" />
+        <ThemedText style={styles.logoutButtonText}>Log Out</ThemedText>
+      </TouchableOpacity>
     </ThemedView>
   );
 }
@@ -221,6 +220,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.backgroundTinted,
     paddingTop: Layout.headerHeight,
   },
   content: {
@@ -258,12 +258,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: Spacing.xl,
-    backgroundColor: Colors.accent1,
-    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
-    ...Shadows.sm,
+    borderColor: Colors.borderLight,
   },
   userInfo: {
     flex: 1,
@@ -328,7 +327,11 @@ const styles = StyleSheet.create({
     fontFamily: "monospace",
     color: Colors.textSecondary,
   },
-  actionButton: {
+  logoutButton: {
+    position: "absolute",
+    bottom: Layout.bottomPadding.form,
+    left: Layout.screenPadding,
+    right: Layout.screenPadding,
     backgroundColor: Colors.error,
     flexDirection: "row",
     alignItems: "center",
@@ -337,10 +340,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing["2xl"],
     paddingVertical: Spacing.lg,
     borderRadius: BorderRadius.xl,
-    marginTop: Spacing.lg,
     ...Shadows.md,
   },
-  actionButtonText: {
+  logoutButtonText: {
     color: Colors.surface,
     fontSize: Typography.fontSizes.base,
     fontWeight: Typography.fontWeights.semibold,

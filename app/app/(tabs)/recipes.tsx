@@ -117,7 +117,7 @@ function OnlineRecipeForm() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.backgroundSubtle }}>
+    <View style={{ flex: 1, backgroundColor: Colors.backgroundTinted }}>
       <KeyboardAvoidingView
         style={styles.keyboardAvoidContent}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -290,7 +290,7 @@ function CookbookRecipeForm() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.backgroundSubtle }}>
+    <View style={{ flex: 1, backgroundColor: Colors.backgroundTinted }}>
       <KeyboardAvoidingView
         style={styles.keyboardAvoidContent}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -483,7 +483,7 @@ export default function CreateRecipeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.backgroundSubtle,
+    backgroundColor: Colors.backgroundTinted,
     paddingTop: Layout.headerHeight,
   },
   header: {
