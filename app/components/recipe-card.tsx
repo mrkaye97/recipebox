@@ -3,7 +3,6 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import {
   BorderRadius,
   Colors,
-  Shadows,
   Spacing,
   Typography,
 } from "@/constants/design-system";
