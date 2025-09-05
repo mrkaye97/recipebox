@@ -132,7 +132,7 @@ export default function ProfileScreen() {
           </ThemedText>
           <UserSearchCombobox
             onAddFriend={handleAddFriend}
-            placeholder="Search for users by name or email..."
+            placeholder="Search for friends"
             isAddingFriend={sendingRequest}
           />
         </View>
@@ -219,7 +219,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.backgroundTinted,
+    backgroundColor: Colors.surface,
     paddingTop: Layout.headerHeight,
   },
   content: {
@@ -289,12 +289,11 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: Spacing.lg,
-    backgroundColor: Colors.surfaceTinted,
+    backgroundColor: Colors.surface,
     borderRadius: BorderRadius["2xl"],
     padding: Spacing["3xl"],
     borderWidth: 1,
     borderColor: Colors.borderLight,
-    ...Shadows.lg,
   },
   sectionTitle: {
     marginBottom: Spacing.sm,

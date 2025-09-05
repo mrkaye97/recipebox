@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     paddingVertical: Spacing.lg,
     borderWidth: 1,
-    borderColor: Colors.borderLight,
+    borderColor: Colors.border,
     minWidth: 110,
     minHeight: 52,
     ...Shadows.sm,
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     ...Shadows.xl,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: Colors.borderLight,
+    borderColor: Colors.border,
   },
   optionsList: {
     maxHeight: 300,

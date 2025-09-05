@@ -145,11 +145,10 @@ export function RecipeCard({
 
 const styles = StyleSheet.create({
   recipeCard: {
-    backgroundColor: Colors.surfaceTinted,
+    backgroundColor: Colors.surface,
     borderRadius: BorderRadius["2xl"],
     padding: 0,
     marginBottom: Spacing.xl,
-    ...Shadows.lg,
     borderWidth: 1.5,
     borderColor: Colors.border,
     overflow: "hidden",

@@ -377,26 +377,27 @@ export default function RecipesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.backgroundTinted,
+    backgroundColor: Colors.surface,
     paddingTop: Layout.headerHeight,
   },
   searchContainer: {
     paddingHorizontal: Layout.screenPadding,
     paddingTop: Spacing.md,
     paddingBottom: Spacing.lg,
-    backgroundColor: Colors.backgroundTinted,
+    backgroundColor: Colors.surface,
   },
   filtersContainer: {
     flexDirection: "row",
     paddingHorizontal: Layout.screenPadding,
     paddingBottom: Spacing.xl,
     gap: Spacing.sm,
-    backgroundColor: Colors.backgroundTinted,
+    backgroundColor: Colors.surface,
   },
   searchRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.md,
+    borderColor: Colors.border,
   },
   actionButton: {
     backgroundColor: Colors.accent2,
@@ -520,7 +521,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     paddingVertical: Spacing.lg,
     borderWidth: 1,
-    borderColor: Colors.borderLight,
+    borderColor: Colors.border,
     ...Shadows.sm,
     minHeight: 56,
   },

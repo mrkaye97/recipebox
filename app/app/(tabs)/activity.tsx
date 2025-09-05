@@ -13,6 +13,7 @@ import { ActivitySkeleton } from "@/components/skeleton";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import {
+  BorderRadius,
   Colors,
   Layout,
   Shadows,
@@ -157,7 +158,7 @@ export default function ActivityScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.backgroundTinted,
+    backgroundColor: Colors.surface,
     paddingTop: Layout.headerHeight,
   },
   switchContainer: {
@@ -170,11 +171,11 @@ const styles = StyleSheet.create({
     marginHorizontal: Layout.screenPadding,
     marginTop: Spacing.md,
     marginBottom: Spacing.lg,
-    borderRadius: 16,
+    borderRadius: BorderRadius["2xl"],
     gap: Spacing.sm,
     ...Shadows.sm,
     borderWidth: 0.5,
-    borderColor: Colors.borderLight,
+    borderColor: Colors.border,
   },
   switchLabel: {
     fontSize: Typography.fontSizes.base,

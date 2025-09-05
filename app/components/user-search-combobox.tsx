@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: Colors.borderLight,
+    borderColor: Colors.border,
     borderTopWidth: 0,
     borderRadius: BorderRadius.md,
     maxHeight: 200,
