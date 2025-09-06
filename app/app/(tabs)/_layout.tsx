@@ -80,6 +80,20 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="library"
+        options={{
+          title: "Discover",
+          tabBarIcon: ({ color, focused }) => (
+            <IconSymbol
+              size={24}
+              name="book.closed.fill"
+              color={focused ? color : Colors.textSecondary}
+            />
+          ),
+          tabBarLabelStyle: { fontSize: 12, marginTop: 4 },
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
