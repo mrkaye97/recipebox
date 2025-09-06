@@ -26,9 +26,7 @@ RETURNING *;
 
 -- name: DeleteRecipeTagsByRecipeId :exec
 DELETE FROM recipe_tag
-WHERE
-    recipe_id = @recipeId::UUID
-    AND user_id = @userId::UUID
+WHERE recipe_id = @recipeId::UUID
 ;
 
 -- name: CreateRecipeTags :many
@@ -36,10 +34,9 @@ WITH tags AS (
     SELECT UNNEST(@tags::TEXT[]) AS tag
 )
 
-INSERT INTO recipe_tag (recipe_id, user_id, tag)
+INSERT INTO recipe_tag (recipe_id, tag)
 SELECT
     @recipeId::UUID,
-    @userId::UUID,
     tag
 FROM tags
 ON CONFLICT DO NOTHING
@@ -47,9 +44,7 @@ RETURNING *;
 
 -- name: DeleteRecipeDietaryRestrictionsMetByRecipeId :exec
 DELETE FROM recipe_dietary_restriction_met
-WHERE
-    recipe_id = @recipeId::UUID
-    AND user_id = @userId::UUID
+WHERE recipe_id = @recipeId::UUID
 ;
 
 -- name: CreateRecipeDietaryRestrictionsMet :many
@@ -57,10 +52,9 @@ WITH restrictions AS (
     SELECT UNNEST(@dietaryRestrictionsMets::dietary_restriction[]) AS dietary_restriction
 )
 
-INSERT INTO recipe_dietary_restriction_met (recipe_id, user_id, dietary_restriction)
+INSERT INTO recipe_dietary_restriction_met (recipe_id, dietary_restriction)
 SELECT
     @recipeId::UUID,
-    @userId::UUID,
     dietary_restriction
 FROM restrictions
 ON CONFLICT DO NOTHING
@@ -68,9 +62,7 @@ RETURNING *;
 
 -- name: DeleteRecipeIngredientsByRecipeId :exec
 DELETE FROM recipe_ingredient
-WHERE
-    recipe_id = @recipeId::UUID
-    AND user_id = @userId::UUID
+WHERE recipe_id = @recipeId::UUID
 ;
 
 -- name: CreateRecipeIngredients :many
@@ -81,10 +73,9 @@ WITH ingredients AS (
         UNNEST(@units::TEXT[]) AS units
 )
 
-INSERT INTO recipe_ingredient (recipe_id, user_id, name, quantity, units)
+INSERT INTO recipe_ingredient (recipe_id, name, quantity, units)
 SELECT
     @recipeId::UUID,
-    @userId::UUID,
     name,
     quantity,
     units
@@ -94,9 +85,7 @@ RETURNING *;
 
 -- name: DeleteRecipeInstructionsByRecipeId :exec
 DELETE FROM recipe_instruction
-WHERE
-    recipe_id = @recipeId::UUID
-    AND user_id = @userId::UUID
+WHERE recipe_id = @recipeId::UUID
 ;
 
 -- name: CreateRecipeInstructions :many
@@ -106,10 +95,9 @@ WITH instructions AS (
         UNNEST(@contents::TEXT[]) AS content
 )
 
-INSERT INTO recipe_instruction (recipe_id, user_id, step_number, content)
+INSERT INTO recipe_instruction (recipe_id, step_number, content)
 SELECT
     @recipeId::UUID,
-    @userId::UUID,
     step_number,
     content
 FROM instructions
@@ -120,7 +108,10 @@ RETURNING *;
 SELECT *
 FROM recipe
 WHERE
-    user_id = @userId::UUID
+    (
+        sqlc.narg('user_id')::UUID IS NULL
+        OR user_id = sqlc.narg('user_id')::UUID
+    )
     AND (
         sqlc.narg('search')::TEXT IS NULL
         OR id @@@ paradedb.parse(sqlc.narg('search')::TEXT, lenient => true)
@@ -132,7 +123,6 @@ ORDER BY updated_at DESC
 SELECT *
 FROM recipe
 WHERE id = @recipeId::UUID
-AND user_id = @userId::UUID
 ;
 
 -- name: UpdateRecipe :one
@@ -147,50 +137,38 @@ SET
     meal = COALESCE(sqlc.narg('meal')::meal, meal),
     type = COALESCE(sqlc.narg('type')::recipe_type, type),
     updated_at = CURRENT_TIMESTAMP
-WHERE
-    id = @recipeId::UUID
-    AND user_id = @userId::UUID
+WHERE id = @recipeId::UUID
 RETURNING *
 ;
 
 -- name: DeleteRecipe :exec
 DELETE FROM recipe
-WHERE
-    id = @recipeId::UUID
-    AND user_id = @userId::UUID
+WHERE id = @recipeId::UUID
 RETURNING *
 ;
 
 -- name: ListRecipeTags :many
 SELECT *
 FROM recipe_tag
-WHERE
-    recipe_id = ANY(@recipeIds::UUID[])
-    AND user_id = @userId::UUID
+WHERE recipe_id = ANY(@recipeIds::UUID[])
 ;
 
 -- name: ListRecipeDietaryRestrictionsMet :many
 SELECT *
 FROM recipe_dietary_restriction_met
-WHERE
-    recipe_id = ANY(@recipeIds::UUID[])
-    AND user_id = @userId::UUID
+WHERE recipe_id = ANY(@recipeIds::UUID[])
 ;
 
 -- name: ListRecipeIngredients :many
 SELECT *
 FROM recipe_ingredient
-WHERE
-    recipe_id = ANY(@recipeIds::UUID[])
-    AND user_id = @userId::UUID
+WHERE recipe_id = ANY(@recipeIds::UUID[])
 ;
 
 -- name: ListRecipeInstructions :many
 SELECT *
 FROM recipe_instruction
-WHERE
-    recipe_id = ANY(@recipeIds::UUID[])
-    AND user_id = @userId::UUID
+WHERE recipe_id = ANY(@recipeIds::UUID[])
 ORDER BY step_number ASC
 ;
 
@@ -198,21 +176,20 @@ ORDER BY step_number ASC
 WITH ingredient_seasonality_score AS (
     SELECT
         recipe_id,
-        user_id,
-        SUM(paradedb.score(id)) as total_ingredient_score
-    FROM recipe_ingredient
+        SUM(paradedb.score(i.id)) as total_ingredient_score
+    FROM recipe r
+    JOIN recipe_ingredient i ON r.id = i.recipe_id
     WHERE
-        id @@@ paradedb.parse(@seasonalIngredients::TEXT, lenient => true)
-        AND user_id = @userId::UUID
-    GROUP BY recipe_id, user_id
+        i.id @@@ paradedb.parse(@seasonalIngredients::TEXT, lenient => true)
+        AND r.user_id = @userId::UUID
+    GROUP BY i.recipe_id
 ), last_recommended_at_score AS (
     SELECT
         recipe_id,
-        user_id,
         GREATEST(1.0, LEAST(3.0, (NOW()::DATE - COALESCE(MAX(rr.created_at)::DATE, '1970-01-01'::DATE)) / 30.0)) AS last_recommended_at_factor
     FROM recipe_recommendation rr
     WHERE rr.user_id = @userId::UUID
-    GROUP BY recipe_id, user_id
+    GROUP BY recipe_id
 ), candidates AS (
     SELECT
         r.id,
@@ -231,8 +208,8 @@ WITH ingredient_seasonality_score AS (
             COALESCE(iss.total_ingredient_score + 1.0, 1.0)
         ) AS score
     FROM recipe r
-    LEFT JOIN ingredient_seasonality_score iss ON (r.id, r.user_id) = (iss.recipe_id, iss.user_id)
-    LEFT JOIN last_recommended_at_score lras ON (r.id, r.user_id) = (lras.recipe_id, lras.user_id)
+    LEFT JOIN ingredient_seasonality_score iss ON r.id = iss.recipe_id
+    LEFT JOIN last_recommended_at_score lras ON r.id = lras.recipe_id
     WHERE r.user_id = @userId::UUID
     ORDER BY (
         CASE

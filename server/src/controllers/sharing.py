@@ -63,7 +63,7 @@ async def create_recipe_share_link(
     if not user_id:
         raise HTTPException(status_code=400, detail="source_user_id is required")
 
-    recipe = await recipes.get_recipe(recipeid=body.recipe_id, userid=user_id)
+    recipe = await recipes.get_recipe(recipeid=body.recipe_id)
 
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
@@ -109,15 +109,11 @@ async def accept_recipe_share_request(
         )
 
     dietary_restrictions = recipes.list_recipe_dietary_restrictions_met(
-        recipeids=[recipe.id], userid=recipe.user_id
+        recipeids=[recipe.id]
     )
-    instructions = recipes.list_recipe_instructions(
-        recipeids=[recipe.id], userid=recipe.user_id
-    )
-    ingredients = recipes.list_recipe_ingredients(
-        recipeids=[recipe.id], userid=recipe.user_id
-    )
-    tags = recipes.list_recipe_tags(recipeids=[recipe.id], userid=recipe.user_id)
+    instructions = recipes.list_recipe_instructions(recipeids=[recipe.id])
+    ingredients = recipes.list_recipe_ingredients(recipeids=[recipe.id])
+    tags = recipes.list_recipe_tags(recipeids=[recipe.id])
     db_recipe = Recipe.from_db(
         recipe=recipe,
         ingredients=[i async for i in ingredients],

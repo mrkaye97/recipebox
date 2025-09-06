@@ -8,7 +8,6 @@ from pydantic import BaseModel
 from src.crud.models import DietaryRestriction, Meal, RecipeType
 from src.crud.recipes import (
     AsyncQuerier,
-    CreateRecipeIngredientsParams,
     ListRecipeFilterOptionsRow,
     UpdateRecipeParams,
 )
@@ -133,14 +132,14 @@ month_to_ingredients = {
 async def list_recipes_from_db(
     user_id: UUID, search: str | None, db: AsyncQuerier
 ) -> list[Recipe]:
-    recipes = [r async for r in db.list_recipes(userid=user_id, search=search)]
+    recipes = [r async for r in db.list_recipes(user_id=user_id, search=search)]
 
     return await populate_recipe_data(db=db, user_id=user_id, recipes=recipes)
 
 
 @recipes.get("")
 async def list_recipes(
-    user: User, conn: Connection, search: str | None = None
+    user: User, conn: Connection, search: str | None = None, only_user: bool = False
 ) -> list[Recipe]:
     db = AsyncQuerier(conn)
     return await list_recipes_from_db(user_id=user.id, db=db, search=search)
@@ -199,7 +198,7 @@ async def get_recipe(
 ) -> Recipe:
     db = AsyncQuerier(conn)
     user_id = belongs_to_friend_user_id or user.id
-    recipe = await db.get_recipe(recipeid=id, userid=user_id)
+    recipe = await db.get_recipe(recipeid=id)
 
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
@@ -244,7 +243,6 @@ async def update_recipe(
             time_estimate_minutes=body.time_estimate_minutes,
             notes=body.notes,
             recipeid=id,
-            userid=user.id,
             meal=body.meal,
             type=body.type,
         )
@@ -254,47 +252,39 @@ async def update_recipe(
         raise HTTPException(status_code=404, detail="Recipe not found")
 
     if body.tags:
-        await db.delete_recipe_tags_by_recipe_id(recipeid=id, userid=user.id)
-        [
-            _
-            async for _ in db.create_recipe_tags(
-                recipeid=id, userid=user.id, tags=body.tags
-            )
-        ]
+        await db.delete_recipe_tags_by_recipe_id(recipeid=id)
+        [_ async for _ in db.create_recipe_tags(recipeid=id, tags=body.tags)]
 
     if body.dietary_restrictions_met:
-        await db.delete_recipe_dietary_restrictions_met_by_recipe_id(
-            recipeid=id, userid=user.id
-        )
+        await db.delete_recipe_dietary_restrictions_met_by_recipe_id(recipeid=id)
         [
             _
             async for _ in db.create_recipe_dietary_restrictions_met(
                 recipeid=id,
-                userid=user.id,
                 dietaryrestrictionsmets=body.dietary_restrictions_met,
             )
         ]
 
     if body.ingredients:
-        await db.delete_recipe_ingredients_by_recipe_id(recipeid=id, userid=user.id)
+        await db.delete_recipe_ingredients_by_recipe_id(recipeid=id)
 
-        params = CreateRecipeIngredientsParams(
-            recipeid=id,
-            userid=user.id,
-            names=[ingredient.name for ingredient in body.ingredients],
-            quantities=[ingredient.quantity for ingredient in body.ingredients],
-            units=[ingredient.units for ingredient in body.ingredients],
-        )
-        [_ async for _ in db.create_recipe_ingredients(params)]
+        [
+            _
+            async for _ in db.create_recipe_ingredients(
+                recipeid=id,
+                names=[ingredient.name for ingredient in body.ingredients],
+                quantities=[ingredient.quantity for ingredient in body.ingredients],
+                units=[ingredient.units for ingredient in body.ingredients],
+            )
+        ]
 
     if body.instructions:
-        await db.delete_recipe_instructions_by_recipe_id(recipeid=id, userid=user.id)
+        await db.delete_recipe_instructions_by_recipe_id(recipeid=id)
 
         [
             _
             async for _ in db.create_recipe_instructions(
                 recipeid=id,
-                userid=user.id,
                 stepnumbers=[inst.step_number for inst in body.instructions],
                 contents=[inst.content for inst in body.instructions],
             )
@@ -408,9 +398,9 @@ async def create_online_recipe(
 
 
 @recipes.delete("/{id}")
-async def delete_recipe(conn: Connection, user: User, id: UUID) -> UUID:
+async def delete_recipe(conn: Connection, _: User, id: UUID) -> UUID:
     db = AsyncQuerier(conn)
 
-    await db.delete_recipe(recipeid=id, userid=user.id)
+    await db.delete_recipe(recipeid=id)
 
     return id

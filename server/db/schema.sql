@@ -274,7 +274,6 @@ CREATE TABLE public.recipe_cooking_log (
 
 CREATE TABLE public.recipe_dietary_restriction_met (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    user_id uuid NOT NULL,
     recipe_id uuid NOT NULL,
     dietary_restriction public.dietary_restriction NOT NULL
 );
@@ -287,7 +286,6 @@ CREATE TABLE public.recipe_dietary_restriction_met (
 CREATE TABLE public.recipe_ingredient (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     recipe_id uuid NOT NULL,
-    user_id uuid NOT NULL,
     name text NOT NULL,
     quantity double precision NOT NULL,
     units text NOT NULL,
@@ -303,7 +301,6 @@ CREATE TABLE public.recipe_ingredient (
 CREATE TABLE public.recipe_instruction (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     recipe_id uuid NOT NULL,
-    user_id uuid NOT NULL,
     step_number integer NOT NULL,
     content text NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -343,7 +340,6 @@ CREATE TABLE public.recipe_share_request (
 
 CREATE TABLE public.recipe_tag (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    user_id uuid NOT NULL,
     recipe_id uuid NOT NULL,
     tag text NOT NULL
 );
@@ -405,7 +401,7 @@ ALTER TABLE ONLY public.recipe_cooking_log
 --
 
 ALTER TABLE ONLY public.recipe_dietary_restriction_met
-    ADD CONSTRAINT recipe_dietary_restriction_met_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT recipe_dietary_restriction_met_pkey PRIMARY KEY (recipe_id, dietary_restriction);
 
 
 --
@@ -413,7 +409,7 @@ ALTER TABLE ONLY public.recipe_dietary_restriction_met
 --
 
 ALTER TABLE ONLY public.recipe_ingredient
-    ADD CONSTRAINT recipe_ingredient_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT recipe_ingredient_pkey PRIMARY KEY (recipe_id, name, quantity, units);
 
 
 --
@@ -421,7 +417,7 @@ ALTER TABLE ONLY public.recipe_ingredient
 --
 
 ALTER TABLE ONLY public.recipe_instruction
-    ADD CONSTRAINT recipe_instruction_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT recipe_instruction_pkey PRIMARY KEY (recipe_id, step_number);
 
 
 --
@@ -453,7 +449,7 @@ ALTER TABLE ONLY public.recipe_share_request
 --
 
 ALTER TABLE ONLY public.recipe_tag
-    ADD CONSTRAINT recipe_tag_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT recipe_tag_pkey PRIMARY KEY (recipe_id, tag);
 
 
 --
@@ -489,38 +485,10 @@ ALTER TABLE ONLY public."user"
 
 
 --
--- Name: idx_recipe_last_made_at; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_recipe_last_made_at ON public.recipe USING btree (user_id, last_made_at);
-
-
---
 -- Name: idx_recipe_recommendation_user_recipe_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX idx_recipe_recommendation_user_recipe_created_at ON public.recipe_recommendation USING btree (user_id, recipe_id, created_at);
-
-
---
--- Name: idx_recipe_time_estimate; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_recipe_time_estimate ON public.recipe USING btree (user_id, time_estimate_minutes);
-
-
---
--- Name: idx_recipe_updated_at; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_recipe_updated_at ON public.recipe USING btree (user_id, updated_at);
-
-
---
--- Name: idx_recipe_user_name; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX idx_recipe_user_name ON public.recipe USING btree (user_id, name);
 
 
 --
@@ -531,45 +499,10 @@ CREATE INDEX idx_users_name_email_trgm ON public."user" USING gin ((((name || ' 
 
 
 --
--- Name: recipe_dietary_restriction_met_recipe_id_user_id_dietary_restri; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX recipe_dietary_restriction_met_recipe_id_user_id_dietary_restri ON public.recipe_dietary_restriction_met USING btree (recipe_id, user_id, dietary_restriction);
-
-
---
--- Name: recipe_ingredient_recipe_id_user_id_name_units; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX recipe_ingredient_recipe_id_user_id_name_units ON public.recipe_ingredient USING btree (recipe_id, user_id, name, quantity, units);
-
-
---
--- Name: recipe_ingredient_search_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX recipe_ingredient_search_idx ON public.recipe_ingredient USING bm25 (id, name, recipe_id, user_id) WITH (key_field=id, text_fields='{"name": {"tokenizer": {"type": "default", "stemmer": "English"}}}');
-
-
---
--- Name: recipe_instruction_recipe_id_user_id_step_number; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX recipe_instruction_recipe_id_user_id_step_number ON public.recipe_instruction USING btree (recipe_id, user_id, step_number);
-
-
---
 -- Name: recipe_search_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX recipe_search_idx ON public.recipe USING bm25 (name, author, cuisine, notes, id) WITH (key_field=id, text_fields='{"name": {"tokenizer": {"type": "default", "stemmer": "English"}}, "notes": {"tokenizer": {"type": "default", "stemmer": "English"}}}');
-
-
---
--- Name: recipe_tag_recipe_id_user_id_tag; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX recipe_tag_recipe_id_user_id_tag ON public.recipe_tag USING btree (recipe_id, user_id, tag);
 
 
 --
@@ -613,14 +546,6 @@ ALTER TABLE ONLY public.recipe_dietary_restriction_met
 
 
 --
--- Name: recipe_dietary_restriction_met recipe_dietary_restriction_met_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.recipe_dietary_restriction_met
-    ADD CONSTRAINT recipe_dietary_restriction_met_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE;
-
-
---
 -- Name: recipe_ingredient recipe_ingredient_recipe_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -629,27 +554,11 @@ ALTER TABLE ONLY public.recipe_ingredient
 
 
 --
--- Name: recipe_ingredient recipe_ingredient_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.recipe_ingredient
-    ADD CONSTRAINT recipe_ingredient_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE;
-
-
---
 -- Name: recipe_instruction recipe_instruction_recipe_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.recipe_instruction
     ADD CONSTRAINT recipe_instruction_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES public.recipe(id) ON DELETE CASCADE;
-
-
---
--- Name: recipe_instruction recipe_instruction_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.recipe_instruction
-    ADD CONSTRAINT recipe_instruction_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE;
 
 
 --
@@ -693,14 +602,6 @@ ALTER TABLE ONLY public.recipe_tag
 
 
 --
--- Name: recipe_tag recipe_tag_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.recipe_tag
-    ADD CONSTRAINT recipe_tag_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE;
-
-
---
 -- Name: recipe recipe_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -734,4 +635,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20250831115922'),
     ('20250901022533'),
     ('20250904004250'),
-    ('20250904214144');
+    ('20250904214144'),
+    ('20250906190105');

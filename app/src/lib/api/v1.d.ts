@@ -920,6 +920,7 @@ export interface operations {
   readonly list_recipes_recipes_get: {
     readonly parameters: {
       readonly query?: {
+        readonly only_user?: boolean;
         readonly search?: string | null;
       };
       readonly header?: never;

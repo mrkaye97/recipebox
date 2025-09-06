@@ -78,7 +78,6 @@ class RecipeCookingLog(pydantic.BaseModel):
 
 class RecipeDietaryRestrictionMet(pydantic.BaseModel):
     id: uuid.UUID
-    user_id: uuid.UUID
     recipe_id: uuid.UUID
     dietary_restriction: DietaryRestriction
 
@@ -86,7 +85,6 @@ class RecipeDietaryRestrictionMet(pydantic.BaseModel):
 class RecipeIngredient(pydantic.BaseModel):
     id: uuid.UUID
     recipe_id: uuid.UUID
-    user_id: uuid.UUID
     name: str
     quantity: float
     units: str
@@ -97,7 +95,6 @@ class RecipeIngredient(pydantic.BaseModel):
 class RecipeInstruction(pydantic.BaseModel):
     id: uuid.UUID
     recipe_id: uuid.UUID
-    user_id: uuid.UUID
     step_number: int
     content: str
     created_at: datetime.datetime
@@ -122,7 +119,6 @@ class RecipeShareRequest(pydantic.BaseModel):
 
 class RecipeTag(pydantic.BaseModel):
     id: uuid.UUID
-    user_id: uuid.UUID
     recipe_id: uuid.UUID
     tag: str
 
