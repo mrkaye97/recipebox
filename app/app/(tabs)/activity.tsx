@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   RefreshControl,
   StyleSheet,
@@ -39,6 +40,7 @@ export default function ActivityScreen() {
     hasNextPage,
     isFetchingNextPage,
     refetch,
+    deleteActivity,
   } = useActivity({ who });
 
   const handleLoadMore = useCallback(() => {
@@ -46,6 +48,37 @@ export default function ActivityScreen() {
       fetchNextPage();
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const handleDeleteActivity = useCallback(
+    (item: ActivityItem) => {
+      Alert.alert(
+        "Delete Activity",
+        "Are you sure you want to delete this cooking activity?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Delete",
+            style: "destructive",
+            onPress: async () => {
+              try {
+                await deleteActivity.perform(item.id, item.cooked_at);
+              } catch (error) {
+                console.error("Error deleting activity:", error);
+                Alert.alert(
+                  "Error",
+                  "Failed to delete activity. Please try again.",
+                );
+              }
+            },
+          },
+        ],
+      );
+    },
+    [deleteActivity],
+  );
 
   if (!isAuthenticated && !isAuthLoading) {
     return <Redirect href={"/(tabs)/profile"} />;
@@ -132,6 +165,10 @@ export default function ActivityScreen() {
       currentUserId={userInfo?.userId}
       meal={item.meal}
       type={item.type}
+      activityActions={{
+        onDelete: () => handleDeleteActivity(item),
+        isDeleting: deleteActivity.isPending,
+      }}
     />
   );
 

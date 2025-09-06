@@ -802,6 +802,39 @@ export default function RecipeDetailScreen() {
 
         <RecipeLocationUI location={recipe.location} />
 
+        {!isEditing && !belongs_to_friend_user_id && (
+          <View style={styles.prominentCookButton}>
+            <TouchableOpacity
+              onPress={handleMarkAsCooked}
+              disabled={isMarkingCooked}
+              style={[
+                styles.cookButton,
+                justMarkedCooked && styles.cookButtonSuccess,
+              ]}
+            >
+              <IconSymbol
+                name={
+                  justMarkedCooked
+                    ? "checkmark.circle.fill"
+                    : "checkmark.circle"
+                }
+                size={24}
+                color={justMarkedCooked ? "#fff" : Colors.primary}
+              />
+              <ThemedText
+                style={[
+                  styles.cookButtonText,
+                  justMarkedCooked && styles.cookButtonTextSuccess,
+                ]}
+              >
+                {justMarkedCooked
+                  ? "Marked as cooked!"
+                  : "I cooked this recipe"}
+              </ThemedText>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {(recipe.tags && recipe.tags.length > 0) || isEditing ? (
           <View style={styles.section}>
             {isEditing ? (
@@ -1786,5 +1819,39 @@ const styles = StyleSheet.create({
   },
   ingredientsSkeleton: {
     marginBottom: 20,
+  },
+  prominentCookButton: {
+    marginBottom: 32,
+    paddingHorizontal: 4,
+  },
+  cookButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    backgroundColor: Colors.surface,
+    borderWidth: 2,
+    borderColor: Colors.primary,
+    gap: 12,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  cookButtonSuccess: {
+    backgroundColor: "#10B981",
+    borderColor: "#10B981",
+  },
+  cookButtonText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: Colors.primary,
+    letterSpacing: 0.5,
+  },
+  cookButtonTextSuccess: {
+    color: "#fff",
   },
 });

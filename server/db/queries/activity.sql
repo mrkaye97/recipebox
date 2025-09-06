@@ -37,3 +37,11 @@ WHERE
     id = @recipeId::UUID
     AND user_id = @userId::UUID
 RETURNING *;
+
+-- name: DeleteRecipeCookingLogEntry :exec
+DELETE FROM recipe_cooking_log
+WHERE
+    user_id = @userId::UUID
+    AND recipe_id = @recipeId::UUID
+    AND cooked_at = @cookedAt::TIMESTAMPTZ
+;

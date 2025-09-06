@@ -107,6 +107,34 @@ export const useActivity = ({ who }: { who: Who }) => {
     },
     [markCooked, token],
   );
+
+  const { mutateAsync: deleteActivity, isPending: isDeletingActivity } =
+    $api.useMutation("delete", "/activity/{recipe_id}", {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: ["get", "/activity"],
+        });
+      },
+    });
+
+  const deleteActivityEntry = useCallback(
+    async (recipeId: string, cookedAt: string) => {
+      return await deleteActivity({
+        params: {
+          path: {
+            recipe_id: recipeId,
+          },
+          query: {
+            cooked_at: cookedAt,
+          },
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    [deleteActivity, token],
+  );
   return {
     recentCooks,
     isRecentCooksLoading,
@@ -118,6 +146,10 @@ export const useActivity = ({ who }: { who: Who }) => {
     markAsCookedRecently: {
       perform: markAsCookedRecently,
       isPending: isMarkingCooked,
+    },
+    deleteActivity: {
+      perform: deleteActivityEntry,
+      isPending: isDeletingActivity,
     },
   };
 };
