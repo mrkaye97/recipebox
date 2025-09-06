@@ -208,7 +208,6 @@ export function SignupForm() {
               {isLoading ? "Creating..." : "Sign Up"}
             </Text>
           </TouchableOpacity>
-          </Text>
         </ThemedView>
       </ScrollView>
     </TouchableWithoutFeedback>
