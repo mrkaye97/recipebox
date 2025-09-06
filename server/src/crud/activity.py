@@ -13,15 +13,6 @@ import sqlalchemy.ext.asyncio
 
 from src.crud import models
 
-DELETE_RECIPE_COOKING_LOG_ENTRY = """-- name: delete_recipe_cooking_log_entry \\:exec
-DELETE FROM recipe_cooking_log
-WHERE
-    user_id = :p1\\:\\:UUID
-    AND recipe_id = :p2\\:\\:UUID
-    AND cooked_at = :p3\\:\\:TIMESTAMPTZ
-"""
-
-
 LIST_RECENT_RECIPE_COOKS = """-- name: list_recent_recipe_cooks \\:many
 WITH recipes_cooked AS (
     SELECT user_id, recipe_id, cooked_at
@@ -86,14 +77,6 @@ RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, n
 class AsyncQuerier:
     def __init__(self, conn: sqlalchemy.ext.asyncio.AsyncConnection):
         self._conn = conn
-
-    async def delete_recipe_cooking_log_entry(
-        self, *, userid: uuid.UUID, recipeid: uuid.UUID, cookedat: datetime.datetime
-    ) -> None:
-        await self._conn.execute(
-            sqlalchemy.text(DELETE_RECIPE_COOKING_LOG_ENTRY),
-            {"p1": userid, "p2": recipeid, "p3": cookedat},
-        )
 
     async def list_recent_recipe_cooks(
         self, *, userids: list[uuid.UUID], recentcooksoffset: int, recentcookslimit: int

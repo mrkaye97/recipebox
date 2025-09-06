@@ -22,23 +22,6 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
-  readonly "/activity/{recipe_id}": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly get?: never;
-    readonly put?: never;
-    readonly post?: never;
-    /** Delete Recipe Cooked Log */
-    readonly delete: operations["delete_recipe_cooked_log_activity__recipe_id__delete"];
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
   readonly "/auth/login": {
     readonly parameters: {
       readonly query?: never;
@@ -855,39 +838,6 @@ export interface operations {
           readonly "application/json":
             | components["schemas"]["src__crud__models__Recipe"]
             | null;
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  readonly delete_recipe_cooked_log_activity__recipe_id__delete: {
-    readonly parameters: {
-      readonly query: {
-        readonly cooked_at: string;
-      };
-      readonly header?: never;
-      readonly path: {
-        readonly recipe_id: string;
-      };
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": unknown;
         };
       };
       /** @description Validation Error */

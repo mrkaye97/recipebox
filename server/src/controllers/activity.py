@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Literal
 from uuid import UUID
 
@@ -31,19 +30,6 @@ async def mark_recipe_cooked(
     return await querier.mark_recipe_cooked(
         recipeid=body.recipe_id,
         userid=user.id,
-    )
-
-
-@activity.delete("/{recipe_id}")
-async def delete_recipe_cooked_log(
-    conn: Connection, user: User, cooked_at: datetime, recipe_id: UUID
-) -> None:
-    querier = ActivityQuerier(conn)
-
-    await querier.delete_recipe_cooking_log_entry(
-        recipeid=recipe_id,
-        userid=user.id,
-        cookedat=cooked_at,
     )
 
 

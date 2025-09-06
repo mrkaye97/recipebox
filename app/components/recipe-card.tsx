@@ -22,10 +22,6 @@ export interface RecipeCardProps {
   currentUserId?: string;
   meal: string;
   type: string;
-  activityActions?: {
-    onDelete: () => void;
-    isDeleting: boolean;
-  };
 }
 
 const formatCookedDate = (cookedAt: string) => {
@@ -67,7 +63,6 @@ export function RecipeCard({
   currentUserId,
   meal,
   type,
-  activityActions,
 }: RecipeCardProps) {
   const handlePress = () => {
     if (isOtherUser && userId) {
@@ -90,30 +85,11 @@ export function RecipeCard({
           <ThemedText type="defaultSemiBold" style={styles.recipeName}>
             {name}
           </ThemedText>
-          <View style={styles.headerActions}>
-            {cookedAt && activityActions && (
-              <TouchableOpacity
-                onPress={activityActions.onDelete}
-                disabled={activityActions.isDeleting}
-                style={styles.deleteButton}
-              >
-                <IconSymbol
-                  name="trash"
-                  size={16}
-                  color={
-                    activityActions.isDeleting
-                      ? Colors.textSecondary
-                      : "#EF4444"
-                  }
-                />
-              </TouchableOpacity>
-            )}
-            <IconSymbol
-              name="chevron.right"
-              size={16}
-              color={Colors.textSecondary}
-            />
-          </View>
+          <IconSymbol
+            name="chevron.right"
+            size={16}
+            color={Colors.textSecondary}
+          />
         </View>
         <ThemedText style={styles.recipeAuthor}>by {author}</ThemedText>
         <View style={styles.tagsContainer}>
@@ -185,15 +161,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
     marginBottom: Spacing.md,
-  },
-  headerActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.sm,
-  },
-  deleteButton: {
-    padding: Spacing.xs,
-    borderRadius: BorderRadius.sm,
   },
   recipeName: {
     flex: 1,
