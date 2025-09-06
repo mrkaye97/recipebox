@@ -3,6 +3,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -92,7 +93,12 @@ export default function ProfileScreen() {
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 25}
         >
-          <View style={styles.loginContainer}>
+          <ScrollView 
+            style={styles.loginScrollContainer}
+            contentContainerStyle={styles.loginContainer}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
             {showSignup ? <SignupForm /> : <LoginForm />}
 
             <View style={styles.toggleContainer}>
@@ -107,7 +113,7 @@ export default function ProfileScreen() {
                 </ThemedText>
               </TouchableOpacity>
             </View>
-          </View>
+          </ScrollView>
         </KeyboardAvoidingView>
       </ThemedView>
     );
@@ -359,10 +365,14 @@ const styles = StyleSheet.create({
   keyboardAvoid: {
     flex: 1,
   },
-  loginContainer: {
+  loginScrollContainer: {
     flex: 1,
+  },
+  loginContainer: {
+    flexGrow: 1,
     justifyContent: "center",
     padding: Layout.screenPadding,
+    minHeight: "100%",
   },
   toggleContainer: {
     flexDirection: "row",

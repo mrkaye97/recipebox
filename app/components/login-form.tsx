@@ -88,6 +88,7 @@ export function LoginForm() {
             value={password}
             onChangeText={setPassword}
             placeholder="Enter your password"
+            placeholderTextColor={Colors.textSecondary}
             secureTextEntry
             autoCapitalize="none"
             autoCorrect={false}

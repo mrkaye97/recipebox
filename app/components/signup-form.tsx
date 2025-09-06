@@ -4,6 +4,7 @@ import {
   ActionSheetIOS,
   Alert,
   Keyboard,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -85,129 +86,146 @@ export function SignupForm() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{ flex: 1 }}>
-      <ThemedView style={styles.container}>
-        <ThemedText type="title" style={styles.title}>
-          Sign Up
-        </ThemedText>
-
-        <View style={styles.inputContainer}>
-          <ThemedText type="defaultSemiBold" style={styles.label}>
-            Name
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <ScrollView 
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <ThemedView style={styles.container}>
+          <ThemedText type="title" style={styles.title}>
+            Sign Up
           </ThemedText>
-          <TextInput
-            style={styles.input}
-            value={name}
-            onChangeText={setName}
-            placeholder="Enter your full name"
-            autoCapitalize="words"
-            autoCorrect={false}
-            editable={!isLoading}
-          />
-        </View>
 
-        <View style={styles.inputContainer}>
-          <ThemedText type="defaultSemiBold" style={styles.label}>
-            Email
-          </ThemedText>
-          <TextInput
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Enter your email"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!isLoading}
-          />
-        </View>
+          <View style={styles.inputContainer}>
+            <ThemedText type="defaultSemiBold" style={styles.label}>
+              Name
+            </ThemedText>
+            <TextInput
+              style={styles.input}
+              value={name}
+              onChangeText={setName}
+              placeholder="Enter your full name"
+              autoCapitalize="words"
+              autoCorrect={false}
+              editable={!isLoading}
+            />
+          </View>
 
-        <View style={styles.inputContainer}>
-          <ThemedText type="defaultSemiBold" style={styles.label}>
-            Password
-          </ThemedText>
-          <TextInput
-            style={styles.input}
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Enter your password (min 6 characters)"
-            secureTextEntry
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!isLoading}
-          />
-        </View>
+          <View style={styles.inputContainer}>
+            <ThemedText type="defaultSemiBold" style={styles.label}>
+              Email
+            </ThemedText>
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              placeholder="Enter your email"
+              placeholderTextColor={Colors.textSecondary}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              editable={!isLoading}
+            />
+          </View>
 
-        <View style={styles.inputContainer}>
-          <ThemedText type="defaultSemiBold" style={styles.label}>
-            Signup Token
-          </ThemedText>
-          <TextInput
-            style={styles.input}
-            value={signupToken}
-            onChangeText={setSignupToken}
-            placeholder="Enter your signup token"
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!isLoading}
-            onSubmitEditing={handleSignup}
-          />
-        </View>
+          <View style={styles.inputContainer}>
+            <ThemedText type="defaultSemiBold" style={styles.label}>
+              Password
+            </ThemedText>
+            <TextInput
+              style={styles.input}
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Enter your password (min 6 characters)"
+              placeholderTextColor={Colors.textSecondary}
+              secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
+              editable={!isLoading}
+            />
+          </View>
 
-        <View style={styles.inputContainer}>
-          <ThemedText type="defaultSemiBold" style={styles.label}>
-            Profile Visibility
-          </ThemedText>
+          <View style={styles.inputContainer}>
+            <ThemedText type="defaultSemiBold" style={styles.label}>
+              Signup Token
+            </ThemedText>
+            <TextInput
+              style={styles.input}
+              value={signupToken}
+              onChangeText={setSignupToken}
+              placeholder="Enter your signup token"
+              placeholderTextColor={Colors.textSecondary}
+              autoCapitalize="none"
+              autoCorrect={false}
+              editable={!isLoading}
+              onSubmitEditing={handleSignup}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <ThemedText type="defaultSemiBold" style={styles.label}>
+              Profile Visibility
+            </ThemedText>
+            <TouchableOpacity
+              style={styles.pickerButton}
+              onPress={() => {
+                ActionSheetIOS.showActionSheetWithOptions(
+                  {
+                    options: [
+                      "Cancel",
+                      ...PrivacyPreferences.map((p) => _.capitalize(p)),
+                    ],
+                    cancelButtonIndex: 0,
+                    title: "Select Profile Visibility",
+                  },
+                  (buttonIndex) => {
+                    if (buttonIndex > 0) {
+                      setPrivacyPreference(PrivacyPreferences[buttonIndex - 1]);
+                    }
+                  },
+                );
+              }}
+            >
+              <Text style={styles.pickerButtonText}>
+                {_.capitalize(privacyPreference)}
+              </Text>
+              <Text style={styles.pickerArrow}>▼</Text>
+            </TouchableOpacity>
+          </View>
+
           <TouchableOpacity
-            style={styles.pickerButton}
-            onPress={() => {
-              ActionSheetIOS.showActionSheetWithOptions(
-                {
-                  options: [
-                    "Cancel",
-                    ...PrivacyPreferences.map((p) => _.capitalize(p)),
-                  ],
-                  cancelButtonIndex: 0,
-                  title: "Select Profile Visibility",
-                },
-                (buttonIndex) => {
-                  if (buttonIndex > 0) {
-                    setPrivacyPreference(PrivacyPreferences[buttonIndex - 1]);
-                  }
-                },
-              );
-            }}
+            style={[
+              styles.signupButton,
+              isLoading && styles.signupButtonDisabled,
+            ]}
+            onPress={handleSignup}
+            disabled={isLoading}
+            activeOpacity={0.8}
           >
-            <Text style={styles.pickerButtonText}>
-              {_.capitalize(privacyPreference)}
+            <Text style={styles.signupButtonText}>
+              {isLoading ? "Creating..." : "Sign Up"}
             </Text>
-            <Text style={styles.pickerArrow}>▼</Text>
           </TouchableOpacity>
-        </View>
-
-        <TouchableOpacity
-          style={[
-            styles.signupButton,
-            isLoading && styles.signupButtonDisabled,
-          ]}
-          onPress={handleSignup}
-          disabled={isLoading}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.signupButtonText}>
-            {isLoading ? "Creating..." : "Sign Up"}
           </Text>
-        </TouchableOpacity>
-      </ThemedView>
+        </ThemedView>
+      </ScrollView>
     </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: Spacing.xl,
+  },
   container: {
     padding: Spacing.xl,
     gap: Spacing.xl,
-    flex: 1,
     backgroundColor: Colors.background,
   },
   title: {
