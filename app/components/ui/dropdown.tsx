@@ -160,15 +160,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: Spacing.xl,
     paddingVertical: Spacing.lg,
-    borderBottomWidth: 0,
-    marginHorizontal: Spacing.xs,
-    borderRadius: BorderRadius.md,
     marginVertical: 1,
   },
   selectedOption: {
     backgroundColor: Colors.accent1,
-    borderWidth: 1,
-    borderColor: Colors.primary + "40",
   },
   optionText: {
     fontSize: Typography.fontSizes.base,
