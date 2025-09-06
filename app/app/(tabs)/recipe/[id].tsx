@@ -177,6 +177,7 @@ export default function RecipeDetailScreen() {
     try {
       await markAsCookedRecently(id);
       setJustMarkedCooked(true);
+      Alert.alert("Success", `You've marked "${recipe.name}" as cooked!`);
     } catch {
       Alert.alert("Error", "Failed to mark recipe as cooked");
     }
@@ -203,7 +204,7 @@ export default function RecipeDetailScreen() {
       recipe.id,
       userInfo.userId,
       "download_button",
-      belongs_to_friend_user_id,
+      belongs_to_friend_user_id
     );
 
     try {
@@ -262,12 +263,11 @@ export default function RecipeDetailScreen() {
               console.error("Error deleting recipe:", error);
               Alert.alert(
                 "Error",
-                "Failed to delete recipe. Please try again.",
+                "Failed to delete recipe. Please try again."
               );
             }
           },
         },
-      ],
     );
   };
 
@@ -348,7 +348,7 @@ export default function RecipeDetailScreen() {
       | DietaryRestriction[]
       | RecipeType
       | RecipeMeal
-      | null,
+      | null
   ) => {
     if (editedRecipe) {
       setEditedRecipe({ ...editedRecipe, [field]: value });
@@ -369,7 +369,7 @@ export default function RecipeDetailScreen() {
   const deleteIngredient = (index: number) => {
     if (editedRecipe?.ingredients) {
       const updatedIngredients = editedRecipe.ingredients.filter(
-        (_: RecipeIngredient, i: number) => i !== index,
+        (_: RecipeIngredient, i: number) => i !== index
       );
       setEditedRecipe({ ...editedRecipe, ingredients: updatedIngredients });
     }
@@ -465,7 +465,7 @@ export default function RecipeDetailScreen() {
   const deleteTag = (index: number) => {
     if (editedRecipe?.tags) {
       const updatedTags = editedRecipe.tags.filter(
-        (_: string, i: number) => i !== index,
+        (_: string, i: number) => i !== index
       );
       setEditedRecipe({ ...editedRecipe, tags: updatedTags });
     }
@@ -602,13 +602,9 @@ export default function RecipeDetailScreen() {
                   style={styles.cookedButton}
                 >
                   <IconSymbol
-                    name={
-                      justMarkedCooked
-                        ? "checkmark.circle.fill"
-                        : "checkmark.circle"
-                    }
+                    name={"frying.pan.fill"}
                     size={24}
-                    color={justMarkedCooked ? "#10B981" : Colors.primary}
+                    color={Colors.primary}
                   />
                 </TouchableOpacity>
               </>
@@ -647,13 +643,9 @@ export default function RecipeDetailScreen() {
                   style={styles.cookedButton}
                 >
                   <IconSymbol
-                    name={
-                      justMarkedCooked
-                        ? "checkmark.circle.fill"
-                        : "checkmark.circle"
-                    }
+                    name={"frying.pan"}
                     size={24}
-                    color={justMarkedCooked ? "#10B981" : Colors.primary}
+                    color={Colors.primary}
                   />
                 </TouchableOpacity>
               </>
@@ -739,7 +731,7 @@ export default function RecipeDetailScreen() {
                     onChangeText={(text) =>
                       updateEditedField(
                         "time_estimate_minutes",
-                        parseInt(text) || 0,
+                        parseInt(text) || 0
                       )
                     }
                     placeholder="30"
@@ -801,39 +793,6 @@ export default function RecipeDetailScreen() {
         </View>
 
         <RecipeLocationUI location={recipe.location} />
-
-        {!isEditing && !belongs_to_friend_user_id && (
-          <View style={styles.prominentCookButton}>
-            <TouchableOpacity
-              onPress={handleMarkAsCooked}
-              disabled={isMarkingCooked}
-              style={[
-                styles.cookButton,
-                justMarkedCooked && styles.cookButtonSuccess,
-              ]}
-            >
-              <IconSymbol
-                name={
-                  justMarkedCooked
-                    ? "checkmark.circle.fill"
-                    : "checkmark.circle"
-                }
-                size={24}
-                color={justMarkedCooked ? "#fff" : Colors.primary}
-              />
-              <ThemedText
-                style={[
-                  styles.cookButtonText,
-                  justMarkedCooked && styles.cookButtonTextSuccess,
-                ]}
-              >
-                {justMarkedCooked
-                  ? "Marked as cooked!"
-                  : "I cooked this recipe"}
-              </ThemedText>
-            </TouchableOpacity>
-          </View>
-        )}
 
         {(recipe.tags && recipe.tags.length > 0) || isEditing ? (
           <View style={styles.section}>
@@ -1056,7 +1015,7 @@ export default function RecipeDetailScreen() {
                           />
                         </TouchableOpacity>
                       </View>
-                    ),
+                    )
                   )}
                   {(!editedRecipe?.ingredients ||
                     editedRecipe.ingredients.length === 0) && (
@@ -1222,7 +1181,7 @@ export default function RecipeDetailScreen() {
                           </TouchableOpacity>
                         </View>
                       </View>
-                    ),
+                    )
                   )}
                   {(!editedRecipe?.instructions ||
                     editedRecipe.instructions.length === 0) && (
