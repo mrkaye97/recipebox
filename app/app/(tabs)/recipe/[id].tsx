@@ -165,10 +165,10 @@ export default function RecipeDetailScreen() {
   } = useActivity({ who: "me" });
 
   const handleBack = async () => {
+    router.back();
     await queryClient.invalidateQueries({
       queryKey: ["get", "/recipes/recommendation"],
     });
-    router.back();
   };
 
   const handleMarkAsCooked = async () => {

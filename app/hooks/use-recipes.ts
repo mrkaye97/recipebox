@@ -1,7 +1,7 @@
 import { $api } from "@/src/lib/api/client";
 import { components, paths } from "@/src/lib/api/v1";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Alert } from "react-native";
 import { useDebounce } from "use-debounce";
 import { useUser } from "./use-user";
@@ -22,11 +22,13 @@ export const useRecipes = ({
   meal,
   type,
   cuisine,
+  onlyCurrentUser,
 }: {
   search?: string;
   meal?: string;
   type?: string;
   cuisine?: string;
+  onlyCurrentUser?: boolean;
 } = {}) => {
   const { token } = useUser();
   const queryClient = useQueryClient();
@@ -46,6 +48,7 @@ export const useRecipes = ({
       params: {
         query: {
           search: debouncedSearch || undefined,
+          only_user: onlyCurrentUser ? true : false,
         },
       },
     },
@@ -309,8 +312,22 @@ export const useRecipes = ({
     [deleteRecipeShare, token],
   );
 
+  const recipes = useMemo(() => {
+    if (!recipeQuery.data) return [];
+
+    return recipeQuery.data.filter((recipe) => {
+      if (meal && recipe.meal !== meal) return false;
+      if (type && recipe.type !== type) return false;
+      if (cuisine && recipe.cuisine !== cuisine) return false;
+      return true;
+    });
+  }, [recipeQuery.data, meal, type, cuisine]);
+
   return {
-    ...recipeQuery,
+    data: {
+      recipes,
+      ...recipeQuery,
+    },
     create: {
       perform: createRecipe,
       isPending: onlinePending || madeUpPending || cookbookPending,

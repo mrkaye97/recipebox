@@ -122,7 +122,11 @@ function SearchBar({
   );
 }
 
-export default function RecipesScreen() {
+export default function RecipesScreen({
+  onlyCurrentUser,
+}: {
+  onlyCurrentUser: boolean;
+}) {
   const { isAuthenticated, isLoading: isAuthLoading } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMeal, setSelectedMeal] = useState<string | undefined>();
@@ -130,28 +134,19 @@ export default function RecipesScreen() {
   const [selectedCuisine, setSelectedCuisine] = useState<string | undefined>();
 
   const {
-    data: recipes,
-    isLoading,
-    error,
-    refetch,
+    data: { recipes, isLoading, refetch, error },
     pendingShares: { data: pendingShares = [] },
     recommendation: { data: recommendedRecipe },
     filterOptions: { data: filterOptions },
-  } = useRecipes({ search: searchQuery });
+  } = useRecipes({
+    search: searchQuery,
+    meal: selectedMeal,
+    type: selectedType,
+    cuisine: selectedCuisine,
+  });
 
   const [sharesDrawerVisible, setSharesDrawerVisible] = useState(false);
   const [creationDrawerVisible, setCreationDrawerVisible] = useState(false);
-
-  const filteredRecipes = React.useMemo(() => {
-    if (!recipes) return [];
-
-    return recipes.filter((recipe) => {
-      if (selectedMeal && recipe.meal !== selectedMeal) return false;
-      if (selectedType && recipe.type !== selectedType) return false;
-      if (selectedCuisine && recipe.cuisine !== selectedCuisine) return false;
-      return true;
-    });
-  }, [recipes, selectedMeal, selectedType, selectedCuisine]);
 
   const mealOptions: DropdownOption[] = RECIPE_MEALS.map((meal) => ({
     label: meal.label,
@@ -227,7 +222,7 @@ export default function RecipesScreen() {
       );
     }
 
-    if (!filteredRecipes || filteredRecipes.length === 0) {
+    if (recipes.length === 0) {
       const hasAnyRecipes = recipes && recipes.length > 0;
       return (
         <ScrollView
@@ -278,7 +273,7 @@ export default function RecipesScreen() {
         }
       >
         <View style={styles.recipesGrid}>
-          {filteredRecipes.map((recipe) => (
+          {recipes.map((recipe) => (
             <RecipeCard
               key={recipe.id}
               id={recipe.id}
@@ -304,7 +299,7 @@ export default function RecipesScreen() {
           onSearchChange={setSearchQuery}
           onClearSearch={() => setSearchQuery("")}
           onRandomRecipe={getRandomRecipe}
-          hasRecipes={Boolean(filteredRecipes && filteredRecipes.length > 0)}
+          hasRecipes={recipes.length > 0}
           hasRecommendedRecipe={!!recommendedRecipe}
           pendingSharesCount={pendingShares.length}
           onShowShares={() => setSharesDrawerVisible(true)}

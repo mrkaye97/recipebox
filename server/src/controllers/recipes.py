@@ -130,9 +130,14 @@ month_to_ingredients = {
 
 
 async def list_recipes_from_db(
-    user_id: UUID, search: str | None, db: AsyncQuerier
+    user_id: UUID, search: str | None, only_user: bool, db: AsyncQuerier
 ) -> list[Recipe]:
-    recipes = [r async for r in db.list_recipes(user_id=user_id, search=search)]
+    recipes = [
+        r
+        async for r in db.list_recipes(
+            user_id=user_id if only_user else None, search=search
+        )
+    ]
 
     return await populate_recipe_data(db=db, user_id=user_id, recipes=recipes)
 
@@ -143,7 +148,7 @@ async def list_recipes(
 ) -> list[Recipe]:
     db = AsyncQuerier(conn)
     return await list_recipes_from_db(
-        user_id=user.id if only_user else None, db=db, search=search
+        user_id=user.id, only_user=only_user, db=db, search=search
     )
 
 
