@@ -142,7 +142,9 @@ async def list_recipes(
     user: User, conn: Connection, search: str | None = None, only_user: bool = False
 ) -> list[Recipe]:
     db = AsyncQuerier(conn)
-    return await list_recipes_from_db(user_id=user.id, db=db, search=search)
+    return await list_recipes_from_db(
+        user_id=user.id if only_user else None, db=db, search=search
+    )
 
 
 def get_seasonal_search_query() -> str:
