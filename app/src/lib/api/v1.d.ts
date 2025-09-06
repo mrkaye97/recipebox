@@ -313,11 +313,8 @@ export interface components {
       readonly author: string;
       /** Cookbook Name */
       readonly cookbook_name: string;
-      /**
-       * File
-       * Format: binary
-       */
-      readonly file: string;
+      /** Files */
+      readonly files: readonly string[];
       /**
        * Location
        * @default cookbook

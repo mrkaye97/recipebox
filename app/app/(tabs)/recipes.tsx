@@ -189,7 +189,7 @@ function CookbookRecipeForm() {
   const [author, setAuthor] = useState("");
   const [pageNumber, setPageNumber] = useState("");
   const [notes, setNotes] = useState("");
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const { create } = useRecipes();
 
   const selectImage = async () => {
@@ -206,10 +206,12 @@ function CookbookRecipeForm() {
       mediaTypes: ["images"],
       allowsEditing: false,
       quality: 0.8,
+      allowsMultipleSelection: true,
     });
 
-    if (!result.canceled && result.assets[0]) {
-      setSelectedImage(result.assets[0].uri);
+    if (!result.canceled && result.assets) {
+      const newImages = result.assets.map((asset) => asset.uri);
+      setSelectedImages((prev) => [...prev, ...newImages]);
     }
   };
 
@@ -229,16 +231,42 @@ function CookbookRecipeForm() {
     });
 
     if (!result.canceled && result.assets[0]) {
-      setSelectedImage(result.assets[0].uri);
+      setSelectedImages((prev) => [...prev, result.assets[0].uri]);
+
+      Alert.alert("Photo Added", "Would you like to take another photo?", [
+        { text: "Done", style: "cancel" },
+        { text: "Take Another", onPress: takePhoto },
+      ]);
     }
   };
 
   const showImagePickerOptions = () => {
-    Alert.alert("Select Photo", "Choose how you'd like to add a photo", [
+    Alert.alert("Add Photos", "Choose how you'd like to add photos", [
       { text: "Camera", onPress: takePhoto },
       { text: "Photo Library", onPress: selectImage },
       { text: "Cancel", style: "cancel" },
     ]);
+  };
+
+  const removeImage = (indexToRemove: number) => {
+    setSelectedImages((prev) =>
+      prev.filter((_, index) => index !== indexToRemove),
+    );
+  };
+
+  const clearAllImages = () => {
+    Alert.alert(
+      "Clear All Photos",
+      "Are you sure you want to remove all photos?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Clear All",
+          style: "destructive",
+          onPress: () => setSelectedImages([]),
+        },
+      ],
+    );
   };
 
   const handleSubmit = async () => {
@@ -257,22 +285,28 @@ function CookbookRecipeForm() {
       return;
     }
 
-    if (!selectedImage) {
-      Alert.alert("Error", "Please select or take a photo of the recipe");
+    if (selectedImages.length === 0) {
+      Alert.alert(
+        "Error",
+        "Please select or take at least one photo of the recipe",
+      );
       return;
     }
 
-    const imageUri = selectedImage;
-    const filename = imageUri.split("/").pop() || "recipe-photo.jpg";
-    const imageFile = {
-      uri: imageUri,
-      type: "image/jpeg",
-      name: filename,
-    } as any;
+    // Convert all selected images to file objects
+    const imageFiles = selectedImages.map((imageUri, index) => {
+      const filename =
+        imageUri.split("/").pop() || `recipe-photo-${index + 1}.jpg`;
+      return {
+        uri: imageUri,
+        type: "image/jpeg",
+        name: filename,
+      } as any;
+    });
 
     const response = await create.perform({
       location: "cookbook" as const,
-      file: imageFile,
+      files: imageFiles,
       author: author.trim(),
       cookbook_name: cookbookName.trim(),
       page_number: parseInt(pageNumber.trim()),
@@ -284,7 +318,7 @@ function CookbookRecipeForm() {
       setAuthor("");
       setPageNumber("");
       setNotes("");
-      setSelectedImage(null);
+      setSelectedImages([]);
       router.push(`/recipe/${response.id}`);
     }
   };
@@ -355,36 +389,65 @@ function CookbookRecipeForm() {
           </View>
 
           <View style={styles.inputGroup}>
-            <ThemedText type="defaultSemiBold">Recipe Photo</ThemedText>
+            <View style={styles.photoSectionHeader}>
+              <ThemedText type="defaultSemiBold">Recipe Photos</ThemedText>
+              {selectedImages.length > 1 && (
+                <TouchableOpacity onPress={clearAllImages}>
+                  <ThemedText style={styles.clearAllText}>Clear All</ThemedText>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {selectedImages.length > 0 && (
+              <ScrollView
+                horizontal
+                style={styles.imageScrollContainer}
+                showsHorizontalScrollIndicator={false}
+              >
+                {selectedImages.map((imageUri, index) => (
+                  <View key={index} style={styles.selectedImageCard}>
+                    <View style={styles.imagePreview}>
+                      <IconSymbol
+                        name="photo"
+                        size={20}
+                        color={Colors.primary}
+                      />
+                      <ThemedText style={styles.imageNumber}>
+                        {index + 1}
+                      </ThemedText>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.removeImageButton}
+                      onPress={() => removeImage(index)}
+                    >
+                      <IconSymbol
+                        name="xmark.circle.fill"
+                        size={20}
+                        color="#FF6B6B"
+                      />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+
             <TouchableOpacity
               style={styles.imagePickerButton}
               onPress={showImagePickerOptions}
               disabled={create.isPending}
             >
-              {selectedImage ? (
-                <View style={styles.selectedImageContainer}>
-                  <View style={styles.selectedImagePreview}>
-                    <IconSymbol name="photo" size={24} color={Colors.primary} />
-                    <ThemedText style={styles.imageSelectedText}>
-                      Photo Selected
-                    </ThemedText>
-                  </View>
-                  <ThemedText style={styles.changePhotoText}>
-                    Tap to change
-                  </ThemedText>
-                </View>
-              ) : (
-                <View style={styles.imagePickerContent}>
-                  <IconSymbol
-                    name="camera.fill"
-                    size={24}
-                    color={Colors.primary}
-                  />
-                  <ThemedText style={styles.imagePickerText}>
-                    Take Photo or Select from Library
-                  </ThemedText>
-                </View>
-              )}
+              <View style={styles.imagePickerContent}>
+                <IconSymbol
+                  name="camera.fill"
+                  size={24}
+                  color={Colors.primary}
+                />
+                <ThemedText style={styles.imagePickerText}>
+                  {selectedImages.length > 0
+                    ? `Add More Photos (${selectedImages.length} selected)`
+                    : "Take Photos or Select from Library"}
+                </ThemedText>
+              </View>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -673,6 +736,52 @@ const styles = StyleSheet.create({
   changePhotoText: {
     fontSize: 14,
     color: "#6c757d",
+  },
+  photoSectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: Spacing.md,
+  },
+  clearAllText: {
+    fontSize: Typography.fontSizes.sm,
+    color: "#FF6B6B",
+    fontWeight: "600",
+  },
+  imageScrollContainer: {
+    marginBottom: Spacing.md,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.sm,
+  },
+  selectedImageCard: {
+    width: 80,
+    height: 80,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 2,
+    borderColor: Colors.primary,
+    marginRight: Spacing.md,
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
+    ...Shadows.sm,
+  },
+  imagePreview: {
+    alignItems: "center",
+    gap: 4,
+  },
+  imageNumber: {
+    fontSize: Typography.fontSizes.xs,
+    fontWeight: Typography.fontWeights.bold,
+    color: Colors.primary,
+  },
+  removeImageButton: {
+    position: "absolute",
+    top: -6,
+    right: -6,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.full,
+    padding: 2,
   },
   closeButton: {
     alignSelf: "flex-end",

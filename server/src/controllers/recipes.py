@@ -350,7 +350,7 @@ async def create_made_up_recipe(
 async def create_cookbook_recipe(
     user: User,
     conn: Connection,
-    file: UploadFile,
+    files: list[UploadFile],
     location: Literal["cookbook"] = Form("cookbook"),
     author: str = Form(...),
     cookbook_name: str = Form(...),
@@ -359,7 +359,7 @@ async def create_cookbook_recipe(
 ) -> Recipe | None:
     db = AsyncQuerier(conn)
 
-    image_bytes = await file.read()
+    image_bytes = [await file.read() for file in files]
 
     base = await image_to_recipe(image_bytes)
 

@@ -10,8 +10,12 @@ type CreateMadeUpRecipeProps =
   components["schemas"]["CreateMadeUpRecipeLocation"];
 type CreateOnlineRecipeProps =
   components["schemas"]["CreateOnlineRecipeLocation"];
-type CreateCookbookRecipeProps =
-  components["schemas"]["Body_create_cookbook_recipe_recipes_cookbook_post"];
+type CreateCookbookRecipeProps = Omit<
+  components["schemas"]["Body_create_cookbook_recipe_recipes_cookbook_post"],
+  "file"
+> & {
+  files: any[];
+};
 type CreateRecipeProps =
   | CreateMadeUpRecipeProps
   | CreateOnlineRecipeProps
@@ -234,7 +238,11 @@ export const useRecipes = ({
           });
         case "cookbook":
           const formData = new FormData();
-          formData.append("file", props.file);
+
+          props.files.forEach((file) => {
+            formData.append("files", file);
+          });
+
           formData.append("location", "cookbook");
           formData.append("author", props.author);
           formData.append("cookbook_name", props.cookbook_name);

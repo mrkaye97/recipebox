@@ -115,12 +115,13 @@ async def markdown_to_recipe(markdown: str) -> BaseRecipeCreate | None:
     return await agent_result_to_maybe_recipe(result)
 
 
-async def image_to_recipe(image_bytes: bytes) -> BaseRecipeCreate | None:
+async def image_to_recipe(images: list[bytes]) -> BaseRecipeCreate | None:
     prompt = "Extract the recipe from the following image."
+    binaries = [BinaryContent(image, media_type="image/jpeg") for image in images]
 
     result = (
         await recipe_agent.run(
-            [prompt, BinaryContent(image_bytes, media_type="image/jpeg")],
+            [prompt, *binaries],
             output_type=BaseRecipeCreate,
         )
     ).output
