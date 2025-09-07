@@ -219,12 +219,10 @@ WHERE
             AND u.privacy_preference = 'public'
             -- don't include recipes where we already have that recipe as a parent
             -- since that means we've already downloaded that recipe
-            AND r.id NOT IN (
-                SELECT parent_recipe_id
+            AND r.parent_recipe_id NOT IN (
+                SELECT id
                 FROM recipe
-                WHERE
-                    user_id = :p2\\:\\:UUID
-                    AND parent_recipe_id IS NOT NULL
+                WHERE user_id = :p2\\:\\:UUID
             )
             AND r.user_id != :p2\\:\\:UUID
         )
