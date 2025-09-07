@@ -494,6 +494,8 @@ export interface components {
       readonly name: string;
       /** Notes */
       readonly notes: string | null;
+      /** Parent Recipe Id */
+      readonly parent_recipe_id: string | null;
       /** Time Estimate Minutes */
       readonly time_estimate_minutes: number;
       readonly type: components["schemas"]["RecipeType"];
@@ -681,6 +683,8 @@ export interface components {
       readonly name: string;
       /** Notes */
       readonly notes: string | null;
+      /** Parent Recipe Id */
+      readonly parent_recipe_id: string | null;
       /** Time Estimate Minutes */
       readonly time_estimate_minutes: number;
       readonly type: components["schemas"]["RecipeType"];
@@ -720,6 +724,8 @@ export interface components {
       readonly name: string;
       /** Notes */
       readonly notes: string | null;
+      /** Parent Recipe Id */
+      readonly parent_recipe_id: string | null;
       /** Tags */
       readonly tags: readonly string[];
       /** Time Estimate Minutes */

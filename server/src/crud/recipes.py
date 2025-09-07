@@ -207,29 +207,36 @@ WHERE recipe_id = ANY(:p1\\:\\:UUID[])
 
 
 LIST_RECIPES = """-- name: list_recipes \\:many
-SELECT id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal, parent_recipe_id
-FROM recipe
+SELECT r.id, r.user_id, r.name, r.author, r.cuisine, r.location, r.time_estimate_minutes, r.notes, r.last_made_at, r.created_at, r.updated_at, r.type, r.meal, r.parent_recipe_id
+FROM recipe r
+JOIN "user" u ON u.id = r.user_id
 WHERE
     (
-        :p1\\:\\:UUID IS NULL
+        (
+            -- either we're getting a list of all recipes
+            :p1\\:\\:BOOLEAN = FALSE
+            -- only include recipes for users who have made their recipes public
+            AND u.privacy_preference = 'public'
+            -- don't include recipes where we already have that recipe as a parent
+            -- since that means we've already downloaded that recipe
+            AND r.id NOT IN (
+                SELECT parent_recipe_id
+                FROM recipe
+                WHERE
+                    user_id = :p2\\:\\:UUID
+                    AND parent_recipe_id IS NOT NULL
+            )
+        )
         OR (
-            user_id = :p1\\:\\:UUID
-            AND (
-                SELECT privacy_preference
-                FROM "user"
-                WHERE id = :p1\\:\\:UUID
-            ) = 'public'
+            :p1\\:\\:BOOLEAN
+            AND r.user_id = :p2\\:\\:UUID
         )
     )
     AND (
-        :p2\\:\\:TEXT IS NULL
-        OR id @@@ paradedb.parse(:p2\\:\\:TEXT, lenient => true)
+        :p3\\:\\:TEXT IS NULL
+        OR r.id @@@ paradedb.parse(:p3\\:\\:TEXT, lenient => true)
     )
-    AND (
-        :p3\\:\\:BOOLEAN
-        OR parent_recipe_id IS NULL
-    )
-ORDER BY updated_at DESC
+ORDER BY r.updated_at DESC
 """
 
 
@@ -593,15 +600,10 @@ class AsyncQuerier:
             )
 
     async def list_recipes(
-        self,
-        *,
-        user_id: uuid.UUID | None,
-        search: str | None,
-        includerecipeswithparents: bool,
+        self, *, onlyuser: bool, userid: uuid.UUID, search: str | None
     ) -> AsyncIterator[models.Recipe]:
         result = await self._conn.stream(
-            sqlalchemy.text(LIST_RECIPES),
-            {"p1": user_id, "p2": search, "p3": includerecipeswithparents},
+            sqlalchemy.text(LIST_RECIPES), {"p1": onlyuser, "p2": userid, "p3": search}
         )
         async for row in result:
             yield models.Recipe(

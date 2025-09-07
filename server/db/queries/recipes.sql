@@ -107,29 +107,36 @@ ON CONFLICT DO NOTHING
 RETURNING *;
 
 -- name: ListRecipes :many
-SELECT *
-FROM recipe
+SELECT r.*
+FROM recipe r
+JOIN "user" u ON u.id = r.user_id
 WHERE
     (
-        sqlc.narg('user_id')::UUID IS NULL
+        (
+            -- either we're getting a list of all recipes
+            @onlyUser::BOOLEAN = FALSE
+            -- only include recipes for users who have made their recipes public
+            AND u.privacy_preference = 'public'
+            -- don't include recipes where we already have that recipe as a parent
+            -- since that means we've already downloaded that recipe
+            AND r.id NOT IN (
+                SELECT parent_recipe_id
+                FROM recipe
+                WHERE
+                    user_id = @userId::UUID
+                    AND parent_recipe_id IS NOT NULL
+            )
+        )
         OR (
-            user_id = sqlc.narg('user_id')::UUID
-            AND (
-                SELECT privacy_preference
-                FROM "user"
-                WHERE id = sqlc.narg('user_id')::UUID
-            ) = 'public'
+            @onlyUser::BOOLEAN
+            AND r.user_id = @userId::UUID
         )
     )
     AND (
         sqlc.narg('search')::TEXT IS NULL
-        OR id @@@ paradedb.parse(sqlc.narg('search')::TEXT, lenient => true)
+        OR r.id @@@ paradedb.parse(sqlc.narg('search')::TEXT, lenient => true)
     )
-    AND (
-        @includeRecipesWithParents::BOOLEAN
-        OR parent_recipe_id IS NULL
-    )
-ORDER BY updated_at DESC
+ORDER BY r.updated_at DESC
 ;
 
 -- name: GetRecipe :one
