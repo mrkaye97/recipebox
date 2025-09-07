@@ -507,6 +507,13 @@ CREATE INDEX idx_users_name_email_trgm ON public."user" USING gin ((((name || ' 
 
 
 --
+-- Name: recipe_ingredient_search_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX recipe_ingredient_search_idx ON public.recipe_ingredient USING bm25 (id, name, recipe_id) WITH (key_field=id, text_fields='{"name": {"tokenizer": {"type": "default", "stemmer": "English"}}}');
+
+
+--
 -- Name: recipe_search_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -653,4 +660,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20250904004250'),
     ('20250904214144'),
     ('20250906190105'),
-    ('20250907142330');
+    ('20250907142330'),
+    ('20250907193907');

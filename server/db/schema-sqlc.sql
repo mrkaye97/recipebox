@@ -166,6 +166,7 @@ ALTER TABLE ONLY "user"
 CREATE INDEX idx_recipe_parent_recipe_id ON recipe USING btree (parent_recipe_id);
 CREATE UNIQUE INDEX idx_recipe_recommendation_user_recipe_created_at ON recipe_recommendation USING btree (user_id, recipe_id, created_at);
 CREATE INDEX idx_users_name_email_trgm ON "user" USING gin ((((name || ' '::text) || email)) gin_trgm_ops);
+CREATE INDEX recipe_ingredient_search_idx ON recipe_ingredient USING bm25 (id, name, recipe_id) WITH (key_field=id, text_fields='{"name": {"tokenizer": {"type": "default", "stemmer": "English"}}}');
 CREATE INDEX recipe_search_idx ON recipe USING bm25 (name, author, cuisine, notes, id) WITH (key_field=id, text_fields='{"name": {"tokenizer": {"type": "default", "stemmer": "English"}}, "notes": {"tokenizer": {"type": "default", "stemmer": "English"}}}');
 ALTER TABLE ONLY friendship
     ADD CONSTRAINT friendship_friend_user_id_fkey FOREIGN KEY (friend_user_id) REFERENCES "user"(id) ON DELETE CASCADE;
@@ -208,4 +209,5 @@ INSERT INTO schema_migrations (version) VALUES
     ('20250904004250'),
     ('20250904214144'),
     ('20250906190105'),
-    ('20250907142330');
+    ('20250907142330'),
+    ('20250907193907');
