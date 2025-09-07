@@ -486,17 +486,17 @@ ALTER TABLE ONLY public."user"
 
 
 --
--- Name: idx_recipe_parent_recipe_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_recipe_parent_recipe_id ON public.recipe USING btree (parent_recipe_id);
-
-
---
 -- Name: idx_recipe_recommendation_user_recipe_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX idx_recipe_recommendation_user_recipe_created_at ON public.recipe_recommendation USING btree (user_id, recipe_id, created_at);
+
+
+--
+-- Name: idx_recipe_user_id_parent_recipe_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_recipe_user_id_parent_recipe_id ON public.recipe USING btree (user_id, parent_recipe_id);
 
 
 --
@@ -661,4 +661,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20250904214144'),
     ('20250906190105'),
     ('20250907142330'),
-    ('20250907193907');
+    ('20250907193907'),
+    ('20250907205340');
