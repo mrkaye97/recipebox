@@ -126,6 +126,7 @@ WHERE
                     user_id = @userId::UUID
                     AND parent_recipe_id IS NOT NULL
             )
+            AND r.user_id != @userId::UUID
         )
         OR (
             @onlyUser::BOOLEAN

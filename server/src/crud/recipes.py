@@ -226,6 +226,7 @@ WHERE
                     user_id = :p2\\:\\:UUID
                     AND parent_recipe_id IS NOT NULL
             )
+            AND r.user_id != :p2\\:\\:UUID
         )
         OR (
             :p1\\:\\:BOOLEAN
