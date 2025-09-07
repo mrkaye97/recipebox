@@ -337,7 +337,12 @@ async def create_made_up_recipe(
     location = RecipeLocation(location=MadeUpRecipeLocation(location="made_up"))
 
     return await ingest_recipe(
-        db=db, user=user, params=base, notes=params.notes, location=location
+        db=db,
+        user=user,
+        params=base,
+        notes=params.notes,
+        location=location,
+        parent_recipe_id=None,
     )
 
 
@@ -372,7 +377,12 @@ async def create_cookbook_recipe(
     )
 
     return await ingest_recipe(
-        db=db, user=user, params=base, notes=notes, location=created_location
+        db=db,
+        user=user,
+        params=base,
+        notes=notes,
+        location=created_location,
+        parent_recipe_id=None,
     )
 
 
@@ -395,7 +405,12 @@ async def create_online_recipe(
     )
 
     return await ingest_recipe(
-        db=db, user=user, params=base, notes=params.notes, location=location
+        db=db,
+        user=user,
+        params=base,
+        notes=params.notes,
+        location=location,
+        parent_recipe_id=None,
     )
 
 

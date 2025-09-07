@@ -22,7 +22,8 @@ INSERT INTO recipe (
     time_estimate_minutes,
     notes,
     type,
-    meal
+    meal,
+    parent_recipe_id
 )
 VALUES (
     :p1\\:\\:UUID,
@@ -33,9 +34,10 @@ VALUES (
     :p6\\:\\:INTEGER,
     :p7\\:\\:TEXT,
     :p8\\:\\:recipe_type,
-    :p9\\:\\:meal
+    :p9\\:\\:meal,
+    :p10\\:\\:UUID
 )
-RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal
+RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal, parent_recipe_id
 """
 
 
@@ -49,6 +51,7 @@ class CreateRecipeParams(pydantic.BaseModel):
     notes: str | None
     type: models.RecipeType
     meal: models.Meal
+    parent_recipe_id: uuid.UUID | None
 
 
 CREATE_RECIPE_DIETARY_RESTRICTIONS_MET = """-- name: create_recipe_dietary_restrictions_met \\:many
@@ -122,7 +125,7 @@ RETURNING id, recipe_id, tag
 DELETE_RECIPE = """-- name: delete_recipe \\:exec
 DELETE FROM recipe
 WHERE id = :p1\\:\\:UUID
-RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal
+RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal, parent_recipe_id
 """
 
 
@@ -151,7 +154,7 @@ WHERE recipe_id = :p1\\:\\:UUID
 
 
 GET_RECIPE = """-- name: get_recipe \\:one
-SELECT id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal
+SELECT id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal, parent_recipe_id
 FROM recipe
 WHERE
     id = :p1\\:\\:UUID
@@ -204,7 +207,7 @@ WHERE recipe_id = ANY(:p1\\:\\:UUID[])
 
 
 LIST_RECIPES = """-- name: list_recipes \\:many
-SELECT id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal
+SELECT id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal, parent_recipe_id
 FROM recipe
 WHERE
     (
@@ -302,7 +305,7 @@ WITH ingredient_seasonality_score AS (
     SELECT RANDOM() AS threshold
 )
 
-SELECT r.id, r.user_id, r.name, r.author, r.cuisine, r.location, r.time_estimate_minutes, r.notes, r.last_made_at, r.created_at, r.updated_at, r.type, r.meal
+SELECT r.id, r.user_id, r.name, r.author, r.cuisine, r.location, r.time_estimate_minutes, r.notes, r.last_made_at, r.created_at, r.updated_at, r.type, r.meal, r.parent_recipe_id
 FROM recipe r
 JOIN cumulative_weights cw ON r.id = cw.id
 CROSS JOIN random_threshold rt
@@ -325,7 +328,7 @@ SET
     type = COALESCE(:p8\\:\\:recipe_type, type),
     updated_at = CURRENT_TIMESTAMP
 WHERE id = :p9\\:\\:UUID
-RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal
+RETURNING id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal, parent_recipe_id
 """
 
 
@@ -359,6 +362,7 @@ class AsyncQuerier:
                     "p7": arg.notes,
                     "p8": arg.type,
                     "p9": arg.meal,
+                    "p10": arg.parent_recipe_id,
                 },
             )
         ).first()
@@ -378,6 +382,7 @@ class AsyncQuerier:
             updated_at=row[10],
             type=row[11],
             meal=row[12],
+            parent_recipe_id=row[13],
         )
 
     async def create_recipe_dietary_restrictions_met(
@@ -505,6 +510,7 @@ class AsyncQuerier:
             updated_at=row[10],
             type=row[11],
             meal=row[12],
+            parent_recipe_id=row[13],
         )
 
     async def list_recipe_dietary_restrictions_met(
@@ -603,6 +609,7 @@ class AsyncQuerier:
                 updated_at=row[10],
                 type=row[11],
                 meal=row[12],
+                parent_recipe_id=row[13],
             )
 
     async def log_recipe_recommendation(
@@ -637,6 +644,7 @@ class AsyncQuerier:
             updated_at=row[10],
             type=row[11],
             meal=row[12],
+            parent_recipe_id=row[13],
         )
 
     async def update_recipe(self, arg: UpdateRecipeParams) -> models.Recipe | None:
@@ -672,4 +680,5 @@ class AsyncQuerier:
             updated_at=row[10],
             type=row[11],
             meal=row[12],
+            parent_recipe_id=row[13],
         )

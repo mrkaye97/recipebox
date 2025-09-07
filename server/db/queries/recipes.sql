@@ -9,7 +9,8 @@ INSERT INTO recipe (
     time_estimate_minutes,
     notes,
     type,
-    meal
+    meal,
+    parent_recipe_id
 )
 VALUES (
     @userId::UUID,
@@ -20,7 +21,8 @@ VALUES (
     @timeEstimateMinutes::INTEGER,
     sqlc.narg('notes')::TEXT,
     @type::recipe_type,
-    @meal::meal
+    @meal::meal,
+    sqlc.narg('parent_recipe_id')::UUID
 )
 RETURNING *;
 

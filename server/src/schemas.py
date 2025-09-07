@@ -115,6 +115,7 @@ class BaseRecipeCreate(BaseModel):
 class RecipeCreate(BaseRecipeCreate):
     location: RecipeLocation
     notes: str | None
+    parent_recipe_id: UUID | None
 
 
 class Recipe(RecipeCreate):
@@ -147,4 +148,5 @@ class Recipe(RecipeCreate):
             type=recipe.type,
             meal=recipe.meal,
             user_id=recipe.user_id,
+            parent_recipe_id=recipe.parent_recipe_id,
         )

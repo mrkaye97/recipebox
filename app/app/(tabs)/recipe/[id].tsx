@@ -590,18 +590,7 @@ export default function RecipeDetailScreen() {
                   style={styles.saveRecipeButton}
                 >
                   <IconSymbol
-                    name="square.and.arrow.down"
-                    size={24}
-                    color={Colors.primary}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={handleMarkAsCooked}
-                  disabled={isMarkingCooked}
-                  style={styles.cookedButton}
-                >
-                  <IconSymbol
-                    name={"frying.pan.fill"}
+                    name="bookmark"
                     size={24}
                     color={Colors.primary}
                   />

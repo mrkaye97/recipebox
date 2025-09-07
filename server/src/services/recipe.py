@@ -78,6 +78,7 @@ async def ingest_recipe(
     params: BaseRecipeCreate,
     location: RecipeLocation,
     notes: str | None,
+    parent_recipe_id: UUID | None,
 ) -> Recipe:
     recipe = await db.create_recipe(
         CreateRecipeParams(
@@ -90,6 +91,7 @@ async def ingest_recipe(
             notes=notes,
             meal=params.meal,
             type=params.type,
+            parent_recipe_id=parent_recipe_id,
         )
     )
 

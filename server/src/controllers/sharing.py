@@ -130,4 +130,5 @@ async def accept_recipe_share_request(
         params=db_recipe,
         location=RecipeLocation.model_validate(recipe.location),
         notes=None,
+        parent_recipe_id=recipe.id,
     )

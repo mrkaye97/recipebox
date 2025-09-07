@@ -253,7 +253,8 @@ CREATE TABLE public.recipe (
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     type public.recipe_type DEFAULT 'main'::public.recipe_type NOT NULL,
-    meal public.meal DEFAULT 'dinner'::public.meal NOT NULL
+    meal public.meal DEFAULT 'dinner'::public.meal NOT NULL,
+    parent_recipe_id uuid
 );
 
 
@@ -485,6 +486,13 @@ ALTER TABLE ONLY public."user"
 
 
 --
+-- Name: idx_recipe_parent_recipe_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_recipe_parent_recipe_id ON public.recipe USING btree (parent_recipe_id);
+
+
+--
 -- Name: idx_recipe_recommendation_user_recipe_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -562,6 +570,14 @@ ALTER TABLE ONLY public.recipe_instruction
 
 
 --
+-- Name: recipe recipe_parent_recipe_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe
+    ADD CONSTRAINT recipe_parent_recipe_id_fkey FOREIGN KEY (parent_recipe_id) REFERENCES public.recipe(id) ON DELETE SET NULL;
+
+
+--
 -- Name: recipe_recommendation recipe_recommendation_recipe_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -636,4 +652,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20250901022533'),
     ('20250904004250'),
     ('20250904214144'),
-    ('20250906190105');
+    ('20250906190105'),
+    ('20250907142330');

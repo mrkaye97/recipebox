@@ -68,6 +68,7 @@ class Recipe(pydantic.BaseModel):
     updated_at: datetime.datetime
     type: RecipeType
     meal: Meal
+    parent_recipe_id: uuid.UUID | None
 
 
 class RecipeCookingLog(pydantic.BaseModel):

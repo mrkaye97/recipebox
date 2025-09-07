@@ -71,7 +71,8 @@ CREATE TABLE recipe (
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     type recipe_type DEFAULT 'main'::recipe_type NOT NULL,
-    meal meal DEFAULT 'dinner'::meal NOT NULL
+    meal meal DEFAULT 'dinner'::meal NOT NULL,
+    parent_recipe_id uuid
 );
 CREATE TABLE recipe_cooking_log (
     user_id uuid NOT NULL,
@@ -162,6 +163,7 @@ ALTER TABLE ONLY user_password
     ADD CONSTRAINT user_password_pkey PRIMARY KEY (user_id);
 ALTER TABLE ONLY "user"
     ADD CONSTRAINT user_pkey PRIMARY KEY (id);
+CREATE INDEX idx_recipe_parent_recipe_id ON recipe USING btree (parent_recipe_id);
 CREATE UNIQUE INDEX idx_recipe_recommendation_user_recipe_created_at ON recipe_recommendation USING btree (user_id, recipe_id, created_at);
 CREATE INDEX idx_users_name_email_trgm ON "user" USING gin ((((name || ' '::text) || email)) gin_trgm_ops);
 CREATE INDEX recipe_search_idx ON recipe USING bm25 (name, author, cuisine, notes, id) WITH (key_field=id, text_fields='{"name": {"tokenizer": {"type": "default", "stemmer": "English"}}, "notes": {"tokenizer": {"type": "default", "stemmer": "English"}}}');
@@ -179,6 +181,8 @@ ALTER TABLE ONLY recipe_ingredient
     ADD CONSTRAINT recipe_ingredient_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE;
 ALTER TABLE ONLY recipe_instruction
     ADD CONSTRAINT recipe_instruction_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE;
+ALTER TABLE ONLY recipe
+    ADD CONSTRAINT recipe_parent_recipe_id_fkey FOREIGN KEY (parent_recipe_id) REFERENCES recipe(id) ON DELETE SET NULL;
 ALTER TABLE ONLY recipe_recommendation
     ADD CONSTRAINT recipe_recommendation_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE;
 ALTER TABLE ONLY recipe_recommendation
@@ -203,4 +207,5 @@ INSERT INTO schema_migrations (version) VALUES
     ('20250901022533'),
     ('20250904004250'),
     ('20250904214144'),
-    ('20250906190105');
+    ('20250906190105'),
+    ('20250907142330');
