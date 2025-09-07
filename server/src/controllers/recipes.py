@@ -6,6 +6,7 @@ from fastapi import APIRouter, Form, HTTPException, UploadFile
 from pydantic import BaseModel
 
 from src.crud.models import DietaryRestriction, Meal, RecipeType
+from src.crud.models import Recipe as DbRecipe
 from src.crud.recipes import (
     AsyncQuerier,
     ListRecipeFilterOptionsRow,
@@ -133,7 +134,22 @@ async def list_recipes_from_db(
     user_id: UUID, search: str | None, only_user: bool, db: AsyncQuerier
 ) -> list[Recipe]:
     recipes = [
-        r
+        DbRecipe(
+            id=r.id,
+            user_id=r.user_id,
+            name=r.name,
+            author=r.author,
+            cuisine=r.cuisine,
+            location=r.location,
+            time_estimate_minutes=r.time_estimate_minutes,
+            notes=r.notes,
+            last_made_at=r.last_made_at,
+            created_at=r.created_at,
+            updated_at=r.updated_at,
+            type=r.type,
+            meal=r.meal,
+            parent_recipe_id=r.parent_recipe_id,
+        )
         async for r in db.list_recipes(
             userid=user_id,
             onlyuser=only_user,
