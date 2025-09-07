@@ -225,6 +225,10 @@ WHERE
         :p2\\:\\:TEXT IS NULL
         OR id @@@ paradedb.parse(:p2\\:\\:TEXT, lenient => true)
     )
+    AND (
+        :p3\\:\\:BOOLEAN
+        OR parent_recipe_id IS NULL
+    )
 ORDER BY updated_at DESC
 """
 
@@ -589,10 +593,15 @@ class AsyncQuerier:
             )
 
     async def list_recipes(
-        self, *, user_id: uuid.UUID | None, search: str | None
+        self,
+        *,
+        user_id: uuid.UUID | None,
+        search: str | None,
+        includerecipeswithparents: bool,
     ) -> AsyncIterator[models.Recipe]:
         result = await self._conn.stream(
-            sqlalchemy.text(LIST_RECIPES), {"p1": user_id, "p2": search}
+            sqlalchemy.text(LIST_RECIPES),
+            {"p1": user_id, "p2": search, "p3": includerecipeswithparents},
         )
         async for row in result:
             yield models.Recipe(

@@ -125,6 +125,10 @@ WHERE
         sqlc.narg('search')::TEXT IS NULL
         OR id @@@ paradedb.parse(sqlc.narg('search')::TEXT, lenient => true)
     )
+    AND (
+        @includeRecipesWithParents::BOOLEAN
+        OR parent_recipe_id IS NULL
+    )
 ORDER BY updated_at DESC
 ;
 

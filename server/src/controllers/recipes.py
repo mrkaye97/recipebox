@@ -135,7 +135,11 @@ async def list_recipes_from_db(
     recipes = [
         r
         async for r in db.list_recipes(
-            user_id=user_id if only_user else None, search=search
+            user_id=user_id if only_user else None,
+            search=search,
+            ## we want to exclude recipes with parents if we're listing recipes on the discover
+            ## page, which is when only_user is False
+            includerecipeswithparents=only_user,
         )
     ]
 
