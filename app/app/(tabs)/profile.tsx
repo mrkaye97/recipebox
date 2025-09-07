@@ -93,7 +93,7 @@ export default function ProfileScreen() {
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 25}
         >
-          <ScrollView 
+          <ScrollView
             style={styles.loginScrollContainer}
             contentContainerStyle={styles.loginContainer}
             keyboardShouldPersistTaps="handled"

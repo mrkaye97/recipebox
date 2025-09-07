@@ -1,10 +1,7 @@
 import { $api } from "@/src/lib/api/client";
 import { useUser } from "./use-user";
 
-export const useRecipeDetails = (
-  id: string,
-  belongsToFriendUserId?: string | null,
-) => {
+export const useRecipeDetails = (id: string) => {
   const { token } = useUser();
 
   return $api.useQuery(
@@ -12,10 +9,7 @@ export const useRecipeDetails = (
     "/recipes/{id}",
     {
       params: {
-        path: { id: id! },
-        query: belongsToFriendUserId
-          ? { belongs_to_friend_user_id: belongsToFriendUserId }
-          : {},
+        path: { id },
       },
       headers: {
         Authorization: `Bearer ${token}`,

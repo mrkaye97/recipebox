@@ -131,9 +131,8 @@ const RecipeLocationUI = ({ location }: { location: RecipeLocation }) => {
 };
 
 export default function RecipeDetailScreen() {
-  const { id, belongs_to_friend_user_id } = useLocalSearchParams<{
+  const { id } = useLocalSearchParams<{
     id: string;
-    belongs_to_friend_user_id?: string;
   }>();
   const [ingredientsCollapsed, setIngredientsCollapsed] = useState(false);
   const [shareModalVisible, setShareModalVisible] = useState(false);
@@ -144,11 +143,7 @@ export default function RecipeDetailScreen() {
   const scrollViewRef = useRef<ScrollView>(null);
   const queryClient = useQueryClient();
 
-  const {
-    data: recipe,
-    isLoading,
-    refetch,
-  } = useRecipeDetails(id, belongs_to_friend_user_id);
+  const { data: recipe, isLoading, refetch } = useRecipeDetails(id);
   const {
     updateRecipe: { perform: updateRecipe, isPending: isUpdating },
     deleteRecipe: { perform: deleteRecipe, isPending: isDeleting },
@@ -163,6 +158,9 @@ export default function RecipeDetailScreen() {
       isPending: isMarkingCooked,
     },
   } = useActivity({ who: "me" });
+
+  const belongsToCurrentUser =
+    !!recipe && !!userInfo && recipe?.user_id === userInfo?.userId;
 
   const handleBack = async () => {
     router.back();
@@ -197,14 +195,14 @@ export default function RecipeDetailScreen() {
   };
 
   const handleSaveRecipe = async () => {
-    if (!recipe || !userInfo || !belongs_to_friend_user_id) return;
+    if (!recipe || !userInfo || belongsToCurrentUser) return;
 
     setIsSaving(true);
     const shareRequest = await shareRecipe.perform(
       recipe.id,
       userInfo.userId,
       "download_button",
-      belongs_to_friend_user_id,
+      recipe.user_id,
     );
 
     try {
@@ -584,7 +582,7 @@ export default function RecipeDetailScreen() {
                   </ThemedText>
                 </TouchableOpacity>
               </>
-            ) : belongs_to_friend_user_id ? (
+            ) : !belongsToCurrentUser ? (
               <>
                 <TouchableOpacity
                   onPress={handleSaveRecipe}

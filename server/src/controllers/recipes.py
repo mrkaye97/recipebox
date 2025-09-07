@@ -139,7 +139,7 @@ async def list_recipes_from_db(
         )
     ]
 
-    return await populate_recipe_data(db=db, user_id=user_id, recipes=recipes)
+    return await populate_recipe_data(db=db, recipes=recipes)
 
 
 @recipes.get("")
@@ -176,7 +176,6 @@ async def recommend_recipe(
     await db.log_recipe_recommendation(recipeid=recipe.id, userid=user.id)
     return await populate_recipe_data(
         db=db,
-        user_id=user.id,
         recipes=recipe,
     )
 
@@ -199,12 +198,10 @@ async def list_filter_options(
 @recipes.get("/{id}")
 async def get_recipe(
     conn: Connection,
-    user: User,
+    _: User,
     id: UUID,
-    belongs_to_friend_user_id: UUID | None = None,
 ) -> Recipe:
     db = AsyncQuerier(conn)
-    user_id = belongs_to_friend_user_id or user.id
     recipe = await db.get_recipe(recipeid=id)
 
     if not recipe:
@@ -212,7 +209,6 @@ async def get_recipe(
 
     return await populate_recipe_data(
         db=db,
-        user_id=user_id,
         recipes=recipe,
     )
 
@@ -299,7 +295,6 @@ async def update_recipe(
 
     return await populate_recipe_data(
         db=db,
-        user_id=user.id,
         recipes=recipe,
     )
 

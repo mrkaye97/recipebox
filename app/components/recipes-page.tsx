@@ -127,7 +127,7 @@ export default function RecipesScreen({
 }: {
   onlyCurrentUser: boolean;
 }) {
-  const { isAuthenticated, isLoading: isAuthLoading } = useUser();
+  const { isAuthenticated, isLoading: isAuthLoading, userInfo } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMeal, setSelectedMeal] = useState<string | undefined>();
   const [selectedType, setSelectedType] = useState<string | undefined>();
@@ -143,6 +143,7 @@ export default function RecipesScreen({
     meal: selectedMeal,
     type: selectedType,
     cuisine: selectedCuisine,
+    onlyCurrentUser,
   });
 
   const [sharesDrawerVisible, setSharesDrawerVisible] = useState(false);
@@ -188,7 +189,7 @@ export default function RecipesScreen({
     router.push(`/(tabs)/recipes?option=${option}`);
   };
 
-  if (!isAuthenticated && !isAuthLoading) {
+  if ((!isAuthenticated || !userInfo) && !isAuthLoading) {
     return <Redirect href={"/(tabs)/profile"} />;
   }
 
@@ -274,17 +275,7 @@ export default function RecipesScreen({
       >
         <View style={styles.recipesGrid}>
           {recipes.map((recipe) => (
-            <RecipeCard
-              key={recipe.id}
-              id={recipe.id}
-              name={recipe.name}
-              author={recipe.author}
-              cuisine={recipe.cuisine}
-              timeEstimate={recipe.time_estimate_minutes}
-              cookedAt={recipe.last_made_at ?? undefined}
-              meal={recipe.meal}
-              type={recipe.type}
-            />
+            <RecipeCard key={recipe.id} recipe={recipe} />
           ))}
         </View>
       </ScrollView>

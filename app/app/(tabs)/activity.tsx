@@ -47,7 +47,7 @@ export default function ActivityScreen() {
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  if (!isAuthenticated && !isAuthLoading) {
+  if ((!isAuthenticated && !isAuthLoading) || !userInfo) {
     return <Redirect href={"/(tabs)/profile"} />;
   }
 
@@ -121,17 +121,11 @@ export default function ActivityScreen() {
 
   const renderItem = ({ item }: { item: ActivityItem }) => (
     <RecipeCard
-      id={item.id}
-      name={item.name}
-      author={item.author}
-      cuisine={item.cuisine}
-      timeEstimate={item.time_estimate_minutes}
-      cookedAt={item.cooked_at}
-      userId={item.user_id}
-      userName={item.user_name}
-      currentUserId={userInfo?.userId}
-      meal={item.meal}
-      type={item.type}
+      recipe={item}
+      activityOverrides={{
+        userName: item.user_name,
+        cookedAt: item.cooked_at,
+      }}
     />
   );
 

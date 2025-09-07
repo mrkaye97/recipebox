@@ -16,19 +16,17 @@ logger = get_logger(__name__)
 
 
 @overload
-async def populate_recipe_data(
-    db: AsyncQuerier, user_id: UUID, recipes: RecipeModel
-) -> Recipe: ...
+async def populate_recipe_data(db: AsyncQuerier, recipes: RecipeModel) -> Recipe: ...
 
 
 @overload
 async def populate_recipe_data(
-    db: AsyncQuerier, user_id: UUID, recipes: list[RecipeModel]
+    db: AsyncQuerier, recipes: list[RecipeModel]
 ) -> list[Recipe]: ...
 
 
 async def populate_recipe_data(
-    db: AsyncQuerier, user_id: UUID, recipes: list[RecipeModel] | RecipeModel
+    db: AsyncQuerier, recipes: list[RecipeModel] | RecipeModel
 ) -> list[Recipe] | Recipe:
     wants_single = isinstance(recipes, RecipeModel)
 

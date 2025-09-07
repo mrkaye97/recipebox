@@ -153,7 +153,8 @@ WHERE recipe_id = :p1\\:\\:UUID
 GET_RECIPE = """-- name: get_recipe \\:one
 SELECT id, user_id, name, author, cuisine, location, time_estimate_minutes, notes, last_made_at, created_at, updated_at, type, meal
 FROM recipe
-WHERE id = :p1\\:\\:UUID
+WHERE
+    id = :p1\\:\\:UUID
 """
 
 
@@ -208,7 +209,14 @@ FROM recipe
 WHERE
     (
         :p1\\:\\:UUID IS NULL
-        OR user_id = :p1\\:\\:UUID
+        OR (
+            user_id = :p1\\:\\:UUID
+            AND (
+                SELECT privacy_preference
+                FROM "user"
+                WHERE id = :p1\\:\\:UUID
+            ) = 'public'
+        )
     )
     AND (
         :p2\\:\\:TEXT IS NULL

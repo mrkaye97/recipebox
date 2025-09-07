@@ -110,7 +110,14 @@ FROM recipe
 WHERE
     (
         sqlc.narg('user_id')::UUID IS NULL
-        OR user_id = sqlc.narg('user_id')::UUID
+        OR (
+            user_id = sqlc.narg('user_id')::UUID
+            AND (
+                SELECT privacy_preference
+                FROM "user"
+                WHERE id = sqlc.narg('user_id')::UUID
+            ) = 'public'
+        )
     )
     AND (
         sqlc.narg('search')::TEXT IS NULL
@@ -122,7 +129,8 @@ ORDER BY updated_at DESC
 -- name: GetRecipe :one
 SELECT *
 FROM recipe
-WHERE id = @recipeId::UUID
+WHERE
+    id = @recipeId::UUID
 ;
 
 -- name: UpdateRecipe :one

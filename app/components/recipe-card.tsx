@@ -6,9 +6,16 @@ import {
   Spacing,
   Typography,
 } from "@/constants/design-system";
+import { useUser } from "@/hooks/use-user";
+import { components } from "@/src/lib/api/v1";
 import { router } from "expo-router";
 import React from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
+
+type Recipe = Omit<
+  components["schemas"]["src__crud__models__Recipe"],
+  "created_at" | "updated_at"
+>;
 
 export interface RecipeCardProps {
   id: string;
@@ -17,9 +24,9 @@ export interface RecipeCardProps {
   cuisine: string;
   timeEstimate: number;
   cookedAt?: string;
-  userId?: string;
+  userId: string;
   userName?: string;
-  currentUserId?: string;
+  currentUserId: string;
   meal: string;
   type: string;
 }
@@ -52,27 +59,28 @@ const formatCookedDate = (cookedAt: string) => {
 };
 
 export function RecipeCard({
-  id,
-  name,
-  author,
-  cuisine,
-  timeEstimate,
-  cookedAt,
-  userId,
-  userName,
-  currentUserId,
-  meal,
-  type,
-}: RecipeCardProps) {
+  recipe,
+  activityOverrides,
+}: {
+  recipe: Recipe;
+  activityOverrides?: {
+    cookedAt: string;
+    userName: string;
+  };
+}) {
+  const { userInfo } = useUser();
   const handlePress = () => {
-    if (isOtherUser && userId) {
-      router.push(`/recipe/${id}?belongs_to_friend_user_id=${userId}`);
-    } else {
-      router.push(`/recipe/${id}`);
-    }
+    router.push({
+      pathname: "/recipe/[id]",
+      params: {
+        id: recipe.id,
+      },
+    });
   };
 
-  const isOtherUser = userId && currentUserId && userId !== currentUserId;
+  const isOtherUser = !!userInfo && userInfo.userId !== recipe.user_id;
+  const isActivity = !!activityOverrides;
+  const cookedAt = activityOverrides?.cookedAt || recipe.last_made_at;
 
   return (
     <TouchableOpacity
@@ -83,7 +91,7 @@ export function RecipeCard({
       <View style={styles.recipeCardContent}>
         <View style={styles.recipeHeader}>
           <ThemedText type="defaultSemiBold" style={styles.recipeName}>
-            {name}
+            {recipe.name}
           </ThemedText>
           <IconSymbol
             name="chevron.right"
@@ -91,25 +99,25 @@ export function RecipeCard({
             color={Colors.textSecondary}
           />
         </View>
-        <ThemedText style={styles.recipeAuthor}>by {author}</ThemedText>
+        <ThemedText style={styles.recipeAuthor}>by {recipe.author}</ThemedText>
         <View style={styles.tagsContainer}>
           <View style={styles.cuisineContainer}>
             <ThemedText style={styles.recipeCuisine} numberOfLines={1}>
-              {cuisine}
+              {recipe.cuisine}
             </ThemedText>
           </View>
           <View style={styles.mealContainer}>
-            <ThemedText style={styles.recipeMeal}>{meal}</ThemedText>
+            <ThemedText style={styles.recipeMeal}>{recipe.meal}</ThemedText>
           </View>
           <View style={styles.typeContainer}>
-            <ThemedText style={styles.recipeType}>{type}</ThemedText>
+            <ThemedText style={styles.recipeType}>{recipe.type}</ThemedText>
           </View>
         </View>
         <View style={styles.metaRow}>
           <View style={styles.timeContainer}>
             <IconSymbol name="clock" size={14} color={Colors.textSecondary} />
             <ThemedText style={styles.recipeTime}>
-              {timeEstimate} min
+              {recipe.time_estimate_minutes} min
             </ThemedText>
           </View>
           {cookedAt && (
@@ -125,7 +133,7 @@ export function RecipeCard({
             </View>
           )}
         </View>
-        {isOtherUser && userName && (
+        {isActivity && isOtherUser && activityOverrides?.userName && (
           <View style={styles.cookedByContainer}>
             <IconSymbol
               name="person.fill"
@@ -133,7 +141,7 @@ export function RecipeCard({
               color={Colors.textSecondary}
             />
             <ThemedText style={styles.cookedByText}>
-              Cooked by {userName}
+              Cooked by {activityOverrides.userName}
             </ThemedText>
           </View>
         )}

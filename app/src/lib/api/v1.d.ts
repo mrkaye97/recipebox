@@ -725,6 +725,11 @@ export interface components {
       /** Time Estimate Minutes */
       readonly time_estimate_minutes: number;
       readonly type: components["schemas"]["RecipeType"];
+      /**
+       * User Id
+       * Format: uuid
+       */
+      readonly user_id: string;
     };
     /** Token */
     readonly Token: {
@@ -948,9 +953,7 @@ export interface operations {
   };
   readonly get_recipe_recipes__id__get: {
     readonly parameters: {
-      readonly query?: {
-        readonly belongs_to_friend_user_id?: string | null;
-      };
+      readonly query?: never;
       readonly header?: never;
       readonly path: {
         readonly id: string;

@@ -120,6 +120,7 @@ class RecipeCreate(BaseRecipeCreate):
 class Recipe(RecipeCreate):
     id: UUID
     last_made_at: datetime | None
+    user_id: UUID
 
     @classmethod
     def from_db(
@@ -145,4 +146,5 @@ class Recipe(RecipeCreate):
             last_made_at=recipe.last_made_at,
             type=recipe.type,
             meal=recipe.meal,
+            user_id=recipe.user_id,
         )

@@ -87,7 +87,7 @@ export function SignupForm() {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <ScrollView 
+      <ScrollView
         style={styles.scrollContainer}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
