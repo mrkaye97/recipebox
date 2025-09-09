@@ -5,6 +5,12 @@ from src.logger import get_logger
 
 app = FastAPI()
 
+
+@app.get("/health")
+async def health_check() -> dict[str, str]:
+    return {"status": "ok"}
+
+
 app.include_router(auth)
 app.include_router(recipes)
 app.include_router(users)
