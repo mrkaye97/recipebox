@@ -706,6 +706,22 @@ files = [
 tests = ["pytest"]
 
 [[package]]
+name = "exponent-server-sdk"
+version = "2.2.0"
+description = "Expo Server SDK for Python"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "exponent_server_sdk-2.2.0-py3-none-any.whl", hash = "sha256:ee5825baa9870fcdb28f93b3404a5e042c3784d861060e59f7dfd549347a6f0c"},
+    {file = "exponent_server_sdk-2.2.0.tar.gz", hash = "sha256:162f3b9732a05e8dd8c1263a7ea2aa27c235a2927a4ca08440ba171c95beb449"},
+]
+
+[package.dependencies]
+requests = "*"
+six = "*"
+
+[[package]]
 name = "fastapi"
 version = "0.116.1"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
@@ -4149,4 +4165,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4.0"
-content-hash = "ff76338a0f3d23cdcec93970c2e9cb58970d44a1c463788c9435bad0cc08bd74"
+content-hash = "8c683b29a65e4bc3c273d76da737413ae1215f2d8ab27d476a88ce87a86fbf68"

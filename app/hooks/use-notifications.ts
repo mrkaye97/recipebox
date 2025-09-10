@@ -22,9 +22,10 @@ export const useNotifications = () => {
 
   useEffect(() => {
     const notificationSubscription =
-      Notifications.addNotificationReceivedListener(() => {});
+      Notifications.addNotificationReceivedListener((notification) => {});
+
     const responseSubscription =
-      Notifications.addNotificationResponseReceivedListener(() => {});
+      Notifications.addNotificationResponseReceivedListener((response) => {});
 
     return () => {
       notificationSubscription.remove();

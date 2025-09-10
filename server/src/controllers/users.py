@@ -1,3 +1,4 @@
+import asyncio
 from uuid import UUID
 
 from fastapi import APIRouter
@@ -9,6 +10,7 @@ from src.dependencies import Connection
 from src.dependencies import User as UserDependency
 from src.logger import get_logger
 from src.schemas import User
+from src.services.notifications import send_push_message
 
 users = APIRouter(prefix="/users")
 logger = get_logger(__name__)
@@ -48,10 +50,22 @@ async def send_friend_request(
     body: FriendRequestBody,
 ) -> Friendship | None:
     querier = AsyncQuerier(conn)
-    return await querier.create_friend_request(
+
+    recipient = await querier.find_user_by_id(userid=body.friend_user_id)
+
+    result = await querier.create_friend_request(
         userid=user.id,
         frienduserid=body.friend_user_id,
     )
+
+    if result and recipient and recipient.expo_push_token:
+        await asyncio.to_thread(
+            send_push_message,
+            token=recipient.expo_push_token,
+            message=f"{user.name} sent you a friend request",
+        )
+
+    return result
 
 
 @users.post("/friend-request/{request_from_user_id}/accept")
@@ -61,9 +75,21 @@ async def accept_friend_request(
     request_from_user_id: UUID,
 ) -> Friendship | None:
     querier = AsyncQuerier(conn)
-    return await querier.accept_friend_request(
+
+    sender = await querier.find_user_by_id(userid=request_from_user_id)
+
+    result = await querier.accept_friend_request(
         userid=user.id, requestfromuserid=request_from_user_id
     )
+
+    if result and sender and sender.expo_push_token:
+        await asyncio.to_thread(
+            send_push_message,
+            token=sender.expo_push_token,
+            message=f"{user.name} accepted your friend request",
+        )
+
+    return result
 
 
 @users.get("/friends")
