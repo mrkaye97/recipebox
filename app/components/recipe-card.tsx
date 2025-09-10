@@ -68,7 +68,7 @@ export function RecipeCard({
     userName: string;
   };
 }) {
-  const { userInfo } = useUser();
+  const { userId } = useUser();
   const handlePress = () => {
     router.push({
       pathname: "/recipe/[id]",
@@ -78,7 +78,7 @@ export function RecipeCard({
     });
   };
 
-  const isOtherUser = !!userInfo && userInfo.id !== recipe.user_id;
+  const isOtherUser = userId !== recipe.user_id;
   const isActivity = !!activityOverrides;
   const cookedAt =
     activityOverrides?.cookedAt || !isOtherUser ? recipe.last_made_at : null;

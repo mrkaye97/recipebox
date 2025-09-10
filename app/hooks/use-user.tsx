@@ -87,6 +87,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   const { data: userInfo, isLoading: isUserInfoLoading } = $api.useQuery(
     "get",
     "/users",
+    {
+      headers: {
+        Authorization: `Bearer ${token ?? ""}`,
+      },
+    },
+    {
+      enabled: !!token,
+    },
   );
 
   const saveToken = useCallback(

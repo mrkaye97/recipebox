@@ -28,7 +28,7 @@ import { Redirect } from "expo-router";
 type ActivityItem = components["schemas"]["ListRecentRecipeCooksRow"];
 
 export default function ActivityScreen() {
-  const { isAuthenticated, isLoading: isAuthLoading, userInfo } = useUser();
+  const { isAuthenticated, isLoading: isAuthLoading } = useUser();
   const [who, setWho] = useState<Who>("me");
 
   const {
@@ -47,7 +47,7 @@ export default function ActivityScreen() {
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  if ((!isAuthenticated && !isAuthLoading) || !userInfo) {
+  if (!isAuthenticated && !isAuthLoading) {
     return <Redirect href={"/(tabs)/profile"} />;
   }
 

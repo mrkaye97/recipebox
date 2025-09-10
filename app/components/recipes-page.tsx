@@ -127,7 +127,7 @@ export default function RecipesScreen({
 }: {
   onlyCurrentUser: boolean;
 }) {
-  const { isAuthenticated, isLoading: isAuthLoading, userInfo } = useUser();
+  const { isAuthenticated, isLoading: isAuthLoading } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMeal, setSelectedMeal] = useState<string | undefined>();
   const [selectedType, setSelectedType] = useState<string | undefined>();
@@ -189,7 +189,7 @@ export default function RecipesScreen({
     router.push(`/(tabs)/recipes?option=${option}`);
   };
 
-  if ((!isAuthenticated || !userInfo) && !isAuthLoading) {
+  if (!isAuthenticated && !isAuthLoading) {
     return <Redirect href={"/(tabs)/profile"} />;
   }
 

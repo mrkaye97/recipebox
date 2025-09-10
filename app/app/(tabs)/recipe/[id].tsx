@@ -151,7 +151,7 @@ export default function RecipeDetailScreen() {
     acceptShare,
     deleteShare,
   } = useRecipes();
-  const { userInfo } = useUser();
+  const { userId } = useUser();
   const {
     markAsCookedRecently: {
       perform: markAsCookedRecently,
@@ -160,7 +160,7 @@ export default function RecipeDetailScreen() {
   } = useActivity({ who: "me" });
 
   const belongsToCurrentUser =
-    !!recipe && !!userInfo && recipe?.user_id === userInfo?.id;
+    !!recipe && !!userId && recipe?.user_id === userId;
 
   const handleBack = async () => {
     router.back();
@@ -195,12 +195,12 @@ export default function RecipeDetailScreen() {
   };
 
   const handleSaveRecipe = async () => {
-    if (!recipe || !userInfo || belongsToCurrentUser) return;
+    if (!recipe || !userId || belongsToCurrentUser) return;
 
     setIsSaving(true);
     const shareRequest = await shareRecipe.perform(
       recipe.id,
-      userInfo.id,
+      userId,
       "download_button",
       recipe.user_id,
     );
