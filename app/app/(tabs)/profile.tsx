@@ -67,10 +67,6 @@ export default function ProfileScreen() {
     try {
       await ensureNotificationSetup();
       await sendRequest(user.id);
-      await showLocalNotification(
-        "Friend Request Sent! 🎉",
-        `Your friend request has been sent to ${user.name}`,
-      );
       Alert.alert("Success", `Friend request sent to ${user.name}!`);
     } catch (error) {
       console.error("Error sending friend request:", error);
