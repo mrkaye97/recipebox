@@ -12,6 +12,15 @@ VALUES (
 RETURNING *
 ;
 
+-- name: SetExpoPushToken :one
+UPDATE "user"
+SET
+    expo_push_token = @expoPushToken::TEXT,
+    updated_at = NOW()
+WHERE id = @userId::UUID
+RETURNING *
+;
+
 -- name: CreateUserPassword :exec
 INSERT INTO user_password (
     user_id,

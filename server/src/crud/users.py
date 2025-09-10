@@ -35,7 +35,7 @@ RETURNING user_id, friend_user_id, status, created_at, updated_at
 
 
 AUTHENTICATE_USER = """-- name: authenticate_user \\:one
-SELECT u.id, u.email, u.name, u.created_at, u.updated_at, u.privacy_preference
+SELECT u.id, u.email, u.name, u.created_at, u.updated_at, u.privacy_preference, u.expo_push_token
 FROM "user" u
 JOIN user_password up ON u.id = up.user_id
 WHERE
@@ -70,7 +70,7 @@ VALUES (
     :p2\\:\\:TEXT,
     :p3\\:\\:user_privacy_preference
 )
-RETURNING id, email, name, created_at, updated_at, privacy_preference
+RETURNING id, email, name, created_at, updated_at, privacy_preference, expo_push_token
 """
 
 
@@ -87,14 +87,14 @@ VALUES (
 
 
 FIND_USER_BY_ID = """-- name: find_user_by_id \\:one
-SELECT id, email, name, created_at, updated_at, privacy_preference
+SELECT id, email, name, created_at, updated_at, privacy_preference, expo_push_token
 FROM "user"
 WHERE id = :p1
 """
 
 
 LIST_FRIEND_REQUESTS = """-- name: list_friend_requests \\:many
-SELECT u.id, u.email, u.name, u.created_at, u.updated_at, u.privacy_preference
+SELECT u.id, u.email, u.name, u.created_at, u.updated_at, u.privacy_preference, u.expo_push_token
 FROM "user" u
 JOIN friendship f ON u.id = f.user_id
 WHERE f.friend_user_id = :p1\\:\\:UUID
@@ -104,7 +104,7 @@ ORDER BY f.created_at DESC
 
 
 LIST_FRIENDS = """-- name: list_friends \\:many
-SELECT u.id, u.email, u.name, u.created_at, u.updated_at, u.privacy_preference
+SELECT u.id, u.email, u.name, u.created_at, u.updated_at, u.privacy_preference, u.expo_push_token
 FROM "user" u
 JOIN friendship f ON u.id = f.friend_user_id
 WHERE f.user_id = :p1\\:\\:UUID
@@ -114,7 +114,7 @@ WHERE f.user_id = :p1\\:\\:UUID
 
 SEARCH_USERS = """-- name: search_users \\:many
 SELECT
-    id, email, name, created_at, updated_at, privacy_preference,
+    id, email, name, created_at, updated_at, privacy_preference, expo_push_token,
     similarity(name || ' ' || email, :p1\\:\\:TEXT) as relevance_score
 FROM "user"
 WHERE
@@ -133,7 +133,18 @@ class SearchUsersRow(pydantic.BaseModel):
     created_at: datetime.datetime
     updated_at: datetime.datetime
     privacy_preference: models.UserPrivacyPreference
+    expo_push_token: str | None
     relevance_score: float
+
+
+SET_EXPO_PUSH_TOKEN = """-- name: set_expo_push_token \\:one
+UPDATE "user"
+SET
+    expo_push_token = :p1\\:\\:TEXT,
+    updated_at = NOW()
+WHERE id = :p2\\:\\:UUID
+RETURNING id, email, name, created_at, updated_at, privacy_preference, expo_push_token
+"""
 
 
 class AsyncQuerier:
@@ -177,6 +188,7 @@ class AsyncQuerier:
             created_at=row[3],
             updated_at=row[4],
             privacy_preference=row[5],
+            expo_push_token=row[6],
         )
 
     async def create_friend_request(
@@ -216,6 +228,7 @@ class AsyncQuerier:
             created_at=row[3],
             updated_at=row[4],
             privacy_preference=row[5],
+            expo_push_token=row[6],
         )
 
     async def create_user_password(
@@ -238,6 +251,7 @@ class AsyncQuerier:
             created_at=row[3],
             updated_at=row[4],
             privacy_preference=row[5],
+            expo_push_token=row[6],
         )
 
     async def list_friend_requests(
@@ -254,6 +268,7 @@ class AsyncQuerier:
                 created_at=row[3],
                 updated_at=row[4],
                 privacy_preference=row[5],
+                expo_push_token=row[6],
             )
 
     async def list_friends(self, *, userid: uuid.UUID) -> AsyncIterator[models.User]:
@@ -266,6 +281,7 @@ class AsyncQuerier:
                 created_at=row[3],
                 updated_at=row[4],
                 privacy_preference=row[5],
+                expo_push_token=row[6],
             )
 
     async def search_users(
@@ -283,5 +299,27 @@ class AsyncQuerier:
                 created_at=row[3],
                 updated_at=row[4],
                 privacy_preference=row[5],
-                relevance_score=row[6],
+                expo_push_token=row[6],
+                relevance_score=row[7],
             )
+
+    async def set_expo_push_token(
+        self, *, expopushtoken: str, userid: uuid.UUID
+    ) -> models.User | None:
+        row = (
+            await self._conn.execute(
+                sqlalchemy.text(SET_EXPO_PUSH_TOKEN),
+                {"p1": expopushtoken, "p2": userid},
+            )
+        ).first()
+        if row is None:
+            return None
+        return models.User(
+            id=row[0],
+            email=row[1],
+            name=row[2],
+            created_at=row[3],
+            updated_at=row[4],
+            privacy_preference=row[5],
+            expo_push_token=row[6],
+        )

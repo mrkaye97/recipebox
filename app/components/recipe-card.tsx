@@ -78,7 +78,7 @@ export function RecipeCard({
     });
   };
 
-  const isOtherUser = !!userInfo && userInfo.userId !== recipe.user_id;
+  const isOtherUser = !!userInfo && userInfo.id !== recipe.user_id;
   const isActivity = !!activityOverrides;
   const cookedAt =
     activityOverrides?.cookedAt || !isOtherUser ? recipe.last_made_at : null;

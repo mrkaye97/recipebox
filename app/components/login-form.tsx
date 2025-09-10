@@ -116,7 +116,6 @@ const styles = StyleSheet.create({
   container: {
     padding: Spacing.xl,
     gap: Spacing.xl,
-    marginTop: -80,
     flex: 1,
     backgroundColor: Colors.background,
   },

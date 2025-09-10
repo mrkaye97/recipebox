@@ -160,7 +160,7 @@ export default function RecipeDetailScreen() {
   } = useActivity({ who: "me" });
 
   const belongsToCurrentUser =
-    !!recipe && !!userInfo && recipe?.user_id === userInfo?.userId;
+    !!recipe && !!userInfo && recipe?.user_id === userInfo?.id;
 
   const handleBack = async () => {
     router.back();
@@ -200,7 +200,7 @@ export default function RecipeDetailScreen() {
     setIsSaving(true);
     const shareRequest = await shareRecipe.perform(
       recipe.id,
-      userInfo.userId,
+      userInfo.id,
       "download_button",
       recipe.user_id,
     );

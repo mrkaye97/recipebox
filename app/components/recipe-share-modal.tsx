@@ -21,7 +21,7 @@ import {
   View,
 } from "react-native";
 
-type User = components["schemas"]["User"];
+type User = components["schemas"]["src__schemas__User"];
 type Recipe = components["schemas"]["src__schemas__Recipe"];
 
 interface RecipeShareModalProps {

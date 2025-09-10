@@ -135,6 +135,7 @@ class User(pydantic.BaseModel):
     created_at: datetime.datetime
     updated_at: datetime.datetime
     privacy_preference: UserPrivacyPreference
+    expo_push_token: str | None
 
 
 class UserPassword(pydantic.BaseModel):

@@ -56,6 +56,23 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
+  readonly "/health": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /** Health Check */
+    readonly get: operations["health_check_health_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
   readonly "/recipes": {
     readonly parameters: {
       readonly query?: never;
@@ -213,6 +230,23 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
+  readonly "/users": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /** Get User */
+    readonly get: operations["get_user_users_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
   readonly "/users/friend-request": {
     readonly parameters: {
       readonly query?: never;
@@ -275,6 +309,23 @@ export interface paths {
     readonly get: operations["list_friends_users_friends_get"];
     readonly put?: never;
     readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
+  readonly "/users/push-token": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get?: never;
+    readonly put?: never;
+    /** Store Push Token */
+    readonly post: operations["store_push_token_users_push_token_post"];
     readonly delete?: never;
     readonly options?: never;
     readonly head?: never;
@@ -552,6 +603,18 @@ export interface components {
       /** Url */
       readonly url: string;
     };
+    /** PushTokenBody */
+    readonly PushTokenBody: {
+      /** Expo Push Token */
+      readonly expo_push_token: string;
+    };
+    /** PushTokenResponse */
+    readonly PushTokenResponse: {
+      /** Message */
+      readonly message: string;
+      /** Success */
+      readonly success: boolean;
+    };
     /** RecipeIngredient */
     readonly RecipeIngredient: {
       /** Name */
@@ -699,6 +762,31 @@ export interface components {
        */
       readonly user_id: string;
     };
+    /** User */
+    readonly src__crud__models__User: {
+      /**
+       * Created At
+       * Format: date-time
+       */
+      readonly created_at: string;
+      /** Email */
+      readonly email: string;
+      /** Expo Push Token */
+      readonly expo_push_token: string | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      readonly id: string;
+      /** Name */
+      readonly name: string;
+      readonly privacy_preference: components["schemas"]["UserPrivacyPreference"];
+      /**
+       * Updated At
+       * Format: date-time
+       */
+      readonly updated_at: string;
+    };
     /** Recipe */
     readonly src__schemas__Recipe: {
       /** Author */
@@ -737,15 +825,8 @@ export interface components {
        */
       readonly user_id: string;
     };
-    /** Token */
-    readonly Token: {
-      /** Access Token */
-      readonly access_token: string;
-      /** Token Type */
-      readonly token_type: string;
-    };
     /** User */
-    readonly User: {
+    readonly src__schemas__User: {
       /** Email */
       readonly email: string;
       /**
@@ -755,6 +836,13 @@ export interface components {
       readonly id: string;
       /** Name */
       readonly name: string;
+    };
+    /** Token */
+    readonly Token: {
+      /** Access Token */
+      readonly access_token: string;
+      /** Token Type */
+      readonly token_type: string;
     };
     /**
      * UserPrivacyPreference
@@ -921,6 +1009,28 @@ export interface operations {
         };
         content: {
           readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  readonly health_check_health_get: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": {
+            readonly [key: string]: string;
+          };
         };
       };
     };
@@ -1328,6 +1438,26 @@ export interface operations {
       };
     };
   };
+  readonly get_user_users_get: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["src__crud__models__User"];
+        };
+      };
+    };
+  };
   readonly send_friend_request_users_friend_request_post: {
     readonly parameters: {
       readonly query?: never;
@@ -1411,7 +1541,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": readonly components["schemas"]["User"][];
+          readonly "application/json": readonly components["schemas"]["src__schemas__User"][];
         };
       };
     };
@@ -1431,7 +1561,40 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": readonly components["schemas"]["User"][];
+          readonly "application/json": readonly components["schemas"]["src__schemas__User"][];
+        };
+      };
+    };
+  };
+  readonly store_push_token_users_push_token_post: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody: {
+      readonly content: {
+        readonly "application/json": components["schemas"]["PushTokenBody"];
+      };
+    };
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["PushTokenResponse"];
+        };
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -1453,7 +1616,7 @@ export interface operations {
           readonly [name: string]: unknown;
         };
         content: {
-          readonly "application/json": readonly components["schemas"]["User"][];
+          readonly "application/json": readonly components["schemas"]["src__schemas__User"][];
         };
       };
       /** @description Validation Error */

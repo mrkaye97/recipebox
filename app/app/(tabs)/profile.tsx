@@ -26,11 +26,12 @@ import {
   Typography,
 } from "@/constants/design-system";
 import { useFriends } from "@/hooks/use-friends";
+import { useNotifications } from "@/hooks/use-notifications";
 import { useUser } from "@/hooks/use-user";
 import { components } from "@/src/lib/api/v1";
 import { useRouter } from "expo-router";
 
-type User = components["schemas"]["User"];
+type User = components["schemas"]["src__schemas__User"];
 
 export default function ProfileScreen() {
   const { isAuthenticated, logout } = useUser();
@@ -42,6 +43,8 @@ export default function ProfileScreen() {
 
   const { requests, friends, sendRequest, acceptRequest, sendingRequest } =
     useFriends({ query: "" });
+
+  const { showLocalNotification, ensureNotificationSetup } = useNotifications();
 
   const handleLogout = async () => {
     Alert.alert("Logout", "Are you sure you want to log out?", [
@@ -62,7 +65,12 @@ export default function ProfileScreen() {
 
   const handleAddFriend = async (user: User) => {
     try {
+      await ensureNotificationSetup();
       await sendRequest(user.id);
+      await showLocalNotification(
+        "Friend Request Sent! 🎉",
+        `Your friend request has been sent to ${user.name}`,
+      );
       Alert.alert("Success", `Friend request sent to ${user.name}!`);
     } catch (error) {
       console.error("Error sending friend request:", error);
@@ -74,6 +82,10 @@ export default function ProfileScreen() {
     try {
       setAcceptingUserId(user.id);
       await acceptRequest(user.id);
+      await showLocalNotification(
+        "Friend Request Accepted! 🎊",
+        `You are now friends with ${user.name}!`,
+      );
     } catch (error) {
       console.error("Error accepting friend request:", error);
       Alert.alert(

@@ -14,6 +14,13 @@ users = APIRouter(prefix="/users")
 logger = get_logger(__name__)
 
 
+@users.get("")
+async def get_user(
+    user: UserDependency,
+) -> UserDependency:
+    return user
+
+
 @users.get("/search")
 async def register(
     conn: Connection,
@@ -89,3 +96,30 @@ async def list_friend_requests(
         User(id=friend.id, name=friend.name, email=friend.email)
         async for friend in requests
     ]
+
+
+class PushTokenBody(BaseModel):
+    expo_push_token: str
+
+
+class PushTokenResponse(BaseModel):
+    success: bool
+    message: str
+
+
+@users.post("/push-token")
+async def store_push_token(
+    conn: Connection,
+    user: UserDependency,
+    body: PushTokenBody,
+) -> PushTokenResponse:
+    querier = AsyncQuerier(conn)
+
+    if user.expo_push_token:
+        return PushTokenResponse(success=True, message="Push token already exists")
+
+    await querier.set_expo_push_token(
+        expopushtoken=body.expo_push_token, userid=user.id
+    )
+
+    return PushTokenResponse(success=True, message="Push token stored successfully")

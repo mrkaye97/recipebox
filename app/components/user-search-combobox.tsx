@@ -23,7 +23,7 @@ import {
   View,
 } from "react-native";
 
-type User = components["schemas"]["User"];
+type User = components["schemas"]["src__schemas__User"];
 
 interface UserSearchComboboxProps {
   onAddFriend?: (user: User) => void;
@@ -69,7 +69,13 @@ export function UserSearchCombobox({
   const handleInputBlur = () => {
     setTimeout(() => {
       setIsOpen(false);
+      Keyboard.dismiss();
     }, 150);
+  };
+
+  const handleOutsidePress = () => {
+    setIsOpen(false);
+    Keyboard.dismiss();
   };
 
   const renderUserItem = ({ item: user }: { item: User }) => (
@@ -92,7 +98,12 @@ export function UserSearchCombobox({
   );
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <>
+      {isOpen && (
+        <TouchableWithoutFeedback onPress={handleOutsidePress}>
+          <View style={styles.overlay} />
+        </TouchableWithoutFeedback>
+      )}
       <ThemedView style={styles.container}>
         <View style={styles.inputContainer}>
           <TextInput
@@ -140,11 +151,19 @@ export function UserSearchCombobox({
           </View>
         )}
       </ThemedView>
-    </TouchableWithoutFeedback>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 9,
+  },
   container: {
     position: "relative",
     zIndex: 10,

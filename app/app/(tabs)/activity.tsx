@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: Spacing["3xl"],
-    marginTop: -120,
+    marginTop: -180,
   },
   errorText: {
     textAlign: "center",

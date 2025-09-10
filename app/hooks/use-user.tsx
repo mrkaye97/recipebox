@@ -16,6 +16,7 @@ import Storage from "react-native-storage";
 type AccessToken = string;
 
 export type PrivacyPreference = components["schemas"]["UserPrivacyPreference"];
+export type User = components["schemas"]["src__crud__models__User"];
 export const PrivacyPreferences: PrivacyPreference[] = ["public", "private"];
 
 interface TokenPayload {
@@ -31,7 +32,8 @@ interface UserContextType {
   isLoginPending: boolean;
   isRegisterPending: boolean;
   isInitialized: boolean;
-  userInfo: { userId: string; exp: number } | null;
+  userId: string | null;
+  userInfo: User | null;
   login: (username: string, password: string) => Promise<AccessToken>;
   register: (
     email: string,
@@ -55,14 +57,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isInitialized, setIsInitialized] = useState(false);
   const queryClient = useQueryClient();
 
-  const userInfo = useMemo(() => {
+  const userId = useMemo(() => {
     if (!token) return null;
     try {
-      const decoded = jwtDecode<TokenPayload>(token);
-      return {
-        userId: decoded.sub,
-        exp: decoded.exp,
-      };
+      return jwtDecode<TokenPayload>(token).sub;
     } catch (error) {
       console.error("Failed to decode token:", error);
       return null;
@@ -85,6 +83,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const { mutateAsync: registerMutation, isPending: isRegisterPending } =
     $api.useMutation("post", "/auth/register");
+
+  const { data: userInfo, isLoading: isUserInfoLoading } = $api.useQuery(
+    "get",
+    "/users",
+  );
 
   const saveToken = useCallback(
     async (token: string) => {
@@ -210,7 +213,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [getToken]);
 
   const isAuthenticated = !!token;
-  const isLoading = isLoginPending || isRegisterPending || !isInitialized;
+  const isLoading =
+    isLoginPending || isRegisterPending || !isInitialized || isUserInfoLoading;
 
   const value: UserContextType = {
     token,
@@ -219,7 +223,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     isLoginPending,
     isRegisterPending,
     isInitialized,
-    userInfo,
+    userId,
+    userInfo: userInfo ?? null,
     login,
     register,
     logout,
