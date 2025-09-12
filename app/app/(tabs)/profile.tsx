@@ -166,30 +166,41 @@ export default function ProfileScreen() {
               <ThemedText style={styles.sectionSubtitle}>
                 People who want to be your friend
               </ThemedText>
-              <View style={styles.usersList}>
+              <View style={styles.requestsList}>
                 {requests.isLoading
                   ? Array.from({ length: 2 }).map((_, index) => (
-                      <FriendRequestSkeleton key={index} />
+                      <View key={index} style={styles.requestItem}>
+                        <IconSymbol
+                          name="person.crop.circle.badge.plus"
+                          size={20}
+                          color={Colors.textSecondary}
+                        />
+                        <View style={styles.requestSkeleton} />
+                        <View style={styles.requestButtonSkeleton} />
+                      </View>
                     ))
                   : pendingRequests.map((user) => (
-                      <View key={user.id} style={styles.userCard}>
-                        <View style={styles.userInfo}>
-                          <ThemedText type="defaultSemiBold">
-                            {user.name}
-                          </ThemedText>
-                        </View>
+                      <View key={user.id} style={styles.requestItem}>
+                        <IconSymbol
+                          name="person.crop.circle.badge.plus"
+                          size={20}
+                          color={Colors.primary}
+                        />
+                        <ThemedText style={styles.requestName}>
+                          {user.name}
+                        </ThemedText>
                         <TouchableOpacity
                           style={[
-                            styles.acceptButton,
+                            styles.acceptButtonSmall,
                             acceptingUserId === user.id &&
                               styles.acceptButtonDisabled,
                           ]}
                           onPress={() => handleAcceptRequest(user)}
                           disabled={acceptingUserId === user.id}
                         >
-                          <ThemedText style={styles.acceptButtonText}>
+                          <ThemedText style={styles.acceptButtonSmallText}>
                             {acceptingUserId === user.id
-                              ? "Accepting..."
+                              ? "..."
                               : "Accept"}
                           </ThemedText>
                         </TouchableOpacity>
@@ -311,6 +322,47 @@ const styles = StyleSheet.create({
     height: 20,
     backgroundColor: Colors.borderLight,
     borderRadius: BorderRadius.sm,
+  },
+  requestsList: {
+    gap: Spacing.sm,
+    maxHeight: 150,
+  },
+  requestItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.md,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+  },
+  requestName: {
+    flex: 1,
+    fontSize: Typography.fontSizes.base,
+    color: Colors.text,
+  },
+  requestSkeleton: {
+    flex: 1,
+    height: 20,
+    backgroundColor: Colors.borderLight,
+    borderRadius: BorderRadius.sm,
+  },
+  requestButtonSkeleton: {
+    width: 60,
+    height: 28,
+    backgroundColor: Colors.borderLight,
+    borderRadius: BorderRadius.md,
+  },
+  acceptButtonSmall: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.md,
+    minWidth: 60,
+    alignItems: "center",
+  },
+  acceptButtonSmallText: {
+    color: Colors.surface,
+    fontSize: Typography.fontSizes.sm,
+    fontWeight: Typography.fontWeights.semibold,
   },
   userEmail: {
     fontSize: Typography.fontSizes.sm,
