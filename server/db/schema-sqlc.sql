@@ -136,7 +136,8 @@ CREATE TABLE "user" (
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     privacy_preference user_privacy_preference DEFAULT 'public'::user_privacy_preference NOT NULL,
     expo_push_token text,
-    push_permission push_permission_status DEFAULT 'none'::push_permission_status NOT NULL
+    push_permission push_permission_status DEFAULT 'none'::push_permission_status NOT NULL,
+    CONSTRAINT check_push_token_set_if_permission_accepted CHECK ((((push_permission = 'accepted'::push_permission_status) AND (expo_push_token IS NOT NULL)) OR ((push_permission = ANY (ARRAY['none'::push_permission_status, 'rejected'::push_permission_status])) AND (expo_push_token IS NULL))))
 );
 CREATE TABLE user_password (
     user_id uuid NOT NULL,

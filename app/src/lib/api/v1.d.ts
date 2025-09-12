@@ -611,7 +611,8 @@ export interface components {
     /** PushTokenBody */
     readonly PushTokenBody: {
       /** Expo Push Token */
-      readonly expo_push_token: string;
+      readonly expo_push_token: string | null;
+      readonly push_permission: components["schemas"]["PushPermissionStatus"];
     };
     /** PushTokenResponse */
     readonly PushTokenResponse: {

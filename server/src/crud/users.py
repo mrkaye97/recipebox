@@ -143,8 +143,9 @@ SET_EXPO_PUSH_TOKEN = """-- name: set_expo_push_token \\:one
 UPDATE "user"
 SET
     expo_push_token = :p1\\:\\:TEXT,
+    push_permission = :p2\\:\\:push_permission_status,
     updated_at = NOW()
-WHERE id = :p2\\:\\:UUID
+WHERE id = :p3\\:\\:UUID
 RETURNING id, email, name, created_at, updated_at, privacy_preference, expo_push_token, push_permission
 """
 
@@ -317,12 +318,16 @@ class AsyncQuerier:
             )
 
     async def set_expo_push_token(
-        self, *, expopushtoken: str, userid: uuid.UUID
+        self,
+        *,
+        push_token: str | None,
+        pushpermission: models.PushPermissionStatus,
+        userid: uuid.UUID,
     ) -> models.User | None:
         row = (
             await self._conn.execute(
                 sqlalchemy.text(SET_EXPO_PUSH_TOKEN),
-                {"p1": expopushtoken, "p2": userid},
+                {"p1": push_token, "p2": pushpermission, "p3": userid},
             )
         ).first()
         if row is None:

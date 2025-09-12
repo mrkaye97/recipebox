@@ -5,7 +5,7 @@ import { Alert } from "react-native";
 
 export function PushPermissionPrompt() {
   const { userInfo } = useUser();
-  const { requestPushPermissions, shouldRequestPushPermissions } =
+  const { requestPushPermissions, rejectPushPermissions, shouldRequestPushPermissions } =
     useNotifications();
   const hasShownPrompt = useRef(false);
 
@@ -21,10 +21,10 @@ export function PushPermissionPrompt() {
             {
               text: "Not Now",
               style: "cancel",
-              onPress: () => {
-                // Reset flag if user cancels, so they can be prompted again later
-                hasShownPrompt.current = false;
+              onPress: async () => {
+                await rejectPushPermissions();
               },
+            },
             {
               text: "Enable",
               onPress: async () => {

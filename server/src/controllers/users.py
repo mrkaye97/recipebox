@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from src.crud.models import Friendship
+from src.crud.models import Friendship, PushPermissionStatus
 from src.crud.users import AsyncQuerier
 from src.dependencies import Connection
 from src.dependencies import User as UserDependency
@@ -126,7 +126,8 @@ async def list_friend_requests(
 
 
 class PushTokenBody(BaseModel):
-    expo_push_token: str
+    expo_push_token: str | None
+    push_permission: PushPermissionStatus
 
 
 class PushTokenResponse(BaseModel):
@@ -146,7 +147,9 @@ async def store_push_token(
         return PushTokenResponse(success=True, message="Push token already exists")
 
     await querier.set_expo_push_token(
-        expopushtoken=body.expo_push_token, userid=user.id
+        push_token=body.expo_push_token,
+        userid=user.id,
+        pushpermission=body.push_permission,
     )
 
     return PushTokenResponse(success=True, message="Push token stored successfully")

@@ -15,7 +15,8 @@ RETURNING *
 -- name: SetExpoPushToken :one
 UPDATE "user"
 SET
-    expo_push_token = @expoPushToken::TEXT,
+    expo_push_token = sqlc.narg('push_token')::TEXT,
+    push_permission = @pushPermission::push_permission_status,
     updated_at = NOW()
 WHERE id = @userId::UUID
 RETURNING *

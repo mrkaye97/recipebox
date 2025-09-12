@@ -61,7 +61,30 @@ export const useNotifications = () => {
       }
 
       await storePushToken({
-        body: { expo_push_token: pushTokenData },
+        body: { 
+          expo_push_token: pushTokenData,
+          push_permission: "accepted"
+        },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["get", "/users"] });
+
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }, [storePushToken, token, userInfo, queryClient]);
+
+  const rejectPushPermissions = useCallback(async () => {
+    if (!token || !userInfo) return false;
+
+    try {
+      await storePushToken({
+        body: { 
+          expo_push_token: null,
+          push_permission: "rejected"
+        },
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -99,6 +122,7 @@ export const useNotifications = () => {
     showLocalNotification,
     ensureNotificationSetup,
     requestPushPermissions,
+    rejectPushPermissions,
     shouldRequestPushPermissions,
   };
 };
