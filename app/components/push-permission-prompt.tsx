@@ -1,16 +1,22 @@
 import { useNotifications } from "@/hooks/use-notifications";
-import { useUser } from "@/hooks/use-user";
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Alert } from "react-native";
 
 export function PushPermissionPrompt() {
-  const { userInfo } = useUser();
-  const { requestPushPermissions, rejectPushPermissions, shouldRequestPushPermissions } =
-    useNotifications();
+  const {
+    requestPushPermissions,
+    rejectPushPermissions,
+    shouldRequestPushPermissions,
+    isPushTokenPending,
+  } = useNotifications();
   const hasShownPrompt = useRef(false);
 
   useEffect(() => {
-    if (shouldRequestPushPermissions() && !hasShownPrompt.current) {
+    if (
+      shouldRequestPushPermissions() &&
+      !hasShownPrompt.current &&
+      !isPushTokenPending
+    ) {
       hasShownPrompt.current = true;
 
       const timer = setTimeout(() => {
@@ -30,17 +36,11 @@ export function PushPermissionPrompt() {
               onPress: async () => {
                 try {
                   const success = await requestPushPermissions();
-                  if (success) {
-                    Alert.alert(
-                      "Success",
-                      "Push notifications enabled! You'll now receive notifications for friend requests and recipe shares.",
-                    );
-                  } else {
+                  if (!success) {
                     Alert.alert(
                       "Permission Denied",
                       "You can enable notifications later in your device settings if you change your mind.",
                     );
-                    // Reset flag on failure so they can try again
                     hasShownPrompt.current = false;
                   }
                 } catch (error) {
@@ -49,7 +49,6 @@ export function PushPermissionPrompt() {
                     "Error",
                     "Failed to set up notifications. Please try again.",
                   );
-                  // Reset flag on error so they can try again
                   hasShownPrompt.current = false;
                 }
               },
@@ -60,9 +59,13 @@ export function PushPermissionPrompt() {
 
       return () => clearTimeout(timer);
     }
-  }, [shouldRequestPushPermissions, requestPushPermissions]);
+  }, [
+    shouldRequestPushPermissions,
+    requestPushPermissions,
+    rejectPushPermissions,
+    isPushTokenPending,
+  ]);
 
-  // Reset the flag when permission status changes (user data updates)
   useEffect(() => {
     if (!shouldRequestPushPermissions()) {
       hasShownPrompt.current = false;

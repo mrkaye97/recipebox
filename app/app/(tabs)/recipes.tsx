@@ -293,7 +293,6 @@ function CookbookRecipeForm() {
       return;
     }
 
-    // Convert all selected images to file objects
     const imageFiles = selectedImages.map((imageUri, index) => {
       const filename =
         imageUri.split("/").pop() || `recipe-photo-${index + 1}.jpg`;

@@ -14,7 +14,6 @@ import {
 import { LoginForm } from "@/components/login-form";
 import { PushPermissionPrompt } from "@/components/push-permission-prompt";
 import { SignupForm } from "@/components/signup-form";
-import { FriendRequestSkeleton, FriendSkeleton } from "@/components/skeleton";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -199,9 +198,7 @@ export default function ProfileScreen() {
                           disabled={acceptingUserId === user.id}
                         >
                           <ThemedText style={styles.acceptButtonSmallText}>
-                            {acceptingUserId === user.id
-                              ? "..."
-                              : "Accept"}
+                            {acceptingUserId === user.id ? "..." : "Accept"}
                           </ThemedText>
                         </TouchableOpacity>
                       </View>

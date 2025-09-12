@@ -17,10 +17,8 @@ Notifications.setNotificationHandler({
 export const useNotifications = () => {
   const { token, userInfo } = useUser();
   const queryClient = useQueryClient();
-  const { mutateAsync: storePushToken } = $api.useMutation(
-    "post",
-    "/users/push-token",
-  );
+  const { mutateAsync: storePushToken, isPending: isPushTokenPending } =
+    $api.useMutation("post", "/users/push-token");
 
   useEffect(() => {
     const notificationSubscription =
@@ -56,14 +54,12 @@ export const useNotifications = () => {
           projectId: "fe0ab037-a4e4-4d25-9e05-dd73df93f81b",
         });
         pushTokenData = pushToken.data;
-      } catch (tokenError) {
-        // Use placeholder in simulator/dev environment
-      }
+      } catch {}
 
       await storePushToken({
-        body: { 
+        body: {
           expo_push_token: pushTokenData,
-          push_permission: "accepted"
+          push_permission: "accepted",
         },
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -71,7 +67,7 @@ export const useNotifications = () => {
       queryClient.invalidateQueries({ queryKey: ["get", "/users"] });
 
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }, [storePushToken, token, userInfo, queryClient]);
@@ -81,9 +77,9 @@ export const useNotifications = () => {
 
     try {
       await storePushToken({
-        body: { 
+        body: {
           expo_push_token: null,
-          push_permission: "rejected"
+          push_permission: "rejected",
         },
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -91,7 +87,7 @@ export const useNotifications = () => {
       queryClient.invalidateQueries({ queryKey: ["get", "/users"] });
 
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }, [storePushToken, token, userInfo, queryClient]);
@@ -124,5 +120,6 @@ export const useNotifications = () => {
     requestPushPermissions,
     rejectPushPermissions,
     shouldRequestPushPermissions,
+    isPushTokenPending,
   };
 };
