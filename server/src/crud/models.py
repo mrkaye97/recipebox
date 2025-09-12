@@ -30,6 +30,12 @@ class Meal(str, enum.Enum):
     OTHER = "other"
 
 
+class PushPermissionStatus(str, enum.Enum):
+    NONE = "none"
+    ACCEPTED = "accepted"
+    REJECTED = "rejected"
+
+
 class RecipeType(str, enum.Enum):
     STARTER = "starter"
     MAIN = "main"
@@ -136,6 +142,7 @@ class User(pydantic.BaseModel):
     updated_at: datetime.datetime
     privacy_preference: UserPrivacyPreference
     expo_push_token: str | None
+    push_permission: PushPermissionStatus
 
 
 class UserPassword(pydantic.BaseModel):

@@ -37,6 +37,11 @@ CREATE TYPE meal AS ENUM (
     'dinner',
     'other'
 );
+CREATE TYPE push_permission_status AS ENUM (
+    'none',
+    'accepted',
+    'rejected'
+);
 CREATE TYPE recipe_type AS ENUM (
     'starter',
     'main',
@@ -130,7 +135,8 @@ CREATE TABLE "user" (
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     privacy_preference user_privacy_preference DEFAULT 'public'::user_privacy_preference NOT NULL,
-    expo_push_token text
+    expo_push_token text,
+    push_permission push_permission_status DEFAULT 'none'::push_permission_status NOT NULL
 );
 CREATE TABLE user_password (
     user_id uuid NOT NULL,
@@ -213,4 +219,5 @@ INSERT INTO schema_migrations (version) VALUES
     ('20250907142330'),
     ('20250907193907'),
     ('20250907205340'),
-    ('20250909235457');
+    ('20250909235457'),
+    ('20250912212801');

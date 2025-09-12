@@ -194,6 +194,17 @@ CREATE TYPE public.meal AS ENUM (
 
 
 --
+-- Name: push_permission_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.push_permission_status AS ENUM (
+    'none',
+    'accepted',
+    'rejected'
+);
+
+
+--
 -- Name: recipe_type; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -366,7 +377,8 @@ CREATE TABLE public."user" (
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     privacy_preference public.user_privacy_preference DEFAULT 'public'::public.user_privacy_preference NOT NULL,
-    expo_push_token text
+    expo_push_token text,
+    push_permission public.push_permission_status DEFAULT 'none'::public.push_permission_status NOT NULL
 );
 
 
@@ -664,4 +676,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20250907142330'),
     ('20250907193907'),
     ('20250907205340'),
-    ('20250909235457');
+    ('20250909235457'),
+    ('20250912212801');

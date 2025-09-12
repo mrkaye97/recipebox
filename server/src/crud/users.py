@@ -35,7 +35,7 @@ RETURNING user_id, friend_user_id, status, created_at, updated_at
 
 
 AUTHENTICATE_USER = """-- name: authenticate_user \\:one
-SELECT u.id, u.email, u.name, u.created_at, u.updated_at, u.privacy_preference, u.expo_push_token
+SELECT u.id, u.email, u.name, u.created_at, u.updated_at, u.privacy_preference, u.expo_push_token, u.push_permission
 FROM "user" u
 JOIN user_password up ON u.id = up.user_id
 WHERE
@@ -70,7 +70,7 @@ VALUES (
     :p2\\:\\:TEXT,
     :p3\\:\\:user_privacy_preference
 )
-RETURNING id, email, name, created_at, updated_at, privacy_preference, expo_push_token
+RETURNING id, email, name, created_at, updated_at, privacy_preference, expo_push_token, push_permission
 """
 
 
@@ -87,14 +87,14 @@ VALUES (
 
 
 FIND_USER_BY_ID = """-- name: find_user_by_id \\:one
-SELECT id, email, name, created_at, updated_at, privacy_preference, expo_push_token
+SELECT id, email, name, created_at, updated_at, privacy_preference, expo_push_token, push_permission
 FROM "user"
 WHERE id = :p1
 """
 
 
 LIST_FRIEND_REQUESTS = """-- name: list_friend_requests \\:many
-SELECT u.id, u.email, u.name, u.created_at, u.updated_at, u.privacy_preference, u.expo_push_token
+SELECT u.id, u.email, u.name, u.created_at, u.updated_at, u.privacy_preference, u.expo_push_token, u.push_permission
 FROM "user" u
 JOIN friendship f ON u.id = f.user_id
 WHERE f.friend_user_id = :p1\\:\\:UUID
@@ -104,7 +104,7 @@ ORDER BY f.created_at DESC
 
 
 LIST_FRIENDS = """-- name: list_friends \\:many
-SELECT u.id, u.email, u.name, u.created_at, u.updated_at, u.privacy_preference, u.expo_push_token
+SELECT u.id, u.email, u.name, u.created_at, u.updated_at, u.privacy_preference, u.expo_push_token, u.push_permission
 FROM "user" u
 JOIN friendship f ON u.id = f.friend_user_id
 WHERE f.user_id = :p1\\:\\:UUID
@@ -114,7 +114,7 @@ WHERE f.user_id = :p1\\:\\:UUID
 
 SEARCH_USERS = """-- name: search_users \\:many
 SELECT
-    id, email, name, created_at, updated_at, privacy_preference, expo_push_token,
+    id, email, name, created_at, updated_at, privacy_preference, expo_push_token, push_permission,
     similarity(name || ' ' || email, :p1\\:\\:TEXT) as relevance_score
 FROM "user"
 WHERE
@@ -135,6 +135,7 @@ class SearchUsersRow(pydantic.BaseModel):
     updated_at: datetime.datetime
     privacy_preference: models.UserPrivacyPreference
     expo_push_token: str | None
+    push_permission: models.PushPermissionStatus
     relevance_score: float
 
 
@@ -144,7 +145,7 @@ SET
     expo_push_token = :p1\\:\\:TEXT,
     updated_at = NOW()
 WHERE id = :p2\\:\\:UUID
-RETURNING id, email, name, created_at, updated_at, privacy_preference, expo_push_token
+RETURNING id, email, name, created_at, updated_at, privacy_preference, expo_push_token, push_permission
 """
 
 
@@ -190,6 +191,7 @@ class AsyncQuerier:
             updated_at=row[4],
             privacy_preference=row[5],
             expo_push_token=row[6],
+            push_permission=row[7],
         )
 
     async def create_friend_request(
@@ -230,6 +232,7 @@ class AsyncQuerier:
             updated_at=row[4],
             privacy_preference=row[5],
             expo_push_token=row[6],
+            push_permission=row[7],
         )
 
     async def create_user_password(
@@ -253,6 +256,7 @@ class AsyncQuerier:
             updated_at=row[4],
             privacy_preference=row[5],
             expo_push_token=row[6],
+            push_permission=row[7],
         )
 
     async def list_friend_requests(
@@ -270,6 +274,7 @@ class AsyncQuerier:
                 updated_at=row[4],
                 privacy_preference=row[5],
                 expo_push_token=row[6],
+                push_permission=row[7],
             )
 
     async def list_friends(self, *, userid: uuid.UUID) -> AsyncIterator[models.User]:
@@ -283,6 +288,7 @@ class AsyncQuerier:
                 updated_at=row[4],
                 privacy_preference=row[5],
                 expo_push_token=row[6],
+                push_permission=row[7],
             )
 
     async def search_users(
@@ -306,7 +312,8 @@ class AsyncQuerier:
                 updated_at=row[4],
                 privacy_preference=row[5],
                 expo_push_token=row[6],
-                relevance_score=row[7],
+                push_permission=row[7],
+                relevance_score=row[8],
             )
 
     async def set_expo_push_token(
@@ -328,4 +335,5 @@ class AsyncQuerier:
             updated_at=row[4],
             privacy_preference=row[5],
             expo_push_token=row[6],
+            push_permission=row[7],
         )
