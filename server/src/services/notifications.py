@@ -11,6 +11,10 @@ logger = get_logger(__name__)
 def send_push_message(
     token: str, message: str, extra: dict[str, str] | None = None
 ) -> None:
+    if "development" in token:
+        logger.info("Skipping push notification in development mode")
+        return
+
     response = cast(
         NamedTuple,
         PushClient().publish(PushMessage(to=token, body=message, data=extra)),
