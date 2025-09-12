@@ -204,18 +204,23 @@ export default function ProfileScreen() {
               <ThemedText type="subtitle" style={styles.sectionTitle}>
                 Friends
               </ThemedText>
-              <View style={styles.usersList}>
+              <View style={styles.friendsList}>
                 {friends.isLoading
                   ? Array.from({ length: 3 }).map((_, index) => (
-                      <FriendSkeleton key={index} />
+                      <View key={index} style={styles.friendItem}>
+                        <View style={styles.friendSkeleton} />
+                      </View>
                     ))
                   : friendsList.map((user) => (
-                      <View key={user.id} style={styles.userCard}>
-                        <View style={styles.userInfo}>
-                          <ThemedText type="defaultSemiBold">
-                            {user.name}
-                          </ThemedText>
-                        </View>
+                      <View key={user.id} style={styles.friendItem}>
+                        <IconSymbol
+                          name="person.circle.fill"
+                          size={20}
+                          color={Colors.primary}
+                        />
+                        <ThemedText style={styles.friendName}>
+                          {user.name}
+                        </ThemedText>
                       </View>
                     ))}
               </View>
@@ -285,6 +290,27 @@ const styles = StyleSheet.create({
   userInfo: {
     flex: 1,
     marginRight: Spacing.md,
+  },
+  friendsList: {
+    gap: Spacing.sm,
+    maxHeight: 200,
+  },
+  friendItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.md,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+  },
+  friendName: {
+    fontSize: Typography.fontSizes.base,
+    color: Colors.text,
+  },
+  friendSkeleton: {
+    width: 120,
+    height: 20,
+    backgroundColor: Colors.borderLight,
+    borderRadius: BorderRadius.sm,
   },
   userEmail: {
     fontSize: Typography.fontSizes.sm,
