@@ -12,7 +12,6 @@ import {
 } from "react-native";
 
 import { LoginForm } from "@/components/login-form";
-import { PushPermissionPrompt } from "@/components/push-permission-prompt";
 import { SignupForm } from "@/components/signup-form";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -141,7 +140,6 @@ export default function ProfileScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <PushPermissionPrompt />
 
           <View style={styles.sectionNoCard}>
             <ThemedText type="subtitle" style={styles.sectionTitle}>
