@@ -54,6 +54,7 @@ FROM "user"
 WHERE
     (name || ' ' || email) ILIKE '%' || @query::TEXT || '%'
     AND privacy_preference = 'public'
+    AND id != @userId::UUID
 ORDER BY relevance_score DESC, name ASC
 LIMIT COALESCE(@userLimit::INT, 25)
 OFFSET COALESCE(@userOffset::INT, 0)

@@ -26,17 +26,18 @@ async def get_user(
 @users.get("/search")
 async def register(
     conn: Connection,
-    _: UserDependency,
+    user: UserDependency,
     query: str,
 ) -> list[User]:
     querier = AsyncQuerier(conn)
     users = querier.search_users(
         query=query,
+        userid=user.id,
         useroffset=0,
         userlimit=20,
     )
 
-    return [User(id=user.id, name=user.name, email=user.email) async for user in users]
+    return [User(id=user.id, name=user.name) async for user in users]
 
 
 class FriendRequestBody(BaseModel):
@@ -102,10 +103,7 @@ async def list_friends(
         userid=user.id,
     )
 
-    return [
-        User(id=friend.id, name=friend.name, email=friend.email)
-        async for friend in friends
-    ]
+    return [User(id=friend.id, name=friend.name) async for friend in friends]
 
 
 @users.get("/friend-requests")
@@ -119,7 +117,10 @@ async def list_friend_requests(
     )
 
     return [
-        User(id=friend.id, name=friend.name, email=friend.email)
+        User(
+            id=friend.id,
+            name=friend.name,
+        )
         async for friend in requests
     ]
 

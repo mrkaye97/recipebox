@@ -137,17 +137,16 @@ WHERE
             @onlyUser::BOOLEAN = FALSE
             -- only include recipes for users who have made their recipes public
             AND u.privacy_preference = 'public'
-            -- don't include recipes where we already have that recipe as a parent
-            -- since that means we've already downloaded that recipe
-            AND (
-                r.parent_recipe_id IS NULL
-                OR r.parent_recipe_id NOT IN (
-                    SELECT id
-                    FROM recipe
-                    WHERE user_id = @userId::UUID
-                )
-            )
+            -- don't include recipes that have a parent, since we'll show the parent
+            AND r.parent_recipe_id IS NULL
+            -- recipe does not belong to current user
             AND r.user_id != @userId::UUID
+            -- recipe belongs to a friend of the current user
+            AND u.id IN (
+                SELECT friend_user_id
+                FROM friendship
+                WHERE user_id = @userId::UUID
+            )
         )
         OR (
             @onlyUser::BOOLEAN
@@ -162,10 +161,31 @@ ORDER BY r.updated_at DESC
 ;
 
 -- name: GetRecipe :one
-SELECT *
-FROM recipe
+SELECT
+    r.id,
+    r.user_id,
+    r.name,
+    r.author,
+    r.cuisine,
+    r.location,
+    r.time_estimate_minutes,
+    CASE
+        WHEN r.user_id = @userId::UUID THEN r.last_made_at
+        ELSE NULL
+    END AS last_made_at,
+    r.created_at,
+    r.updated_at,
+    r.type,
+    r.meal,
+    r.parent_recipe_id,
+    CASE
+        WHEN r.user_id = @userId::UUID THEN r.notes
+        ELSE NULL
+    END AS notes
+FROM recipe r
+JOIN "user" u ON u.id = r.user_id
 WHERE
-    id = @recipeId::UUID
+    r.id = @recipeId::UUID
 ;
 
 -- name: UpdateRecipe :one

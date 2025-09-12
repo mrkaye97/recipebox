@@ -343,18 +343,22 @@ export default function RecipesScreen({
           </ThemedView>
         </Modal>
 
-        <TouchableOpacity
-          style={styles.floatingButton}
-          onPress={() => setCreationDrawerVisible(true)}
-        >
-          <IconSymbol size={32} name="plus" color="#ffffff" />
-        </TouchableOpacity>
+        {onlyCurrentUser && (
+          <TouchableOpacity
+            style={styles.floatingButton}
+            onPress={() => setCreationDrawerVisible(true)}
+          >
+            <IconSymbol size={32} name="plus" color="#ffffff" />
+          </TouchableOpacity>
+        )}
 
-        <RecipeCreationDrawer
-          visible={creationDrawerVisible}
-          onClose={() => setCreationDrawerVisible(false)}
-          onSelectOption={handleCreateRecipe}
-        />
+        {onlyCurrentUser && (
+          <RecipeCreationDrawer
+            visible={creationDrawerVisible}
+            onClose={() => setCreationDrawerVisible(false)}
+            onSelectOption={handleCreateRecipe}
+          />
+        )}
       </ThemedView>
     </TouchableWithoutFeedback>
   );

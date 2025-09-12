@@ -827,8 +827,6 @@ export interface components {
     };
     /** User */
     readonly src__schemas__User: {
-      /** Email */
-      readonly email: string;
       /**
        * Id
        * Format: uuid

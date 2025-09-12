@@ -44,6 +44,7 @@ export default function TabLayout() {
             })
           : { display: "none" },
       }}
+      backBehavior="history"
     >
       <Tabs.Screen
         name="index"

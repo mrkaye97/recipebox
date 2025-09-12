@@ -9,7 +9,6 @@ from src.crud import models
 
 class User(BaseModel):
     id: UUID
-    email: str
     name: str
 
 

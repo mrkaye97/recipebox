@@ -63,7 +63,7 @@ async def create_recipe_share_link(
     if not user_id:
         raise HTTPException(status_code=400, detail="source_user_id is required")
 
-    recipe = await recipes.get_recipe(recipeid=body.recipe_id)
+    recipe = await recipes.get_recipe(recipeid=body.recipe_id, userid=user.id)
 
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")

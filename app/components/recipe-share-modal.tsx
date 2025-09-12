@@ -64,7 +64,6 @@ export function RecipeShareModal({
     >
       <View style={styles.friendInfo}>
         <ThemedText type="defaultSemiBold">{friend.name}</ThemedText>
-        <ThemedText style={styles.friendEmail}>{friend.email}</ThemedText>
       </View>
       <IconSymbol
         name="arrow.right.circle"

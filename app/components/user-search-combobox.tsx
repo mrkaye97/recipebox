@@ -13,8 +13,8 @@ import { components } from "@/src/lib/api/v1";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  FlatList,
   Keyboard,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -62,6 +62,7 @@ export function UserSearchCombobox({
   const handleAddFriend = (user: User) => {
     onAddFriend?.(user);
     setQuery("");
+    setDebouncedQuery("");
     setIsOpen(false);
     Keyboard.dismiss();
   };
@@ -77,25 +78,6 @@ export function UserSearchCombobox({
     setIsOpen(false);
     Keyboard.dismiss();
   };
-
-  const renderUserItem = ({ item: user }: { item: User }) => (
-    <View style={styles.userItem}>
-      <View style={styles.userInfo}>
-        <ThemedText type="defaultSemiBold">{user.name}</ThemedText>
-        <ThemedText style={styles.userEmail}>{user.email}</ThemedText>
-      </View>
-      <TouchableOpacity
-        style={[styles.addButton, isAddingFriend && styles.addButtonDisabled]}
-        onPress={() => handleAddFriend(user)}
-        disabled={isAddingFriend}
-        activeOpacity={0.8}
-      >
-        <Text style={styles.addButtonText}>
-          {isAddingFriend ? "Adding..." : "Add Friend"}
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
 
   return (
     <>
@@ -139,14 +121,35 @@ export function UserSearchCombobox({
               )}
 
             {users.length > 0 && (
-              <FlatList
-                data={users}
-                renderItem={renderUserItem}
-                keyExtractor={(user) => user.id}
+              <ScrollView
                 style={styles.userList}
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
-              />
+                nestedScrollEnabled={true}
+              >
+                {users.map((user) => (
+                  <View key={user.id} style={styles.userItem}>
+                    <View style={styles.userInfo}>
+                      <ThemedText type="defaultSemiBold">
+                        {user.name}
+                      </ThemedText>
+                    </View>
+                    <TouchableOpacity
+                      style={[
+                        styles.addButton,
+                        isAddingFriend && styles.addButtonDisabled,
+                      ]}
+                      onPress={() => handleAddFriend(user)}
+                      disabled={isAddingFriend}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={styles.addButtonText}>
+                        {isAddingFriend ? "Adding..." : "Add Friend"}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </ScrollView>
             )}
           </View>
         )}

@@ -1,11 +1,13 @@
 import React from "react";
 import {
   Alert,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 
@@ -44,7 +46,7 @@ export default function ProfileScreen() {
   const { requests, friends, sendRequest, acceptRequest, sendingRequest } =
     useFriends({ query: "" });
 
-  const { showLocalNotification, ensureNotificationSetup } = useNotifications();
+  const { ensureNotificationSetup } = useNotifications();
 
   const handleLogout = async () => {
     Alert.alert("Logout", "Are you sure you want to log out?", [
@@ -78,10 +80,6 @@ export default function ProfileScreen() {
     try {
       setAcceptingUserId(user.id);
       await acceptRequest(user.id);
-      await showLocalNotification(
-        "Friend Request Accepted! 🎊",
-        `You are now friends with ${user.name}!`,
-      );
     } catch (error) {
       console.error("Error accepting friend request:", error);
       Alert.alert(
@@ -136,91 +134,92 @@ export default function ProfileScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.section}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>
-            Find Friends
-          </ThemedText>
-          <ThemedText style={styles.sectionSubtitle}>
-            Search for users and send friend requests
-          </ThemedText>
-          <UserSearchCombobox
-            onAddFriend={handleAddFriend}
-            placeholder="Search for friends"
-            isAddingFriend={sendingRequest}
-          />
-        </View>
-
-        {showFriendRequestsSection && (
-          <View style={styles.section}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.sectionNoCard}>
             <ThemedText type="subtitle" style={styles.sectionTitle}>
-              Friend Requests
+              Find Friends
             </ThemedText>
             <ThemedText style={styles.sectionSubtitle}>
-              People who want to be your friend
+              Search for users and send friend requests
             </ThemedText>
-            <View style={styles.usersList}>
-              {requests.isLoading
-                ? Array.from({ length: 2 }).map((_, index) => (
-                    <FriendRequestSkeleton key={index} />
-                  ))
-                : pendingRequests.map((user) => (
-                    <View key={user.id} style={styles.userCard}>
-                      <View style={styles.userInfo}>
-                        <ThemedText type="defaultSemiBold">
-                          {user.name}
-                        </ThemedText>
-                        <ThemedText style={styles.userEmail}>
-                          {user.email}
-                        </ThemedText>
-                      </View>
-                      <TouchableOpacity
-                        style={[
-                          styles.acceptButton,
-                          acceptingUserId === user.id &&
-                            styles.acceptButtonDisabled,
-                        ]}
-                        onPress={() => handleAcceptRequest(user)}
-                        disabled={acceptingUserId === user.id}
-                      >
-                        <ThemedText style={styles.acceptButtonText}>
-                          {acceptingUserId === user.id
-                            ? "Accepting..."
-                            : "Accept"}
-                        </ThemedText>
-                      </TouchableOpacity>
-                    </View>
-                  ))}
-            </View>
+            <UserSearchCombobox
+              onAddFriend={handleAddFriend}
+              placeholder="Search for friends"
+              isAddingFriend={sendingRequest}
+            />
           </View>
-        )}
 
-        {showFriendsSection && (
-          <View style={styles.section}>
-            <ThemedText type="subtitle" style={styles.sectionTitle}>
-              Friends
-            </ThemedText>
-            <View style={styles.usersList}>
-              {friends.isLoading
-                ? Array.from({ length: 3 }).map((_, index) => (
-                    <FriendSkeleton key={index} />
-                  ))
-                : friendsList.map((user) => (
-                    <View key={user.id} style={styles.userCard}>
-                      <View style={styles.userInfo}>
-                        <ThemedText type="defaultSemiBold">
-                          {user.name}
-                        </ThemedText>
-                        <ThemedText style={styles.userEmail}>
-                          {user.email}
-                        </ThemedText>
+          {showFriendRequestsSection && (
+            <View style={styles.sectionNoCard}>
+              <ThemedText type="subtitle" style={styles.sectionTitle}>
+                Friend Requests
+              </ThemedText>
+              <ThemedText style={styles.sectionSubtitle}>
+                People who want to be your friend
+              </ThemedText>
+              <View style={styles.usersList}>
+                {requests.isLoading
+                  ? Array.from({ length: 2 }).map((_, index) => (
+                      <FriendRequestSkeleton key={index} />
+                    ))
+                  : pendingRequests.map((user) => (
+                      <View key={user.id} style={styles.userCard}>
+                        <View style={styles.userInfo}>
+                          <ThemedText type="defaultSemiBold">
+                            {user.name}
+                          </ThemedText>
+                        </View>
+                        <TouchableOpacity
+                          style={[
+                            styles.acceptButton,
+                            acceptingUserId === user.id &&
+                              styles.acceptButtonDisabled,
+                          ]}
+                          onPress={() => handleAcceptRequest(user)}
+                          disabled={acceptingUserId === user.id}
+                        >
+                          <ThemedText style={styles.acceptButtonText}>
+                            {acceptingUserId === user.id
+                              ? "Accepting..."
+                              : "Accept"}
+                          </ThemedText>
+                        </TouchableOpacity>
                       </View>
-                    </View>
-                  ))}
+                    ))}
+              </View>
             </View>
-          </View>
-        )}
-      </View>
+          )}
+
+          {showFriendsSection && (
+            <View style={styles.sectionNoCard}>
+              <ThemedText type="subtitle" style={styles.sectionTitle}>
+                Friends
+              </ThemedText>
+              <View style={styles.usersList}>
+                {friends.isLoading
+                  ? Array.from({ length: 3 }).map((_, index) => (
+                      <FriendSkeleton key={index} />
+                    ))
+                  : friendsList.map((user) => (
+                      <View key={user.id} style={styles.userCard}>
+                        <View style={styles.userInfo}>
+                          <ThemedText type="defaultSemiBold">
+                            {user.name}
+                          </ThemedText>
+                        </View>
+                      </View>
+                    ))}
+              </View>
+            </View>
+          )}
+        </ScrollView>
+      </TouchableWithoutFeedback>
 
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <IconSymbol name="door.right.hand.open" size={18} color="#fff" />
@@ -236,12 +235,14 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     paddingTop: Layout.headerHeight,
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  content: {
     padding: Layout.screenPadding,
     paddingTop: Spacing.lg,
+    paddingBottom: 100, // Space for logout button
     gap: Spacing.xl,
-    justifyContent: "flex-start",
   },
   centerContainer: {
     flex: 1,
@@ -265,17 +266,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: Layout.screenPadding,
   },
   usersList: {
-    gap: Spacing.md,
+    gap: Spacing.lg,
   },
   userCard: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: Spacing.lg,
+    padding: Spacing["2xl"],
     backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius["2xl"],
     borderWidth: 1,
     borderColor: Colors.borderLight,
+    ...Shadows.sm,
   },
   userInfo: {
     flex: 1,
@@ -309,9 +311,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.borderLight,
   },
+  sectionNoCard: {
+    gap: Spacing.lg,
+  },
   sectionTitle: {
     marginBottom: Spacing.sm,
     color: Colors.text,
+    fontSize: Typography.fontSizes.xl,
+    fontWeight: Typography.fontWeights.bold,
   },
   sectionSubtitle: {
     color: Colors.textSecondary,

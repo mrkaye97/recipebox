@@ -120,9 +120,10 @@ FROM "user"
 WHERE
     (name || ' ' || email) ILIKE '%' || :p1\\:\\:TEXT || '%'
     AND privacy_preference = 'public'
+    AND id != :p2\\:\\:UUID
 ORDER BY relevance_score DESC, name ASC
-LIMIT COALESCE(:p3\\:\\:INT, 25)
-OFFSET COALESCE(:p2\\:\\:INT, 0)
+LIMIT COALESCE(:p4\\:\\:INT, 25)
+OFFSET COALESCE(:p3\\:\\:INT, 0)
 """
 
 
@@ -285,11 +286,16 @@ class AsyncQuerier:
             )
 
     async def search_users(
-        self, *, query: str, useroffset: int, userlimit: int
+        self, *, query: str, userid: uuid.UUID, useroffset: int, userlimit: int
     ) -> AsyncIterator[SearchUsersRow]:
         result = await self._conn.stream(
             sqlalchemy.text(SEARCH_USERS),
-            {"p1": query, "p2": useroffset, "p3": userlimit},
+            {
+                "p1": query,
+                "p2": userid,
+                "p3": useroffset,
+                "p4": userlimit,
+            },
         )
         async for row in result:
             yield SearchUsersRow(
