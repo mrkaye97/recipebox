@@ -1,5 +1,6 @@
 import { RECIPE_MEALS, RECIPE_TYPES } from "@/app/(tabs)/recipe/[id]";
 import { PendingRecipeShares } from "@/components/pending-recipe-shares";
+import { PushPermissionPrompt } from "@/components/push-permission-prompt";
 import { RecipeCard } from "@/components/recipe-card";
 import { RecipeCreationDrawer } from "@/components/recipe-creation-drawer";
 import { RecipeSkeleton } from "@/components/skeleton";
@@ -316,6 +317,8 @@ export default function RecipesScreen({
             placeholder="Cuisine"
           />
         </View>
+
+        <PushPermissionPrompt />
 
         {renderContent()}
 

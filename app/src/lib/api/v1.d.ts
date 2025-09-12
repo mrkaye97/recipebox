@@ -603,6 +603,11 @@ export interface components {
       /** Url */
       readonly url: string;
     };
+    /**
+     * PushPermissionStatus
+     * @enum {string}
+     */
+    readonly PushPermissionStatus: "none" | "accepted" | "rejected";
     /** PushTokenBody */
     readonly PushTokenBody: {
       /** Expo Push Token */
@@ -781,6 +786,7 @@ export interface components {
       /** Name */
       readonly name: string;
       readonly privacy_preference: components["schemas"]["UserPrivacyPreference"];
+      readonly push_permission: components["schemas"]["PushPermissionStatus"];
       /**
        * Updated At
        * Format: date-time
