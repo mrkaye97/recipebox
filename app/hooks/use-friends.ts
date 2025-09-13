@@ -35,6 +35,7 @@ export const useFriends = ({ query }: { query: string }) => {
     },
     {
       enabled: !!token,
+      refetchInterval: 5000,
     },
   );
 
