@@ -1,3 +1,4 @@
+import asyncio
 import secrets
 from datetime import UTC, datetime, timedelta
 from typing import Literal
@@ -10,9 +11,11 @@ from src.crud.models import RecipeShareRequest
 from src.crud.recipes import AsyncQuerier as Recipes
 from src.crud.sharing import AsyncQuerier as Sharing
 from src.crud.sharing import ListPendingRecipeShareRequestsRow
+from src.crud.users import AsyncQuerier as Users
 from src.dependencies import Connection, User
 from src.logger import get_logger
 from src.schemas import Recipe, RecipeLocation
+from src.services.notifications import send_push_message
 from src.services.recipe import ingest_recipe
 
 sharing = APIRouter(prefix="/sharing")
@@ -58,22 +61,38 @@ async def create_recipe_share_link(
 ) -> RecipeShareRequest | None:
     recipes = Recipes(conn)
     sharing = Sharing(conn)
-    user_id = user.id if body.source == "outbound_share" else body.source_user_id
+    users = Users(conn)
 
-    if not user_id:
-        raise HTTPException(status_code=400, detail="source_user_id is required")
+    recipe_owner_user_id = (
+        user.id if body.source == "outbound_share" else body.source_user_id
+    )
+    recipient = await users.find_user_by_id(userid=body.to_user_id)
 
-    recipe = await recipes.get_recipe(recipeid=body.recipe_id, userid=user.id)
+    if not recipe_owner_user_id or not recipient:
+        raise HTTPException(status_code=400, detail="recipient or owner not found")
+
+    recipe = await recipes.get_recipe(
+        recipeid=body.recipe_id, userid=recipe_owner_user_id
+    )
 
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
 
-    return await sharing.create_recipe_share_request(
+    request = await sharing.create_recipe_share_request(
         recipeid=recipe.id,
         token=create_share_token(),
         touserid=body.to_user_id,
         expiresat=datetime.now(UTC) + timedelta(days=7),
     )
+
+    if body.source == "outbound_share" and recipient.expo_push_token:
+        await asyncio.to_thread(
+            send_push_message,
+            recipient=recipient,
+            message=f"{user.name} shared a recipe with you",
+        )
+
+    return request
 
 
 class ActOnShareRequestBody(BaseModel):

@@ -140,7 +140,6 @@ export default function ProfileScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-
           <View style={styles.sectionNoCard}>
             <ThemedText type="subtitle" style={styles.sectionTitle}>
               Find Friends

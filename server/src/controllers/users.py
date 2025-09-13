@@ -62,7 +62,7 @@ async def send_friend_request(
     if result and recipient and recipient.expo_push_token:
         await asyncio.to_thread(
             send_push_message,
-            token=recipient.expo_push_token,
+            recipient=recipient,
             message=f"{user.name} sent you a friend request",
         )
 
@@ -86,7 +86,7 @@ async def accept_friend_request(
     if result and sender and sender.expo_push_token:
         await asyncio.to_thread(
             send_push_message,
-            token=sender.expo_push_token,
+            recipient=sender,
             message=f"{user.name} accepted your friend request",
         )
 
