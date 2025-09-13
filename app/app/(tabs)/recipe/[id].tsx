@@ -164,6 +164,7 @@ export default function RecipeDetailScreen() {
 
   const handleBack = async () => {
     router.back();
+    setIsEditing(false);
     await queryClient.invalidateQueries({
       queryKey: ["get", "/recipes/recommendation"],
     });

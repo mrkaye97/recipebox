@@ -1,10 +1,10 @@
-# Privacy Policy for RecipeBox
+# Privacy Policy for Recipendium
 
 **Effective Date:** 2025-08-20
 
 ## Overview
 
-At RecipeBox, we believe in keeping things simple when it comes to your privacy. We only collect the minimum information necessary to provide you with our recipe storage service, and we never share your data with third parties.
+At Recipendium, we believe in keeping things simple when it comes to your privacy. We only collect the minimum information necessary to provide you with our recipe storage service, and we never share your data with third parties.
 
 ## Information We Collect
 
@@ -19,7 +19,7 @@ That's it. We don't collect any other personal data, device information, locatio
 
 We use your name and email address solely to:
 
-- Create and maintain your RecipeBox account
+- Create and maintain your Recipendium account
 - Allow you to log into the app
 - Send you essential service-related communications (such as password resets or important app updates)
 
@@ -39,7 +39,7 @@ We retain your name and email address only as long as your account remains activ
 
 ## No Tracking
 
-RecipeBox does not use cookies, analytics tools, advertising networks, or any other tracking technologies. We respect your privacy and don't monitor your behavior within the app.
+Recipendium does not use cookies, analytics tools, advertising networks, or any other tracking technologies. We respect your privacy and don't monitor your behavior within the app.
 
 ## Children's Privacy
 
