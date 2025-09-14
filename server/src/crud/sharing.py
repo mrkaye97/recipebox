@@ -38,9 +38,9 @@ RETURNING to_user_id, recipe_id, created_at, expires_at
 
 LIST_PENDING_RECIPE_SHARE_REQUESTS = """-- name: list_pending_recipe_share_requests \\:many
 SELECT
+    r.id,
     r.name AS recipe_name,
-    u.name AS from_user_name,
-    u.email AS from_user_email
+    u.name AS from_user_name
 FROM recipe_share_request rsr
 JOIN recipe r ON rsr.recipe_id = r.id
 JOIN "user" u ON r.user_id = u.id
@@ -51,9 +51,9 @@ ORDER BY rsr.created_at DESC
 
 
 class ListPendingRecipeShareRequestsRow(pydantic.BaseModel):
+    id: uuid.UUID
     recipe_name: str
     from_user_name: str
-    from_user_email: str
 
 
 class AsyncQuerier:
@@ -104,7 +104,7 @@ class AsyncQuerier:
         )
         async for row in result:
             yield ListPendingRecipeShareRequestsRow(
-                recipe_name=row[0],
-                from_user_name=row[1],
-                from_user_email=row[2],
+                id=row[0],
+                recipe_name=row[1],
+                from_user_name=row[2],
             )

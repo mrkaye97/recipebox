@@ -148,8 +148,8 @@ export default function RecipeDetailScreen() {
     updateRecipe: { perform: updateRecipe, isPending: isUpdating },
     deleteRecipe: { perform: deleteRecipe, isPending: isDeleting },
     shareRecipe,
-    acceptShare,
     deleteShare,
+    pendingShares,
   } = useRecipes();
   const { userId } = useUser();
   const {
@@ -199,34 +199,24 @@ export default function RecipeDetailScreen() {
     if (!recipe || !userId || belongsToCurrentUser) return;
 
     setIsSaving(true);
-    const shareRequest = await shareRecipe.perform(
-      recipe.id,
-      userId,
-      "download_button",
-      recipe.user_id,
-    );
-
     try {
-      if (shareRequest?.token) {
-        try {
-          await acceptShare.perform(shareRequest.token);
+      const shareRequest = await shareRecipe.perform(
+        recipe.id,
+        userId,
+        "download_button",
+        recipe.user_id,
+      );
 
-          Alert.alert("Success", "Recipe saved to your collection!", [
-            {
-              text: "OK",
-              style: "default",
-            },
-          ]);
-        } catch (acceptError) {
-          if (shareRequest.token) {
-            try {
-              await deleteShare.perform(shareRequest.token);
-            } catch (deleteError) {
-              console.error("Error cleaning up share request:", deleteError);
-            }
-          }
-          throw acceptError;
-        }
+      if (shareRequest?.recipe_id) {
+        await deleteShare.perform(shareRequest.recipe_id);
+        await pendingShares.refetch();
+
+        Alert.alert("Success", "Recipe saved to your collection!", [
+          {
+            text: "OK",
+            style: "default",
+          },
+        ]);
       }
     } catch (error) {
       console.error("Error saving recipe:", error);

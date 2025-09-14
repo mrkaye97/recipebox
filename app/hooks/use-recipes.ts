@@ -1,7 +1,7 @@
 import { $api } from "@/src/lib/api/client";
 import { components, paths } from "@/src/lib/api/v1";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { useDebounce } from "use-debounce";
 import { useUser } from "./use-user";
 
@@ -37,9 +37,6 @@ export const useRecipes = ({
   const queryClient = useQueryClient();
 
   const [debouncedSearch] = useDebounce(search || "", 300);
-  const [pendingAcceptShareToken, setPendingAcceptShareToken] = useState<
-    string | null
-  >(null);
 
   const recipeQuery = $api.useQuery(
     "get",
@@ -174,26 +171,8 @@ export const useRecipes = ({
   const { mutateAsync: shareRecipe, isPending: sharePending } =
     $api.useMutation("post", "/sharing");
 
-  const { mutateAsync: acceptRecipeShare, isPending: acceptPending } =
-    $api.useMutation("post", "/sharing/accept", {
-      onMutate: async (variables) => {
-        setPendingAcceptShareToken(variables.body.token);
-      },
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({
-          queryKey: ["get", "/sharing"],
-        });
-        await queryClient.invalidateQueries({
-          queryKey: ["get", "/recipes"],
-        });
-      },
-      onSettled: () => {
-        setPendingAcceptShareToken(null);
-      },
-    });
-
   const { mutateAsync: deleteRecipeShare, isPending: deletePending } =
-    $api.useMutation("delete", "/sharing", {
+    $api.useMutation("delete", "/sharing/{recipe_id}", {
       onSuccess: async () => {
         await queryClient.invalidateQueries({
           queryKey: ["get", "/sharing"],
@@ -283,29 +262,15 @@ export const useRecipes = ({
     [shareRecipe, token],
   );
 
-  const acceptRecipeShareRequest = useCallback(
-    async (shareToken: string) => {
-      if (!token) throw new Error("Not authenticated");
-
-      return await acceptRecipeShare({
-        body: {
-          token: shareToken,
-        },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-    },
-    [acceptRecipeShare, token],
-  );
-
   const deleteRecipeShareRequest = useCallback(
-    async (shareToken: string) => {
+    async (recipeId: string) => {
       if (!token) throw new Error("Not authenticated");
 
       return await deleteRecipeShare({
-        body: {
-          token: shareToken,
+        params: {
+          path: {
+            recipe_id: recipeId,
+          },
         },
         headers: {
           Authorization: `Bearer ${token}`,
@@ -339,11 +304,6 @@ export const useRecipes = ({
     shareRecipe: {
       perform: shareRecipeWithFriend,
       isPending: sharePending,
-    },
-    acceptShare: {
-      perform: acceptRecipeShareRequest,
-      isPending: acceptPending,
-      pendingAcceptShareToken,
     },
     deleteShare: {
       perform: deleteRecipeShareRequest,

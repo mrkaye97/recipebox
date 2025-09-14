@@ -14,9 +14,9 @@ RETURNING *;
 
 -- name: ListPendingRecipeShareRequests :many
 SELECT
+    r.id,
     r.name AS recipe_name,
-    u.name AS from_user_name,
-    u.email AS from_user_email
+    u.name AS from_user_name
 FROM recipe_share_request rsr
 JOIN recipe r ON rsr.recipe_id = r.id
 JOIN "user" u ON r.user_id = u.id

@@ -11,6 +11,7 @@ import {
 } from "@/constants/design-system";
 import { useRecipes } from "@/hooks/use-recipes";
 import { components } from "@/src/lib/api/v1";
+import { router } from "expo-router";
 import React from "react";
 import {
   Alert,
@@ -23,29 +24,49 @@ import {
 type PendingShare = components["schemas"]["ListPendingRecipeShareRequestsRow"];
 
 export function PendingRecipeShares() {
-  const { pendingShares, acceptShare, deleteShare } = useRecipes();
+  const { pendingShares, deleteShare } = useRecipes();
 
-  const handleAcceptShare = async (share: PendingShare) => {
-    try {
-      await acceptShare.perform(share.token);
-    } catch (error) {
-      if (
-        typeof error === "object" &&
-        error !== null &&
-        "detail" in error &&
-        (error as { detail?: string }).detail === "duplicate"
-      ) {
-        await deleteShare.perform(share.token);
-        return;
-      }
-      console.error("Error accepting recipe share:", error);
-      Alert.alert("Error", "Failed to accept recipe share. Please try again.");
-    }
+  const handleDeleteShare = async (
+    recipeId: string,
+    recipeName: string,
+    fromUserName: string
+  ) => {
+    Alert.alert(
+      "Delete Share",
+      `Are you sure you want to delete the share for "${recipeName}" from ${fromUserName}?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteShare.perform(recipeId);
+            } catch (error) {
+              console.error("Error deleting share:", error);
+              Alert.alert("Error", "Failed to delete share. Please try again.");
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleViewRecipe = (recipeId: string) => {
+    console.log("Viewing recipe:", recipeId);
+    router.push(`/recipe/${recipeId}`);
   };
 
   const renderPendingShare = ({ item: share }: { item: PendingShare }) => (
     <View style={styles.shareCard}>
-      <View style={styles.shareInfo}>
+      <TouchableOpacity
+        style={styles.shareInfo}
+        onPress={() => handleViewRecipe(share.id)}
+        activeOpacity={0.7}
+      >
         <ThemedText type="defaultSemiBold" style={styles.recipeName}>
           {share.recipe_name}
         </ThemedText>
@@ -59,37 +80,31 @@ export function PendingRecipeShares() {
             from {share.from_user_name}
           </ThemedText>
         </View>
-        <ThemedText style={styles.fromUserEmail}>
-          {share.from_user_email}
-        </ThemedText>
-      </View>
+        <View style={styles.tapHint}>
+          <IconSymbol
+            name="arrow.right.circle"
+            size={16}
+            color={Colors.primary}
+          />
+          <ThemedText style={styles.tapHintText}>Tap to view recipe</ThemedText>
+        </View>
+      </TouchableOpacity>
 
       <TouchableOpacity
         style={[
-          styles.acceptButton,
-          acceptShare.isPending &&
-            acceptShare.pendingAcceptShareToken === share.token &&
-            styles.acceptButtonDisabled,
+          styles.deleteButton,
+          deleteShare.isPending && styles.deleteButtonDisabled,
         ]}
-        onPress={() => handleAcceptShare(share)}
-        disabled={acceptShare.isPending}
+        onPress={() =>
+          handleDeleteShare(share.id, share.recipe_name, share.from_user_name)
+        }
+        disabled={deleteShare.isPending}
       >
         <IconSymbol
-          name="checkmark.circle"
+          name="trash"
           size={20}
-          color={
-            acceptShare.isPending &&
-            acceptShare.pendingAcceptShareToken === share.token
-              ? Colors.textSecondary
-              : Colors.surface
-          }
+          color={deleteShare.isPending ? Colors.textSecondary : "#EF4444"}
         />
-        <ThemedText style={styles.acceptButtonText}>
-          {acceptShare.isPending &&
-          acceptShare.pendingAcceptShareToken === share.token
-            ? "Adding..."
-            : "Accept"}
-        </ThemedText>
       </TouchableOpacity>
     </View>
   );
@@ -154,13 +169,14 @@ export function PendingRecipeShares() {
           Pending Recipe Shares
         </ThemedText>
         <ThemedText style={styles.sectionSubtitle}>
-          {shares.length} recipe{shares.length === 1 ? "" : "s"} shared with you
+          {shares.length} recipe{shares.length === 1 ? "" : "s"} shared with
+          you. Tap a recipe to view and bookmark it.
         </ThemedText>
 
         <FlatList
           data={shares}
           renderItem={renderPendingShare}
-          keyExtractor={(share) => share.token}
+          keyExtractor={(share) => share.recipe_name + share.from_user_name}
           style={styles.sharesList}
           contentContainerStyle={styles.sharesListContent}
           showsVerticalScrollIndicator={false}
@@ -234,6 +250,8 @@ const styles = StyleSheet.create({
   shareInfo: {
     flex: 1,
     marginRight: Spacing.md,
+    padding: Spacing.xs,
+    borderRadius: BorderRadius.sm,
   },
   recipeName: {
     marginBottom: Spacing.xs,
@@ -254,21 +272,25 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     opacity: 0.8,
   },
-  acceptButton: {
+  deleteButton: {
+    padding: Spacing.sm,
+    borderRadius: BorderRadius.sm,
+    backgroundColor: "rgba(239, 68, 68, 0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(239, 68, 68, 0.3)",
+  },
+  deleteButtonDisabled: {
+    opacity: 0.5,
+  },
+  tapHint: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.xs,
-    backgroundColor: Colors.primary,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.sm,
+    marginTop: Spacing.xs,
   },
-  acceptButtonDisabled: {
-    backgroundColor: Colors.buttonDisabled,
-  },
-  acceptButtonText: {
-    color: Colors.surface,
-    fontSize: Typography.fontSizes.sm,
-    fontWeight: Typography.fontWeights.semibold,
+  tapHintText: {
+    fontSize: Typography.fontSizes.xs,
+    color: Colors.primary,
+    fontStyle: "italic",
   },
 });

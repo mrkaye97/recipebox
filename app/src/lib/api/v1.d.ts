@@ -534,10 +534,13 @@ export interface components {
     };
     /** ListPendingRecipeShareRequestsRow */
     readonly ListPendingRecipeShareRequestsRow: {
-      /** From User Email */
-      readonly from_user_email: string;
       /** From User Name */
       readonly from_user_name: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      readonly id: string;
       /** Recipe Name */
       readonly recipe_name: string;
     };
