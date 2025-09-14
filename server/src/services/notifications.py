@@ -1,6 +1,8 @@
+from enum import Enum
 from typing import NamedTuple, cast
 
 from exponent_server_sdk import PushClient, PushMessage  # type: ignore[import-untyped]
+from pydantic import BaseModel
 
 from src.crud.models import PushPermissionStatus, User
 from src.logger import get_logger
@@ -8,8 +10,18 @@ from src.logger import get_logger
 logger = get_logger(__name__)
 
 
+class PushNotificationRedirectDestination(str, Enum):
+    FRIEND_REQUESTS = "friend_requests"
+    FRIENDS = "friends"
+    SHARED_RECIPES = "shared_recipes"
+
+
+class PushNotificationPayload(BaseModel):
+    navigate_to: PushNotificationRedirectDestination | None
+
+
 def send_push_message(
-    recipient: User, message: str, extra: dict[str, str] | None = None
+    recipient: User, message: str, payload: PushNotificationPayload
 ) -> bool:
     if (
         recipient.push_permission == PushPermissionStatus.NONE
@@ -29,7 +41,11 @@ def send_push_message(
     response = cast(
         NamedTuple,
         PushClient().publish(
-            PushMessage(to=recipient.expo_push_token, body=message, data=extra)
+            PushMessage(
+                to=recipient.expo_push_token,
+                body=message,
+                data=payload.model_dump(mode="json"),
+            )
         ),
     )
 

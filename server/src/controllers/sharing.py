@@ -15,7 +15,11 @@ from src.crud.users import AsyncQuerier as Users
 from src.dependencies import Connection, User
 from src.logger import get_logger
 from src.schemas import Recipe, RecipeLocation
-from src.services.notifications import send_push_message
+from src.services.notifications import (
+    PushNotificationPayload,
+    PushNotificationRedirectDestination,
+    send_push_message,
+)
 from src.services.recipe import ingest_recipe
 
 sharing = APIRouter(prefix="/sharing")
@@ -90,6 +94,9 @@ async def create_recipe_share_link(
             send_push_message,
             recipient=recipient,
             message=f"{user.name} shared a recipe with you",
+            payload=PushNotificationPayload(
+                navigate_to=PushNotificationRedirectDestination.SHARED_RECIPES
+            ),
         )
 
     return request

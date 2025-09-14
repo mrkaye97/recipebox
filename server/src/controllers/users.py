@@ -10,7 +10,11 @@ from src.dependencies import Connection
 from src.dependencies import User as UserDependency
 from src.logger import get_logger
 from src.schemas import User
-from src.services.notifications import send_push_message
+from src.services.notifications import (
+    PushNotificationPayload,
+    PushNotificationRedirectDestination,
+    send_push_message,
+)
 
 users = APIRouter(prefix="/users")
 logger = get_logger(__name__)
@@ -64,6 +68,9 @@ async def send_friend_request(
             send_push_message,
             recipient=recipient,
             message=f"{user.name} sent you a friend request",
+            payload=PushNotificationPayload(
+                navigate_to=PushNotificationRedirectDestination.FRIEND_REQUESTS
+            ),
         )
 
     return result
@@ -88,6 +95,9 @@ async def accept_friend_request(
             send_push_message,
             recipient=sender,
             message=f"{user.name} accepted your friend request",
+            payload=PushNotificationPayload(
+                navigate_to=PushNotificationRedirectDestination.FRIENDS
+            ),
         )
 
     return result
@@ -153,3 +163,11 @@ async def store_push_token(
     )
 
     return PushTokenResponse(success=True, message="Push token stored successfully")
+
+
+## placeholder to generate openapi enum
+@users.get("/push-notification-redirect")
+async def list_push_redirect_options() -> PushNotificationPayload:
+    return PushNotificationPayload(
+        navigate_to=PushNotificationRedirectDestination.FRIEND_REQUESTS
+    )

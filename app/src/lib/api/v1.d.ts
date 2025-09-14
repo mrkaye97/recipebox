@@ -315,6 +315,23 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
+  readonly "/users/push-notification-redirect": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    /** List Push Redirect Options */
+    readonly get: operations["list_push_redirect_options_users_push_notification_redirect_get"];
+    readonly put?: never;
+    readonly post?: never;
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
   readonly "/users/push-token": {
     readonly parameters: {
       readonly query?: never;
@@ -603,6 +620,20 @@ export interface components {
       /** Url */
       readonly url: string;
     };
+    /** PushNotificationPayload */
+    readonly PushNotificationPayload: {
+      readonly navigate_to:
+        | components["schemas"]["PushNotificationRedirectDestination"]
+        | null;
+    };
+    /**
+     * PushNotificationRedirectDestination
+     * @enum {string}
+     */
+    readonly PushNotificationRedirectDestination:
+      | "friend_requests"
+      | "friends"
+      | "shared_recipes";
     /**
      * PushPermissionStatus
      * @enum {string}
@@ -1567,6 +1598,26 @@ export interface operations {
         };
         content: {
           readonly "application/json": readonly components["schemas"]["src__schemas__User"][];
+        };
+      };
+    };
+  };
+  readonly list_push_redirect_options_users_push_notification_redirect_get: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["PushNotificationPayload"];
         };
       };
     };

@@ -1,8 +1,12 @@
 import { $api } from "@/src/lib/api/client";
+import { components } from "@/src/lib/api/v1";
 import { useQueryClient } from "@tanstack/react-query";
 import * as Notifications from "expo-notifications";
+import { router } from "expo-router";
 import { useCallback, useEffect } from "react";
 import { useUser } from "./use-user";
+
+type PushNotificationPayload = components["schemas"]["PushNotificationPayload"]
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -25,7 +29,23 @@ export const useNotifications = () => {
       Notifications.addNotificationReceivedListener((notification) => {});
 
     const responseSubscription =
-      Notifications.addNotificationResponseReceivedListener((response) => {});
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        const data: PushNotificationPayload = response.notification.request.content.data as PushNotificationPayload;
+
+        if (!data || !data.navigate_to) return;
+
+        switch (data.navigate_to) {
+          case "friend_requests":
+            router.push("/profile");
+            return;
+          case "friends":
+            router.push("/profile");
+            return;
+          case "shared_recipes":
+            router.push("/recipes");
+            return;
+        }
+      });
 
     return () => {
       notificationSubscription.remove();
