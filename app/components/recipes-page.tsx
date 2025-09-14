@@ -186,6 +186,8 @@ export default function RecipesScreen({
     router.push(`/recipe/${recommendedRecipe.id}`);
   };
 
+  const hasRecommendedRecipe = !!recommendedRecipe && onlyCurrentUser;
+
   const handleCreateRecipe = (option: "online" | "manual" | "cookbook") => {
     router.push(`/(tabs)/recipes?option=${option}`);
   };
@@ -292,7 +294,7 @@ export default function RecipesScreen({
           onClearSearch={() => setSearchQuery("")}
           onRandomRecipe={getRandomRecipe}
           hasRecipes={recipes.length > 0}
-          hasRecommendedRecipe={!!recommendedRecipe}
+          hasRecommendedRecipe={hasRecommendedRecipe}
           pendingSharesCount={pendingShares.length}
           onShowShares={() => setSharesDrawerVisible(true)}
         />
