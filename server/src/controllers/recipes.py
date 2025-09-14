@@ -446,7 +446,7 @@ async def delete_recipe(conn: Connection, _: User, id: UUID) -> UUID:
     return id
 
 
-@recipes.post("/download")
+@recipes.post("/download/{recipe_id}")
 async def accept_recipe_share_request(
     conn: Connection,
     user: User,
@@ -486,7 +486,7 @@ async def accept_recipe_share_request(
         tags=[t.tag async for t in tags],
     )
 
-    return await ingest_recipe(
+    ingest_result = await ingest_recipe(
         db=recipes,
         user=user,
         params=db_recipe,
@@ -494,3 +494,11 @@ async def accept_recipe_share_request(
         notes=None,
         parent_recipe_id=recipe.id,
     )
+
+    if share_request:
+        await sharing.delete_sharing_request(
+            recipeid=share_request.recipe_id,
+            touserid=share_request.to_user_id,
+        )
+
+    return ingest_result

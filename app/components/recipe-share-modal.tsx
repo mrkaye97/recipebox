@@ -44,12 +44,9 @@ export function RecipeShareModal({
     if (!recipe) return;
 
     try {
-      await shareRecipe.perform(
-        recipe.id,
-        friend.id,
-        "outbound_share",
-        undefined,
-      );
+      await shareRecipe.perform(recipe.id, friend.id);
+      Alert.alert("Success", `Recipe shared with ${friend.name}!`);
+      onClose();
     } catch (error) {
       console.error("Error sharing recipe:", error);
       Alert.alert("Error", "Failed to share recipe. Please try again.");

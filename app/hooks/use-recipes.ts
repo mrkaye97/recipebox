@@ -171,6 +171,18 @@ export const useRecipes = ({
   const { mutateAsync: shareRecipe, isPending: sharePending } =
     $api.useMutation("post", "/sharing");
 
+  const { mutateAsync: downloadRecipe, isPending: downloadPending } =
+    $api.useMutation("post", "/recipes/download/{recipe_id}", {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: ["get", "/recipes"],
+        });
+        await queryClient.invalidateQueries({
+          queryKey: ["get", "/sharing"],
+        });
+      },
+    });
+
   const { mutateAsync: deleteRecipeShare, isPending: deletePending } =
     $api.useMutation("delete", "/sharing/{recipe_id}", {
       onSuccess: async () => {
@@ -239,20 +251,13 @@ export const useRecipes = ({
   );
 
   const shareRecipeWithFriend = useCallback(
-    async (
-      recipeId: string,
-      friendUserId: string,
-      source: paths["/sharing"]["post"]["requestBody"]["content"]["application/json"]["source"],
-      sourceUserId: string | undefined,
-    ) => {
+    async (recipeId: string, friendUserId: string) => {
       if (!token) throw new Error("Not authenticated");
 
       return await shareRecipe({
         body: {
           recipe_id: recipeId,
           to_user_id: friendUserId,
-          source,
-          source_user_id: sourceUserId,
         },
         headers: {
           Authorization: `Bearer ${token}`,
@@ -260,6 +265,24 @@ export const useRecipes = ({
       });
     },
     [shareRecipe, token],
+  );
+
+  const downloadRecipeToCollection = useCallback(
+    async (recipeId: string) => {
+      if (!token) throw new Error("Not authenticated");
+
+      return await downloadRecipe({
+        params: {
+          path: {
+            recipe_id: recipeId,
+          },
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    [downloadRecipe, token],
   );
 
   const deleteRecipeShareRequest = useCallback(
@@ -304,6 +327,10 @@ export const useRecipes = ({
     shareRecipe: {
       perform: shareRecipeWithFriend,
       isPending: sharePending,
+    },
+    downloadRecipe: {
+      perform: downloadRecipeToCollection,
+      isPending: downloadPending,
     },
     deleteShare: {
       perform: deleteRecipeShareRequest,

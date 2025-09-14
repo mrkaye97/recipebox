@@ -139,7 +139,6 @@ export default function RecipeDetailScreen() {
   const [justMarkedCooked, setJustMarkedCooked] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedRecipe, setEditedRecipe] = useState<RecipePatch | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
   const queryClient = useQueryClient();
 
@@ -147,8 +146,7 @@ export default function RecipeDetailScreen() {
   const {
     updateRecipe: { perform: updateRecipe, isPending: isUpdating },
     deleteRecipe: { perform: deleteRecipe, isPending: isDeleting },
-    shareRecipe,
-    deleteShare,
+    downloadRecipe,
     pendingShares,
   } = useRecipes();
   const { userId } = useUser();
@@ -198,31 +196,19 @@ export default function RecipeDetailScreen() {
   const handleSaveRecipe = async () => {
     if (!recipe || !userId || belongsToCurrentUser) return;
 
-    setIsSaving(true);
     try {
-      const shareRequest = await shareRecipe.perform(
-        recipe.id,
-        userId,
-        "download_button",
-        recipe.user_id,
-      );
+      await downloadRecipe.perform(recipe.id);
+      await pendingShares.refetch();
 
-      if (shareRequest?.recipe_id) {
-        await deleteShare.perform(shareRequest.recipe_id);
-        await pendingShares.refetch();
-
-        Alert.alert("Success", "Recipe saved to your collection!", [
-          {
-            text: "OK",
-            style: "default",
-          },
-        ]);
-      }
+      Alert.alert("Success", "Recipe saved to your collection!", [
+        {
+          text: "OK",
+          style: "default",
+        },
+      ]);
     } catch (error) {
       console.error("Error saving recipe:", error);
       Alert.alert("Error", "Failed to save recipe. Please try again.");
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -577,7 +563,7 @@ export default function RecipeDetailScreen() {
               <>
                 <TouchableOpacity
                   onPress={handleSaveRecipe}
-                  disabled={isSaving}
+                  disabled={downloadRecipe.isPending}
                   style={styles.saveRecipeButton}
                 >
                   <IconSymbol

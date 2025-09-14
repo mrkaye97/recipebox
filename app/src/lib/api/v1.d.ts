@@ -143,7 +143,7 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
-  readonly "/recipes/download": {
+  readonly "/recipes/download/{recipe_id}": {
     readonly parameters: {
       readonly query?: never;
       readonly header?: never;
@@ -153,7 +153,7 @@ export interface paths {
     readonly get?: never;
     readonly put?: never;
     /** Accept Recipe Share Request */
-    readonly post: operations["accept_recipe_share_request_recipes_download_post"];
+    readonly post: operations["accept_recipe_share_request_recipes_download__recipe_id__post"];
     readonly delete?: never;
     readonly options?: never;
     readonly head?: never;
@@ -1309,13 +1309,13 @@ export interface operations {
       };
     };
   };
-  readonly accept_recipe_share_request_recipes_download_post: {
+  readonly accept_recipe_share_request_recipes_download__recipe_id__post: {
     readonly parameters: {
-      readonly query: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path: {
         readonly recipe_id: string;
       };
-      readonly header?: never;
-      readonly path?: never;
       readonly cookie?: never;
     };
     readonly requestBody?: never;
