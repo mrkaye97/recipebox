@@ -51,7 +51,7 @@ class ShareRecipeBody(BaseModel):
 
 
 @sharing.post("")
-async def create_recipe_share_link(
+async def share_recipe(
     conn: Connection,
     user: User,
     body: ShareRecipeBody,
@@ -90,10 +90,6 @@ async def create_recipe_share_link(
         )
 
     return request
-
-
-class ActOnShareRequestBody(BaseModel):
-    token: str
 
 
 @sharing.delete("/{recipe_id}")

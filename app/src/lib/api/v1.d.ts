@@ -73,6 +73,23 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
+  readonly "/notifications": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get?: never;
+    readonly put?: never;
+    /** Push Notification */
+    readonly post: operations["push_notification_notifications_post"];
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
   readonly "/recipes": {
     readonly parameters: {
       readonly query?: never;
@@ -204,16 +221,15 @@ export interface paths {
     /** List Pending Recipe Share Requests */
     readonly get: operations["list_pending_recipe_share_requests_sharing_get"];
     readonly put?: never;
-    /** Create Recipe Share Link */
-    readonly post: operations["create_recipe_share_link_sharing_post"];
-    /** Deny Share Request */
-    readonly delete: operations["deny_share_request_sharing_delete"];
+    /** Share Recipe */
+    readonly post: operations["share_recipe_sharing_post"];
+    readonly delete?: never;
     readonly options?: never;
     readonly head?: never;
     readonly patch?: never;
     readonly trace?: never;
   };
-  readonly "/sharing/accept": {
+  readonly "/sharing/{recipe_id}": {
     readonly parameters: {
       readonly query?: never;
       readonly header?: never;
@@ -222,9 +238,9 @@ export interface paths {
     };
     readonly get?: never;
     readonly put?: never;
-    /** Accept Recipe Share Request */
-    readonly post: operations["accept_recipe_share_request_sharing_accept_post"];
-    readonly delete?: never;
+    readonly post?: never;
+    /** Delete Share Request */
+    readonly delete: operations["delete_share_request_sharing__recipe_id__delete"];
     readonly options?: never;
     readonly head?: never;
     readonly patch?: never;
@@ -370,11 +386,6 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    /** ActOnShareRequestBody */
-    readonly ActOnShareRequestBody: {
-      /** Token */
-      readonly token: string;
-    };
     /** Body_create_cookbook_recipe_recipes_cookbook_post */
     readonly Body_create_cookbook_recipe_recipes_cookbook_post: {
       /** Author */
@@ -529,8 +540,6 @@ export interface components {
       readonly from_user_name: string;
       /** Recipe Name */
       readonly recipe_name: string;
-      /** Token */
-      readonly token: string;
     };
     /** ListRecentRecipeCooksRow */
     readonly ListRecentRecipeCooksRow: {
@@ -619,6 +628,17 @@ export interface components {
       readonly location: "online";
       /** Url */
       readonly url: string;
+    };
+    /** PushNotificationBody */
+    readonly PushNotificationBody: {
+      /** Message */
+      readonly message: string;
+      readonly payload: components["schemas"]["PushNotificationPayload"];
+      /**
+       * Recipient Id
+       * Format: uuid
+       */
+      readonly recipient_id: string;
     };
     /** PushNotificationPayload */
     readonly PushNotificationPayload: {
@@ -718,12 +738,16 @@ export interface components {
        * Format: date-time
        */
       readonly expires_at: string;
-      /** Recipe Id */
-      readonly recipe_id: string | null;
-      /** To User Id */
-      readonly to_user_id: string | null;
-      /** Token */
-      readonly token: string;
+      /**
+       * Recipe Id
+       * Format: uuid
+       */
+      readonly recipe_id: string;
+      /**
+       * To User Id
+       * Format: uuid
+       */
+      readonly to_user_id: string;
     };
     /**
      * RecipeType
@@ -1071,6 +1095,41 @@ export interface operations {
       };
     };
   };
+  readonly push_notification_notifications_post: {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody: {
+      readonly content: {
+        readonly "application/json": components["schemas"]["PushNotificationBody"];
+      };
+    };
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": {
+            readonly [key: string]: boolean;
+          };
+        };
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
   readonly list_recipes_recipes_get: {
     readonly parameters: {
       readonly query?: {
@@ -1369,7 +1428,7 @@ export interface operations {
       };
     };
   };
-  readonly create_recipe_share_link_sharing_post: {
+  readonly share_recipe_sharing_post: {
     readonly parameters: {
       readonly query?: never;
       readonly header?: never;
@@ -1404,18 +1463,16 @@ export interface operations {
       };
     };
   };
-  readonly deny_share_request_sharing_delete: {
+  readonly delete_share_request_sharing__recipe_id__delete: {
     readonly parameters: {
       readonly query?: never;
       readonly header?: never;
-      readonly path?: never;
+      readonly path: {
+        readonly recipe_id: string;
+      };
       readonly cookie?: never;
     };
-    readonly requestBody: {
-      readonly content: {
-        readonly "application/json": components["schemas"]["ActOnShareRequestBody"];
-      };
-    };
+    readonly requestBody?: never;
     readonly responses: {
       /** @description Successful Response */
       readonly 200: {
@@ -1425,41 +1482,6 @@ export interface operations {
         content: {
           readonly "application/json":
             | components["schemas"]["RecipeShareRequest"]
-            | null;
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  readonly accept_recipe_share_request_sharing_accept_post: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody: {
-      readonly content: {
-        readonly "application/json": components["schemas"]["ActOnShareRequestBody"];
-      };
-    };
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json":
-            | components["schemas"]["src__schemas__Recipe"]
             | null;
         };
       };
