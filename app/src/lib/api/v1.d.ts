@@ -143,6 +143,23 @@ export interface paths {
     readonly patch?: never;
     readonly trace?: never;
   };
+  readonly "/recipes/download": {
+    readonly parameters: {
+      readonly query?: never;
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly get?: never;
+    readonly put?: never;
+    /** Accept Recipe Share Request */
+    readonly post: operations["accept_recipe_share_request_recipes_download_post"];
+    readonly delete?: never;
+    readonly options?: never;
+    readonly head?: never;
+    readonly patch?: never;
+    readonly trace?: never;
+  };
   readonly "/recipes/filter-options": {
     readonly parameters: {
       readonly query?: never;
@@ -773,13 +790,6 @@ export interface components {
        */
       readonly recipe_id: string;
       /**
-       * Source
-       * @enum {string}
-       */
-      readonly source: "outbound_share" | "download_button";
-      /** Source User Id */
-      readonly source_user_id?: string | null;
-      /**
        * To User Id
        * Format: uuid
        */
@@ -1276,6 +1286,39 @@ export interface operations {
         readonly "multipart/form-data": components["schemas"]["Body_create_cookbook_recipe_recipes_cookbook_post"];
       };
     };
+    readonly responses: {
+      /** @description Successful Response */
+      readonly 200: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json":
+            | components["schemas"]["src__schemas__Recipe"]
+            | null;
+        };
+      };
+      /** @description Validation Error */
+      readonly 422: {
+        headers: {
+          readonly [name: string]: unknown;
+        };
+        content: {
+          readonly "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  readonly accept_recipe_share_request_recipes_download_post: {
+    readonly parameters: {
+      readonly query: {
+        readonly recipe_id: string;
+      };
+      readonly header?: never;
+      readonly path?: never;
+      readonly cookie?: never;
+    };
+    readonly requestBody?: never;
     readonly responses: {
       /** @description Successful Response */
       readonly 200: {

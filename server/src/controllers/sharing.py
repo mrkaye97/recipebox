@@ -1,10 +1,9 @@
 import asyncio
 from datetime import UTC, datetime, timedelta
-from typing import Literal
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel
 
 from src.crud.models import RecipeShareRequest
 from src.crud.recipes import AsyncQuerier as Recipes
@@ -37,17 +36,6 @@ async def list_pending_recipe_share_requests(
 class ShareRecipeBody(BaseModel):
     recipe_id: UUID
     to_user_id: UUID
-    source: Literal["outbound_share", "download_button"]
-    source_user_id: UUID | None = None
-
-    @model_validator(mode="after")
-    def validate_source_user_id(self) -> "ShareRecipeBody":
-        if self.source == "download_button" and not self.source_user_id:
-            raise ValueError(
-                "source_user_id is required when source is download_button"
-            )
-
-        return self
 
 
 @sharing.post("")
@@ -60,12 +48,9 @@ async def share_recipe(
     sharing = Sharing(conn)
     users = Users(conn)
 
-    recipe_owner_user_id = (
-        user.id if body.source == "outbound_share" else body.source_user_id
-    )
     recipient = await users.find_user_by_id(userid=body.to_user_id)
 
-    if not recipe_owner_user_id or not recipient:
+    if not recipient:
         raise HTTPException(status_code=400, detail="recipient or owner not found")
 
     request = await sharing.get_inbound_share_request(
@@ -85,7 +70,7 @@ async def share_recipe(
             expiresat=datetime.now(UTC) + timedelta(days=7),
         )
 
-    if body.source == "outbound_share" and recipient.expo_push_token:
+    if recipient.expo_push_token:
         await asyncio.to_thread(
             send_push_message,
             recipient=recipient,

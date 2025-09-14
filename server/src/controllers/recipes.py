@@ -12,6 +12,7 @@ from src.crud.recipes import (
     ListRecipeFilterOptionsRow,
     UpdateRecipeParams,
 )
+from src.crud.sharing import AsyncQuerier as Sharing
 from src.dependencies import Connection, User
 from src.logger import get_logger
 from src.parsing import (
@@ -443,3 +444,53 @@ async def delete_recipe(conn: Connection, _: User, id: UUID) -> UUID:
     await db.delete_recipe(recipeid=id)
 
     return id
+
+
+@recipes.post("/download")
+async def accept_recipe_share_request(
+    conn: Connection,
+    user: User,
+    recipe_id: UUID,
+) -> Recipe | None:
+    sharing = Sharing(conn)
+    recipes = AsyncQuerier(conn)
+
+    share_request = await sharing.get_inbound_share_request(
+        recipeid=recipe_id,
+        touserid=user.id,
+    )
+
+    if not share_request:
+        raise HTTPException(
+            status_code=404, detail="Share request not found or expired"
+        )
+
+    recipe = await recipes.get_recipe(recipeid=share_request.recipe_id)
+
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+
+    dietary_restrictions = recipes.list_recipe_dietary_restrictions_met(
+        recipeids=[recipe.id]
+    )
+    instructions = recipes.list_recipe_instructions(recipeids=[recipe.id])
+    ingredients = recipes.list_recipe_ingredients(recipeids=[recipe.id])
+    tags = recipes.list_recipe_tags(recipeids=[recipe.id])
+    db_recipe = Recipe.from_db(
+        recipe=recipe,
+        ingredients=[i async for i in ingredients],
+        dietary_restrictions_met=[
+            d.dietary_restriction async for d in dietary_restrictions
+        ],
+        instructions=[i async for i in instructions],
+        tags=[t.tag async for t in tags],
+    )
+
+    return await ingest_recipe(
+        db=recipes,
+        user=user,
+        params=db_recipe,
+        location=RecipeLocation.model_validate(recipe.location),
+        notes=None,
+        parent_recipe_id=recipe.id,
+    )
