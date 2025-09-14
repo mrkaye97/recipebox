@@ -344,7 +344,7 @@ export default function RecipesScreen({
                 />
               </TouchableOpacity>
             </View>
-            <PendingRecipeShares />
+            <PendingRecipeShares onClose={() => setSharesDrawerVisible(false)} />
           </ThemedView>
         </Modal>
 

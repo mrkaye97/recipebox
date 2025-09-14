@@ -23,7 +23,7 @@ import {
 
 type PendingShare = components["schemas"]["ListPendingRecipeShareRequestsRow"];
 
-export function PendingRecipeShares() {
+export function PendingRecipeShares({ onClose }: { onClose?: () => void }) {
   const { pendingShares, deleteShare } = useRecipes();
 
   const handleDeleteShare = async (
@@ -56,7 +56,7 @@ export function PendingRecipeShares() {
   };
 
   const handleViewRecipe = (recipeId: string) => {
-    console.log("Viewing recipe:", recipeId);
+    onClose?.();
     router.push(`/recipe/${recipeId}`);
   };
 
