@@ -338,7 +338,6 @@ CREATE TABLE public.recipe_recommendation (
 --
 
 CREATE TABLE public.recipe_share_request (
-    token text NOT NULL,
     to_user_id uuid,
     recipe_id uuid,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
@@ -449,14 +448,6 @@ ALTER TABLE ONLY public.recipe
 
 ALTER TABLE ONLY public.recipe_recommendation
     ADD CONSTRAINT recipe_recommendation_pkey PRIMARY KEY (id);
-
-
---
--- Name: recipe_share_request recipe_share_request_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.recipe_share_request
-    ADD CONSTRAINT recipe_share_request_pkey PRIMARY KEY (token);
 
 
 --
@@ -678,4 +669,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20250907193907'),
     ('20250907205340'),
     ('20250909235457'),
-    ('20250912212801');
+    ('20250912212801'),
+    ('20250914141917');

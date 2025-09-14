@@ -12,50 +12,32 @@ import sqlalchemy.ext.asyncio
 
 from src.crud import models
 
-ACCEPT_RECIPE_SHARE_REQUEST = """-- name: accept_recipe_share_request \\:one
-WITH deleted_request AS (
-    DELETE FROM recipe_share_request rsr
-    USING recipe r
-    WHERE rsr.recipe_id = r.id
-      AND rsr.token = :p1\\:\\:TEXT
-      AND rsr.expires_at > NOW()
-    RETURNING rsr.recipe_id
-)
-SELECT r.id, r.user_id, r.name, r.author, r.cuisine, r.location, r.time_estimate_minutes, r.notes, r.last_made_at, r.created_at, r.updated_at, r.type, r.meal, r.parent_recipe_id
-FROM recipe r
-JOIN deleted_request dr ON r.id = dr.recipe_id
-"""
-
-
 CREATE_RECIPE_SHARE_REQUEST = """-- name: create_recipe_share_request \\:one
 INSERT INTO recipe_share_request (
     recipe_id,
-    token,
     to_user_id,
     expires_at
 )
 VALUES (
     :p1\\:\\:UUID,
-    :p2\\:\\:TEXT,
-    :p3\\:\\:UUID,
-    :p4\\:\\:TIMESTAMPTZ
+    :p2\\:\\:UUID,
+    :p3\\:\\:TIMESTAMPTZ
 )
-RETURNING token, to_user_id, recipe_id, created_at, expires_at
+RETURNING to_user_id, recipe_id, created_at, expires_at
 """
 
 
 DELETE_SHARING_REQUEST = """-- name: delete_sharing_request \\:one
 DELETE FROM recipe_share_request
 WHERE
-    token = :p1\\:\\:TEXT
+    recipe_id = :p1\\:\\:UUID
     AND to_user_id = :p2\\:\\:UUID
-RETURNING token, to_user_id, recipe_id, created_at, expires_at
+RETURNING to_user_id, recipe_id, created_at, expires_at
 """
 
 
 LIST_PENDING_RECIPE_SHARE_REQUESTS = """-- name: list_pending_recipe_share_requests \\:many
 SELECT
-    rsr.token,
     r.name AS recipe_name,
     u.name AS from_user_name,
     u.email AS from_user_email
@@ -69,7 +51,6 @@ ORDER BY rsr.created_at DESC
 
 
 class ListPendingRecipeShareRequestsRow(pydantic.BaseModel):
-    token: str
     recipe_name: str
     from_user_name: str
     from_user_email: str
@@ -79,76 +60,40 @@ class AsyncQuerier:
     def __init__(self, conn: sqlalchemy.ext.asyncio.AsyncConnection):
         self._conn = conn
 
-    async def accept_recipe_share_request(self, *, token: str) -> models.Recipe | None:
-        row = (
-            await self._conn.execute(
-                sqlalchemy.text(ACCEPT_RECIPE_SHARE_REQUEST), {"p1": token}
-            )
-        ).first()
-        if row is None:
-            return None
-        return models.Recipe(
-            id=row[0],
-            user_id=row[1],
-            name=row[2],
-            author=row[3],
-            cuisine=row[4],
-            location=row[5],
-            time_estimate_minutes=row[6],
-            notes=row[7],
-            last_made_at=row[8],
-            created_at=row[9],
-            updated_at=row[10],
-            type=row[11],
-            meal=row[12],
-            parent_recipe_id=row[13],
-        )
-
     async def create_recipe_share_request(
-        self,
-        *,
-        recipeid: uuid.UUID,
-        token: str,
-        touserid: uuid.UUID,
-        expiresat: datetime.datetime,
+        self, *, recipeid: uuid.UUID, touserid: uuid.UUID, expiresat: datetime.datetime
     ) -> models.RecipeShareRequest | None:
         row = (
             await self._conn.execute(
                 sqlalchemy.text(CREATE_RECIPE_SHARE_REQUEST),
-                {
-                    "p1": recipeid,
-                    "p2": token,
-                    "p3": touserid,
-                    "p4": expiresat,
-                },
+                {"p1": recipeid, "p2": touserid, "p3": expiresat},
             )
         ).first()
         if row is None:
             return None
         return models.RecipeShareRequest(
-            token=row[0],
-            to_user_id=row[1],
-            recipe_id=row[2],
-            created_at=row[3],
-            expires_at=row[4],
+            to_user_id=row[0],
+            recipe_id=row[1],
+            created_at=row[2],
+            expires_at=row[3],
         )
 
     async def delete_sharing_request(
-        self, *, token: str, touserid: uuid.UUID
+        self, *, recipeid: uuid.UUID, touserid: uuid.UUID
     ) -> models.RecipeShareRequest | None:
         row = (
             await self._conn.execute(
-                sqlalchemy.text(DELETE_SHARING_REQUEST), {"p1": token, "p2": touserid}
+                sqlalchemy.text(DELETE_SHARING_REQUEST),
+                {"p1": recipeid, "p2": touserid},
             )
         ).first()
         if row is None:
             return None
         return models.RecipeShareRequest(
-            token=row[0],
-            to_user_id=row[1],
-            recipe_id=row[2],
-            created_at=row[3],
-            expires_at=row[4],
+            to_user_id=row[0],
+            recipe_id=row[1],
+            created_at=row[2],
+            expires_at=row[3],
         )
 
     async def list_pending_recipe_share_requests(
@@ -159,8 +104,7 @@ class AsyncQuerier:
         )
         async for row in result:
             yield ListPendingRecipeShareRequestsRow(
-                token=row[0],
-                recipe_name=row[1],
-                from_user_name=row[2],
-                from_user_email=row[3],
+                recipe_name=row[0],
+                from_user_name=row[1],
+                from_user_email=row[2],
             )
