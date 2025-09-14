@@ -29,7 +29,7 @@ export function PendingRecipeShares({ onClose }: { onClose?: () => void }) {
   const handleDeleteShare = async (
     recipeId: string,
     recipeName: string,
-    fromUserName: string
+    fromUserName: string,
   ) => {
     Alert.alert(
       "Delete Share",
@@ -51,7 +51,7 @@ export function PendingRecipeShares({ onClose }: { onClose?: () => void }) {
             }
           },
         },
-      ]
+      ],
     );
   };
 

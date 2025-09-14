@@ -68,16 +68,22 @@ async def share_recipe(
     if not recipe_owner_user_id or not recipient:
         raise HTTPException(status_code=400, detail="recipient or owner not found")
 
+    request = await sharing.get_inbound_share_request(
+        recipeid=body.recipe_id,
+        touserid=body.to_user_id,
+    )
+
     recipe = await recipes.get_recipe(recipeid=body.recipe_id)
 
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
 
-    request = await sharing.create_recipe_share_request(
-        recipeid=recipe.id,
-        touserid=body.to_user_id,
-        expiresat=datetime.now(UTC) + timedelta(days=7),
-    )
+    if not request:
+        request = await sharing.create_recipe_share_request(
+            recipeid=recipe.id,
+            touserid=body.to_user_id,
+            expiresat=datetime.now(UTC) + timedelta(days=7),
+        )
 
     if body.source == "outbound_share" and recipient.expo_push_token:
         await asyncio.to_thread(

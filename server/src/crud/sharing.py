@@ -36,6 +36,16 @@ RETURNING to_user_id, recipe_id, created_at, expires_at
 """
 
 
+GET_INBOUND_SHARE_REQUEST = """-- name: get_inbound_share_request \\:one
+SELECT to_user_id, recipe_id, created_at, expires_at
+FROM recipe_share_request
+WHERE
+    recipe_id = :p1\\:\\:UUID
+    AND to_user_id = :p2\\:\\:UUID
+    AND expires_at > NOW()
+"""
+
+
 LIST_PENDING_RECIPE_SHARE_REQUESTS = """-- name: list_pending_recipe_share_requests \\:many
 SELECT
     r.id,
@@ -84,6 +94,24 @@ class AsyncQuerier:
         row = (
             await self._conn.execute(
                 sqlalchemy.text(DELETE_SHARING_REQUEST),
+                {"p1": recipeid, "p2": touserid},
+            )
+        ).first()
+        if row is None:
+            return None
+        return models.RecipeShareRequest(
+            to_user_id=row[0],
+            recipe_id=row[1],
+            created_at=row[2],
+            expires_at=row[3],
+        )
+
+    async def get_inbound_share_request(
+        self, *, recipeid: uuid.UUID, touserid: uuid.UUID
+    ) -> models.RecipeShareRequest | None:
+        row = (
+            await self._conn.execute(
+                sqlalchemy.text(GET_INBOUND_SHARE_REQUEST),
                 {"p1": recipeid, "p2": touserid},
             )
         ).first()

@@ -25,6 +25,15 @@ AND rsr.expires_at > NOW()
 ORDER BY rsr.created_at DESC
 ;
 
+-- name: GetInboundShareRequest :one
+SELECT *
+FROM recipe_share_request
+WHERE
+    recipe_id = @recipeId::UUID
+    AND to_user_id = @toUserId::UUID
+    AND expires_at > NOW()
+;
+
 -- name: DeleteSharingRequest :one
 DELETE FROM recipe_share_request
 WHERE
