@@ -455,17 +455,7 @@ async def accept_recipe_share_request(
     sharing = Sharing(conn)
     recipes = AsyncQuerier(conn)
 
-    share_request = await sharing.get_inbound_share_request(
-        recipeid=recipe_id,
-        touserid=user.id,
-    )
-
-    if not share_request:
-        raise HTTPException(
-            status_code=404, detail="Share request not found or expired"
-        )
-
-    recipe = await recipes.get_recipe(recipeid=share_request.recipe_id)
+    recipe = await recipes.get_recipe(recipeid=recipe_id)
 
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
@@ -495,10 +485,9 @@ async def accept_recipe_share_request(
         parent_recipe_id=recipe.id,
     )
 
-    if share_request:
-        await sharing.delete_sharing_request(
-            recipeid=share_request.recipe_id,
-            touserid=share_request.to_user_id,
-        )
+    await sharing.delete_sharing_request(
+        recipeid=recipe_id,
+        touserid=user.id,
+    )
 
     return ingest_result
