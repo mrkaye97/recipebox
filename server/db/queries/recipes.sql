@@ -107,27 +107,7 @@ ON CONFLICT DO NOTHING
 RETURNING *;
 
 -- name: ListRecipes :many
-SELECT
-    r.id,
-    r.user_id,
-    r.name,
-    r.author,
-    r.cuisine,
-    r.location,
-    r.time_estimate_minutes,
-    CASE
-        WHEN @onlyUser::BOOLEAN AND r.user_id = @userId::UUID THEN r.last_made_at
-        ELSE NULL
-    END AS last_made_at,
-    r.created_at,
-    r.updated_at,
-    r.type,
-    r.meal,
-    r.parent_recipe_id,
-    CASE
-        WHEN @onlyUser::BOOLEAN AND r.user_id = @userId::UUID THEN r.notes
-        ELSE NULL
-    END AS notes
+SELECT r.*
 FROM recipe r
 JOIN "user" u ON u.id = r.user_id
 WHERE
@@ -161,27 +141,7 @@ ORDER BY r.updated_at DESC
 ;
 
 -- name: GetRecipe :one
-SELECT
-    r.id,
-    r.user_id,
-    r.name,
-    r.author,
-    r.cuisine,
-    r.location,
-    r.time_estimate_minutes,
-    CASE
-        WHEN r.user_id = @userId::UUID THEN r.last_made_at
-        ELSE NULL
-    END AS last_made_at,
-    r.created_at,
-    r.updated_at,
-    r.type,
-    r.meal,
-    r.parent_recipe_id,
-    CASE
-        WHEN r.user_id = @userId::UUID THEN r.notes
-        ELSE NULL
-    END AS notes
+SELECT r.*
 FROM recipe r
 JOIN "user" u ON u.id = r.user_id
 WHERE

@@ -9,9 +9,7 @@ from src.crud.models import DietaryRestriction, Meal, RecipeType
 from src.crud.models import Recipe as DbRecipe
 from src.crud.recipes import (
     AsyncQuerier,
-    GetRecipeRow,
     ListRecipeFilterOptionsRow,
-    ListRecipesRow,
     UpdateRecipeParams,
 )
 from src.dependencies import Connection, User
@@ -132,7 +130,7 @@ month_to_ingredients = {
 }
 
 
-def recipe_row_to_recipe(recipe: GetRecipeRow | ListRecipesRow) -> DbRecipe:
+def recipe_row_to_recipe(user_id: UUID, recipe: DbRecipe) -> DbRecipe:
     return DbRecipe(
         id=recipe.id,
         user_id=recipe.user_id,
@@ -141,8 +139,8 @@ def recipe_row_to_recipe(recipe: GetRecipeRow | ListRecipesRow) -> DbRecipe:
         cuisine=recipe.cuisine,
         location=recipe.location,
         time_estimate_minutes=recipe.time_estimate_minutes,
-        notes=recipe.notes,
-        last_made_at=recipe.last_made_at,
+        notes=recipe.notes if user_id == recipe.user_id else None,
+        last_made_at=recipe.last_made_at if user_id == recipe.user_id else None,
         created_at=recipe.created_at,
         updated_at=recipe.updated_at,
         type=recipe.type,
@@ -155,7 +153,7 @@ async def list_recipes_from_db(
     user_id: UUID, search: str | None, only_user: bool, db: AsyncQuerier
 ) -> list[Recipe]:
     recipes = [
-        recipe_row_to_recipe(r)
+        recipe_row_to_recipe(user_id, r)
         async for r in db.list_recipes(
             userid=user_id,
             onlyuser=only_user,
@@ -226,14 +224,14 @@ async def get_recipe(
     id: UUID,
 ) -> Recipe:
     db = AsyncQuerier(conn)
-    recipe = await db.get_recipe(recipeid=id, userid=user.id)
+    recipe = await db.get_recipe(recipeid=id)
 
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
 
     return await populate_recipe_data(
         db=db,
-        recipes=recipe_row_to_recipe(recipe),
+        recipes=recipe_row_to_recipe(user.id, recipe),
     )
 
 

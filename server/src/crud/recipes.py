@@ -2,7 +2,6 @@
 # versions:
 #   sqlc v1.28.0
 # source: recipes.sql
-import datetime
 import uuid
 from collections.abc import AsyncIterator
 from typing import Any
@@ -155,49 +154,12 @@ WHERE recipe_id = :p1\\:\\:UUID
 
 
 GET_RECIPE = """-- name: get_recipe \\:one
-SELECT
-    r.id,
-    r.user_id,
-    r.name,
-    r.author,
-    r.cuisine,
-    r.location,
-    r.time_estimate_minutes,
-    CASE
-        WHEN r.user_id = :p1\\:\\:UUID THEN r.last_made_at
-        ELSE NULL
-    END AS last_made_at,
-    r.created_at,
-    r.updated_at,
-    r.type,
-    r.meal,
-    r.parent_recipe_id,
-    CASE
-        WHEN r.user_id = :p1\\:\\:UUID THEN r.notes
-        ELSE NULL
-    END AS notes
+SELECT r.id, r.user_id, r.name, r.author, r.cuisine, r.location, r.time_estimate_minutes, r.notes, r.last_made_at, r.created_at, r.updated_at, r.type, r.meal, r.parent_recipe_id
 FROM recipe r
 JOIN "user" u ON u.id = r.user_id
 WHERE
-    r.id = :p2\\:\\:UUID
+    r.id = :p1\\:\\:UUID
 """
-
-
-class GetRecipeRow(pydantic.BaseModel):
-    id: uuid.UUID
-    user_id: uuid.UUID
-    name: str
-    author: str
-    cuisine: str
-    location: Any
-    time_estimate_minutes: int
-    last_made_at: Any | None
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
-    type: models.RecipeType
-    meal: models.Meal
-    parent_recipe_id: uuid.UUID | None
-    notes: Any | None
 
 
 LIST_RECIPE_DIETARY_RESTRICTIONS_MET = """-- name: list_recipe_dietary_restrictions_met \\:many
@@ -246,27 +208,7 @@ WHERE recipe_id = ANY(:p1\\:\\:UUID[])
 
 
 LIST_RECIPES = """-- name: list_recipes \\:many
-SELECT
-    r.id,
-    r.user_id,
-    r.name,
-    r.author,
-    r.cuisine,
-    r.location,
-    r.time_estimate_minutes,
-    CASE
-        WHEN :p1\\:\\:BOOLEAN AND r.user_id = :p2\\:\\:UUID THEN r.last_made_at
-        ELSE NULL
-    END AS last_made_at,
-    r.created_at,
-    r.updated_at,
-    r.type,
-    r.meal,
-    r.parent_recipe_id,
-    CASE
-        WHEN :p1\\:\\:BOOLEAN AND r.user_id = :p2\\:\\:UUID THEN r.notes
-        ELSE NULL
-    END AS notes
+SELECT r.id, r.user_id, r.name, r.author, r.cuisine, r.location, r.time_estimate_minutes, r.notes, r.last_made_at, r.created_at, r.updated_at, r.type, r.meal, r.parent_recipe_id
 FROM recipe r
 JOIN "user" u ON u.id = r.user_id
 WHERE
@@ -298,23 +240,6 @@ WHERE
     )
 ORDER BY r.updated_at DESC
 """
-
-
-class ListRecipesRow(pydantic.BaseModel):
-    id: uuid.UUID
-    user_id: uuid.UUID
-    name: str
-    author: str
-    cuisine: str
-    location: Any
-    time_estimate_minutes: int
-    last_made_at: Any | None
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
-    type: models.RecipeType
-    meal: models.Meal
-    parent_recipe_id: uuid.UUID | None
-    notes: Any | None
 
 
 LOG_RECIPE_RECOMMENDATION = """-- name: log_recipe_recommendation \\:exec
@@ -578,17 +503,13 @@ class AsyncQuerier:
             sqlalchemy.text(DELETE_RECIPE_TAGS_BY_RECIPE_ID), {"p1": recipeid}
         )
 
-    async def get_recipe(
-        self, *, userid: uuid.UUID, recipeid: uuid.UUID
-    ) -> GetRecipeRow | None:
+    async def get_recipe(self, *, recipeid: uuid.UUID) -> models.Recipe | None:
         row = (
-            await self._conn.execute(
-                sqlalchemy.text(GET_RECIPE), {"p1": userid, "p2": recipeid}
-            )
+            await self._conn.execute(sqlalchemy.text(GET_RECIPE), {"p1": recipeid})
         ).first()
         if row is None:
             return None
-        return GetRecipeRow(
+        return models.Recipe(
             id=row[0],
             user_id=row[1],
             name=row[2],
@@ -596,13 +517,13 @@ class AsyncQuerier:
             cuisine=row[4],
             location=row[5],
             time_estimate_minutes=row[6],
-            last_made_at=row[7],
-            created_at=row[8],
-            updated_at=row[9],
-            type=row[10],
-            meal=row[11],
-            parent_recipe_id=row[12],
-            notes=row[13],
+            notes=row[7],
+            last_made_at=row[8],
+            created_at=row[9],
+            updated_at=row[10],
+            type=row[11],
+            meal=row[12],
+            parent_recipe_id=row[13],
         )
 
     async def list_recipe_dietary_restrictions_met(
@@ -682,12 +603,12 @@ class AsyncQuerier:
 
     async def list_recipes(
         self, *, onlyuser: bool, userid: uuid.UUID, search: str | None
-    ) -> AsyncIterator[ListRecipesRow]:
+    ) -> AsyncIterator[models.Recipe]:
         result = await self._conn.stream(
             sqlalchemy.text(LIST_RECIPES), {"p1": onlyuser, "p2": userid, "p3": search}
         )
         async for row in result:
-            yield ListRecipesRow(
+            yield models.Recipe(
                 id=row[0],
                 user_id=row[1],
                 name=row[2],
@@ -695,13 +616,13 @@ class AsyncQuerier:
                 cuisine=row[4],
                 location=row[5],
                 time_estimate_minutes=row[6],
-                last_made_at=row[7],
-                created_at=row[8],
-                updated_at=row[9],
-                type=row[10],
-                meal=row[11],
-                parent_recipe_id=row[12],
-                notes=row[13],
+                notes=row[7],
+                last_made_at=row[8],
+                created_at=row[9],
+                updated_at=row[10],
+                type=row[11],
+                meal=row[12],
+                parent_recipe_id=row[13],
             )
 
     async def log_recipe_recommendation(
