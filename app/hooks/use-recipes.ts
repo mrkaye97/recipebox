@@ -70,7 +70,7 @@ export const useRecipes = ({
       },
     },
     {
-      enabled: !!token,
+      enabled: !!token && onlyCurrentUser,
     },
   );
 
