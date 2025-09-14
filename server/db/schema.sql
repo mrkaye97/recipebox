@@ -338,8 +338,8 @@ CREATE TABLE public.recipe_recommendation (
 --
 
 CREATE TABLE public.recipe_share_request (
-    to_user_id uuid,
-    recipe_id uuid,
+    to_user_id uuid NOT NULL,
+    recipe_id uuid NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     expires_at timestamp with time zone NOT NULL
 );
@@ -448,6 +448,14 @@ ALTER TABLE ONLY public.recipe
 
 ALTER TABLE ONLY public.recipe_recommendation
     ADD CONSTRAINT recipe_recommendation_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: recipe_share_request recipe_share_request_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recipe_share_request
+    ADD CONSTRAINT recipe_share_request_pkey PRIMARY KEY (recipe_id, to_user_id);
 
 
 --

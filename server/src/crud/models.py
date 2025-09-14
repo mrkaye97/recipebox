@@ -117,8 +117,8 @@ class RecipeRecommendation(pydantic.BaseModel):
 
 
 class RecipeShareRequest(pydantic.BaseModel):
-    to_user_id: uuid.UUID | None
-    recipe_id: uuid.UUID | None
+    to_user_id: uuid.UUID
+    recipe_id: uuid.UUID
     created_at: datetime.datetime
     expires_at: datetime.datetime
 

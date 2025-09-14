@@ -114,8 +114,8 @@ CREATE TABLE recipe_recommendation (
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 CREATE TABLE recipe_share_request (
-    to_user_id uuid,
-    recipe_id uuid,
+    to_user_id uuid NOT NULL,
+    recipe_id uuid NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     expires_at timestamp with time zone NOT NULL
 );
@@ -158,6 +158,8 @@ ALTER TABLE ONLY recipe
     ADD CONSTRAINT recipe_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY recipe_recommendation
     ADD CONSTRAINT recipe_recommendation_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY recipe_share_request
+    ADD CONSTRAINT recipe_share_request_pkey PRIMARY KEY (recipe_id, to_user_id);
 ALTER TABLE ONLY recipe_tag
     ADD CONSTRAINT recipe_tag_pkey PRIMARY KEY (recipe_id, tag);
 ALTER TABLE ONLY schema_migrations
