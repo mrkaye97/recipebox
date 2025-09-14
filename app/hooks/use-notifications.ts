@@ -6,7 +6,7 @@ import { router } from "expo-router";
 import { useCallback, useEffect } from "react";
 import { useUser } from "./use-user";
 
-type PushNotificationPayload = components["schemas"]["PushNotificationPayload"]
+type PushNotificationPayload = components["schemas"]["PushNotificationPayload"];
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -30,7 +30,8 @@ export const useNotifications = () => {
 
     const responseSubscription =
       Notifications.addNotificationResponseReceivedListener((response) => {
-        const data: PushNotificationPayload = response.notification.request.content.data as PushNotificationPayload;
+        const data: PushNotificationPayload = response.notification.request
+          .content.data as PushNotificationPayload;
 
         if (!data || !data.navigate_to) return;
 
