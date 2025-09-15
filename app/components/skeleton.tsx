@@ -1,6 +1,6 @@
-import React from "react";
-import { View, StyleSheet, Animated, Easing } from "react-native";
 import { Colors } from "@/constants/design-system";
+import React from "react";
+import { Animated, Easing, StyleSheet, View } from "react-native";
 
 interface SkeletonProps {
   width?: number | string;
@@ -32,7 +32,7 @@ export function Skeleton({
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: false,
         }),
-      ]),
+      ])
     );
     animation.start();
     return () => animation.stop();
@@ -116,29 +116,6 @@ export function PendingShareSkeleton() {
         <Skeleton width={80} height={32} borderRadius={16} />
         <Skeleton width={80} height={32} borderRadius={16} />
       </View>
-    </View>
-  );
-}
-
-export function FriendSkeleton() {
-  return (
-    <View style={styles.friendCard}>
-      <View style={styles.friendInfo}>
-        <Skeleton width="70%" height={18} style={styles.friendName} />
-        <Skeleton width="50%" height={14} />
-      </View>
-    </View>
-  );
-}
-
-export function FriendRequestSkeleton() {
-  return (
-    <View style={styles.friendCard}>
-      <View style={styles.friendInfo}>
-        <Skeleton width="60%" height={18} style={styles.friendName} />
-        <Skeleton width="40%" height={14} />
-      </View>
-      <Skeleton width={70} height={32} borderRadius={8} />
     </View>
   );
 }

@@ -14,11 +14,10 @@ import React, {
 import Storage from "react-native-storage";
 
 type AccessToken = string;
+type User = components["schemas"]["src__crud__models__User"];
 
 export type PrivacyPreference = components["schemas"]["UserPrivacyPreference"];
-export type User = components["schemas"]["src__crud__models__User"];
 export const PrivacyPreferences: PrivacyPreference[] = ["public", "private"];
-
 interface TokenPayload {
   sub: string; // user ID
   exp: number;
@@ -40,7 +39,7 @@ interface UserContextType {
     name: string,
     password: string,
     privacy_preference: PrivacyPreference,
-    signup_token: string,
+    signup_token: string
   ) => Promise<AccessToken>;
   logout: () => Promise<void>;
   getToken: () => Promise<string | null>;
@@ -75,7 +74,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
         defaultExpires: 1000 * 3600 * 24 * 31,
         enableCache: true,
       }),
-    [],
+    []
   );
 
   const { mutateAsync: loginMutation, isPending: isLoginPending } =
@@ -94,7 +93,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     },
     {
       enabled: !!token,
-    },
+    }
   );
 
   const saveToken = useCallback(
@@ -109,7 +108,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
         setToken(token);
       } catch {}
     },
-    [storage],
+    [storage]
   );
 
   const getToken = useCallback(async () => {
@@ -176,7 +175,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
       return access_token;
     },
-    [loginMutation, saveToken],
+    [loginMutation, saveToken]
   );
 
   const register = useCallback(
@@ -185,7 +184,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
       name: string,
       password: string,
       privacy_preference: PrivacyPreference,
-      signup_token: string,
+      signup_token: string
     ): Promise<AccessToken> => {
       const { access_token } = await registerMutation({
         body: {
@@ -203,7 +202,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
       return access_token;
     },
-    [registerMutation, saveToken],
+    [registerMutation, saveToken]
   );
 
   const logout = useCallback(async () => {

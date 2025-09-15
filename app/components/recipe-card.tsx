@@ -17,20 +17,6 @@ type Recipe = Omit<
   "created_at" | "updated_at"
 >;
 
-export interface RecipeCardProps {
-  id: string;
-  name: string;
-  author: string;
-  cuisine: string;
-  timeEstimate: number;
-  cookedAt?: string;
-  userId: string;
-  userName?: string;
-  currentUserId: string;
-  meal: string;
-  type: string;
-}
-
 const formatCookedDate = (cookedAt: string) => {
   const date = new Date(cookedAt);
   const now = new Date();
@@ -38,7 +24,7 @@ const formatCookedDate = (cookedAt: string) => {
   const dateStart = new Date(
     date.getFullYear(),
     date.getMonth(),
-    date.getDate(),
+    date.getDate()
   );
   const nowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
