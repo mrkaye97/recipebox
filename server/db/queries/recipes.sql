@@ -121,12 +121,6 @@ WHERE
             AND r.parent_recipe_id IS NULL
             -- recipe does not belong to current user
             AND r.user_id != @userId::UUID
-            -- recipe belongs to a friend of the current user
-            AND u.id IN (
-                SELECT friend_user_id
-                FROM friendship
-                WHERE user_id = @userId::UUID
-            )
         )
         OR (
             @onlyUser::BOOLEAN

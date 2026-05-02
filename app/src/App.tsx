@@ -313,6 +313,8 @@ function RecipeBox({
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const searchTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [view, setView] = useState<"box" | "browse">("box");
+  const [addingRecipeId, setAddingRecipeId] = useState<string | null>(null);
 
   const authHeaders = useMemo(
     () => ({ Authorization: `Bearer ${token}` }),
@@ -320,13 +322,13 @@ function RecipeBox({
   );
 
   const fetchRecipes = useCallback(
-    async (searchQuery: string) => {
+    async (searchQuery: string, onlyUser: boolean) => {
       const { data } = await api.GET("/recipes", {
         headers: authHeaders,
         params: {
           query: {
             search: searchQuery || undefined,
-            only_user: true,
+            only_user: onlyUser,
           },
         },
       });
@@ -337,8 +339,12 @@ function RecipeBox({
   );
 
   useEffect(() => {
-    fetchRecipes("");
-  }, [fetchRecipes]);
+    setLoading(true);
+    setRecipes([]);
+    setSearch("");
+    setDebouncedSearch("");
+    fetchRecipes("", view === "box");
+  }, [fetchRecipes, view]);
 
   useEffect(() => {
     clearTimeout(searchTimeout.current);
@@ -349,8 +355,18 @@ function RecipeBox({
   }, [search]);
 
   useEffect(() => {
-    fetchRecipes(debouncedSearch);
-  }, [debouncedSearch, fetchRecipes]);
+    fetchRecipes(debouncedSearch, view === "box");
+  }, [debouncedSearch, fetchRecipes, view]);
+
+  const addToBox = async (recipeId: string) => {
+    setAddingRecipeId(recipeId);
+    await api.POST("/recipes/download/{recipe_id}", {
+      headers: authHeaders,
+      params: { path: { recipe_id: recipeId } },
+    });
+    setAddingRecipeId(null);
+    fetchRecipes(debouncedSearch, false);
+  };
 
   const typeLabel = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
 
@@ -381,7 +397,7 @@ function RecipeBox({
   return (
     <div className="min-h-screen bg-cream flex flex-col items-center px-4 py-8">
       {/* Header */}
-      <div className="w-full max-w-xl mb-6 flex items-end justify-between">
+      <div className="w-full max-w-xl mb-4 flex items-end justify-between">
         <h1 className="font-display text-4xl font-bold text-ink">
           Recipe Box
         </h1>
@@ -390,6 +406,30 @@ function RecipeBox({
           className="text-sm text-ink-light hover:text-accent transition-colors font-body cursor-pointer"
         >
           Sign out
+        </button>
+      </div>
+
+      {/* View toggle */}
+      <div className="w-full max-w-xl mb-4 flex gap-1 bg-cream-dark rounded-xl p-1">
+        <button
+          onClick={() => setView("box")}
+          className={`flex-1 py-2 rounded-lg text-sm font-body font-medium transition-all cursor-pointer ${
+            view === "box"
+              ? "bg-card text-ink shadow-sm"
+              : "text-ink-light hover:text-ink"
+          }`}
+        >
+          My Box
+        </button>
+        <button
+          onClick={() => setView("browse")}
+          className={`flex-1 py-2 rounded-lg text-sm font-body font-medium transition-all cursor-pointer ${
+            view === "browse"
+              ? "bg-card text-ink shadow-sm"
+              : "text-ink-light hover:text-ink"
+          }`}
+        >
+          Browse
         </button>
       </div>
 
@@ -418,7 +458,11 @@ function RecipeBox({
 
       {/* The Box */}
       <div className="w-full max-w-xl">
-        <div className="bg-gradient-to-b from-cardboard to-cardboard-dark rounded-t-2xl px-4 pt-3 pb-1">
+        <div className={`rounded-t-2xl px-4 pt-3 pb-1 ${
+          view === "box"
+            ? "bg-gradient-to-b from-cardboard to-cardboard-dark"
+            : "bg-gradient-to-b from-accent/80 to-accent"
+        }`}>
           <div className="flex items-center gap-2 text-white/80 text-xs font-body">
             <span>
               {recipes.length} recipe{recipes.length !== 1 ? "s" : ""}
@@ -433,7 +477,11 @@ function RecipeBox({
               </div>
             ) : recipes.length === 0 ? (
               <div className="text-center py-16 text-ink-light/50 font-body">
-                {search ? "No recipes match your search" : "Your box is empty"}
+                {search
+                  ? "No recipes match your search"
+                  : view === "box"
+                    ? "Your box is empty"
+                    : "No recipes to browse yet"}
               </div>
             ) : (
               <div className="space-y-1">
@@ -449,40 +497,57 @@ function RecipeBox({
                       </div>
                       {/* Cards in this group */}
                       {grouped[group].map((recipe) => (
-                        <button
+                        <div
                           key={recipe.id}
-                          onClick={() => setSelectedRecipe(recipe)}
-                          className="w-full text-left px-4 py-3 rounded-lg bg-card hover:bg-card/80 border border-transparent hover:border-cardboard/30 transition-all duration-150 flex items-center gap-3 group cursor-pointer mb-0.5"
+                          className="w-full text-left px-4 py-3 rounded-lg bg-card hover:bg-card/80 border border-transparent hover:border-cardboard/30 transition-all duration-150 flex items-center gap-3 group mb-0.5"
                         >
-                          <div className="w-1 h-8 rounded-full bg-cardboard/40 group-hover:bg-accent/60 transition-colors shrink-0" />
-                          <div className="min-w-0 flex-1">
-                            <p className="font-body font-medium text-ink truncate">
-                              {recipe.name}
-                            </p>
-                            <p className="text-xs text-ink-light/60 font-body truncate">
-                              {recipe.author}
-                              {recipe.cuisine
-                                ? ` \u00b7 ${recipe.cuisine}`
-                                : ""}
-                              {recipe.time_estimate_minutes
-                                ? ` \u00b7 ${recipe.time_estimate_minutes}m`
-                                : ""}
-                            </p>
-                          </div>
-                          <svg
-                            className="w-4 h-4 text-ink-light/30 group-hover:text-cardboard-dark transition-colors shrink-0"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={2}
+                          <button
+                            onClick={() => setSelectedRecipe(recipe)}
+                            className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer text-left"
                           >
-                            <path
-                              d="M5 12h14M12 5l7 7-7 7"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                        </button>
+                            <div className="w-1 h-8 rounded-full bg-cardboard/40 group-hover:bg-accent/60 transition-colors shrink-0" />
+                            <div className="min-w-0 flex-1">
+                              <p className="font-body font-medium text-ink truncate">
+                                {recipe.name}
+                              </p>
+                              <p className="text-xs text-ink-light/60 font-body truncate">
+                                {recipe.author}
+                                {recipe.cuisine
+                                  ? ` \u00b7 ${recipe.cuisine}`
+                                  : ""}
+                                {recipe.time_estimate_minutes
+                                  ? ` \u00b7 ${recipe.time_estimate_minutes}m`
+                                  : ""}
+                              </p>
+                            </div>
+                            <svg
+                              className="w-4 h-4 text-ink-light/30 group-hover:text-cardboard-dark transition-colors shrink-0"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                            >
+                              <path
+                                d="M5 12h14M12 5l7 7-7 7"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </button>
+                          {view === "browse" && (
+                            <button
+                              onClick={() => addToBox(recipe.id)}
+                              disabled={addingRecipeId === recipe.id}
+                              className="shrink-0 px-3 py-1.5 rounded-lg bg-cardboard text-white text-xs font-body font-medium hover:bg-cardboard-dark transition-colors cursor-pointer disabled:opacity-50"
+                            >
+                              {addingRecipeId === recipe.id ? (
+                                <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              ) : (
+                                "+ Add"
+                              )}
+                            </button>
+                          )}
+                        </div>
                       ))}
                     </div>
                   ))}
