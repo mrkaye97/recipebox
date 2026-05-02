@@ -1,9 +1,6 @@
 import createFetchClient from "openapi-fetch";
-import createClient from "openapi-react-query";
-import { paths } from "./v1";
+import type { paths } from "./v1";
 
-export const fetchClient = createFetchClient<paths>({
-  baseUrl: process.env.EXPO_PUBLIC_API_URL || "http://localhost:8000",
+export const api = createFetchClient<paths>({
+  baseUrl: import.meta.env.VITE_API_URL || "http://localhost:8000",
 });
-
-export const $api = createClient(fetchClient);

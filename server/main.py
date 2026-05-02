@@ -1,9 +1,18 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-from src.controllers import activity, auth, notifications, recipes, sharing, users
+from src.controllers import activity, auth, recipes, sharing, users
 from src.logger import get_logger
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/health")
@@ -16,6 +25,5 @@ app.include_router(recipes)
 app.include_router(users)
 app.include_router(sharing)
 app.include_router(activity)
-app.include_router(notifications)
 
 logger = get_logger(__name__)

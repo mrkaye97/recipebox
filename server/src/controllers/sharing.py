@@ -1,4 +1,3 @@
-import asyncio
 from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
@@ -11,15 +10,8 @@ from src.crud.sharing import AsyncQuerier as Sharing
 from src.crud.sharing import ListPendingRecipeShareRequestsRow
 from src.crud.users import AsyncQuerier as Users
 from src.dependencies import Connection, User
-from src.logger import get_logger
-from src.services.notifications import (
-    PushNotificationPayload,
-    PushNotificationRedirectDestination,
-    send_push_message,
-)
 
 sharing = APIRouter(prefix="/sharing")
-logger = get_logger(__name__)
 
 
 @sharing.get("")
@@ -68,16 +60,6 @@ async def share_recipe(
             recipeid=recipe.id,
             touserid=body.to_user_id,
             expiresat=datetime.now(UTC) + timedelta(days=7),
-        )
-
-    if recipient.expo_push_token:
-        await asyncio.to_thread(
-            send_push_message,
-            recipient=recipient,
-            message=f"{user.name} shared a recipe with you",
-            payload=PushNotificationPayload(
-                navigate_to=PushNotificationRedirectDestination.SHARED_RECIPES
-            ),
         )
 
     return request

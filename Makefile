@@ -2,7 +2,7 @@ run:
 	(cd server && poetry run fastapi dev main.py --host 0.0.0.0 --port 8000)
 
 fe:
-	(cd app && npm run ios)
+	(cd app && npm run dev)
 
 lint:
 	(cd server && poetry run black .)
@@ -10,9 +10,7 @@ lint:
 	(cd server && poetry run isort .)
 	(cd server && poetry run ruff check --fix)
 	(cd server && poetry run mypy .)
-	(cd app && npx prettier --write .)
-	(cd app && npx tsc)
-	(cd app && npx eslint . --fix)
+	(cd app && npx tsc --noEmit)
 
 gen-migration:
 	(cd server && dbmate new "$(name)")

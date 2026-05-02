@@ -4,1754 +4,1530 @@
  */
 
 export interface paths {
-  readonly "/activity": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
+    readonly "/activity": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /** List Recent Activity */
+        readonly get: operations["list_recent_activity_activity_get"];
+        readonly put?: never;
+        /** Mark Recipe Cooked */
+        readonly post: operations["mark_recipe_cooked_activity_post"];
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    /** List Recent Activity */
-    readonly get: operations["list_recent_activity_activity_get"];
-    readonly put?: never;
-    /** Mark Recipe Cooked */
-    readonly post: operations["mark_recipe_cooked_activity_post"];
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/auth/login": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
+    readonly "/auth/login": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly get?: never;
+        readonly put?: never;
+        /** Login */
+        readonly post: operations["login_auth_login_post"];
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    readonly get?: never;
-    readonly put?: never;
-    /** Login */
-    readonly post: operations["login_auth_login_post"];
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/auth/register": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
+    readonly "/auth/register": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly get?: never;
+        readonly put?: never;
+        /** Register */
+        readonly post: operations["register_auth_register_post"];
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    readonly get?: never;
-    readonly put?: never;
-    /** Register */
-    readonly post: operations["register_auth_register_post"];
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/health": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
+    readonly "/health": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /** Health Check */
+        readonly get: operations["health_check_health_get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    /** Health Check */
-    readonly get: operations["health_check_health_get"];
-    readonly put?: never;
-    readonly post?: never;
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/notifications": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
+    readonly "/recipes": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /** List Recipes */
+        readonly get: operations["list_recipes_recipes_get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    readonly get?: never;
-    readonly put?: never;
-    /** Push Notification */
-    readonly post: operations["push_notification_notifications_post"];
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/recipes": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
+    readonly "/recipes/{id}": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /** Get Recipe */
+        readonly get: operations["get_recipe_recipes__id__get"];
+        readonly put?: never;
+        readonly post?: never;
+        /** Delete Recipe */
+        readonly delete: operations["delete_recipe_recipes__id__delete"];
+        readonly options?: never;
+        readonly head?: never;
+        /** Update Recipe */
+        readonly patch: operations["update_recipe_recipes__id__patch"];
+        readonly trace?: never;
     };
-    /** List Recipes */
-    readonly get: operations["list_recipes_recipes_get"];
-    readonly put?: never;
-    readonly post?: never;
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/recipes/{id}": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
+    readonly "/recipes/cookbook": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly get?: never;
+        readonly put?: never;
+        /** Create Cookbook Recipe */
+        readonly post: operations["create_cookbook_recipe_recipes_cookbook_post"];
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    /** Get Recipe */
-    readonly get: operations["get_recipe_recipes__id__get"];
-    readonly put?: never;
-    readonly post?: never;
-    /** Delete Recipe */
-    readonly delete: operations["delete_recipe_recipes__id__delete"];
-    readonly options?: never;
-    readonly head?: never;
-    /** Update Recipe */
-    readonly patch: operations["update_recipe_recipes__id__patch"];
-    readonly trace?: never;
-  };
-  readonly "/recipes/cookbook": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
+    readonly "/recipes/download/{recipe_id}": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly get?: never;
+        readonly put?: never;
+        /** Accept Recipe Share Request */
+        readonly post: operations["accept_recipe_share_request_recipes_download__recipe_id__post"];
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    readonly get?: never;
-    readonly put?: never;
-    /** Create Cookbook Recipe */
-    readonly post: operations["create_cookbook_recipe_recipes_cookbook_post"];
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/recipes/download/{recipe_id}": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
+    readonly "/recipes/filter-options": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /** List Filter Options */
+        readonly get: operations["list_filter_options_recipes_filter_options_get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    readonly get?: never;
-    readonly put?: never;
-    /** Accept Recipe Share Request */
-    readonly post: operations["accept_recipe_share_request_recipes_download__recipe_id__post"];
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/recipes/filter-options": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
+    readonly "/recipes/made-up": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly get?: never;
+        readonly put?: never;
+        /** Create Made Up Recipe */
+        readonly post: operations["create_made_up_recipe_recipes_made_up_post"];
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    /** List Filter Options */
-    readonly get: operations["list_filter_options_recipes_filter_options_get"];
-    readonly put?: never;
-    readonly post?: never;
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/recipes/made-up": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
+    readonly "/recipes/online": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly get?: never;
+        readonly put?: never;
+        /** Create Online Recipe */
+        readonly post: operations["create_online_recipe_recipes_online_post"];
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    readonly get?: never;
-    readonly put?: never;
-    /** Create Made Up Recipe */
-    readonly post: operations["create_made_up_recipe_recipes_made_up_post"];
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/recipes/online": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
+    readonly "/recipes/recommendation": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /** Recommend Recipe */
+        readonly get: operations["recommend_recipe_recipes_recommendation_get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    readonly get?: never;
-    readonly put?: never;
-    /** Create Online Recipe */
-    readonly post: operations["create_online_recipe_recipes_online_post"];
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/recipes/recommendation": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
+    readonly "/sharing": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /** List Pending Recipe Share Requests */
+        readonly get: operations["list_pending_recipe_share_requests_sharing_get"];
+        readonly put?: never;
+        /** Share Recipe */
+        readonly post: operations["share_recipe_sharing_post"];
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    /** Recommend Recipe */
-    readonly get: operations["recommend_recipe_recipes_recommendation_get"];
-    readonly put?: never;
-    readonly post?: never;
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/sharing": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
+    readonly "/sharing/{recipe_id}": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly get?: never;
+        readonly put?: never;
+        readonly post?: never;
+        /** Delete Share Request */
+        readonly delete: operations["delete_share_request_sharing__recipe_id__delete"];
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    /** List Pending Recipe Share Requests */
-    readonly get: operations["list_pending_recipe_share_requests_sharing_get"];
-    readonly put?: never;
-    /** Share Recipe */
-    readonly post: operations["share_recipe_sharing_post"];
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/sharing/{recipe_id}": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
+    readonly "/users": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /** Get User */
+        readonly get: operations["get_user_users_get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    readonly get?: never;
-    readonly put?: never;
-    readonly post?: never;
-    /** Delete Share Request */
-    readonly delete: operations["delete_share_request_sharing__recipe_id__delete"];
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/users": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
+    readonly "/users/friend-request": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly get?: never;
+        readonly put?: never;
+        /** Send Friend Request */
+        readonly post: operations["send_friend_request_users_friend_request_post"];
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    /** Get User */
-    readonly get: operations["get_user_users_get"];
-    readonly put?: never;
-    readonly post?: never;
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/users/friend-request": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
+    readonly "/users/friend-request/{request_from_user_id}/accept": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly get?: never;
+        readonly put?: never;
+        /** Accept Friend Request */
+        readonly post: operations["accept_friend_request_users_friend_request__request_from_user_id__accept_post"];
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    readonly get?: never;
-    readonly put?: never;
-    /** Send Friend Request */
-    readonly post: operations["send_friend_request_users_friend_request_post"];
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/users/friend-request/{request_from_user_id}/accept": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
+    readonly "/users/friend-requests": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /** List Friend Requests */
+        readonly get: operations["list_friend_requests_users_friend_requests_get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    readonly get?: never;
-    readonly put?: never;
-    /** Accept Friend Request */
-    readonly post: operations["accept_friend_request_users_friend_request__request_from_user_id__accept_post"];
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/users/friend-requests": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
+    readonly "/users/friends": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /** List Friends */
+        readonly get: operations["list_friends_users_friends_get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    /** List Friend Requests */
-    readonly get: operations["list_friend_requests_users_friend_requests_get"];
-    readonly put?: never;
-    readonly post?: never;
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/users/friends": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
+    readonly "/users/search": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /** Register */
+        readonly get: operations["register_users_search_get"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
     };
-    /** List Friends */
-    readonly get: operations["list_friends_users_friends_get"];
-    readonly put?: never;
-    readonly post?: never;
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/users/push-notification-redirect": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    /** List Push Redirect Options */
-    readonly get: operations["list_push_redirect_options_users_push_notification_redirect_get"];
-    readonly put?: never;
-    readonly post?: never;
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/users/push-token": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly get?: never;
-    readonly put?: never;
-    /** Store Push Token */
-    readonly post: operations["store_push_token_users_push_token_post"];
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
-  readonly "/users/search": {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    /** Register */
-    readonly get: operations["register_users_search_get"];
-    readonly put?: never;
-    readonly post?: never;
-    readonly delete?: never;
-    readonly options?: never;
-    readonly head?: never;
-    readonly patch?: never;
-    readonly trace?: never;
-  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-  schemas: {
-    /** Body_create_cookbook_recipe_recipes_cookbook_post */
-    readonly Body_create_cookbook_recipe_recipes_cookbook_post: {
-      /** Author */
-      readonly author: string;
-      /** Cookbook Name */
-      readonly cookbook_name: string;
-      /** Files */
-      readonly files: readonly string[];
-      /**
-       * Location
-       * @default cookbook
-       * @constant
-       */
-      readonly location: "cookbook";
-      /** Notes */
-      readonly notes?: string | null;
-      /** Page Number */
-      readonly page_number: number;
+    schemas: {
+        /** Body_create_cookbook_recipe_recipes_cookbook_post */
+        readonly Body_create_cookbook_recipe_recipes_cookbook_post: {
+            /** Author */
+            readonly author: string;
+            /** Cookbook Name */
+            readonly cookbook_name: string;
+            /** Files */
+            readonly files: readonly string[];
+            /**
+             * Location
+             * @default cookbook
+             * @constant
+             */
+            readonly location: "cookbook";
+            /** Notes */
+            readonly notes?: string | null;
+            /** Page Number */
+            readonly page_number: number;
+        };
+        /** Body_login_auth_login_post */
+        readonly Body_login_auth_login_post: {
+            /** Client Id */
+            readonly client_id?: string | null;
+            /**
+             * Client Secret
+             * Format: password
+             */
+            readonly client_secret?: string | null;
+            /** Grant Type */
+            readonly grant_type?: string | null;
+            /**
+             * Password
+             * Format: password
+             */
+            readonly password: string;
+            /**
+             * Scope
+             * @default
+             */
+            readonly scope: string;
+            /** Username */
+            readonly username: string;
+        };
+        /** CookbookRecipeLocation */
+        readonly CookbookRecipeLocation: {
+            /** Cookbook Name */
+            readonly cookbook_name: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            readonly location: "cookbook";
+            /** Page Number */
+            readonly page_number: number;
+        };
+        /** CreateMadeUpRecipeLocation */
+        readonly CreateMadeUpRecipeLocation: {
+            /** Author */
+            readonly author: string;
+            /** Cuisine */
+            readonly cuisine: string;
+            /** Dietary Restrictions Met */
+            readonly dietary_restrictions_met: readonly components["schemas"]["DietaryRestriction"][];
+            /** Ingredients */
+            readonly ingredients: readonly components["schemas"]["RecipeIngredient"][];
+            /** Instructions */
+            readonly instructions: readonly components["schemas"]["RecipeInstruction"][];
+            /**
+             * Location
+             * @constant
+             */
+            readonly location: "made_up";
+            /** Name */
+            readonly name: string;
+            /** Notes */
+            readonly notes: string | null;
+            /** Tags */
+            readonly tags: readonly string[];
+            /** Time Estimate Minutes */
+            readonly time_estimate_minutes: number;
+        };
+        /** CreateOnlineRecipeLocation */
+        readonly CreateOnlineRecipeLocation: {
+            /**
+             * Location
+             * @constant
+             */
+            readonly location: "online";
+            /** Notes */
+            readonly notes: string | null;
+            /** Url */
+            readonly url: string;
+        };
+        /**
+         * DietaryRestriction
+         * @enum {string}
+         */
+        readonly DietaryRestriction: "gluten_free" | "dairy_free" | "nut_free" | "vegan" | "vegetarian" | "pescatarian";
+        /** FriendRequestBody */
+        readonly FriendRequestBody: {
+            /**
+             * Friend User Id
+             * Format: uuid
+             */
+            readonly friend_user_id: string;
+        };
+        /** Friendship */
+        readonly Friendship: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /**
+             * Friend User Id
+             * Format: uuid
+             */
+            readonly friend_user_id: string;
+            readonly status: components["schemas"]["FriendshipStatus"];
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            readonly updated_at: string;
+            /**
+             * User Id
+             * Format: uuid
+             */
+            readonly user_id: string;
+        };
+        /**
+         * FriendshipStatus
+         * @enum {string}
+         */
+        readonly FriendshipStatus: "pending" | "accepted";
+        /** HTTPValidationError */
+        readonly HTTPValidationError: {
+            /** Detail */
+            readonly detail?: readonly components["schemas"]["ValidationError"][];
+        };
+        /** ListPendingRecipeShareRequestsRow */
+        readonly ListPendingRecipeShareRequestsRow: {
+            /** From User Name */
+            readonly from_user_name: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            readonly id: string;
+            /** Recipe Name */
+            readonly recipe_name: string;
+        };
+        /** ListRecentRecipeCooksRow */
+        readonly ListRecentRecipeCooksRow: {
+            /** Author */
+            readonly author: string;
+            /**
+             * Cooked At
+             * Format: date-time
+             */
+            readonly cooked_at: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /** Cuisine */
+            readonly cuisine: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            readonly id: string;
+            /** Last Made At */
+            readonly last_made_at: string | null;
+            /** Location */
+            readonly location: unknown;
+            readonly meal: components["schemas"]["Meal"];
+            /** Name */
+            readonly name: string;
+            /** Notes */
+            readonly notes: string | null;
+            /** Parent Recipe Id */
+            readonly parent_recipe_id: string | null;
+            /** Time Estimate Minutes */
+            readonly time_estimate_minutes: number;
+            readonly type: components["schemas"]["RecipeType"];
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            readonly updated_at: string;
+            /**
+             * User Id
+             * Format: uuid
+             */
+            readonly user_id: string;
+            /** User Name */
+            readonly user_name: string;
+        };
+        /** ListRecipeFilterOptionsRow */
+        readonly ListRecipeFilterOptionsRow: {
+            /** Cuisines */
+            readonly cuisines: readonly string[];
+            /** Meals */
+            readonly meals: readonly components["schemas"]["Meal"][];
+            /** Types */
+            readonly types: readonly components["schemas"]["RecipeType"][];
+        };
+        /** MadeUpRecipeLocation */
+        readonly MadeUpRecipeLocation: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            readonly location: "made_up";
+        };
+        /** MarkRecipeCookedBody */
+        readonly MarkRecipeCookedBody: {
+            /**
+             * Recipe Id
+             * Format: uuid
+             */
+            readonly recipe_id: string;
+        };
+        /**
+         * Meal
+         * @enum {string}
+         */
+        readonly Meal: "breakfast" | "lunch" | "dinner" | "other";
+        /** OnlineRecipeLocation */
+        readonly OnlineRecipeLocation: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            readonly location: "online";
+            /** Url */
+            readonly url: string;
+        };
+        /**
+         * PushPermissionStatus
+         * @enum {string}
+         */
+        readonly PushPermissionStatus: "none" | "accepted" | "rejected";
+        /** RecipeIngredient */
+        readonly RecipeIngredient: {
+            /** Name */
+            readonly name: string;
+            /** Quantity */
+            readonly quantity: number;
+            /** Units */
+            readonly units: string;
+        };
+        /** RecipeInstruction */
+        readonly RecipeInstruction: {
+            /** Content */
+            readonly content: string;
+            /** Step Number */
+            readonly step_number: number;
+        };
+        /** RecipeLocation */
+        readonly RecipeLocation: {
+            /** Location */
+            readonly location: components["schemas"]["CookbookRecipeLocation"] | components["schemas"]["OnlineRecipeLocation"] | components["schemas"]["MadeUpRecipeLocation"];
+        };
+        /** RecipePatch */
+        readonly RecipePatch: {
+            /** Author */
+            readonly author?: string | null;
+            /** Cuisine */
+            readonly cuisine?: string | null;
+            /** Dietary Restrictions Met */
+            readonly dietary_restrictions_met?: readonly components["schemas"]["DietaryRestriction"][] | null;
+            /** Ingredients */
+            readonly ingredients?: readonly components["schemas"]["RecipeIngredient"][] | null;
+            /** Instructions */
+            readonly instructions?: readonly components["schemas"]["RecipeInstruction"][] | null;
+            readonly location?: components["schemas"]["RecipeLocation"] | null;
+            readonly meal?: components["schemas"]["Meal"] | null;
+            /** Name */
+            readonly name?: string | null;
+            /** Notes */
+            readonly notes?: string | null;
+            /** Tags */
+            readonly tags?: readonly string[] | null;
+            /** Time Estimate Minutes */
+            readonly time_estimate_minutes?: number | null;
+            readonly type?: components["schemas"]["RecipeType"] | null;
+        };
+        /** RecipeShareRequest */
+        readonly RecipeShareRequest: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            readonly expires_at: string;
+            /**
+             * Recipe Id
+             * Format: uuid
+             */
+            readonly recipe_id: string;
+            /**
+             * To User Id
+             * Format: uuid
+             */
+            readonly to_user_id: string;
+        };
+        /**
+         * RecipeType
+         * @enum {string}
+         */
+        readonly RecipeType: "starter" | "main" | "salad" | "dessert" | "snack" | "cocktail" | "condiment" | "other";
+        /** ShareRecipeBody */
+        readonly ShareRecipeBody: {
+            /**
+             * Recipe Id
+             * Format: uuid
+             */
+            readonly recipe_id: string;
+            /**
+             * To User Id
+             * Format: uuid
+             */
+            readonly to_user_id: string;
+        };
+        /** Recipe */
+        readonly src__crud__models__Recipe: {
+            /** Author */
+            readonly author: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /** Cuisine */
+            readonly cuisine: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            readonly id: string;
+            /** Last Made At */
+            readonly last_made_at: string | null;
+            /** Location */
+            readonly location: unknown;
+            readonly meal: components["schemas"]["Meal"];
+            /** Name */
+            readonly name: string;
+            /** Notes */
+            readonly notes: string | null;
+            /** Parent Recipe Id */
+            readonly parent_recipe_id: string | null;
+            /** Time Estimate Minutes */
+            readonly time_estimate_minutes: number;
+            readonly type: components["schemas"]["RecipeType"];
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            readonly updated_at: string;
+            /**
+             * User Id
+             * Format: uuid
+             */
+            readonly user_id: string;
+        };
+        /** User */
+        readonly src__crud__models__User: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /** Email */
+            readonly email: string;
+            /** Expo Push Token */
+            readonly expo_push_token: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            readonly id: string;
+            /** Name */
+            readonly name: string;
+            readonly privacy_preference: components["schemas"]["UserPrivacyPreference"];
+            readonly push_permission: components["schemas"]["PushPermissionStatus"];
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            readonly updated_at: string;
+        };
+        /** Recipe */
+        readonly src__schemas__Recipe: {
+            /** Author */
+            readonly author: string;
+            /** Cuisine */
+            readonly cuisine: string;
+            /** Dietary Restrictions Met */
+            readonly dietary_restrictions_met: readonly components["schemas"]["DietaryRestriction"][];
+            /**
+             * Id
+             * Format: uuid
+             */
+            readonly id: string;
+            /** Ingredients */
+            readonly ingredients: readonly components["schemas"]["RecipeIngredient"][];
+            /** Instructions */
+            readonly instructions: readonly components["schemas"]["RecipeInstruction"][];
+            /** Last Made At */
+            readonly last_made_at: string | null;
+            readonly location: components["schemas"]["RecipeLocation"];
+            readonly meal: components["schemas"]["Meal"];
+            /** Name */
+            readonly name: string;
+            /** Notes */
+            readonly notes: string | null;
+            /** Parent Recipe Id */
+            readonly parent_recipe_id: string | null;
+            /** Tags */
+            readonly tags: readonly string[];
+            /** Time Estimate Minutes */
+            readonly time_estimate_minutes: number;
+            readonly type: components["schemas"]["RecipeType"];
+            /**
+             * User Id
+             * Format: uuid
+             */
+            readonly user_id: string;
+        };
+        /** User */
+        readonly src__schemas__User: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            readonly id: string;
+            /** Name */
+            readonly name: string;
+        };
+        /** Token */
+        readonly Token: {
+            /** Access Token */
+            readonly access_token: string;
+            /** Token Type */
+            readonly token_type: string;
+        };
+        /**
+         * UserPrivacyPreference
+         * @enum {string}
+         */
+        readonly UserPrivacyPreference: "public" | "private";
+        /** UserRegistration */
+        readonly UserRegistration: {
+            /** Email */
+            readonly email: string;
+            /** Name */
+            readonly name: string;
+            /** Password */
+            readonly password: string;
+            readonly privacy_preference: components["schemas"]["UserPrivacyPreference"];
+        };
+        /** ValidationError */
+        readonly ValidationError: {
+            /** Location */
+            readonly loc: readonly (string | number)[];
+            /** Message */
+            readonly msg: string;
+            /** Error Type */
+            readonly type: string;
+        };
     };
-    /** Body_login_auth_login_post */
-    readonly Body_login_auth_login_post: {
-      /** Client Id */
-      readonly client_id?: string | null;
-      /**
-       * Client Secret
-       * Format: password
-       */
-      readonly client_secret?: string | null;
-      /** Grant Type */
-      readonly grant_type?: string | null;
-      /**
-       * Password
-       * Format: password
-       */
-      readonly password: string;
-      /**
-       * Scope
-       * @default
-       */
-      readonly scope: string;
-      /** Username */
-      readonly username: string;
-    };
-    /** CookbookRecipeLocation */
-    readonly CookbookRecipeLocation: {
-      /** Cookbook Name */
-      readonly cookbook_name: string;
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      readonly location: "cookbook";
-      /** Page Number */
-      readonly page_number: number;
-    };
-    /** CreateMadeUpRecipeLocation */
-    readonly CreateMadeUpRecipeLocation: {
-      /** Author */
-      readonly author: string;
-      /** Cuisine */
-      readonly cuisine: string;
-      /** Dietary Restrictions Met */
-      readonly dietary_restrictions_met: readonly components["schemas"]["DietaryRestriction"][];
-      /** Ingredients */
-      readonly ingredients: readonly components["schemas"]["RecipeIngredient"][];
-      /** Instructions */
-      readonly instructions: readonly components["schemas"]["RecipeInstruction"][];
-      /**
-       * Location
-       * @constant
-       */
-      readonly location: "made_up";
-      /** Name */
-      readonly name: string;
-      /** Notes */
-      readonly notes: string | null;
-      /** Tags */
-      readonly tags: readonly string[];
-      /** Time Estimate Minutes */
-      readonly time_estimate_minutes: number;
-    };
-    /** CreateOnlineRecipeLocation */
-    readonly CreateOnlineRecipeLocation: {
-      /**
-       * Location
-       * @constant
-       */
-      readonly location: "online";
-      /** Notes */
-      readonly notes: string | null;
-      /** Url */
-      readonly url: string;
-    };
-    /**
-     * DietaryRestriction
-     * @enum {string}
-     */
-    readonly DietaryRestriction:
-      | "gluten_free"
-      | "dairy_free"
-      | "nut_free"
-      | "vegan"
-      | "vegetarian"
-      | "pescatarian";
-    /** FriendRequestBody */
-    readonly FriendRequestBody: {
-      /**
-       * Friend User Id
-       * Format: uuid
-       */
-      readonly friend_user_id: string;
-    };
-    /** Friendship */
-    readonly Friendship: {
-      /**
-       * Created At
-       * Format: date-time
-       */
-      readonly created_at: string;
-      /**
-       * Friend User Id
-       * Format: uuid
-       */
-      readonly friend_user_id: string;
-      readonly status: components["schemas"]["FriendshipStatus"];
-      /**
-       * Updated At
-       * Format: date-time
-       */
-      readonly updated_at: string;
-      /**
-       * User Id
-       * Format: uuid
-       */
-      readonly user_id: string;
-    };
-    /**
-     * FriendshipStatus
-     * @enum {string}
-     */
-    readonly FriendshipStatus: "pending" | "accepted";
-    /** HTTPValidationError */
-    readonly HTTPValidationError: {
-      /** Detail */
-      readonly detail?: readonly components["schemas"]["ValidationError"][];
-    };
-    /** ListPendingRecipeShareRequestsRow */
-    readonly ListPendingRecipeShareRequestsRow: {
-      /** From User Name */
-      readonly from_user_name: string;
-      /**
-       * Id
-       * Format: uuid
-       */
-      readonly id: string;
-      /** Recipe Name */
-      readonly recipe_name: string;
-    };
-    /** ListRecentRecipeCooksRow */
-    readonly ListRecentRecipeCooksRow: {
-      /** Author */
-      readonly author: string;
-      /**
-       * Cooked At
-       * Format: date-time
-       */
-      readonly cooked_at: string;
-      /**
-       * Created At
-       * Format: date-time
-       */
-      readonly created_at: string;
-      /** Cuisine */
-      readonly cuisine: string;
-      /**
-       * Id
-       * Format: uuid
-       */
-      readonly id: string;
-      /** Last Made At */
-      readonly last_made_at: string | null;
-      /** Location */
-      readonly location: unknown;
-      readonly meal: components["schemas"]["Meal"];
-      /** Name */
-      readonly name: string;
-      /** Notes */
-      readonly notes: string | null;
-      /** Parent Recipe Id */
-      readonly parent_recipe_id: string | null;
-      /** Time Estimate Minutes */
-      readonly time_estimate_minutes: number;
-      readonly type: components["schemas"]["RecipeType"];
-      /**
-       * Updated At
-       * Format: date-time
-       */
-      readonly updated_at: string;
-      /**
-       * User Id
-       * Format: uuid
-       */
-      readonly user_id: string;
-      /** User Name */
-      readonly user_name: string;
-    };
-    /** ListRecipeFilterOptionsRow */
-    readonly ListRecipeFilterOptionsRow: {
-      /** Cuisines */
-      readonly cuisines: readonly string[];
-      /** Meals */
-      readonly meals: readonly components["schemas"]["Meal"][];
-      /** Types */
-      readonly types: readonly components["schemas"]["RecipeType"][];
-    };
-    /** MadeUpRecipeLocation */
-    readonly MadeUpRecipeLocation: {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      readonly location: "made_up";
-    };
-    /** MarkRecipeCookedBody */
-    readonly MarkRecipeCookedBody: {
-      /**
-       * Recipe Id
-       * Format: uuid
-       */
-      readonly recipe_id: string;
-    };
-    /**
-     * Meal
-     * @enum {string}
-     */
-    readonly Meal: "breakfast" | "lunch" | "dinner" | "other";
-    /** OnlineRecipeLocation */
-    readonly OnlineRecipeLocation: {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      readonly location: "online";
-      /** Url */
-      readonly url: string;
-    };
-    /** PushNotificationBody */
-    readonly PushNotificationBody: {
-      /** Message */
-      readonly message: string;
-      readonly payload: components["schemas"]["PushNotificationPayload"];
-      /**
-       * Recipient Id
-       * Format: uuid
-       */
-      readonly recipient_id: string;
-    };
-    /** PushNotificationPayload */
-    readonly PushNotificationPayload: {
-      readonly navigate_to:
-        | components["schemas"]["PushNotificationRedirectDestination"]
-        | null;
-    };
-    /**
-     * PushNotificationRedirectDestination
-     * @enum {string}
-     */
-    readonly PushNotificationRedirectDestination:
-      | "friend_requests"
-      | "friends"
-      | "shared_recipes";
-    /**
-     * PushPermissionStatus
-     * @enum {string}
-     */
-    readonly PushPermissionStatus: "none" | "accepted" | "rejected";
-    /** PushTokenBody */
-    readonly PushTokenBody: {
-      /** Expo Push Token */
-      readonly expo_push_token: string | null;
-      readonly push_permission: components["schemas"]["PushPermissionStatus"];
-    };
-    /** PushTokenResponse */
-    readonly PushTokenResponse: {
-      /** Message */
-      readonly message: string;
-      /** Success */
-      readonly success: boolean;
-    };
-    /** RecipeIngredient */
-    readonly RecipeIngredient: {
-      /** Name */
-      readonly name: string;
-      /** Quantity */
-      readonly quantity: number;
-      /** Units */
-      readonly units: string;
-    };
-    /** RecipeInstruction */
-    readonly RecipeInstruction: {
-      /** Content */
-      readonly content: string;
-      /** Step Number */
-      readonly step_number: number;
-    };
-    /** RecipeLocation */
-    readonly RecipeLocation: {
-      /** Location */
-      readonly location:
-        | components["schemas"]["CookbookRecipeLocation"]
-        | components["schemas"]["OnlineRecipeLocation"]
-        | components["schemas"]["MadeUpRecipeLocation"];
-    };
-    /** RecipePatch */
-    readonly RecipePatch: {
-      /** Author */
-      readonly author?: string | null;
-      /** Cuisine */
-      readonly cuisine?: string | null;
-      /** Dietary Restrictions Met */
-      readonly dietary_restrictions_met?:
-        | readonly components["schemas"]["DietaryRestriction"][]
-        | null;
-      /** Ingredients */
-      readonly ingredients?:
-        | readonly components["schemas"]["RecipeIngredient"][]
-        | null;
-      /** Instructions */
-      readonly instructions?:
-        | readonly components["schemas"]["RecipeInstruction"][]
-        | null;
-      readonly location?: components["schemas"]["RecipeLocation"] | null;
-      readonly meal?: components["schemas"]["Meal"] | null;
-      /** Name */
-      readonly name?: string | null;
-      /** Notes */
-      readonly notes?: string | null;
-      /** Tags */
-      readonly tags?: readonly string[] | null;
-      /** Time Estimate Minutes */
-      readonly time_estimate_minutes?: number | null;
-      readonly type?: components["schemas"]["RecipeType"] | null;
-    };
-    /** RecipeShareRequest */
-    readonly RecipeShareRequest: {
-      /**
-       * Created At
-       * Format: date-time
-       */
-      readonly created_at: string;
-      /**
-       * Expires At
-       * Format: date-time
-       */
-      readonly expires_at: string;
-      /**
-       * Recipe Id
-       * Format: uuid
-       */
-      readonly recipe_id: string;
-      /**
-       * To User Id
-       * Format: uuid
-       */
-      readonly to_user_id: string;
-    };
-    /**
-     * RecipeType
-     * @enum {string}
-     */
-    readonly RecipeType:
-      | "starter"
-      | "main"
-      | "salad"
-      | "dessert"
-      | "snack"
-      | "cocktail"
-      | "condiment"
-      | "other";
-    /** ShareRecipeBody */
-    readonly ShareRecipeBody: {
-      /**
-       * Recipe Id
-       * Format: uuid
-       */
-      readonly recipe_id: string;
-      /**
-       * To User Id
-       * Format: uuid
-       */
-      readonly to_user_id: string;
-    };
-    /** Recipe */
-    readonly src__crud__models__Recipe: {
-      /** Author */
-      readonly author: string;
-      /**
-       * Created At
-       * Format: date-time
-       */
-      readonly created_at: string;
-      /** Cuisine */
-      readonly cuisine: string;
-      /**
-       * Id
-       * Format: uuid
-       */
-      readonly id: string;
-      /** Last Made At */
-      readonly last_made_at: string | null;
-      /** Location */
-      readonly location: unknown;
-      readonly meal: components["schemas"]["Meal"];
-      /** Name */
-      readonly name: string;
-      /** Notes */
-      readonly notes: string | null;
-      /** Parent Recipe Id */
-      readonly parent_recipe_id: string | null;
-      /** Time Estimate Minutes */
-      readonly time_estimate_minutes: number;
-      readonly type: components["schemas"]["RecipeType"];
-      /**
-       * Updated At
-       * Format: date-time
-       */
-      readonly updated_at: string;
-      /**
-       * User Id
-       * Format: uuid
-       */
-      readonly user_id: string;
-    };
-    /** User */
-    readonly src__crud__models__User: {
-      /**
-       * Created At
-       * Format: date-time
-       */
-      readonly created_at: string;
-      /** Email */
-      readonly email: string;
-      /** Expo Push Token */
-      readonly expo_push_token: string | null;
-      /**
-       * Id
-       * Format: uuid
-       */
-      readonly id: string;
-      /** Name */
-      readonly name: string;
-      readonly privacy_preference: components["schemas"]["UserPrivacyPreference"];
-      readonly push_permission: components["schemas"]["PushPermissionStatus"];
-      /**
-       * Updated At
-       * Format: date-time
-       */
-      readonly updated_at: string;
-    };
-    /** Recipe */
-    readonly src__schemas__Recipe: {
-      /** Author */
-      readonly author: string;
-      /** Cuisine */
-      readonly cuisine: string;
-      /** Dietary Restrictions Met */
-      readonly dietary_restrictions_met: readonly components["schemas"]["DietaryRestriction"][];
-      /**
-       * Id
-       * Format: uuid
-       */
-      readonly id: string;
-      /** Ingredients */
-      readonly ingredients: readonly components["schemas"]["RecipeIngredient"][];
-      /** Instructions */
-      readonly instructions: readonly components["schemas"]["RecipeInstruction"][];
-      /** Last Made At */
-      readonly last_made_at: string | null;
-      readonly location: components["schemas"]["RecipeLocation"];
-      readonly meal: components["schemas"]["Meal"];
-      /** Name */
-      readonly name: string;
-      /** Notes */
-      readonly notes: string | null;
-      /** Parent Recipe Id */
-      readonly parent_recipe_id: string | null;
-      /** Tags */
-      readonly tags: readonly string[];
-      /** Time Estimate Minutes */
-      readonly time_estimate_minutes: number;
-      readonly type: components["schemas"]["RecipeType"];
-      /**
-       * User Id
-       * Format: uuid
-       */
-      readonly user_id: string;
-    };
-    /** User */
-    readonly src__schemas__User: {
-      /**
-       * Id
-       * Format: uuid
-       */
-      readonly id: string;
-      /** Name */
-      readonly name: string;
-    };
-    /** Token */
-    readonly Token: {
-      /** Access Token */
-      readonly access_token: string;
-      /** Token Type */
-      readonly token_type: string;
-    };
-    /**
-     * UserPrivacyPreference
-     * @enum {string}
-     */
-    readonly UserPrivacyPreference: "public" | "private";
-    /** UserRegistration */
-    readonly UserRegistration: {
-      /** Email */
-      readonly email: string;
-      /** Name */
-      readonly name: string;
-      /** Password */
-      readonly password: string;
-      readonly privacy_preference: components["schemas"]["UserPrivacyPreference"];
-      /** Signup Token */
-      readonly signup_token: string;
-    };
-    /** ValidationError */
-    readonly ValidationError: {
-      /** Location */
-      readonly loc: readonly (string | number)[];
-      /** Message */
-      readonly msg: string;
-      /** Error Type */
-      readonly type: string;
-    };
-  };
-  responses: never;
-  parameters: never;
-  requestBodies: never;
-  headers: never;
-  pathItems: never;
+    responses: never;
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  readonly list_recent_activity_activity_get: {
-    readonly parameters: {
-      readonly query: {
-        readonly limit: number;
-        readonly offset: number;
-        readonly who: "me" | "friends" | "both";
-      };
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": readonly components["schemas"]["ListRecentRecipeCooksRow"][];
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  readonly mark_recipe_cooked_activity_post: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody: {
-      readonly content: {
-        readonly "application/json": components["schemas"]["MarkRecipeCookedBody"];
-      };
-    };
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json":
-            | components["schemas"]["src__crud__models__Recipe"]
-            | null;
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  readonly login_auth_login_post: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody: {
-      readonly content: {
-        readonly "application/x-www-form-urlencoded": components["schemas"]["Body_login_auth_login_post"];
-      };
-    };
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["Token"];
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  readonly register_auth_register_post: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody: {
-      readonly content: {
-        readonly "application/json": components["schemas"]["UserRegistration"];
-      };
-    };
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["Token"];
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  readonly health_check_health_get: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": {
-            readonly [key: string]: string;
-          };
-        };
-      };
-    };
-  };
-  readonly push_notification_notifications_post: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody: {
-      readonly content: {
-        readonly "application/json": components["schemas"]["PushNotificationBody"];
-      };
-    };
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": {
-            readonly [key: string]: boolean;
-          };
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  readonly list_recipes_recipes_get: {
-    readonly parameters: {
-      readonly query?: {
-        readonly only_user?: boolean;
-        readonly search?: string | null;
-      };
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": readonly components["schemas"]["src__schemas__Recipe"][];
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  readonly get_recipe_recipes__id__get: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path: {
-        readonly id: string;
-      };
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["src__schemas__Recipe"];
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  readonly delete_recipe_recipes__id__delete: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path: {
-        readonly id: string;
-      };
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": string;
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  readonly update_recipe_recipes__id__patch: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path: {
-        readonly id: string;
-      };
-      readonly cookie?: never;
-    };
-    readonly requestBody: {
-      readonly content: {
-        readonly "application/json": components["schemas"]["RecipePatch"];
-      };
-    };
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json":
-            | components["schemas"]["src__schemas__Recipe"]
-            | null;
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  readonly create_cookbook_recipe_recipes_cookbook_post: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody: {
-      readonly content: {
-        readonly "multipart/form-data": components["schemas"]["Body_create_cookbook_recipe_recipes_cookbook_post"];
-      };
-    };
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json":
-            | components["schemas"]["src__schemas__Recipe"]
-            | null;
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  readonly accept_recipe_share_request_recipes_download__recipe_id__post: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path: {
-        readonly recipe_id: string;
-      };
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json":
-            | components["schemas"]["src__schemas__Recipe"]
-            | null;
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  readonly list_filter_options_recipes_filter_options_get: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json":
-            | components["schemas"]["ListRecipeFilterOptionsRow"]
-            | null;
-        };
-      };
-    };
-  };
-  readonly create_made_up_recipe_recipes_made_up_post: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody: {
-      readonly content: {
-        readonly "application/json": components["schemas"]["CreateMadeUpRecipeLocation"];
-      };
-    };
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json":
-            | components["schemas"]["src__schemas__Recipe"]
-            | null;
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  readonly create_online_recipe_recipes_online_post: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody: {
-      readonly content: {
-        readonly "application/json": components["schemas"]["CreateOnlineRecipeLocation"];
-      };
-    };
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json":
-            | components["schemas"]["src__schemas__Recipe"]
-            | null;
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  readonly recommend_recipe_recipes_recommendation_get: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["src__schemas__Recipe"];
-        };
-      };
-    };
-  };
-  readonly list_pending_recipe_share_requests_sharing_get: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": readonly components["schemas"]["ListPendingRecipeShareRequestsRow"][];
-        };
-      };
-    };
-  };
-  readonly share_recipe_sharing_post: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody: {
-      readonly content: {
-        readonly "application/json": components["schemas"]["ShareRecipeBody"];
-      };
-    };
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json":
-            | components["schemas"]["RecipeShareRequest"]
-            | null;
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  readonly delete_share_request_sharing__recipe_id__delete: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path: {
-        readonly recipe_id: string;
-      };
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json":
-            | components["schemas"]["RecipeShareRequest"]
-            | null;
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  readonly get_user_users_get: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["src__crud__models__User"];
-        };
-      };
-    };
-  };
-  readonly send_friend_request_users_friend_request_post: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody: {
-      readonly content: {
-        readonly "application/json": components["schemas"]["FriendRequestBody"];
-      };
-    };
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json":
-            | components["schemas"]["Friendship"]
-            | null;
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  readonly accept_friend_request_users_friend_request__request_from_user_id__accept_post: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path: {
-        readonly request_from_user_id: string;
-      };
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json":
-            | components["schemas"]["Friendship"]
-            | null;
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  readonly list_friend_requests_users_friend_requests_get: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": readonly components["schemas"]["src__schemas__User"][];
-        };
-      };
-    };
-  };
-  readonly list_friends_users_friends_get: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": readonly components["schemas"]["src__schemas__User"][];
-        };
-      };
-    };
-  };
-  readonly list_push_redirect_options_users_push_notification_redirect_get: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["PushNotificationPayload"];
-        };
-      };
-    };
-  };
-  readonly store_push_token_users_push_token_post: {
-    readonly parameters: {
-      readonly query?: never;
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody: {
-      readonly content: {
-        readonly "application/json": components["schemas"]["PushTokenBody"];
-      };
-    };
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["PushTokenResponse"];
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  readonly register_users_search_get: {
-    readonly parameters: {
-      readonly query: {
-        readonly query: string;
-      };
-      readonly header?: never;
-      readonly path?: never;
-      readonly cookie?: never;
-    };
-    readonly requestBody?: never;
-    readonly responses: {
-      /** @description Successful Response */
-      readonly 200: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": readonly components["schemas"]["src__schemas__User"][];
-        };
-      };
-      /** @description Validation Error */
-      readonly 422: {
-        headers: {
-          readonly [name: string]: unknown;
-        };
-        content: {
-          readonly "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
+    readonly list_recent_activity_activity_get: {
+        readonly parameters: {
+            readonly query: {
+                readonly limit: number;
+                readonly offset: number;
+                readonly who: "me" | "friends" | "both";
+            };
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": readonly components["schemas"]["ListRecentRecipeCooksRow"][];
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    readonly mark_recipe_cooked_activity_post: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody: {
+            readonly content: {
+                readonly "application/json": components["schemas"]["MarkRecipeCookedBody"];
+            };
+        };
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["src__crud__models__Recipe"] | null;
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    readonly login_auth_login_post: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody: {
+            readonly content: {
+                readonly "application/x-www-form-urlencoded": components["schemas"]["Body_login_auth_login_post"];
+            };
+        };
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["Token"];
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    readonly register_auth_register_post: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody: {
+            readonly content: {
+                readonly "application/json": components["schemas"]["UserRegistration"];
+            };
+        };
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["Token"];
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    readonly health_check_health_get: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": {
+                        readonly [key: string]: string;
+                    };
+                };
+            };
+        };
+    };
+    readonly list_recipes_recipes_get: {
+        readonly parameters: {
+            readonly query?: {
+                readonly only_user?: boolean;
+                readonly search?: string | null;
+            };
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": readonly components["schemas"]["src__schemas__Recipe"][];
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    readonly get_recipe_recipes__id__get: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path: {
+                readonly id: string;
+            };
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["src__schemas__Recipe"];
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    readonly delete_recipe_recipes__id__delete: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path: {
+                readonly id: string;
+            };
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": string;
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    readonly update_recipe_recipes__id__patch: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path: {
+                readonly id: string;
+            };
+            readonly cookie?: never;
+        };
+        readonly requestBody: {
+            readonly content: {
+                readonly "application/json": components["schemas"]["RecipePatch"];
+            };
+        };
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["src__schemas__Recipe"] | null;
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    readonly create_cookbook_recipe_recipes_cookbook_post: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody: {
+            readonly content: {
+                readonly "multipart/form-data": components["schemas"]["Body_create_cookbook_recipe_recipes_cookbook_post"];
+            };
+        };
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["src__schemas__Recipe"] | null;
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    readonly accept_recipe_share_request_recipes_download__recipe_id__post: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path: {
+                readonly recipe_id: string;
+            };
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["src__schemas__Recipe"] | null;
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    readonly list_filter_options_recipes_filter_options_get: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ListRecipeFilterOptionsRow"] | null;
+                };
+            };
+        };
+    };
+    readonly create_made_up_recipe_recipes_made_up_post: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody: {
+            readonly content: {
+                readonly "application/json": components["schemas"]["CreateMadeUpRecipeLocation"];
+            };
+        };
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["src__schemas__Recipe"] | null;
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    readonly create_online_recipe_recipes_online_post: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody: {
+            readonly content: {
+                readonly "application/json": components["schemas"]["CreateOnlineRecipeLocation"];
+            };
+        };
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["src__schemas__Recipe"] | null;
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    readonly recommend_recipe_recipes_recommendation_get: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["src__schemas__Recipe"];
+                };
+            };
+        };
+    };
+    readonly list_pending_recipe_share_requests_sharing_get: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": readonly components["schemas"]["ListPendingRecipeShareRequestsRow"][];
+                };
+            };
+        };
+    };
+    readonly share_recipe_sharing_post: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody: {
+            readonly content: {
+                readonly "application/json": components["schemas"]["ShareRecipeBody"];
+            };
+        };
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["RecipeShareRequest"] | null;
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    readonly delete_share_request_sharing__recipe_id__delete: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path: {
+                readonly recipe_id: string;
+            };
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["RecipeShareRequest"] | null;
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    readonly get_user_users_get: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["src__crud__models__User"];
+                };
+            };
+        };
+    };
+    readonly send_friend_request_users_friend_request_post: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody: {
+            readonly content: {
+                readonly "application/json": components["schemas"]["FriendRequestBody"];
+            };
+        };
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["Friendship"] | null;
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    readonly accept_friend_request_users_friend_request__request_from_user_id__accept_post: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path: {
+                readonly request_from_user_id: string;
+            };
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["Friendship"] | null;
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    readonly list_friend_requests_users_friend_requests_get: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": readonly components["schemas"]["src__schemas__User"][];
+                };
+            };
+        };
+    };
+    readonly list_friends_users_friends_get: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": readonly components["schemas"]["src__schemas__User"][];
+                };
+            };
+        };
+    };
+    readonly register_users_search_get: {
+        readonly parameters: {
+            readonly query: {
+                readonly query: string;
+            };
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Successful Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": readonly components["schemas"]["src__schemas__User"][];
+                };
+            };
+            /** @description Validation Error */
+            readonly 422: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
     };
-  };
 }

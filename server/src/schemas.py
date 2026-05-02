@@ -17,7 +17,6 @@ class UserRegistration(BaseModel):
     name: str
     password: str
     privacy_preference: models.UserPrivacyPreference
-    signup_token: str
 
 
 class Token(BaseModel):

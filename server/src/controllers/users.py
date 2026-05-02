@@ -1,23 +1,15 @@
-import asyncio
 from uuid import UUID
 
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from src.crud.models import Friendship, PushPermissionStatus
+from src.crud.models import Friendship
 from src.crud.users import AsyncQuerier
 from src.dependencies import Connection
 from src.dependencies import User as UserDependency
-from src.logger import get_logger
 from src.schemas import User
-from src.services.notifications import (
-    PushNotificationPayload,
-    PushNotificationRedirectDestination,
-    send_push_message,
-)
 
 users = APIRouter(prefix="/users")
-logger = get_logger(__name__)
 
 
 @users.get("")
@@ -56,24 +48,10 @@ async def send_friend_request(
 ) -> Friendship | None:
     querier = AsyncQuerier(conn)
 
-    recipient = await querier.find_user_by_id(userid=body.friend_user_id)
-
-    result = await querier.create_friend_request(
+    return await querier.create_friend_request(
         userid=user.id,
         frienduserid=body.friend_user_id,
     )
-
-    if result and recipient and recipient.expo_push_token:
-        await asyncio.to_thread(
-            send_push_message,
-            recipient=recipient,
-            message=f"{user.name} sent you a friend request",
-            payload=PushNotificationPayload(
-                navigate_to=PushNotificationRedirectDestination.FRIEND_REQUESTS
-            ),
-        )
-
-    return result
 
 
 @users.post("/friend-request/{request_from_user_id}/accept")
@@ -84,23 +62,9 @@ async def accept_friend_request(
 ) -> Friendship | None:
     querier = AsyncQuerier(conn)
 
-    sender = await querier.find_user_by_id(userid=request_from_user_id)
-
-    result = await querier.accept_friend_request(
+    return await querier.accept_friend_request(
         userid=user.id, requestfromuserid=request_from_user_id
     )
-
-    if result and sender and sender.expo_push_token:
-        await asyncio.to_thread(
-            send_push_message,
-            recipient=sender,
-            message=f"{user.name} accepted your friend request",
-            payload=PushNotificationPayload(
-                navigate_to=PushNotificationRedirectDestination.FRIENDS
-            ),
-        )
-
-    return result
 
 
 @users.get("/friends")
@@ -133,41 +97,3 @@ async def list_friend_requests(
         )
         async for friend in requests
     ]
-
-
-class PushTokenBody(BaseModel):
-    expo_push_token: str | None
-    push_permission: PushPermissionStatus
-
-
-class PushTokenResponse(BaseModel):
-    success: bool
-    message: str
-
-
-@users.post("/push-token")
-async def store_push_token(
-    conn: Connection,
-    user: UserDependency,
-    body: PushTokenBody,
-) -> PushTokenResponse:
-    querier = AsyncQuerier(conn)
-
-    if user.expo_push_token:
-        return PushTokenResponse(success=True, message="Push token already exists")
-
-    await querier.set_expo_push_token(
-        push_token=body.expo_push_token,
-        userid=user.id,
-        pushpermission=body.push_permission,
-    )
-
-    return PushTokenResponse(success=True, message="Push token stored successfully")
-
-
-## placeholder to generate openapi enum
-@users.get("/push-notification-redirect")
-async def list_push_redirect_options() -> PushNotificationPayload:
-    return PushNotificationPayload(
-        navigate_to=PushNotificationRedirectDestination.FRIEND_REQUESTS
-    )
