@@ -161,7 +161,7 @@ function AuthScreen({ onAuth }: { onAuth: (token: string) => void }) {
   );
 }
 
-// ── Recipe Card (pulled out, flippable) ──
+// ── Recipe Card (pulled out, flippable, handwritten index card) ──
 
 function RecipeCard({
   recipe,
@@ -175,7 +175,7 @@ function RecipeCard({
 
   const handleClose = useCallback(() => {
     setClosing(true);
-    setTimeout(onClose, 250);
+    setTimeout(onClose, 300);
   }, [onClose]);
 
   useEffect(() => {
@@ -202,10 +202,10 @@ function RecipeCard({
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       onClick={handleClose}
     >
-      <div className="absolute inset-0 bg-ink/30 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" />
 
       <div
-        className={`relative w-full max-w-lg aspect-[4/5] max-h-[85vh] ${closing ? "animate-put-back" : "animate-pull-out"}`}
+        className={`relative w-full max-w-lg aspect-[5/7] max-h-[88vh] ${closing ? "animate-put-back" : "animate-pull-out"}`}
         style={{ perspective: "1200px" }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -214,82 +214,84 @@ function RecipeCard({
           onClick={() => setFlipped(!flipped)}
         >
           {/* Front: Ingredients */}
-          <div className="card-face bg-card rounded-2xl shadow-2xl border border-cream-dark overflow-hidden flex flex-col">
-            <div className="bg-accent/90 px-6 py-4">
-              <h2 className="font-display text-2xl font-bold text-white leading-tight">
+          <div className="card-face index-card overflow-hidden flex flex-col">
+            {/* Top header area — recipe name in handwriting */}
+            <div className="card-header-line px-6 pt-5 pb-3">
+              <h2 className="handwritten text-3xl font-bold text-ink leading-tight">
                 {recipe.name}
               </h2>
-              <p className="text-white/80 text-sm font-body mt-1">
+              <p className="handwritten text-lg text-ink-light mt-0.5">
                 {recipe.author}
-                {recipe.cuisine ? ` \u00b7 ${recipe.cuisine}` : ""}
+                {recipe.cuisine ? ` · ${recipe.cuisine}` : ""}
                 {recipe.time_estimate_minutes
-                  ? ` \u00b7 ${recipe.time_estimate_minutes} min`
+                  ? ` · ${recipe.time_estimate_minutes} min`
                   : ""}
               </p>
             </div>
-            <div className="flex-1 overflow-y-auto p-6 lined">
-              <h3 className="font-display text-lg font-semibold mb-3 text-ink">
+            {/* Lined body */}
+            <div className="flex-1 overflow-y-auto card-scroll py-4 pr-6 lined-card">
+              <h3 className="handwritten text-xl font-semibold text-ink-blue mb-2 underline decoration-card-margin/40">
                 Ingredients
               </h3>
-              <ul className="space-y-2">
+              <ul className="space-y-1">
                 {ingredients.map((ing, i) => (
-                  <li key={i} className="flex gap-2 text-ink font-body">
-                    <span className="text-cardboard-dark font-medium shrink-0">
+                  <li key={i} className="handwritten text-lg text-ink flex gap-2">
+                    <span className="text-ink-blue font-semibold shrink-0">
                       {formatQuantity(ing)}
                     </span>
                     <span>{ing.name}</span>
                   </li>
                 ))}
                 {ingredients.length === 0 && (
-                  <li className="text-ink-light/60 italic">
+                  <li className="handwritten text-ink-light/60 text-lg italic">
                     No ingredients listed
                   </li>
                 )}
               </ul>
               {recipe.notes && (
-                <div className="mt-6 pt-4 border-t border-cream-dark">
-                  <p className="text-sm text-ink-light italic">
-                    {recipe.notes}
+                <div className="mt-4 pt-3 border-t border-card-margin/30">
+                  <p className="handwritten text-lg text-ink-light italic">
+                    * {recipe.notes}
                   </p>
                 </div>
               )}
             </div>
-            <div className="px-6 py-3 text-center text-ink-light/50 text-xs font-body border-t border-cream-dark">
-              tap to flip for instructions
+            <div className="px-6 py-2 text-center text-ink-light/40 text-xs font-body border-t border-cream-dark">
+              tap to flip
             </div>
           </div>
 
           {/* Back: Instructions */}
-          <div className="card-face card-back bg-card rounded-2xl shadow-2xl border border-cream-dark overflow-hidden flex flex-col">
-            <div className="bg-cardboard-dark px-6 py-4">
-              <h2 className="font-display text-2xl font-bold text-white leading-tight">
+          <div className="card-face card-back index-card overflow-hidden flex flex-col">
+            <div className="card-header-line px-6 pt-5 pb-3">
+              <h2 className="handwritten text-3xl font-bold text-ink leading-tight">
                 {recipe.name}
               </h2>
-              <p className="text-white/80 text-sm font-body mt-1">
+              <p className="handwritten text-lg text-ink-light mt-0.5">
                 Instructions
               </p>
             </div>
-            <div className="flex-1 overflow-y-auto p-6 lined">
-              <ol className="space-y-4">
+            <div className="flex-1 overflow-y-auto card-scroll py-4 pr-6 lined-card">
+              <ol className="space-y-3">
                 {instructions.map((step: Instruction) => (
-                  <li key={step.step_number} className="flex gap-3 font-body">
-                    <span className="font-display text-lg font-bold text-cardboard-dark shrink-0 w-7 text-right">
+                  <li key={step.step_number} className="handwritten text-lg text-ink flex gap-2">
+                    <span className="text-ink-blue font-bold shrink-0">
                       {step.step_number}.
                     </span>
-                    <span className="text-ink leading-relaxed pt-0.5">
+                    <span className="leading-relaxed">
                       {step.content}
                     </span>
                   </li>
                 ))}
                 {instructions.length === 0 && (
-                  <li className="text-ink-light/60 italic">
+                  <li className="handwritten text-ink-light/60 text-lg italic">
                     No instructions listed
                   </li>
                 )}
               </ol>
             </div>
-            <div className="px-6 py-3 text-center text-ink-light/50 text-xs font-body border-t border-cream-dark">
-              tap to flip for ingredients
+            <div className="px-6 py-2 text-center text-ink-light/40 text-xs font-body border-t border-cream-dark">
+              tap to flip
             </div>
           </div>
         </div>
@@ -397,8 +399,8 @@ function RecipeBox({
   return (
     <div className="min-h-screen bg-cream flex flex-col items-center px-4 py-8">
       {/* Header */}
-      <div className="w-full max-w-xl mb-4 flex items-end justify-between">
-        <h1 className="font-display text-4xl font-bold text-ink">
+      <div className="w-full max-w-xl mb-5 flex items-end justify-between">
+        <h1 className="handwritten text-5xl font-bold text-ink">
           Recipe Box
         </h1>
         <button
@@ -434,7 +436,7 @@ function RecipeBox({
       </div>
 
       {/* Search */}
-      <div className="w-full max-w-xl mb-4">
+      <div className="w-full max-w-xl mb-5">
         <div className="relative">
           <svg
             className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-light/40"
@@ -457,107 +459,107 @@ function RecipeBox({
       </div>
 
       {/* The Box */}
-      <div className="w-full max-w-xl">
-        <div className={`rounded-t-2xl px-4 pt-3 pb-1 ${
-          view === "box"
-            ? "bg-gradient-to-b from-cardboard to-cardboard-dark"
-            : "bg-gradient-to-b from-accent/80 to-accent"
-        }`}>
-          <div className="flex items-center gap-2 text-white/80 text-xs font-body">
-            <span>
-              {recipes.length} recipe{recipes.length !== 1 ? "s" : ""}
-            </span>
-          </div>
-        </div>
-        <div className="bg-cream-dark rounded-b-2xl border-x-2 border-b-2 border-cardboard/40 shadow-lg">
-          <div className="card-scroll overflow-y-auto max-h-[60vh] p-2">
-            {loading ? (
-              <div className="flex items-center justify-center py-16">
-                <div className="w-6 h-6 border-2 border-cardboard border-t-transparent rounded-full animate-spin" />
-              </div>
-            ) : recipes.length === 0 ? (
-              <div className="text-center py-16 text-ink-light/50 font-body">
-                {search
-                  ? "No recipes match your search"
-                  : view === "box"
-                    ? "Your box is empty"
-                    : "No recipes to browse yet"}
-              </div>
-            ) : (
-              <div className="space-y-1">
-                {groupOrder
-                  .filter((g) => grouped[g])
-                  .map((group) => (
-                    <div key={group}>
-                      {/* Divider tab */}
-                      <div className="sticky top-0 z-10 bg-tab/95 backdrop-blur-sm rounded-lg px-4 py-1.5 mb-1 shadow-sm">
-                        <span className="font-display text-sm font-semibold text-ink-light">
-                          {group}
-                        </span>
-                      </div>
-                      {/* Cards in this group */}
-                      {grouped[group].map((recipe) => (
-                        <div
-                          key={recipe.id}
-                          className="w-full text-left px-4 py-3 rounded-lg bg-card hover:bg-card/80 border border-transparent hover:border-cardboard/30 transition-all duration-150 flex items-center gap-3 group mb-0.5"
-                        >
-                          <button
-                            onClick={() => setSelectedRecipe(recipe)}
-                            className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer text-left"
-                          >
-                            <div className="w-1 h-8 rounded-full bg-cardboard/40 group-hover:bg-accent/60 transition-colors shrink-0" />
-                            <div className="min-w-0 flex-1">
-                              <p className="font-body font-medium text-ink truncate">
-                                {recipe.name}
-                              </p>
-                              <p className="text-xs text-ink-light/60 font-body truncate">
-                                {recipe.author}
-                                {recipe.cuisine
-                                  ? ` \u00b7 ${recipe.cuisine}`
-                                  : ""}
-                                {recipe.time_estimate_minutes
-                                  ? ` \u00b7 ${recipe.time_estimate_minutes}m`
-                                  : ""}
-                              </p>
-                            </div>
-                            <svg
-                              className="w-4 h-4 text-ink-light/30 group-hover:text-cardboard-dark transition-colors shrink-0"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                              strokeWidth={2}
-                            >
-                              <path
-                                d="M5 12h14M12 5l7 7-7 7"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          </button>
-                          {view === "browse" && (
-                            <button
-                              onClick={() => addToBox(recipe.id)}
-                              disabled={addingRecipeId === recipe.id}
-                              className="shrink-0 px-3 py-1.5 rounded-lg bg-cardboard text-white text-xs font-body font-medium hover:bg-cardboard-dark transition-colors cursor-pointer disabled:opacity-50"
-                            >
-                              {addingRecipeId === recipe.id ? (
-                                <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                              ) : (
-                                "+ Add"
-                              )}
-                            </button>
-                          )}
+      <div className="w-full max-w-xl recipe-box">
+        <div className="recipe-box-inner">
+          <div className="recipe-box-interior">
+            <div className="card-scroll overflow-y-auto max-h-[60vh] p-1">
+              {loading ? (
+                <div className="flex items-center justify-center py-16">
+                  <div className="w-6 h-6 border-2 border-card border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : recipes.length === 0 ? (
+                <div className="text-center py-16 text-card/70 handwritten text-2xl">
+                  {search
+                    ? "No recipes match your search"
+                    : view === "box"
+                      ? "Your box is empty — browse to add some!"
+                      : "No recipes to browse yet"}
+                </div>
+              ) : (
+                <div>
+                  {groupOrder
+                    .filter((g) => grouped[g])
+                    .map((group) => (
+                      <div key={group}>
+                        {/* Category divider tab */}
+                        <div className="divider-tab sticky top-0 z-10">
+                          <span className="handwritten text-lg font-semibold text-ink-light">
+                            {group}
+                          </span>
+                          <span className="text-xs text-ink-light/50 font-body ml-2">
+                            ({grouped[group].length})
+                          </span>
                         </div>
-                      ))}
-                    </div>
-                  ))}
-              </div>
-            )}
+                        {/* Card edges peeking up */}
+                        {grouped[group].map((recipe) => (
+                          <div
+                            key={recipe.id}
+                            className="card-edge flex items-center gap-3 group"
+                          >
+                            <button
+                              onClick={() => setSelectedRecipe(recipe)}
+                              className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer text-left"
+                            >
+                              <div className="min-w-0 flex-1">
+                                <p className="handwritten text-xl font-medium text-ink truncate">
+                                  {recipe.name}
+                                </p>
+                                <p className="handwritten text-base text-ink-light/70 truncate">
+                                  {recipe.author}
+                                  {recipe.cuisine
+                                    ? ` · ${recipe.cuisine}`
+                                    : ""}
+                                  {recipe.time_estimate_minutes
+                                    ? ` · ${recipe.time_estimate_minutes}m`
+                                    : ""}
+                                </p>
+                              </div>
+                              <svg
+                                className="w-4 h-4 text-ink-light/20 group-hover:text-accent transition-colors shrink-0"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                              >
+                                <path
+                                  d="M5 12h14M12 5l7 7-7 7"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </button>
+                            {view === "browse" && (
+                              <button
+                                onClick={() => addToBox(recipe.id)}
+                                disabled={addingRecipeId === recipe.id}
+                                className="shrink-0 px-3 py-1.5 rounded-lg bg-cardboard text-white text-xs font-body font-medium hover:bg-cardboard-dark transition-colors cursor-pointer disabled:opacity-50"
+                              >
+                                {addingRecipeId === recipe.id ? (
+                                  <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                ) : (
+                                  "+ Add"
+                                )}
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
-        {/* Box shadow / base */}
-        <div className="h-2 mx-4 bg-cardboard-dark/20 rounded-b-xl" />
+        {/* Box base shadow */}
+        <div className="h-3 mx-3 bg-cardboard-dark/30 rounded-b-xl" />
       </div>
+
+      {/* Recipe count */}
+      {!loading && recipes.length > 0 && (
+        <p className="mt-3 text-sm text-ink-light/50 font-body">
+          {recipes.length} recipe{recipes.length !== 1 ? "s" : ""}
+        </p>
+      )}
 
       {/* Pulled-out card */}
       {selectedRecipe && (

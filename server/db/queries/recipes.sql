@@ -113,13 +113,11 @@ JOIN "user" u ON u.id = r.user_id
 WHERE
     (
         (
-            -- either we're getting a list of all recipes
+            -- browsing all recipes
             @onlyUser::BOOLEAN = FALSE
-            -- only include recipes for users who have made their recipes public
-            AND u.privacy_preference = 'public'
-            -- don't include recipes that have a parent, since we'll show the parent
+            -- don't include copies, only originals
             AND r.parent_recipe_id IS NULL
-            -- recipe does not belong to current user
+            -- exclude current user's own recipes
             AND r.user_id != @userId::UUID
         )
         OR (
