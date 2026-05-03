@@ -31,6 +31,18 @@ const INK_LIGHT = "#5a4a3f";
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
+// Color coding by recipe type
+const TYPE_COLORS: Record<string, string> = {
+  starter: "#e8a87c",   // warm peach
+  main: "#d35f5f",      // tomato red
+  salad: "#7bc67e",     // fresh green
+  dessert: "#c98bdb",   // lavender purple
+  snack: "#e6c84e",     // golden yellow
+  cocktail: "#5ba4cf",  // sky blue
+  condiment: "#cf9b5a", // mustard
+  other: "#a0998f",     // warm gray
+};
+
 // ── Wood material ──
 
 function WoodMaterial({ color, darker }: { color: string; darker?: boolean }) {
@@ -145,6 +157,21 @@ function WoodenBox() {
 
 // ── A single recipe card standing in the box ──
 
+// Pastel tints for the full card body per type
+const TYPE_CARD_TINTS: Record<string, string> = {
+  starter: "#fce8d8",
+  main: "#f5d5d5",
+  salad: "#d8f0d9",
+  dessert: "#ecdaf3",
+  snack: "#f6eecc",
+  cocktail: "#d4e8f5",
+  condiment: "#f0e2cb",
+  other: "#eae8e4",
+};
+
+const LINE_COUNT = 10;
+const LINE_SPACING = 0.22;
+
 function RecipeCardMesh({
   recipe,
   positionZ,
@@ -161,7 +188,9 @@ function RecipeCardMesh({
   onUnhover: () => void;
 }) {
   const meshRef = useRef<THREE.Group>(null);
-  const targetY = isHovered ? 0.4 : 0;
+  const targetY = isHovered ? 0.9 : 0;
+  const typeColor = TYPE_COLORS[recipe.type] || TYPE_COLORS.other;
+  const cardTint = TYPE_CARD_TINTS[recipe.type] || TYPE_CARD_TINTS.other;
 
   useFrame((_, delta) => {
     if (meshRef.current) {
@@ -172,6 +201,16 @@ function RecipeCardMesh({
       );
     }
   });
+
+  const meta = [
+    recipe.type,
+    recipe.author,
+    recipe.cuisine,
+    recipe.time_estimate_minutes ? `${recipe.time_estimate_minutes} min` : "",
+  ].filter(Boolean).join(" \u00b7 ");
+
+  // Line color that complements the card tint
+  const lineColor = typeColor;
 
   return (
     <group
@@ -191,61 +230,93 @@ function RecipeCardMesh({
         document.body.style.cursor = "auto";
       }}
     >
-      {/* Card body */}
+      {/* ── Card body — full color tint ── */}
       <RoundedBox
         args={[CARD_WIDTH, CARD_HEIGHT, CARD_DEPTH]}
         radius={0.01}
       >
         <meshStandardMaterial
-          color={CARD_COLOR}
-          roughness={0.9}
+          color={cardTint}
+          roughness={0.92}
           side={THREE.DoubleSide}
         />
       </RoundedBox>
 
-      {/* Red margin line */}
-      <mesh position={[-CARD_WIDTH / 2 + 0.5, 0, CARD_DEPTH / 2 + 0.001]}>
-        <planeGeometry args={[0.015, CARD_HEIGHT - 0.1]} />
-        <meshBasicMaterial color={MARGIN_RED} />
+      {/* ── Red margin line ── */}
+      <mesh position={[-CARD_WIDTH / 2 + 0.5, 0, CARD_DEPTH / 2 + 0.002]}>
+        <planeGeometry args={[0.014, CARD_HEIGHT - 0.08]} />
+        <meshBasicMaterial color={MARGIN_RED} transparent opacity={0.6} />
       </mesh>
 
-      {/* Horizontal lines */}
-      {Array.from({ length: 8 }, (_, i) => (
+      {/* ── Top header rule ── */}
+      <mesh position={[0, CARD_HEIGHT / 2 - 0.45, CARD_DEPTH / 2 + 0.002]}>
+        <planeGeometry args={[CARD_WIDTH - 0.08, 0.01]} />
+        <meshBasicMaterial color={typeColor} transparent opacity={0.6} />
+      </mesh>
+
+      {/* ── Horizontal ruled lines ── */}
+      {Array.from({ length: LINE_COUNT }, (_, i) => (
         <mesh
           key={i}
-          position={[0, CARD_HEIGHT / 2 - 0.6 - i * 0.28, CARD_DEPTH / 2 + 0.001]}
+          position={[
+            0.05,
+            CARD_HEIGHT / 2 - 0.55 - i * LINE_SPACING,
+            CARD_DEPTH / 2 + 0.001,
+          ]}
         >
           <planeGeometry args={[CARD_WIDTH - 0.2, 0.005]} />
-          <meshBasicMaterial color="#c8d8ea" transparent opacity={0.5} />
+          <meshBasicMaterial color={lineColor} transparent opacity={0.18} />
         </mesh>
       ))}
 
-      {/* Recipe name text */}
+      {/* ── Recipe name text ── */}
       <Text
-        position={[-CARD_WIDTH / 2 + 0.7, CARD_HEIGHT / 2 - 0.35, CARD_DEPTH / 2 + 0.005]}
+        position={[-CARD_WIDTH / 2 + 0.65, CARD_HEIGHT / 2 - 0.25, CARD_DEPTH / 2 + 0.005]}
         fontSize={0.22}
-        maxWidth={CARD_WIDTH - 1.2}
+        maxWidth={CARD_WIDTH - 1.0}
         color={INK_COLOR}
         font="/fonts/Caveat-Regular.ttf"
         anchorX="left"
         anchorY="middle"
-        fontWeight="bold"
       >
         {recipe.name}
       </Text>
 
-      {/* Author / meta */}
+      {/* ── Author / meta line ── */}
       <Text
-        position={[-CARD_WIDTH / 2 + 0.7, CARD_HEIGHT / 2 - 0.65, CARD_DEPTH / 2 + 0.005]}
-        fontSize={0.14}
-        maxWidth={CARD_WIDTH - 1.2}
+        position={[-CARD_WIDTH / 2 + 0.65, CARD_HEIGHT / 2 - 0.55, CARD_DEPTH / 2 + 0.005]}
+        fontSize={0.13}
+        maxWidth={CARD_WIDTH - 1.0}
         color={INK_LIGHT}
         font="/fonts/Caveat-Regular.ttf"
         anchorX="left"
         anchorY="middle"
       >
-        {[recipe.author, recipe.cuisine, recipe.time_estimate_minutes ? `${recipe.time_estimate_minutes} min` : ""].filter(Boolean).join(" \u00b7 ")}
+        {meta}
       </Text>
+
+      {/* ── Hover label: floating title banner above the card ── */}
+      {isHovered && (
+        <group position={[0, CARD_HEIGHT / 2 + 0.35, 0.2]}>
+          <RoundedBox args={[CARD_WIDTH * 0.85, 0.4, 0.01]} radius={0.06}>
+            <meshBasicMaterial color={typeColor} transparent opacity={0.92} />
+          </RoundedBox>
+          <Text
+            position={[0, 0.01, 0.01]}
+            fontSize={0.19}
+            maxWidth={CARD_WIDTH * 0.8}
+            color="#fff"
+            font="/fonts/Caveat-Bold.ttf"
+            anchorX="center"
+            anchorY="middle"
+            outlineWidth={0.008}
+            outlineColor="#333333"
+            outlineOpacity={0.19}
+          >
+            {recipe.name}
+          </Text>
+        </group>
+      )}
     </group>
   );
 }
@@ -313,7 +384,7 @@ function DividerTab({
         <Text
           position={[0, 0.02, DIVIDER_DEPTH / 2 + 0.002]}
           fontSize={0.24}
-          color={hasRecipes ? INK_COLOR : INK_LIGHT + "60"}
+          color={hasRecipes ? INK_COLOR : "#8a7a6f"}
           font="/fonts/Caveat-Bold.ttf"
           anchorX="center"
           anchorY="middle"
@@ -432,7 +503,7 @@ function BoxScene({
 
       {/* Lighting */}
       <ambientLight intensity={0.5} />
-      <directionalLight position={[3, 8, 5]} intensity={1.2} castShadow />
+      <directionalLight position={[3, 8, 5]} intensity={1.2} />
       <directionalLight position={[-2, 4, -3]} intensity={0.3} color="#ffe8cc" />
       <pointLight position={[0, 3, 4]} intensity={0.4} color="#fff5e6" />
 
@@ -452,7 +523,7 @@ function BoxScene({
           <Text
             position={[0, 0.3, 0.5]}
             fontSize={0.3}
-            color={INK_LIGHT + "80"}
+            color="#7a6a5f"
             font="/fonts/Caveat-Regular.ttf"
             anchorX="center"
             anchorY="middle"
@@ -586,7 +657,6 @@ export function RecipeBox3D({
         </div>
       )}
       <Canvas
-        shadows
         dpr={[1, 2]}
         gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, alpha: true }}
         style={{ background: "transparent" }}

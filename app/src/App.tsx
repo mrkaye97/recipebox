@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { jwtDecode } from "jwt-decode";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "./lib/api/client";
 import type { components } from "./lib/api/v1";
 import { RecipeBox3D } from "./RecipeBox3D";
@@ -148,7 +148,9 @@ function AuthScreen({ onAuth }: { onAuth: (token: string) => void }) {
               : "Create Account"}
         </button>
         <p className="text-center text-sm text-ink-light mt-4 font-body">
-          {mode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
+          {mode === "login"
+            ? "Don't have an account?"
+            : "Already have an account?"}{" "}
           <button
             type="button"
             onClick={switchMode}
@@ -234,7 +236,10 @@ function RecipeCard({
               </h3>
               <ul className="space-y-1">
                 {ingredients.map((ing, i) => (
-                  <li key={i} className="handwritten text-lg text-ink flex gap-2">
+                  <li
+                    key={i}
+                    className="handwritten text-lg text-ink flex gap-2"
+                  >
                     <span className="text-ink-blue font-semibold shrink-0">
                       {formatQuantity(ing)}
                     </span>
@@ -273,13 +278,14 @@ function RecipeCard({
             <div className="flex-1 overflow-y-auto card-scroll py-4 pr-6 lined-card">
               <ol className="space-y-3">
                 {instructions.map((step: Instruction) => (
-                  <li key={step.step_number} className="handwritten text-lg text-ink flex gap-2">
+                  <li
+                    key={step.step_number}
+                    className="handwritten text-lg text-ink flex gap-2"
+                  >
                     <span className="text-ink-blue font-bold shrink-0">
                       {step.step_number}.
                     </span>
-                    <span className="leading-relaxed">
-                      {step.content}
-                    </span>
+                    <span className="leading-relaxed">{step.content}</span>
                   </li>
                 ))}
                 {instructions.length === 0 && (
@@ -362,9 +368,7 @@ function RecipeBox({
     <div className="min-h-screen bg-cream flex flex-col items-center px-4 py-6">
       {/* Header */}
       <div className="w-full max-w-3xl mb-4 flex items-end justify-between">
-        <h1 className="handwritten text-5xl font-bold text-ink">
-          Recipe Box
-        </h1>
+        <h1 className="handwritten text-5xl font-bold text-ink">Recipe Box</h1>
         <button
           onClick={onLogout}
           className="text-sm text-ink-light hover:text-accent transition-colors font-body cursor-pointer"
@@ -428,13 +432,6 @@ function RecipeBox({
         view={view}
         onSelectRecipe={setSelectedRecipe}
       />
-
-      {/* Recipe count */}
-      {!loading && recipes.length > 0 && (
-        <p className="mt-2 text-sm text-ink-light/50 font-body">
-          {recipes.length} recipe{recipes.length !== 1 ? "s" : ""} — hover a card and click to view
-        </p>
-      )}
 
       {/* Pulled-out card overlay */}
       {selectedRecipe && (
