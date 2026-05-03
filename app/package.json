@@ -10,15 +10,19 @@
     "gen-schema": "curl localhost:8000/openapi.json > openapi.json && npx openapi-typescript --alphabetize --immutable openapi.json -o ./src/lib/api/v1.d.ts && rm openapi.json"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.1",
     "jwt-decode": "^4.0.0",
     "openapi-fetch": "^0.14.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "three": "^0.184.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/three": "^0.184.0",
     "openapi-typescript": "^7.8.0",
     "tailwindcss": "^4.1.0",
     "typescript": "~5.8.3",

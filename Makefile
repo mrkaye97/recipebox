@@ -2,7 +2,7 @@ run:
 	(cd server && poetry run fastapi dev main.py --host 0.0.0.0 --port 8000)
 
 fe:
-	(cd app && npm run dev)
+	(cd app && pnpm run dev)
 
 lint:
 	(cd server && poetry run black .)

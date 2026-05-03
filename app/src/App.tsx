@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import { api } from "./lib/api/client";
 import type { components } from "./lib/api/v1";
+import { RecipeBox3D } from "./RecipeBox3D";
 
 type Recipe = components["schemas"]["src__schemas__Recipe"];
 type Ingredient = components["schemas"]["RecipeIngredient"];
@@ -215,7 +216,6 @@ function RecipeCard({
         >
           {/* Front: Ingredients */}
           <div className="card-face index-card overflow-hidden flex flex-col">
-            {/* Top header area — recipe name in handwriting */}
             <div className="card-header-line px-6 pt-5 pb-3">
               <h2 className="handwritten text-3xl font-bold text-ink leading-tight">
                 {recipe.name}
@@ -228,7 +228,6 @@ function RecipeCard({
                   : ""}
               </p>
             </div>
-            {/* Lined body */}
             <div className="flex-1 overflow-y-auto card-scroll py-4 pr-6 lined-card">
               <h3 className="handwritten text-xl font-semibold text-ink-blue mb-2 underline decoration-card-margin/40">
                 Ingredients
@@ -316,7 +315,6 @@ function RecipeBox({
   const searchTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [view, setView] = useState<"box" | "browse">("box");
-  const [addingRecipeId, setAddingRecipeId] = useState<string | null>(null);
 
   const authHeaders = useMemo(
     () => ({ Authorization: `Bearer ${token}` }),
@@ -360,46 +358,10 @@ function RecipeBox({
     fetchRecipes(debouncedSearch, view === "box");
   }, [debouncedSearch, fetchRecipes, view]);
 
-  const addToBox = async (recipeId: string) => {
-    setAddingRecipeId(recipeId);
-    await api.POST("/recipes/download/{recipe_id}", {
-      headers: authHeaders,
-      params: { path: { recipe_id: recipeId } },
-    });
-    setAddingRecipeId(null);
-    fetchRecipes(debouncedSearch, false);
-  };
-
-  const typeLabel = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
-
-  const grouped = useMemo(() => {
-    const temp: Record<string, Recipe[]> = {};
-    for (const r of recipes) {
-      const key = typeLabel(r.type);
-      if (!temp[key]) temp[key] = [];
-      temp[key].push(r);
-    }
-    for (const key of Object.keys(temp)) {
-      temp[key].sort((a, b) => a.name.localeCompare(b.name));
-    }
-    return temp as Record<string, readonly Recipe[]>;
-  }, [recipes]);
-
-  const groupOrder = [
-    "Main",
-    "Starter",
-    "Salad",
-    "Dessert",
-    "Snack",
-    "Cocktail",
-    "Condiment",
-    "Other",
-  ];
-
   return (
-    <div className="min-h-screen bg-cream flex flex-col items-center px-4 py-8">
+    <div className="min-h-screen bg-cream flex flex-col items-center px-4 py-6">
       {/* Header */}
-      <div className="w-full max-w-xl mb-5 flex items-end justify-between">
+      <div className="w-full max-w-3xl mb-4 flex items-end justify-between">
         <h1 className="handwritten text-5xl font-bold text-ink">
           Recipe Box
         </h1>
@@ -412,7 +374,7 @@ function RecipeBox({
       </div>
 
       {/* View toggle */}
-      <div className="w-full max-w-xl mb-4 flex gap-1 bg-cream-dark rounded-xl p-1">
+      <div className="w-full max-w-3xl mb-3 flex gap-1 bg-cream-dark rounded-xl p-1">
         <button
           onClick={() => setView("box")}
           className={`flex-1 py-2 rounded-lg text-sm font-body font-medium transition-all cursor-pointer ${
@@ -436,7 +398,7 @@ function RecipeBox({
       </div>
 
       {/* Search */}
-      <div className="w-full max-w-xl mb-5">
+      <div className="w-full max-w-3xl mb-4">
         <div className="relative">
           <svg
             className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-light/40"
@@ -458,110 +420,23 @@ function RecipeBox({
         </div>
       </div>
 
-      {/* The Box */}
-      <div className="w-full max-w-xl recipe-box">
-        <div className="recipe-box-inner">
-          <div className="recipe-box-interior">
-            <div className="card-scroll overflow-y-auto max-h-[60vh] p-1">
-              {loading ? (
-                <div className="flex items-center justify-center py-16">
-                  <div className="w-6 h-6 border-2 border-card border-t-transparent rounded-full animate-spin" />
-                </div>
-              ) : recipes.length === 0 ? (
-                <div className="text-center py-16 text-card/70 handwritten text-2xl">
-                  {search
-                    ? "No recipes match your search"
-                    : view === "box"
-                      ? "Your box is empty — browse to add some!"
-                      : "No recipes to browse yet"}
-                </div>
-              ) : (
-                <div>
-                  {groupOrder
-                    .filter((g) => grouped[g])
-                    .map((group) => (
-                      <div key={group}>
-                        {/* Category divider tab */}
-                        <div className="divider-tab sticky top-0 z-10">
-                          <span className="handwritten text-lg font-semibold text-ink-light">
-                            {group}
-                          </span>
-                          <span className="text-xs text-ink-light/50 font-body ml-2">
-                            ({grouped[group].length})
-                          </span>
-                        </div>
-                        {/* Card edges peeking up */}
-                        {grouped[group].map((recipe) => (
-                          <div
-                            key={recipe.id}
-                            className="card-edge flex items-center gap-3 group"
-                          >
-                            <button
-                              onClick={() => setSelectedRecipe(recipe)}
-                              className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer text-left"
-                            >
-                              <div className="min-w-0 flex-1">
-                                <p className="handwritten text-xl font-medium text-ink truncate">
-                                  {recipe.name}
-                                </p>
-                                <p className="handwritten text-base text-ink-light/70 truncate">
-                                  {recipe.author}
-                                  {recipe.cuisine
-                                    ? ` · ${recipe.cuisine}`
-                                    : ""}
-                                  {recipe.time_estimate_minutes
-                                    ? ` · ${recipe.time_estimate_minutes}m`
-                                    : ""}
-                                </p>
-                              </div>
-                              <svg
-                                className="w-4 h-4 text-ink-light/20 group-hover:text-accent transition-colors shrink-0"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                              >
-                                <path
-                                  d="M5 12h14M12 5l7 7-7 7"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
-                            </button>
-                            {view === "browse" && (
-                              <button
-                                onClick={() => addToBox(recipe.id)}
-                                disabled={addingRecipeId === recipe.id}
-                                className="shrink-0 px-3 py-1.5 rounded-lg bg-cardboard text-white text-xs font-body font-medium hover:bg-cardboard-dark transition-colors cursor-pointer disabled:opacity-50"
-                              >
-                                {addingRecipeId === recipe.id ? (
-                                  <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                ) : (
-                                  "+ Add"
-                                )}
-                              </button>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-        {/* Box base shadow */}
-        <div className="h-3 mx-3 bg-cardboard-dark/30 rounded-b-xl" />
-      </div>
+      {/* 3D Recipe Box */}
+      <RecipeBox3D
+        recipes={recipes}
+        loading={loading}
+        search={search}
+        view={view}
+        onSelectRecipe={setSelectedRecipe}
+      />
 
       {/* Recipe count */}
       {!loading && recipes.length > 0 && (
-        <p className="mt-3 text-sm text-ink-light/50 font-body">
-          {recipes.length} recipe{recipes.length !== 1 ? "s" : ""}
+        <p className="mt-2 text-sm text-ink-light/50 font-body">
+          {recipes.length} recipe{recipes.length !== 1 ? "s" : ""} — hover a card and click to view
         </p>
       )}
 
-      {/* Pulled-out card */}
+      {/* Pulled-out card overlay */}
       {selectedRecipe && (
         <RecipeCard
           recipe={selectedRecipe}
