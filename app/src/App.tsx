@@ -2,13 +2,12 @@ import { jwtDecode } from "jwt-decode";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "./lib/api/client";
 import type { components } from "./lib/api/v1";
+import ReactCardFlip from "./ReactCardFlip";
 import { RecipeBox3D } from "./RecipeBox3D";
 
 type Recipe = components["schemas"]["src__schemas__Recipe"];
 type Ingredient = components["schemas"]["RecipeIngredient"];
 type Instruction = components["schemas"]["RecipeInstruction"];
-
-// ── Auth helpers ──
 
 function getStoredToken(): string | null {
   return localStorage.getItem("recipebox_token");
@@ -30,8 +29,6 @@ function isTokenExpired(token: string): boolean {
     return true;
   }
 }
-
-// ── Auth Screen ──
 
 function AuthScreen({ onAuth }: { onAuth: (token: string) => void }) {
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -164,8 +161,6 @@ function AuthScreen({ onAuth }: { onAuth: (token: string) => void }) {
   );
 }
 
-// ── Recipe Card (pulled out, flippable, handwritten index card) ──
-
 function RecipeCard({
   recipe,
   onClose,
@@ -213,16 +208,21 @@ function RecipeCard({
       <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" />
 
       <div
-        className={`relative z-10 w-full max-w-lg ${closing ? "animate-put-back" : "animate-pull-out"}`}
-        style={{ perspective: "1200px", height: "min(88vh, 700px)" }}
-        onClick={(e) => e.stopPropagation()}
+        className={`relative z-10 w-full max-w-3xl cursor-pointer ${closing ? "animate-put-back" : "animate-pull-out"}`}
+        style={{ aspectRatio: "5 / 3", maxHeight: "min(80vh, 540px)" }}
+        onClick={(e) => {
+          e.stopPropagation();
+          setFlipped(!flipped);
+        }}
       >
-        <div
-          className={`card-inner cursor-pointer ${flipped ? "flipped" : ""}`}
-          onClick={() => setFlipped(!flipped)}
+        <ReactCardFlip
+          isFlipped={flipped}
+          flipDirection="horizontal"
+          flipSpeedFrontToBack={0.6}
+          flipSpeedBackToFront={0.6}
+          containerStyle={{ height: "100%" }}
         >
-          {/* Front: Ingredients */}
-          <div className="card-face index-card overflow-hidden flex flex-col">
+          <div className="index-card overflow-hidden flex flex-col h-full">
             <div className="card-header-line px-6 pt-5 pb-3">
               <h2 className="handwritten text-3xl font-bold text-ink leading-tight">
                 {recipe.name}
@@ -235,15 +235,15 @@ function RecipeCard({
                   : ""}
               </p>
             </div>
-            <div className="flex-1 overflow-y-auto card-scroll py-4 pr-6 lined-card">
-              <h3 className="handwritten text-xl font-semibold text-ink-blue mb-2 underline decoration-card-margin/40">
+            <div className="flex-1 overflow-hidden py-4 pr-6 lined-card cramped-content">
+              <h3 className="handwritten text-xl font-semibold text-ink-blue mb-2 underline decoration-card-margin/40 col-span-all">
                 Ingredients
               </h3>
-              <ul className="space-y-1">
+              <ul className="space-y-0.5">
                 {ingredients.map((ing, i) => (
                   <li
                     key={i}
-                    className="handwritten text-lg text-ink flex gap-2"
+                    className="handwritten text-base text-ink flex gap-1.5 break-inside-avoid"
                   >
                     <span className="text-ink-blue font-semibold shrink-0">
                       {formatQuantity(ing)}
@@ -252,26 +252,22 @@ function RecipeCard({
                   </li>
                 ))}
                 {ingredients.length === 0 && (
-                  <li className="handwritten text-ink-light/60 text-lg italic">
+                  <li className="handwritten text-ink-light/60 text-base italic">
                     No ingredients listed
                   </li>
                 )}
               </ul>
               {recipe.notes && (
-                <div className="mt-4 pt-3 border-t border-card-margin/30">
-                  <p className="handwritten text-lg text-ink-light italic">
+                <div className="mt-3 pt-2 border-t border-card-margin/30 break-inside-avoid">
+                  <p className="handwritten text-base text-ink-light italic">
                     * {recipe.notes}
                   </p>
                 </div>
               )}
             </div>
-            <div className="px-6 py-2 text-center text-ink-light/40 text-xs font-body border-t border-cream-dark">
-              tap to flip
-            </div>
           </div>
 
-          {/* Back: Instructions */}
-          <div className="card-face card-back index-card overflow-hidden flex flex-col">
+          <div className="index-card overflow-hidden flex flex-col h-full">
             <div className="card-header-line px-6 pt-5 pb-3">
               <h2 className="handwritten text-3xl font-bold text-ink leading-tight">
                 {recipe.name}
@@ -280,37 +276,32 @@ function RecipeCard({
                 Instructions
               </p>
             </div>
-            <div className="flex-1 overflow-y-auto card-scroll py-4 pr-6 lined-card">
-              <ol className="space-y-3">
+            <div className="flex-1 overflow-hidden py-4 pr-6 lined-card cramped-content">
+              <ol className="space-y-1.5">
                 {instructions.map((step: Instruction) => (
                   <li
                     key={step.step_number}
-                    className="handwritten text-lg text-ink flex gap-2"
+                    className="handwritten text-base text-ink flex gap-1.5 break-inside-avoid"
                   >
                     <span className="text-ink-blue font-bold shrink-0">
                       {step.step_number}.
                     </span>
-                    <span className="leading-relaxed">{step.content}</span>
+                    <span className="leading-snug">{step.content}</span>
                   </li>
                 ))}
                 {instructions.length === 0 && (
-                  <li className="handwritten text-ink-light/60 text-lg italic">
+                  <li className="handwritten text-ink-light/60 text-base italic">
                     No instructions listed
                   </li>
                 )}
               </ol>
             </div>
-            <div className="px-6 py-2 text-center text-ink-light/40 text-xs font-body border-t border-cream-dark">
-              tap to flip
-            </div>
           </div>
-        </div>
+        </ReactCardFlip>
       </div>
     </div>
   );
 }
-
-// ── The Recipe Box ──
 
 function RecipeBox({
   token,
@@ -371,87 +362,82 @@ function RecipeBox({
 
   return (
     <>
-    <div className="min-h-screen bg-cream flex flex-col items-center px-4 py-6">
-      {/* Header */}
-      <div className="w-full max-w-3xl mb-4 flex items-end justify-between">
-        <h1 className="handwritten text-5xl font-bold text-ink">Recipe Box</h1>
-        <button
-          onClick={onLogout}
-          className="text-sm text-ink-light hover:text-accent transition-colors font-body cursor-pointer"
-        >
-          Sign out
-        </button>
-      </div>
-
-      {/* View toggle */}
-      <div className="w-full max-w-3xl mb-3 flex gap-1 bg-cream-dark rounded-xl p-1">
-        <button
-          onClick={() => setView("box")}
-          className={`flex-1 py-2 rounded-lg text-sm font-body font-medium transition-all cursor-pointer ${
-            view === "box"
-              ? "bg-card text-ink shadow-sm"
-              : "text-ink-light hover:text-ink"
-          }`}
-        >
-          My Box
-        </button>
-        <button
-          onClick={() => setView("browse")}
-          className={`flex-1 py-2 rounded-lg text-sm font-body font-medium transition-all cursor-pointer ${
-            view === "browse"
-              ? "bg-card text-ink shadow-sm"
-              : "text-ink-light hover:text-ink"
-          }`}
-        >
-          Browse
-        </button>
-      </div>
-
-      {/* Search */}
-      <div className="w-full max-w-3xl mb-4">
-        <div className="relative">
-          <svg
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-light/40"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
+      <div className="min-h-screen bg-cream flex flex-col items-center px-4 py-6">
+        <div className="w-full max-w-3xl mb-4 flex items-end justify-between">
+          <h1 className="handwritten text-5xl font-bold text-ink">
+            Recipe Box
+          </h1>
+          <button
+            onClick={onLogout}
+            className="text-sm text-ink-light hover:text-accent transition-colors font-body cursor-pointer"
           >
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.35-4.35" strokeLinecap="round" />
-          </svg>
-          <input
-            type="text"
-            placeholder="Search recipes..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 rounded-xl border border-cream-dark bg-card text-ink placeholder:text-ink-light/40 focus:outline-none focus:ring-2 focus:ring-cardboard font-body shadow-sm"
-          />
+            Sign out
+          </button>
         </div>
+
+        <div className="w-full max-w-3xl mb-3 flex gap-1 bg-cream-dark rounded-xl p-1">
+          <button
+            onClick={() => setView("box")}
+            className={`flex-1 py-2 rounded-lg text-sm font-body font-medium transition-all cursor-pointer ${
+              view === "box"
+                ? "bg-card text-ink shadow-sm"
+                : "text-ink-light hover:text-ink"
+            }`}
+          >
+            My Box
+          </button>
+          <button
+            onClick={() => setView("browse")}
+            className={`flex-1 py-2 rounded-lg text-sm font-body font-medium transition-all cursor-pointer ${
+              view === "browse"
+                ? "bg-card text-ink shadow-sm"
+                : "text-ink-light hover:text-ink"
+            }`}
+          >
+            Browse
+          </button>
+        </div>
+
+        <div className="w-full max-w-3xl mb-4">
+          <div className="relative">
+            <svg
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-light/40"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" strokeLinecap="round" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search recipes..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-cream-dark bg-card text-ink placeholder:text-ink-light/40 focus:outline-none focus:ring-2 focus:ring-cardboard font-body shadow-sm"
+            />
+          </div>
+        </div>
+
+        <RecipeBox3D
+          recipes={recipes}
+          loading={loading}
+          search={search}
+          view={view}
+          onSelectRecipe={setSelectedRecipe}
+        />
       </div>
 
-      {/* 3D Recipe Box */}
-      <RecipeBox3D
-        recipes={recipes}
-        loading={loading}
-        search={search}
-        view={view}
-        onSelectRecipe={setSelectedRecipe}
-      />
-    </div>
-
-    {/* Pulled-out card overlay — rendered outside main layout to avoid canvas stacking issues */}
-    {selectedRecipe && (
-      <RecipeCard
-        recipe={selectedRecipe}
-        onClose={() => setSelectedRecipe(null)}
-      />
-    )}
+      {selectedRecipe && (
+        <RecipeCard
+          recipe={selectedRecipe}
+          onClose={() => setSelectedRecipe(null)}
+        />
+      )}
     </>
   );
 }
-
-// ── App Shell ──
 
 export function App() {
   const [token, setToken] = useState<string | null>(() => {

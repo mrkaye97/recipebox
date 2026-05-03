@@ -6,8 +6,6 @@ import type { components } from "./lib/api/v1";
 
 type Recipe = components["schemas"]["src__schemas__Recipe"];
 
-// ── Constants ──
-
 const BOX_WIDTH = 5;
 const BOX_DEPTH = 3.5;
 const BOX_HEIGHT = 2.8;
@@ -21,8 +19,6 @@ const DIVIDER_TAB_HEIGHT = 0.45;
 const WOOD_DARK = "#4a2f1e";
 const WOOD_MID = "#5c3d2e";
 const WOOD_LIGHT = "#7a5740";
-const CARD_COLOR = "#fffef9";
-const CARD_AGED = "#f7f0df";
 const DIVIDER_COLOR = "#e8ddd0";
 const DIVIDER_TAB_COLOR = "#dcc5a0";
 const MARGIN_RED = "#d4736c";
@@ -31,7 +27,6 @@ const INK_LIGHT = "#5a4a3f";
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
-// Color coding by recipe type
 const TYPE_COLORS: Record<string, string> = {
   starter: "#e8a87c",   // warm peach
   main: "#d35f5f",      // tomato red
@@ -42,8 +37,6 @@ const TYPE_COLORS: Record<string, string> = {
   condiment: "#cf9b5a", // mustard
   other: "#a0998f",     // warm gray
 };
-
-// ── Wood material ──
 
 function WoodMaterial({ color, darker }: { color: string; darker?: boolean }) {
   return (
@@ -57,15 +50,12 @@ function WoodMaterial({ color, darker }: { color: string; darker?: boolean }) {
   );
 }
 
-// ── The wooden box shell ──
-
 function WoodenBox() {
   const innerWidth = BOX_WIDTH - WALL_THICKNESS * 2;
   const innerDepth = BOX_DEPTH - WALL_THICKNESS * 2;
 
   return (
     <group>
-      {/* Bottom */}
       <RoundedBox
         args={[BOX_WIDTH, WALL_THICKNESS, BOX_DEPTH]}
         radius={0.03}
@@ -155,9 +145,6 @@ function WoodenBox() {
   );
 }
 
-// ── A single recipe card standing in the box ──
-
-// Pastel tints for the full card body per type
 const TYPE_CARD_TINTS: Record<string, string> = {
   starter: "#fce8d8",
   main: "#f5d5d5",
@@ -321,8 +308,6 @@ function RecipeCardMesh({
   );
 }
 
-// ── Letter divider tab ──
-
 function DividerTab({
   letter,
   positionZ,
@@ -397,8 +382,6 @@ function DividerTab({
   );
 }
 
-// ── Camera controller ──
-
 function CameraSetup() {
   const { camera } = useThree();
 
@@ -409,8 +392,6 @@ function CameraSetup() {
 
   return null;
 }
-
-// ── Scene content ──
 
 function BoxScene({
   recipes,
@@ -579,8 +560,6 @@ function BoxScene({
   );
 }
 
-// ── Loading placeholder ──
-
 function LoadingPlaceholder() {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center gap-4">
@@ -631,8 +610,6 @@ function LoadingPlaceholder() {
     </div>
   );
 }
-
-// ── Exported component ──
 
 export function RecipeBox3D({
   recipes,
