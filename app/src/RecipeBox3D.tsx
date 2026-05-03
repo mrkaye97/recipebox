@@ -451,7 +451,7 @@ function BoxScene({
       | { type: "card"; recipe: Recipe; z: number }
     > = [];
 
-    const startZ = BOX_DEPTH / 2 - WALL_THICKNESS - 0.3;
+    const startZ = -BOX_DEPTH / 2 + WALL_THICKNESS + 0.3;
     const spacing = 0.08;
     let currentZ = startZ;
 
@@ -465,24 +465,24 @@ function BoxScene({
       return -totalWidth / 2 + col * colSpacing - tabWidth / 2 + tabWidth / 2;
     });
 
-    for (let i = 0; i < ALPHABET.length; i++) {
-      const letter = ALPHABET[i];
-      const hasRecipes = activeLetters.has(letter);
+    // Only show dividers for letters that have recipes
+    const lettersWithRecipes = ALPHABET.filter((l) => activeLetters.has(l));
+
+    for (let i = 0; i < lettersWithRecipes.length; i++) {
+      const letter = lettersWithRecipes[i];
 
       result.push({
         type: "divider",
         letter,
         z: currentZ,
-        tabOffset: tabPositions[i],
-        hasRecipes,
+        tabOffset: tabPositions[i % tabPositions.length],
+        hasRecipes: true,
       });
-      currentZ -= DIVIDER_DEPTH + spacing;
+      currentZ += DIVIDER_DEPTH + spacing;
 
-      if (byLetter[letter]) {
-        for (const recipe of byLetter[letter]) {
-          result.push({ type: "card", recipe, z: currentZ });
-          currentZ -= CARD_DEPTH + spacing * 0.5;
-        }
+      for (const recipe of byLetter[letter]) {
+        result.push({ type: "card", recipe, z: currentZ });
+        currentZ += CARD_DEPTH + spacing * 0.5;
       }
     }
 

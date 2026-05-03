@@ -186,7 +186,11 @@ function RecipeCard({
       if (e.key === "Escape") handleClose();
     };
     window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", handleKey);
+      document.body.style.overflow = "";
+    };
   }, [handleClose]);
 
   const ingredients = recipe.ingredients ?? [];
@@ -202,14 +206,15 @@ function RecipeCard({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      style={{ isolation: "isolate" }}
       onClick={handleClose}
     >
       <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" />
 
       <div
-        className={`relative w-full max-w-lg aspect-[5/7] max-h-[88vh] ${closing ? "animate-put-back" : "animate-pull-out"}`}
-        style={{ perspective: "1200px" }}
+        className={`relative z-10 w-full max-w-lg ${closing ? "animate-put-back" : "animate-pull-out"}`}
+        style={{ perspective: "1200px", height: "min(88vh, 700px)" }}
         onClick={(e) => e.stopPropagation()}
       >
         <div
@@ -365,6 +370,7 @@ function RecipeBox({
   }, [debouncedSearch, fetchRecipes, view]);
 
   return (
+    <>
     <div className="min-h-screen bg-cream flex flex-col items-center px-4 py-6">
       {/* Header */}
       <div className="w-full max-w-3xl mb-4 flex items-end justify-between">
@@ -432,15 +438,16 @@ function RecipeBox({
         view={view}
         onSelectRecipe={setSelectedRecipe}
       />
-
-      {/* Pulled-out card overlay */}
-      {selectedRecipe && (
-        <RecipeCard
-          recipe={selectedRecipe}
-          onClose={() => setSelectedRecipe(null)}
-        />
-      )}
     </div>
+
+    {/* Pulled-out card overlay — rendered outside main layout to avoid canvas stacking issues */}
+    {selectedRecipe && (
+      <RecipeCard
+        recipe={selectedRecipe}
+        onClose={() => setSelectedRecipe(null)}
+      />
+    )}
+    </>
   );
 }
 
