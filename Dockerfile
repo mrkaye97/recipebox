@@ -32,7 +32,8 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
     gcc curl nginx \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -f /etc/nginx/sites-enabled/default
 
 COPY --from=requirements-stage /tmp/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
