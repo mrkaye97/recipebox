@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Text, RoundedBox, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
@@ -508,6 +508,59 @@ function BoxScene({
   );
 }
 
+// ── Loading placeholder ──
+
+function LoadingPlaceholder() {
+  return (
+    <div className="w-full h-full flex flex-col items-center justify-center gap-4">
+      {/* Stylized box silhouette */}
+      <div className="relative">
+        {/* Box body */}
+        <div
+          className="w-48 h-28 rounded-md border-4 border-walnut bg-cardboard/30 relative overflow-hidden"
+          style={{
+            boxShadow: "0 8px 24px rgba(92, 61, 46, 0.2)",
+          }}
+        >
+          {/* Fake divider tabs */}
+          <div className="absolute top-1 left-2 right-2 flex gap-0.5">
+            {Array.from({ length: 7 }, (_, i) => (
+              <div
+                key={i}
+                className="flex-1 h-3 rounded-t bg-cardboard/50"
+                style={{
+                  animationName: "tab-shimmer",
+                  animationDuration: "1.5s",
+                  animationTimingFunction: "ease-in-out",
+                  animationIterationCount: "infinite",
+                  animationDelay: `${i * 0.1}s`,
+                }}
+              />
+            ))}
+          </div>
+          {/* Shimmer overlay */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%)",
+              animationName: "shimmer-slide",
+              animationDuration: "2s",
+              animationTimingFunction: "ease-in-out",
+              animationIterationCount: "infinite",
+            }}
+          />
+        </div>
+        {/* Front wall */}
+        <div className="w-48 h-4 rounded-b-md bg-walnut mx-auto" />
+      </div>
+      <p className="handwritten text-xl text-ink-light/60">
+        Opening the recipe box...
+      </p>
+    </div>
+  );
+}
+
 // ── Exported component ──
 
 export function RecipeBox3D({
@@ -523,21 +576,31 @@ export function RecipeBox3D({
   view: "box" | "browse";
   onSelectRecipe: (recipe: Recipe) => void;
 }) {
+  const [sceneReady, setSceneReady] = useState(false);
+
   return (
-    <div className="w-full max-w-3xl" style={{ height: "60vh" }}>
+    <div className="w-full max-w-3xl relative" style={{ height: "60vh" }}>
+      {!sceneReady && (
+        <div className="absolute inset-0 z-10">
+          <LoadingPlaceholder />
+        </div>
+      )}
       <Canvas
         shadows
         dpr={[1, 2]}
         gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, alpha: true }}
         style={{ background: "transparent" }}
+        onCreated={() => setSceneReady(true)}
       >
-        <BoxScene
-          recipes={recipes}
-          loading={loading}
-          search={search}
-          view={view}
-          onSelectRecipe={onSelectRecipe}
-        />
+        <Suspense fallback={null}>
+          <BoxScene
+            recipes={recipes}
+            loading={loading}
+            search={search}
+            view={view}
+            onSelectRecipe={onSelectRecipe}
+          />
+        </Suspense>
       </Canvas>
     </div>
   );

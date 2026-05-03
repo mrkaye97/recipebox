@@ -35,7 +35,17 @@ body {
   min-height: 100vh;
 }
 
-/* ── 3D canvas container ── */
+/* ── 3D loading placeholder ── */
+
+@keyframes shimmer-slide {
+  0%, 100% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+}
+
+@keyframes tab-shimmer {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
 
 /* ── Pulled-out index card ── */
 
