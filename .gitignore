@@ -207,3 +207,4 @@ __marimo__/
 
 *.db
 .vscode/settings.json
+app/tsconfig.tsbuildinfo

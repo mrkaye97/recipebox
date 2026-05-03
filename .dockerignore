@@ -1,0 +1,10 @@
+.git
+.github
+.vscode
+app/dist
+app/node_modules
+app/tsconfig.tsbuildinfo
+server/.mypy_cache
+server/.ruff_cache
+server/__pycache__
+server/.venv
