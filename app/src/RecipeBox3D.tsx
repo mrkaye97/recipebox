@@ -436,8 +436,7 @@ function BoxScene({
       <directionalLight position={[-2, 4, -3]} intensity={0.3} color="#ffe8cc" />
       <pointLight position={[0, 3, 4]} intensity={0.4} color="#fff5e6" />
 
-      {/* Environment */}
-      <color attach="background" args={["#fdf6e3"]} />
+      {/* Transparent background — blends with page */}
 
       {/* The box */}
       <WoodenBox />
@@ -494,16 +493,6 @@ function BoxScene({
         )}
       </group>
 
-      {/* Floor plane */}
-      <mesh
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, -BOX_HEIGHT / 2 - WALL_THICKNESS / 2 - 0.01, 0]}
-        receiveShadow
-      >
-        <planeGeometry args={[20, 20]} />
-        <meshStandardMaterial color="#f0e6d3" roughness={1} />
-      </mesh>
-
       <OrbitControls
         enablePan={false}
         enableZoom={true}
@@ -539,7 +528,8 @@ export function RecipeBox3D({
       <Canvas
         shadows
         dpr={[1, 2]}
-        gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}
+        gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, alpha: true }}
+        style={{ background: "transparent" }}
       >
         <BoxScene
           recipes={recipes}
