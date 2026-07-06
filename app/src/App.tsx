@@ -352,10 +352,12 @@ const Index = ({
   }
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-2 items-center min-h-screen p-8 overflow-y-auto gap-y-2">
-      {recipes.map((r) => (
-        <RecipeCard recipe={r} key={r.id} />
-      ))}
+    <div className="flex flex-col justify-center w-full items-center">
+      <div className="grid grid-cols-1 xl:grid-cols-2 items-center justify-center min-h-screen p-8 overflow-y-auto gap-y-2">
+        {recipes.map((r) => (
+          <RecipeCard recipe={r} key={r.id} />
+        ))}
+      </div>
     </div>
   );
 };
