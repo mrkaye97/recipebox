@@ -1,10 +1,10 @@
 import {
   QueryClient,
   QueryClientProvider,
+  keepPreviousData,
   useQuery,
 } from "@tanstack/react-query";
 import { jwtDecode } from "jwt-decode";
-import * as _ from "lodash";
 import { useEffect, useMemo, useState } from "react";
 import ReactCardFlip from "react-card-flip";
 import { api } from "./lib/api/client";
@@ -308,13 +308,15 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
 const Recipes = ({
   search,
   view,
+  onFetchingChange,
 }: {
   search: string | undefined;
   view: "mine" | "all";
+  onFetchingChange: (isFetching: boolean) => void;
 }) => {
   const { authHeaders } = useAuth();
 
-  const { isLoading, data, isError } = useQuery({
+  const { isLoading, isFetching, data, isError } = useQuery({
     queryKey: ["recipes", { search, view }],
     queryFn: async () => {
       const { data } = await api.GET("/recipes", {
@@ -330,9 +332,17 @@ const Recipes = ({
       return data;
     },
     enabled: !!authHeaders,
+    staleTime: 60_000,
+    placeholderData: keepPreviousData,
   });
 
   const recipes = useMemo(() => data ?? [], [data]);
+
+  useEffect(() => {
+    onFetchingChange(isFetching);
+
+    return () => onFetchingChange(false);
+  }, [isFetching, onFetchingChange]);
 
   if (isLoading) {
     return (
@@ -381,16 +391,21 @@ const Index = ({
   onLogout: () => void;
 }) => {
   const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState<string>();
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [view, setView] = useState<"mine" | "all">("mine");
+  const [isUpdatingRecipes, setIsUpdatingRecipes] = useState(false);
 
   useEffect(() => {
-    _.debounce(() => setDebouncedSearch(search), 500)();
+    const timeoutId = window.setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+
+    return () => window.clearTimeout(timeoutId);
   }, [search]);
 
   return (
     <div className="flex h-screen min-h-0 w-full flex-col overflow-hidden bg-cream">
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-4 border-b-2 border-cardboard/40 px-8 py-6">
+      <div className="relative flex shrink-0 flex-wrap items-center justify-between gap-4 border-b-2 border-cardboard/40 px-8 py-6">
         <input
           type="search"
           value={search}
@@ -419,9 +434,18 @@ const Index = ({
             Log Out
           </button>
         </div>
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 overflow-hidden">
+          {isUpdatingRecipes && (
+            <div className="header-progress-bar h-full w-full" />
+          )}
+        </div>
       </div>
       <div className="min-h-0 flex-1 py-6">
-        <Recipes search={debouncedSearch} view={view} />
+        <Recipes
+          search={debouncedSearch}
+          view={view}
+          onFetchingChange={setIsUpdatingRecipes}
+        />
       </div>
     </div>
   );

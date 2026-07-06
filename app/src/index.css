@@ -55,6 +55,27 @@ body {
   }
 }
 
+@keyframes header-progress-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.header-progress-bar {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-cardboard) 20%,
+    var(--color-walnut-light) 50%,
+    var(--color-cardboard) 80%,
+    transparent 100%
+  );
+  animation: header-progress-sweep 1s ease-in-out infinite;
+}
+
 .index-card {
   background: linear-gradient(
     170deg,
