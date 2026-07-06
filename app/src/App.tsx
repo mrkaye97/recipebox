@@ -4,7 +4,8 @@ import {
   useQuery,
 } from "@tanstack/react-query";
 import { jwtDecode } from "jwt-decode";
-import { useMemo, useState } from "react";
+import * as _ from "lodash";
+import { useEffect, useMemo, useState } from "react";
 import ReactCardFlip from "react-card-flip";
 import { api } from "./lib/api/client";
 import type { components } from "./lib/api/v1";
@@ -160,6 +161,27 @@ function AuthScreen({ onAuth }: { onAuth: (token: string) => void }) {
   );
 }
 
+const useAuth = () => {
+  const [token, setToken] = useState<string | null>(() => {
+    const t = getStoredToken();
+    if (t && !isTokenExpired(t)) return t;
+    clearToken();
+    return null;
+  });
+
+  const handleLogout = () => {
+    clearToken();
+    setToken(null);
+  };
+
+  const authHeaders = useMemo(
+    () => ({ Authorization: `Bearer ${token}` }),
+    [token],
+  );
+
+  return { setToken, handleLogout, authHeaders };
+};
+
 function Ingredients({ recipe }: { recipe: Recipe }) {
   const ingredients = recipe.ingredients ?? [];
 
@@ -202,6 +224,7 @@ function Ingredients({ recipe }: { recipe: Recipe }) {
     </div>
   );
 }
+
 function Instructions({ recipe }: { recipe: Recipe }) {
   const instructions = [...(recipe.instructions ?? [])].sort(
     (a, b) => a.step_number - b.step_number,
@@ -282,21 +305,14 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
   );
 }
 
-const Index = ({
-  token,
-  onLogout,
+const Recipes = ({
+  search,
+  view,
 }: {
-  token: string;
-  onLogout: () => void;
+  search: string | undefined;
+  view: "mine" | "all";
 }) => {
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [view, setView] = useState<"mine" | "all">("mine");
-
-  const authHeaders = useMemo(
-    () => ({ Authorization: `Bearer ${token}` }),
-    [token],
-  );
+  const { authHeaders } = useAuth();
 
   const { isLoading, data, isError } = useQuery({
     queryKey: ["recipes", { search, view }],
@@ -313,7 +329,7 @@ const Index = ({
 
       return data;
     },
-    enabled: !!token,
+    enabled: !!authHeaders,
   });
 
   const recipes = useMemo(() => data ?? [], [data]);
@@ -337,6 +353,30 @@ const Index = ({
   }
 
   return (
+    <div className="grid grid-cols-1 xl:grid-cols-2 items-center justify-center min-h-screen p-8 overflow-y-auto gap-y-2">
+      {recipes.map((r) => (
+        <RecipeCard recipe={r} key={r.id} />
+      ))}
+    </div>
+  );
+};
+
+const Index = ({
+  token,
+  onLogout,
+}: {
+  token: string;
+  onLogout: () => void;
+}) => {
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>();
+  const [view, setView] = useState<"mine" | "all">("mine");
+
+  useEffect(() => {
+    _.debounce(() => setDebouncedSearch(search), 500)();
+  }, [search]);
+
+  return (
     <div className="flex flex-col justify-center w-full items-center">
       <div className="flex flex-row justify-between items-center w-full p-8">
         <input
@@ -354,6 +394,7 @@ const Index = ({
               id="toggleView"
               name="toggleView"
               value="Show All"
+              checked={view === "all"}
               onChange={() => setView(view === "all" ? "mine" : "all")}
             />
           </div>
@@ -366,11 +407,7 @@ const Index = ({
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-1 xl:grid-cols-2 items-center justify-center min-h-screen p-8 overflow-y-auto gap-y-2">
-        {recipes.map((r) => (
-          <RecipeCard recipe={r} key={r.id} />
-        ))}
-      </div>
+      <Recipes search={debouncedSearch} view={view} />
     </div>
   );
 };
