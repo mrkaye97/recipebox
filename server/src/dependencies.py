@@ -7,7 +7,7 @@ from asyncpg.exceptions import UniqueViolationError  # type: ignore[import-untyp
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncConnection, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_engine
 
 from src.auth import parse_token
 from src.crud.models import User as DbUser
@@ -19,13 +19,24 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 logger = get_logger(__name__)
 
 
+engine: AsyncEngine = create_async_engine(
+    settings.database_url.get_secret_value()
+    .replace("postgresql", "postgresql+asyncpg")
+    .split("?")[0],
+    pool_pre_ping=True,
+    pool_size=10,
+    max_overflow=20,
+    pool_timeout=30,
+    pool_recycle=1800,
+)
+
+
+async def close_db_engine() -> None:
+    await engine.dispose()
+
+
 @asynccontextmanager
 async def create_db_connection() -> AsyncGenerator[AsyncConnection]:
-    engine = create_async_engine(
-        settings.database_url.get_secret_value()
-        .replace("postgresql", "postgresql+asyncpg")
-        .split("?")[0],
-    )
     async with engine.connect() as conn:
         yield conn
 

@@ -1,10 +1,23 @@
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.controllers import activity, auth, recipes, sharing, users
+from src.dependencies import close_db_engine
 from src.logger import get_logger
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
+    try:
+        yield
+    finally:
+        await close_db_engine()
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

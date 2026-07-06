@@ -336,7 +336,7 @@ const Recipes = ({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex h-full items-center justify-center px-8 py-6">
         <p className="text-ink-light text-lg">Loading recipes...</p>
       </div>
     );
@@ -344,7 +344,7 @@ const Recipes = ({
 
   if (isError) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex h-full items-center justify-center px-8 py-6">
         <p className="text-accent text-lg">
           An error occurred while fetching recipes. Please try again later.
         </p>
@@ -352,11 +352,23 @@ const Recipes = ({
     );
   }
 
+  if (recipes.length === 0) {
+    return (
+      <div className="flex h-full items-center justify-center px-8 py-6">
+        <p className="text-ink-light text-lg">
+          No recipes found for the current filters.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-2 items-center justify-center min-h-screen p-8 overflow-y-auto gap-y-2">
-      {recipes.map((r) => (
-        <RecipeCard recipe={r} key={r.id} />
-      ))}
+    <div className="h-full overflow-y-auto px-8 pb-8">
+      <div className="grid grid-cols-1 content-start justify-items-center gap-6 xl:grid-cols-2">
+        {recipes.map((r) => (
+          <RecipeCard recipe={r} key={r.id} />
+        ))}
+      </div>
     </div>
   );
 };
@@ -377,18 +389,17 @@ const Index = ({
   }, [search]);
 
   return (
-    <div className="flex flex-col justify-center w-full items-center">
-      <div className="flex flex-row justify-between items-center w-full p-8">
+    <div className="flex h-screen min-h-0 w-full flex-col overflow-hidden bg-cream">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-4 border-b-2 border-cardboard/40 px-8 py-6">
         <input
           type="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search recipes"
-          className="w-full max-w-md mt-8 rounded-lg  bg-cream px-4 py-3 text-ink placeholder:text-ink-light/50 focus:outline-none focus:ring-2 focus:ring-cardboard border-ink/40 border-2"
+          className="w-full max-w-md rounded-lg border-2 border-ink/40 bg-card px-4 py-3 text-ink placeholder:text-ink-light/50 focus:outline-none focus:ring-2 focus:ring-cardboard"
         />
-        <div className="flex flex-row gap-x-2">
-          <div className="flex flex-row items-center gap-x-1">
-            <span>Show all</span>
+        <div className="flex flex-wrap items-center gap-4">
+          <label className="flex items-center gap-2 text-sm font-medium text-ink">
             <input
               type="checkbox"
               id="toggleView"
@@ -396,18 +407,22 @@ const Index = ({
               value="Show All"
               checked={view === "all"}
               onChange={() => setView(view === "all" ? "mine" : "all")}
+              className="h-4 w-4 rounded border-ink/40 accent-cardboard"
             />
-          </div>
+            <span>Show all recipes</span>
+          </label>
 
           <button
             onClick={onLogout}
-            className="ml-4 px-4 py-2 rounded-lg bg-cardboard text-white font-body font-semibold hover:bg-cardboard-dark transition-colors"
+            className="rounded-lg bg-cardboard px-4 py-2 font-body font-semibold text-white transition-colors hover:bg-cardboard-dark"
           >
             Log Out
           </button>
         </div>
       </div>
-      <Recipes search={debouncedSearch} view={view} />
+      <div className="min-h-0 flex-1 py-6">
+        <Recipes search={debouncedSearch} view={view} />
+      </div>
     </div>
   );
 };
