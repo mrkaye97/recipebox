@@ -173,7 +173,7 @@ function Ingredients({ recipe }: { recipe: Recipe }) {
         {ingredients.map((ing, i) => (
           <li
             key={i}
-            className="handwritten text-base text-ink flex gap-1.5 break-inside-avoid"
+            className="handwritten text-lg text-ink flex gap-1.5 break-inside-avoid"
           >
             <span className="text-ink-blue font-semibold shrink-0">
               {formatQuantity(ing)}
