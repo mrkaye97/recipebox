@@ -12,9 +12,7 @@ from markitdown import MarkItDown
 from src.schemas import BaseRecipeCreate
 from src.settings import settings
 
-client = anthropic.AsyncAnthropic(
-    api_key=settings.anthropic_api_key.get_secret_value()
-)
+client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key.get_secret_value())
 
 SYSTEM_PROMPT = f"""
 You are a recipe extraction expert. Given the content of a webpage, a cookbook recipe, or a manually entered recipe,
@@ -145,7 +143,9 @@ async def image_to_recipe(images: list[bytes]) -> BaseRecipeCreate | None:
         }
         for image in images
     ]
-    content.append({"type": "text", "text": "Extract the recipe from the following image."})
+    content.append(
+        {"type": "text", "text": "Extract the recipe from the following image."}
+    )
 
     response = await client.messages.create(
         model="claude-sonnet-4-20250514",
