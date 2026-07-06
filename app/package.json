@@ -15,6 +15,7 @@
     "jwt-decode": "^4.0.0",
     "openapi-fetch": "^0.14.0",
     "react": "^19.0.0",
+    "react-card-flip": "^1.2.3",
     "react-dom": "^19.0.0",
     "three": "^0.184.0"
   },

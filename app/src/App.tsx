@@ -1,8 +1,8 @@
 import { jwtDecode } from "jwt-decode";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import ReactCardFlip from "react-card-flip";
 import { api } from "./lib/api/client";
 import type { components } from "./lib/api/v1";
-import ReactCardFlip from "./ReactCardFlip";
 
 type Recipe = components["schemas"]["src__schemas__Recipe"];
 type Ingredient = components["schemas"]["RecipeIngredient"];
@@ -91,7 +91,7 @@ function AuthScreen({ onAuth }: { onAuth: (token: string) => void }) {
     <div className="min-h-screen flex items-center justify-center bg-cream p-4">
       <form
         onSubmit={handleSubmit}
-        className="bg-card rounded-2xl shadow-lg p-8 w-full max-w-sm"
+        className="bg-card rounded-2xl shadow-sm p-8 w-full max-w-sm"
       >
         <h1 className="font-display text-3xl font-bold text-center mb-6 text-ink">
           Recipe Box
@@ -231,54 +231,48 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
 
   return (
     <div
-      className="flex items-center justify-center p-4"
-      style={{ isolation: "isolate" }}
+      className="w-full max-w-3xl cursor-pointer"
+      style={{ aspectRatio: "5 / 3" }}
+      onClick={(e) => {
+        e.stopPropagation();
+        setIsFlipped(!isFlipped);
+      }}
     >
-      <div className=" bg-ink/40 " />
-      <div
-        className="w-full max-w-3xl cursor-pointer"
-        style={{ aspectRatio: "5 / 3" }}
-        onClick={(e) => {
-          e.stopPropagation();
-          setIsFlipped(!isFlipped);
-        }}
+      <ReactCardFlip
+        isFlipped={isFlipped}
+        flipDirection="horizontal"
+        flipSpeedFrontToBack={0.8}
+        flipSpeedBackToFront={0.8}
+        containerStyle={{ height: "100%" }}
       >
-        <ReactCardFlip
-          isFlipped={isFlipped}
-          flipDirection="horizontal"
-          flipSpeedFrontToBack={0.8}
-          flipSpeedBackToFront={0.8}
-          containerStyle={{ height: "100%" }}
-        >
-          <div className="index-card overflow-hidden flex flex-col h-full">
-            <div className="card-header-line px-6 pt-5 pb-3">
-              <h2 className="handwritten text-3xl font-bold text-ink leading-tight">
-                {recipe.name}
-              </h2>
-              <p className="handwritten text-lg text-ink-light mt-0.5">
-                {recipe.author}
-                {recipe.cuisine ? ` · ${recipe.cuisine}` : ""}
-                {recipe.time_estimate_minutes
-                  ? ` · ${recipe.time_estimate_minutes} min`
-                  : ""}
-              </p>
-            </div>
-            <Ingredients recipe={recipe} />
+        <div className="index-card overflow-hidden flex flex-col h-full">
+          <div className="card-header-line px-6 pt-5 pb-3">
+            <h2 className="handwritten text-3xl font-bold text-ink leading-tight">
+              {recipe.name}
+            </h2>
+            <p className="handwritten text-lg text-ink-light mt-0.5">
+              {recipe.author}
+              {recipe.cuisine ? ` · ${recipe.cuisine}` : ""}
+              {recipe.time_estimate_minutes
+                ? ` · ${recipe.time_estimate_minutes} min`
+                : ""}
+            </p>
           </div>
+          <Ingredients recipe={recipe} />
+        </div>
 
-          <div className="index-card overflow-hidden flex flex-col h-full">
-            <div className="card-header-line px-6 pt-5 pb-3">
-              <h2 className="handwritten text-3xl font-bold text-ink leading-tight">
-                {recipe.name}
-              </h2>
-              <p className="handwritten text-lg text-ink-light mt-0.5">
-                Instructions
-              </p>
-            </div>
-            <Instructions recipe={recipe} />
+        <div className="index-card overflow-hidden flex flex-col h-full">
+          <div className="card-header-line px-6 pt-5 pb-3">
+            <h2 className="handwritten text-3xl font-bold text-ink leading-tight">
+              {recipe.name}
+            </h2>
+            <p className="handwritten text-lg text-ink-light mt-0.5">
+              Instructions
+            </p>
           </div>
-        </ReactCardFlip>
-      </div>
+          <Instructions recipe={recipe} />
+        </div>
+      </ReactCardFlip>
     </div>
   );
 }
@@ -358,7 +352,7 @@ const Index = ({
   }
 
   return (
-    <div className="flex flex-col items-center min-h-screen p-8 overflow-y-auto">
+    <div className="grid grid-cols-1 xl:grid-cols-2 items-center min-h-screen p-8 overflow-y-auto gap-y-2">
       {recipes.map((r) => (
         <RecipeCard recipe={r} key={r.id} />
       ))}
