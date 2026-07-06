@@ -10,7 +10,7 @@ lint:
 	(cd server && poetry run isort .)
 	(cd server && poetry run ruff check --fix)
 	(cd server && poetry run mypy .)
-	(cd app && npx tsc --noEmit)
+	(cd app && pnpm exec tsc --noEmit)
 
 gen-migration:
 	(cd server && dbmate new "$(name)")
@@ -31,7 +31,7 @@ gen-sqlc:
 	make lint
 
 gen-api:
-	(cd app && npm run gen-schema)
+	(cd app && pnpm run gen-schema)
 
 gen-all:
 	make gen-api

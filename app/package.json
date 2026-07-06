@@ -3,11 +3,12 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "packageManager": "pnpm@9.15.4",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "gen-schema": "curl localhost:8000/openapi.json > openapi.json && npx openapi-typescript --alphabetize --immutable openapi.json -o ./src/lib/api/v1.d.ts && rm openapi.json"
+    "gen-schema": "curl localhost:8000/openapi.json > openapi.json && pnpm exec openapi-typescript --alphabetize --immutable openapi.json -o ./src/lib/api/v1.d.ts && rm openapi.json"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",

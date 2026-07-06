@@ -2,15 +2,17 @@ FROM node:22-slim AS frontend-builder
 
 WORKDIR /frontend
 
-COPY app/package.json app/package-lock.json ./
-RUN npm ci
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
+
+COPY app/package.json app/pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
 COPY app/ ./
 
 ARG VITE_API_URL=/api
 ENV VITE_API_URL=$VITE_API_URL
 
-RUN npm run build
+RUN pnpm run build
 
 FROM python:3.13-slim AS requirements-stage
 
