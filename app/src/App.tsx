@@ -196,20 +196,19 @@ function Ingredients({ recipe }: { recipe: Recipe }) {
       <h3 className="handwritten text-xl font-semibold text-ink-blue mb-2 underline decoration-card-margin/40 col-span-all">
         Ingredients
       </h3>
-      <ul className="space-y-0.5">
+      <ul>
         {ingredients.map((ing, i) => (
-          <li
-            key={i}
-            className="handwritten text-lg text-ink flex gap-1.5 break-inside-avoid"
-          >
-            <span className="text-ink-blue font-semibold shrink-0">
-              {formatQuantity(ing)}
-            </span>
+          <li key={i} className="ingredient-line handwritten text-lg text-ink">
+            {formatQuantity(ing) && (
+              <span className="text-ink-blue font-semibold">
+                {formatQuantity(ing)}{" "}
+              </span>
+            )}
             <span>{ing.name}</span>
           </li>
         ))}
         {ingredients.length === 0 && (
-          <li className="handwritten text-ink-light/60 text-base italic">
+          <li className="ingredient-line handwritten text-base text-ink-light/60 italic">
             No ingredients listed
           </li>
         )}

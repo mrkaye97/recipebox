@@ -85,10 +85,10 @@ body {
   );
   border-radius: 6px;
   box-shadow:
-    0 6px 30px rgba(30, 15, 8, 0.25),
-    0 2px 8px rgba(30, 15, 8, 0.15),
-    1px 1px 0 rgba(30, 15, 8, 0.05),
-    -1px -1px 0 rgba(255, 255, 255, 0.3);
+    0 4px 16px rgba(30, 15, 8, 0.12),
+    0 1px 4px rgba(30, 15, 8, 0.08),
+    1px 1px 0 rgba(30, 15, 8, 0.03),
+    -1px -1px 0 rgba(255, 255, 255, 0.2);
   position: relative;
 }
 
@@ -129,6 +129,15 @@ body {
   font-family: var(--font-hand);
   line-height: 1.6;
   letter-spacing: 0.01em;
+}
+
+.ingredient-line {
+  display: block;
+  break-inside: avoid;
+  line-height: 31px;
+  min-height: 31px;
+  transform: translateY(-1px);
+  margin-bottom: 0;
 }
 
 .cramped-content {
