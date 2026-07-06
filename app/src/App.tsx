@@ -1,5 +1,10 @@
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from "@tanstack/react-query";
 import { jwtDecode } from "jwt-decode";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import ReactCardFlip from "react-card-flip";
 import { api } from "./lib/api/client";
 import type { components } from "./lib/api/v1";
@@ -284,10 +289,7 @@ const Index = ({
   token: string;
   onLogout: () => void;
 }) => {
-  const [recipes, setRecipes] = useState<readonly Recipe[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const searchTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [view, setView] = useState<"mine" | "all">("mine");
 
@@ -296,44 +298,27 @@ const Index = ({
     [token],
   );
 
-  const fetchRecipes = useCallback(
-    async (searchQuery: string, onlyUser: boolean) => {
+  const { isLoading, data, isError } = useQuery({
+    queryKey: ["recipes", { search, view }],
+    queryFn: async () => {
       const { data } = await api.GET("/recipes", {
         headers: authHeaders,
         params: {
           query: {
-            search: searchQuery || undefined,
-            only_user: onlyUser,
+            search: search || undefined,
+            only_user: view === "mine",
           },
         },
       });
-      if (data) setRecipes(data);
-      setLoading(false);
+
+      return data;
     },
-    [authHeaders],
-  );
+    enabled: !!token,
+  });
 
-  useEffect(() => {
-    setLoading(true);
-    setRecipes([]);
-    setSearch("");
-    setDebouncedSearch("");
-    fetchRecipes("", view === "mine");
-  }, [fetchRecipes, view]);
+  const recipes = useMemo(() => data ?? [], [data]);
 
-  useEffect(() => {
-    clearTimeout(searchTimeout.current);
-    searchTimeout.current = setTimeout(() => {
-      setDebouncedSearch(search);
-    }, 300);
-    return () => clearTimeout(searchTimeout.current);
-  }, [search]);
-
-  useEffect(() => {
-    fetchRecipes(debouncedSearch, view === "mine");
-  }, [debouncedSearch, fetchRecipes, view]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p className="text-ink-light text-lg">Loading recipes...</p>
@@ -341,11 +326,11 @@ const Index = ({
     );
   }
 
-  if (recipes.length === 0) {
+  if (isError) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-8">
-        <p className="text-ink-light text-lg mb-4">
-          No recipes found. Try adjusting your search or adding a new recipe.
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-accent text-lg">
+          An error occurred while fetching recipes. Please try again later.
         </p>
       </div>
     );
@@ -353,6 +338,34 @@ const Index = ({
 
   return (
     <div className="flex flex-col justify-center w-full items-center">
+      <div className="flex flex-row justify-between items-center w-full p-8">
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search recipes"
+          className="w-full max-w-md mt-8 rounded-lg  bg-cream px-4 py-3 text-ink placeholder:text-ink-light/50 focus:outline-none focus:ring-2 focus:ring-cardboard border-ink/40 border-2"
+        />
+        <div className="flex flex-row gap-x-2">
+          <div className="flex flex-row items-center gap-x-1">
+            <span>Show all</span>
+            <input
+              type="checkbox"
+              id="toggleView"
+              name="toggleView"
+              value="Show All"
+              onChange={() => setView(view === "all" ? "mine" : "all")}
+            />
+          </div>
+
+          <button
+            onClick={onLogout}
+            className="ml-4 px-4 py-2 rounded-lg bg-cardboard text-white font-body font-semibold hover:bg-cardboard-dark transition-colors"
+          >
+            Log Out
+          </button>
+        </div>
+      </div>
       <div className="grid grid-cols-1 xl:grid-cols-2 items-center justify-center min-h-screen p-8 overflow-y-auto gap-y-2">
         {recipes.map((r) => (
           <RecipeCard recipe={r} key={r.id} />
@@ -362,7 +375,7 @@ const Index = ({
   );
 };
 
-export function App() {
+function InnerApp() {
   const [token, setToken] = useState<string | null>(() => {
     const t = getStoredToken();
     if (t && !isTokenExpired(t)) return t;
@@ -380,4 +393,14 @@ export function App() {
   }
 
   return <Index token={token} onLogout={handleLogout} />;
+}
+
+const queryClient = new QueryClient();
+
+export function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <InnerApp />
+    </QueryClientProvider>
+  );
 }
