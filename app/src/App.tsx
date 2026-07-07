@@ -375,6 +375,14 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
   );
 }
 
+const STACK_LAYERS = [
+  "translate(-14px, 20px) rotate(-4.5deg)",
+  "translate(18px, 16px) rotate(3.8deg)",
+  "translate(-9px, 12px) rotate(2.2deg)",
+  "translate(10px, 8px) rotate(-2.4deg)",
+  "translate(-3px, 5px) rotate(1.2deg)",
+];
+
 function CardBrowser({ recipes }: { recipes: readonly Recipe[] }) {
   const [index, setIndex] = useState(0);
   const [dir, setDir] = useState<1 | -1>(1);
@@ -429,18 +437,16 @@ function CardBrowser({ recipes }: { recipes: readonly Recipe[] }) {
           className="relative w-full max-w-3xl"
           style={{ aspectRatio: "5 / 3" }}
         >
-          {recipes.length > 1 && (
-            <>
-              <div
-                className="index-card absolute inset-0"
-                style={{ transform: "translate(11px, 15px) rotate(1.6deg)" }}
-              />
-              <div
-                className="index-card absolute inset-0"
-                style={{ transform: "translate(5px, 7px) rotate(-1deg)" }}
-              />
-            </>
-          )}
+          {STACK_LAYERS.slice(
+            0,
+            Math.min(STACK_LAYERS.length, recipes.length - 1),
+          ).map((layer, i) => (
+            <div
+              key={i}
+              className="index-card"
+              style={{ position: "absolute", inset: 0, transform: layer }}
+            />
+          ))}
           <div
             key={safeIndex}
             className={`absolute inset-0 ${

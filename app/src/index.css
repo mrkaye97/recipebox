@@ -229,6 +229,7 @@ body {
   animation: open-reveal 0.45s cubic-bezier(0.2, 0, 0.2, 1) both;
 }
 
+@keyframes slide-in-right {
   from {
     opacity: 0;
     transform: translateX(48px) scale(0.97);
