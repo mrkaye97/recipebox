@@ -1,14 +1,14 @@
 CREATE EXTENSION IF NOT EXISTS pg_ivm WITH SCHEMA pg_catalog;
 COMMENT ON EXTENSION pg_ivm IS 'incremental view maintenance on PostgreSQL';
 CREATE SCHEMA paradedb;
+CREATE EXTENSION IF NOT EXISTS pg_search WITH SCHEMA paradedb;
+COMMENT ON EXTENSION pg_search IS 'pg_search: Full text search for PostgreSQL using BM25';
 CREATE SCHEMA tiger;
 CREATE SCHEMA tiger_data;
 CREATE SCHEMA topology;
 COMMENT ON SCHEMA topology IS 'PostGIS Topology schema';
 CREATE EXTENSION IF NOT EXISTS fuzzystrmatch WITH SCHEMA public;
 COMMENT ON EXTENSION fuzzystrmatch IS 'determine similarities and distance between strings';
-CREATE EXTENSION IF NOT EXISTS pg_search WITH SCHEMA paradedb;
-COMMENT ON EXTENSION pg_search IS 'pg_search: Full text search for PostgreSQL using BM25';
 CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
 COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
 CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
@@ -106,13 +106,6 @@ CREATE TABLE recipe_instruction (
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
-CREATE TABLE recipe_recommendation (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    recipe_id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
-);
 CREATE TABLE recipe_share_request (
     to_user_id uuid NOT NULL,
     recipe_id uuid NOT NULL,
@@ -156,8 +149,6 @@ ALTER TABLE ONLY recipe_instruction
     ADD CONSTRAINT recipe_instruction_pkey PRIMARY KEY (recipe_id, step_number);
 ALTER TABLE ONLY recipe
     ADD CONSTRAINT recipe_pkey PRIMARY KEY (id);
-ALTER TABLE ONLY recipe_recommendation
-    ADD CONSTRAINT recipe_recommendation_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY recipe_share_request
     ADD CONSTRAINT recipe_share_request_pkey PRIMARY KEY (recipe_id, to_user_id);
 ALTER TABLE ONLY recipe_tag
@@ -170,7 +161,6 @@ ALTER TABLE ONLY user_password
     ADD CONSTRAINT user_password_pkey PRIMARY KEY (user_id);
 ALTER TABLE ONLY "user"
     ADD CONSTRAINT user_pkey PRIMARY KEY (id);
-CREATE UNIQUE INDEX idx_recipe_recommendation_user_recipe_created_at ON recipe_recommendation USING btree (user_id, recipe_id, created_at);
 CREATE INDEX idx_recipe_user_id_parent_recipe_id ON recipe USING btree (user_id, parent_recipe_id);
 CREATE INDEX idx_users_name_email_trgm ON "user" USING gin ((((name || ' '::text) || email)) gin_trgm_ops);
 CREATE INDEX recipe_ingredient_search_idx ON recipe_ingredient USING bm25 (id, name, recipe_id) WITH (key_field=id, text_fields='{"name": {"tokenizer": {"type": "default", "stemmer": "English"}}}');
@@ -191,10 +181,6 @@ ALTER TABLE ONLY recipe_instruction
     ADD CONSTRAINT recipe_instruction_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE;
 ALTER TABLE ONLY recipe
     ADD CONSTRAINT recipe_parent_recipe_id_fkey FOREIGN KEY (parent_recipe_id) REFERENCES recipe(id) ON DELETE SET NULL;
-ALTER TABLE ONLY recipe_recommendation
-    ADD CONSTRAINT recipe_recommendation_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE;
-ALTER TABLE ONLY recipe_recommendation
-    ADD CONSTRAINT recipe_recommendation_user_id_fkey FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE;
 ALTER TABLE ONLY recipe_share_request
     ADD CONSTRAINT recipe_share_request_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES recipe(id) ON DELETE CASCADE;
 ALTER TABLE ONLY recipe_share_request
@@ -221,4 +207,5 @@ INSERT INTO schema_migrations (version) VALUES
     ('20250907205340'),
     ('20250909235457'),
     ('20250912212801'),
-    ('20250914141917');
+    ('20250914141917'),
+    ('20260707003048');

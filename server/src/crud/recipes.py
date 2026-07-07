@@ -208,9 +208,21 @@ WHERE recipe_id = ANY(:p1\\:\\:UUID[])
 
 
 LIST_RECIPES = """-- name: list_recipes \\:many
+WITH ingredient_seasonality_score AS (
+    SELECT
+        i.recipe_id,
+        SUM(paradedb.score(i.id)) AS total_ingredient_score
+    FROM recipe_ingredient i
+    JOIN recipe r ON r.id = i.recipe_id
+    WHERE
+        i.id @@@ paradedb.parse(:p4\\:\\:TEXT, lenient => true)
+        AND r.user_id = :p2\\:\\:UUID
+    GROUP BY i.recipe_id
+)
 SELECT r.id, r.user_id, r.name, r.author, r.cuisine, r.location, r.time_estimate_minutes, r.notes, r.last_made_at, r.created_at, r.updated_at, r.type, r.meal, r.parent_recipe_id
 FROM recipe r
 JOIN "user" u ON u.id = r.user_id
+LEFT JOIN ingredient_seasonality_score iss ON r.id = iss.recipe_id
 WHERE
     (
         (
@@ -230,93 +242,22 @@ WHERE
         :p3\\:\\:TEXT IS NULL
         OR r.id @@@ paradedb.parse(:p3\\:\\:TEXT, lenient => true)
     )
-ORDER BY r.updated_at DESC
-"""
-
-
-LOG_RECIPE_RECOMMENDATION = """-- name: log_recipe_recommendation \\:exec
-INSERT INTO recipe_recommendation (recipe_id, user_id)
-VALUES (
-    :p1\\:\\:UUID,
-    :p2\\:\\:UUID
-)
-"""
-
-
-RECOMMEND_RECIPE = """-- name: recommend_recipe \\:one
-WITH ingredient_seasonality_score AS (
-    SELECT
-        recipe_id,
-        SUM(paradedb.score(i.id)) as total_ingredient_score
-    FROM recipe r
-    JOIN recipe_ingredient i ON r.id = i.recipe_id
-    WHERE
-        i.id @@@ paradedb.parse(:p1\\:\\:TEXT, lenient => true)
-        AND r.user_id = :p2\\:\\:UUID
-    GROUP BY i.recipe_id
-), last_recommended_at_score AS (
-    SELECT
-        recipe_id,
-        GREATEST(1.0, LEAST(3.0, (NOW()\\:\\:DATE - COALESCE(MAX(rr.created_at)\\:\\:DATE, '1970-01-01'\\:\\:DATE)) / 30.0)) AS last_recommended_at_factor
-    FROM recipe_recommendation rr
-    WHERE rr.user_id = :p2\\:\\:UUID
-    GROUP BY recipe_id
-), candidates AS (
-    SELECT
-        r.id,
-        (
-            CASE
-                -- don't recommend long recipes on weekdays
-                WHEN EXTRACT(ISODOW FROM NOW()\\:\\:DATE) IN (1, 2, 3, 4, 5) AND r.time_estimate_minutes > 90 THEN 0.0
-                WHEN EXTRACT(ISODOW FROM NOW()\\:\\:DATE) IN (1, 2, 3, 4, 5) AND r.time_estimate_minutes > 60 THEN 0.2
-                ELSE 1.0
-            END *
-            CASE
-                WHEN r.last_made_at IS NULL THEN 1.0
-                ELSE GREATEST(1.0, LEAST(3.0, (NOW()\\:\\:DATE - r.last_made_at\\:\\:DATE) / 30.0))
-            END *
-            COALESCE(lras.last_recommended_at_factor, 1.0) *
-            COALESCE(iss.total_ingredient_score + 1.0, 1.0)
-        ) AS score
-    FROM recipe r
-    LEFT JOIN ingredient_seasonality_score iss ON r.id = iss.recipe_id
-    LEFT JOIN last_recommended_at_score lras ON r.id = lras.recipe_id
-    WHERE r.user_id = :p2\\:\\:UUID
-    ORDER BY (
+ORDER BY
+    CASE WHEN :p1\\:\\:BOOLEAN THEN
         CASE
-            WHEN EXTRACT(ISODOW FROM NOW()\\:\\:DATE) IN (6, 7) AND r.time_estimate_minutes > 60 THEN 0.5
+            -- don't surface long recipes on weekdays
+            WHEN EXTRACT(ISODOW FROM NOW()\\:\\:DATE) IN (1, 2, 3, 4, 5) AND r.time_estimate_minutes > 90 THEN 0.0
+            WHEN EXTRACT(ISODOW FROM NOW()\\:\\:DATE) IN (1, 2, 3, 4, 5) AND r.time_estimate_minutes > 60 THEN 0.2
             ELSE 1.0
         END *
         CASE
             WHEN r.last_made_at IS NULL THEN 1.0
             ELSE GREATEST(1.0, LEAST(3.0, (NOW()\\:\\:DATE - r.last_made_at\\:\\:DATE) / 30.0))
         END *
-        COALESCE(lras.last_recommended_at_factor, 1.0) *
         COALESCE(iss.total_ingredient_score + 1.0, 1.0)
-    ) DESC
-    LIMIT 15
-), weights AS (
-    SELECT
-        id,
-        score / SUM(score) OVER () AS weight
-    FROM candidates
-), cumulative_weights AS (
-    SELECT
-        id,
-        weight,
-        SUM(weight) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING) AS cumulative_weight
-    FROM weights
-), random_threshold AS (
-    SELECT RANDOM() AS threshold
-)
-
-SELECT r.id, r.user_id, r.name, r.author, r.cuisine, r.location, r.time_estimate_minutes, r.notes, r.last_made_at, r.created_at, r.updated_at, r.type, r.meal, r.parent_recipe_id
-FROM recipe r
-JOIN cumulative_weights cw ON r.id = cw.id
-CROSS JOIN random_threshold rt
-WHERE cw.cumulative_weight >= rt.threshold
-ORDER BY cw.cumulative_weight
-LIMIT 1
+    ELSE NULL END DESC NULLS LAST,
+    r.updated_at DESC,
+    r.id
 """
 
 
@@ -594,10 +535,21 @@ class AsyncQuerier:
             )
 
     async def list_recipes(
-        self, *, onlyuser: bool, userid: uuid.UUID, search: str | None
+        self,
+        *,
+        onlyuser: bool,
+        userid: uuid.UUID,
+        search: str | None,
+        seasonalingredients: str,
     ) -> AsyncIterator[models.Recipe]:
         result = await self._conn.stream(
-            sqlalchemy.text(LIST_RECIPES), {"p1": onlyuser, "p2": userid, "p3": search}
+            sqlalchemy.text(LIST_RECIPES),
+            {
+                "p1": onlyuser,
+                "p2": userid,
+                "p3": search,
+                "p4": seasonalingredients,
+            },
         )
         async for row in result:
             yield models.Recipe(
@@ -616,41 +568,6 @@ class AsyncQuerier:
                 meal=row[12],
                 parent_recipe_id=row[13],
             )
-
-    async def log_recipe_recommendation(
-        self, *, recipeid: uuid.UUID, userid: uuid.UUID
-    ) -> None:
-        await self._conn.execute(
-            sqlalchemy.text(LOG_RECIPE_RECOMMENDATION), {"p1": recipeid, "p2": userid}
-        )
-
-    async def recommend_recipe(
-        self, *, seasonalingredients: str, userid: uuid.UUID
-    ) -> models.Recipe | None:
-        row = (
-            await self._conn.execute(
-                sqlalchemy.text(RECOMMEND_RECIPE),
-                {"p1": seasonalingredients, "p2": userid},
-            )
-        ).first()
-        if row is None:
-            return None
-        return models.Recipe(
-            id=row[0],
-            user_id=row[1],
-            name=row[2],
-            author=row[3],
-            cuisine=row[4],
-            location=row[5],
-            time_estimate_minutes=row[6],
-            notes=row[7],
-            last_made_at=row[8],
-            created_at=row[9],
-            updated_at=row[10],
-            type=row[11],
-            meal=row[12],
-            parent_recipe_id=row[13],
-        )
 
     async def update_recipe(self, arg: UpdateRecipeParams) -> models.Recipe | None:
         row = (

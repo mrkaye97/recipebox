@@ -2,38 +2,26 @@ import {
   QueryClient,
   QueryClientProvider,
   keepPreviousData,
+  useMutation,
   useQuery,
+  useQueryClient,
 } from "@tanstack/react-query";
-import { jwtDecode } from "jwt-decode";
 import { useEffect, useMemo, useState } from "react";
 import ReactCardFlip from "react-card-flip";
+import { AddRecipeModal } from "./AddRecipeModal";
 import { api } from "./lib/api/client";
+import {
+  clearToken,
+  getStoredToken,
+  isTokenExpired,
+  storeToken,
+  useAuth,
+} from "./lib/auth";
 import type { components } from "./lib/api/v1";
 
 type Recipe = components["schemas"]["src__schemas__Recipe"];
 type Ingredient = components["schemas"]["RecipeIngredient"];
 type Instruction = components["schemas"]["RecipeInstruction"];
-
-function getStoredToken(): string | null {
-  return localStorage.getItem("recipebox_token");
-}
-
-function storeToken(token: string) {
-  localStorage.setItem("recipebox_token", token);
-}
-
-function clearToken() {
-  localStorage.removeItem("recipebox_token");
-}
-
-function isTokenExpired(token: string): boolean {
-  try {
-    const { exp } = jwtDecode<{ exp: number }>(token);
-    return Date.now() >= exp * 1000;
-  } catch {
-    return true;
-  }
-}
 
 function AuthScreen({ onAuth }: { onAuth: (token: string) => void }) {
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -161,27 +149,6 @@ function AuthScreen({ onAuth }: { onAuth: (token: string) => void }) {
   );
 }
 
-const useAuth = () => {
-  const [token, setToken] = useState<string | null>(() => {
-    const t = getStoredToken();
-    if (t && !isTokenExpired(t)) return t;
-    clearToken();
-    return null;
-  });
-
-  const handleLogout = () => {
-    clearToken();
-    setToken(null);
-  };
-
-  const authHeaders = useMemo(
-    () => ({ Authorization: `Bearer ${token}` }),
-    [token],
-  );
-
-  return { setToken, handleLogout, authHeaders };
-};
-
 function Ingredients({ recipe }: { recipe: Recipe }) {
   const ingredients = recipe.ingredients ?? [];
 
@@ -253,8 +220,110 @@ function Instructions({ recipe }: { recipe: Recipe }) {
   );
 }
 
+function formatLastMade(iso: string): string {
+  const then = new Date(iso);
+  const days = Math.floor((Date.now() - then.getTime()) / 86_400_000);
+  if (days <= 0) return "today";
+  if (days === 1) return "yesterday";
+  if (days < 7) return `${days} days ago`;
+  if (days < 30) return `${Math.floor(days / 7)}w ago`;
+  return then.toLocaleDateString();
+}
+
 function RecipeCard({ recipe }: { recipe: Recipe }) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const { authHeaders, userId } = useAuth();
+  const queryClient = useQueryClient();
+  const isMine = recipe.user_id === userId;
+
+  const cook = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await api.POST("/activity", {
+        headers: authHeaders,
+        body: { recipe_id: recipe.id },
+      });
+      if (error) throw new Error("Could not mark as cooked");
+      return data;
+    },
+    onSuccess: (data) => {
+      // Patch last_made_at in place so the list keeps its current order
+      // instead of re-sorting after a refetch.
+      const lastMadeAt = data?.last_made_at ?? new Date().toISOString();
+      queryClient.setQueriesData<Recipe[]>({ queryKey: ["recipes"] }, (old) =>
+        old?.map((r) =>
+          r.id === recipe.id ? { ...r, last_made_at: lastMadeAt } : r,
+        ),
+      );
+    },
+  });
+
+  const remove = useMutation({
+    mutationFn: async () => {
+      const { error } = await api.DELETE("/recipes/{id}", {
+        headers: authHeaders,
+        params: { path: { id: recipe.id } },
+      });
+      if (error) throw new Error("Could not delete recipe");
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["recipes"] }),
+  });
+
+  const addToBox = useMutation({
+    mutationFn: async () => {
+      const { error } = await api.POST("/recipes/download/{recipe_id}", {
+        headers: authHeaders,
+        params: { path: { recipe_id: recipe.id } },
+      });
+      if (error) throw new Error("Could not add recipe to your box");
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["recipes"] }),
+  });
+
+  const stop = (e: React.MouseEvent) => e.stopPropagation();
+
+  const actionBar = (
+    <div className="flex items-center gap-2 px-6 pb-4 pt-1" onClick={stop}>
+      {isMine ? (
+        <>
+          <button
+            onClick={() => cook.mutate()}
+            disabled={cook.isPending}
+            className="rounded-md bg-cardboard px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-cardboard-dark disabled:opacity-50"
+          >
+            {cook.isPending ? "Saving..." : "I cooked this"}
+          </button>
+          {recipe.last_made_at && (
+            <span className="text-sm text-ink-light italic">
+              Last made {formatLastMade(recipe.last_made_at)}
+            </span>
+          )}
+          <button
+            onClick={() => {
+              if (window.confirm(`Delete "${recipe.name}" from your box?`)) {
+                remove.mutate();
+              }
+            }}
+            disabled={remove.isPending}
+            className="ml-auto rounded-md border border-card-margin/40 px-3 py-1.5 text-sm font-medium text-ink-light transition-colors hover:border-accent hover:text-accent disabled:opacity-50"
+          >
+            Delete
+          </button>
+        </>
+      ) : (
+        <button
+          onClick={() => addToBox.mutate()}
+          disabled={addToBox.isPending || addToBox.isSuccess}
+          className="rounded-md bg-cardboard px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-cardboard-dark disabled:opacity-50"
+        >
+          {addToBox.isSuccess
+            ? "Added to your box"
+            : addToBox.isPending
+              ? "Adding..."
+              : "Add to my box"}
+        </button>
+      )}
+    </div>
+  );
 
   return (
     <div
@@ -286,6 +355,7 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
             </p>
           </div>
           <Ingredients recipe={recipe} />
+          {actionBar}
         </div>
 
         <div className="index-card overflow-hidden flex flex-col h-full">
@@ -298,6 +368,7 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
             </p>
           </div>
           <Instructions recipe={recipe} />
+          {actionBar}
         </div>
       </ReactCardFlip>
     </div>
@@ -393,6 +464,7 @@ const Index = ({
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [view, setView] = useState<"mine" | "all">("mine");
   const [isUpdatingRecipes, setIsUpdatingRecipes] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -427,8 +499,15 @@ const Index = ({
           </label>
 
           <button
-            onClick={onLogout}
+            onClick={() => setShowAdd(true)}
             className="rounded-lg bg-cardboard px-4 py-2 font-body font-semibold text-white transition-colors hover:bg-cardboard-dark"
+          >
+            + Add recipe
+          </button>
+
+          <button
+            onClick={onLogout}
+            className="rounded-lg border-2 border-cardboard/40 bg-card px-4 py-2 font-body font-medium text-ink transition-colors hover:border-cardboard"
           >
             Log Out
           </button>
@@ -446,6 +525,8 @@ const Index = ({
           onFetchingChange={setIsUpdatingRecipes}
         />
       </div>
+
+      {showAdd && <AddRecipeModal onClose={() => setShowAdd(false)} />}
     </div>
   );
 };

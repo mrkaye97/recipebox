@@ -159,6 +159,7 @@ async def list_recipes_from_db(
             userid=user_id,
             onlyuser=only_user,
             search=search,
+            seasonalingredients=get_seasonal_search_query(),
         )
     ]
 
@@ -181,26 +182,6 @@ def get_seasonal_search_query() -> str:
     seasonal_ingredients = month_to_ingredients[month]
 
     return " OR ".join([f"name:{ingredient}" for ingredient in seasonal_ingredients])
-
-
-@recipes.get("/recommendation")
-async def recommend_recipe(
-    conn: Connection,
-    user: User,
-) -> Recipe:
-    db = AsyncQuerier(conn)
-    recipe = await db.recommend_recipe(
-        userid=user.id, seasonalingredients=get_seasonal_search_query()
-    )
-
-    if not recipe:
-        raise HTTPException(status_code=404, detail="Recipe not found")
-
-    await db.log_recipe_recommendation(recipeid=recipe.id, userid=user.id)
-    return await populate_recipe_data(
-        db=db,
-        recipes=recipe,
-    )
 
 
 class RecipeFilterOptions(BaseModel):

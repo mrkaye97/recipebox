@@ -107,9 +107,21 @@ ON CONFLICT DO NOTHING
 RETURNING *;
 
 -- name: ListRecipes :many
+WITH ingredient_seasonality_score AS (
+    SELECT
+        i.recipe_id,
+        SUM(paradedb.score(i.id)) AS total_ingredient_score
+    FROM recipe_ingredient i
+    JOIN recipe r ON r.id = i.recipe_id
+    WHERE
+        i.id @@@ paradedb.parse(@seasonalIngredients::TEXT, lenient => true)
+        AND r.user_id = @userId::UUID
+    GROUP BY i.recipe_id
+)
 SELECT r.*
 FROM recipe r
 JOIN "user" u ON u.id = r.user_id
+LEFT JOIN ingredient_seasonality_score iss ON r.id = iss.recipe_id
 WHERE
     (
         (
@@ -129,7 +141,22 @@ WHERE
         sqlc.narg('search')::TEXT IS NULL
         OR r.id @@@ paradedb.parse(sqlc.narg('search')::TEXT, lenient => true)
     )
-ORDER BY r.updated_at DESC
+ORDER BY
+    CASE WHEN @onlyUser::BOOLEAN THEN
+        CASE
+            -- don't surface long recipes on weekdays
+            WHEN EXTRACT(ISODOW FROM NOW()::DATE) IN (1, 2, 3, 4, 5) AND r.time_estimate_minutes > 90 THEN 0.0
+            WHEN EXTRACT(ISODOW FROM NOW()::DATE) IN (1, 2, 3, 4, 5) AND r.time_estimate_minutes > 60 THEN 0.2
+            ELSE 1.0
+        END *
+        CASE
+            WHEN r.last_made_at IS NULL THEN 1.0
+            ELSE GREATEST(1.0, LEAST(3.0, (NOW()::DATE - r.last_made_at::DATE) / 30.0))
+        END *
+        COALESCE(iss.total_ingredient_score + 1.0, 1.0)
+    ELSE NULL END DESC NULLS LAST,
+    r.updated_at DESC,
+    r.id
 ;
 
 -- name: GetRecipe :one
@@ -186,89 +213,6 @@ FROM recipe_instruction
 WHERE recipe_id = ANY(@recipeIds::UUID[])
 ORDER BY step_number ASC
 ;
-
--- name: RecommendRecipe :one
-WITH ingredient_seasonality_score AS (
-    SELECT
-        recipe_id,
-        SUM(paradedb.score(i.id)) as total_ingredient_score
-    FROM recipe r
-    JOIN recipe_ingredient i ON r.id = i.recipe_id
-    WHERE
-        i.id @@@ paradedb.parse(@seasonalIngredients::TEXT, lenient => true)
-        AND r.user_id = @userId::UUID
-    GROUP BY i.recipe_id
-), last_recommended_at_score AS (
-    SELECT
-        recipe_id,
-        GREATEST(1.0, LEAST(3.0, (NOW()::DATE - COALESCE(MAX(rr.created_at)::DATE, '1970-01-01'::DATE)) / 30.0)) AS last_recommended_at_factor
-    FROM recipe_recommendation rr
-    WHERE rr.user_id = @userId::UUID
-    GROUP BY recipe_id
-), candidates AS (
-    SELECT
-        r.id,
-        (
-            CASE
-                -- don't recommend long recipes on weekdays
-                WHEN EXTRACT(ISODOW FROM NOW()::DATE) IN (1, 2, 3, 4, 5) AND r.time_estimate_minutes > 90 THEN 0.0
-                WHEN EXTRACT(ISODOW FROM NOW()::DATE) IN (1, 2, 3, 4, 5) AND r.time_estimate_minutes > 60 THEN 0.2
-                ELSE 1.0
-            END *
-            CASE
-                WHEN r.last_made_at IS NULL THEN 1.0
-                ELSE GREATEST(1.0, LEAST(3.0, (NOW()::DATE - r.last_made_at::DATE) / 30.0))
-            END *
-            COALESCE(lras.last_recommended_at_factor, 1.0) *
-            COALESCE(iss.total_ingredient_score + 1.0, 1.0)
-        ) AS score
-    FROM recipe r
-    LEFT JOIN ingredient_seasonality_score iss ON r.id = iss.recipe_id
-    LEFT JOIN last_recommended_at_score lras ON r.id = lras.recipe_id
-    WHERE r.user_id = @userId::UUID
-    ORDER BY (
-        CASE
-            WHEN EXTRACT(ISODOW FROM NOW()::DATE) IN (6, 7) AND r.time_estimate_minutes > 60 THEN 0.5
-            ELSE 1.0
-        END *
-        CASE
-            WHEN r.last_made_at IS NULL THEN 1.0
-            ELSE GREATEST(1.0, LEAST(3.0, (NOW()::DATE - r.last_made_at::DATE) / 30.0))
-        END *
-        COALESCE(lras.last_recommended_at_factor, 1.0) *
-        COALESCE(iss.total_ingredient_score + 1.0, 1.0)
-    ) DESC
-    LIMIT 15
-), weights AS (
-    SELECT
-        id,
-        score / SUM(score) OVER () AS weight
-    FROM candidates
-), cumulative_weights AS (
-    SELECT
-        id,
-        weight,
-        SUM(weight) OVER (ORDER BY id ROWS UNBOUNDED PRECEDING) AS cumulative_weight
-    FROM weights
-), random_threshold AS (
-    SELECT RANDOM() AS threshold
-)
-
-SELECT r.*
-FROM recipe r
-JOIN cumulative_weights cw ON r.id = cw.id
-CROSS JOIN random_threshold rt
-WHERE cw.cumulative_weight >= rt.threshold
-ORDER BY cw.cumulative_weight
-LIMIT 1
-;
-
--- name: LogRecipeRecommendation :exec
-INSERT INTO recipe_recommendation (recipe_id, user_id)
-VALUES (
-    @recipeId::UUID,
-    @userId::UUID
-);
 
 -- name: ListRecipeFilterOptions :one
 SELECT

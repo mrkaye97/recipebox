@@ -32,6 +32,20 @@ CREATE SCHEMA paradedb;
 
 
 --
+-- Name: pg_search; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_search WITH SCHEMA paradedb;
+
+
+--
+-- Name: EXTENSION pg_search; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pg_search IS 'pg_search: Full text search for PostgreSQL using BM25';
+
+
+--
 -- Name: tiger; Type: SCHEMA; Schema: -; Owner: -
 --
 
@@ -71,20 +85,6 @@ CREATE EXTENSION IF NOT EXISTS fuzzystrmatch WITH SCHEMA public;
 --
 
 COMMENT ON EXTENSION fuzzystrmatch IS 'determine similarities and distance between strings';
-
-
---
--- Name: pg_search; Type: EXTENSION; Schema: -; Owner: -
---
-
-CREATE EXTENSION IF NOT EXISTS pg_search WITH SCHEMA paradedb;
-
-
---
--- Name: EXTENSION pg_search; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON EXTENSION pg_search IS 'pg_search: Full text search for PostgreSQL using BM25';
 
 
 --
@@ -321,19 +321,6 @@ CREATE TABLE public.recipe_instruction (
 
 
 --
--- Name: recipe_recommendation; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.recipe_recommendation (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    recipe_id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
-);
-
-
---
 -- Name: recipe_share_request; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -443,14 +430,6 @@ ALTER TABLE ONLY public.recipe
 
 
 --
--- Name: recipe_recommendation recipe_recommendation_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.recipe_recommendation
-    ADD CONSTRAINT recipe_recommendation_pkey PRIMARY KEY (id);
-
-
---
 -- Name: recipe_share_request recipe_share_request_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -496,13 +475,6 @@ ALTER TABLE ONLY public.user_password
 
 ALTER TABLE ONLY public."user"
     ADD CONSTRAINT user_pkey PRIMARY KEY (id);
-
-
---
--- Name: idx_recipe_recommendation_user_recipe_created_at; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX idx_recipe_recommendation_user_recipe_created_at ON public.recipe_recommendation USING btree (user_id, recipe_id, created_at);
 
 
 --
@@ -598,22 +570,6 @@ ALTER TABLE ONLY public.recipe
 
 
 --
--- Name: recipe_recommendation recipe_recommendation_recipe_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.recipe_recommendation
-    ADD CONSTRAINT recipe_recommendation_recipe_id_fkey FOREIGN KEY (recipe_id) REFERENCES public.recipe(id) ON DELETE CASCADE;
-
-
---
--- Name: recipe_recommendation recipe_recommendation_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.recipe_recommendation
-    ADD CONSTRAINT recipe_recommendation_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE;
-
-
---
 -- Name: recipe_share_request recipe_share_request_recipe_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -678,4 +634,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20250907205340'),
     ('20250909235457'),
     ('20250912212801'),
-    ('20250914141917');
+    ('20250914141917'),
+    ('20260707003048');

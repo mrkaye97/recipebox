@@ -108,14 +108,6 @@ class RecipeInstruction(pydantic.BaseModel):
     updated_at: datetime.datetime
 
 
-class RecipeRecommendation(pydantic.BaseModel):
-    id: uuid.UUID
-    recipe_id: uuid.UUID
-    user_id: uuid.UUID
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
-
-
 class RecipeShareRequest(pydantic.BaseModel):
     to_user_id: uuid.UUID
     recipe_id: uuid.UUID
