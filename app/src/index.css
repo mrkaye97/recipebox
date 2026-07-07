@@ -229,6 +229,33 @@ body {
   animation: open-reveal 0.45s cubic-bezier(0.2, 0, 0.2, 1) both;
 }
 
+  from {
+    opacity: 0;
+    transform: translateX(48px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+.slide-in-right {
+  animation: slide-in-right 0.3s cubic-bezier(0.2, 0, 0.2, 1) both;
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-48px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+.slide-in-left {
+  animation: slide-in-left 0.3s cubic-bezier(0.2, 0, 0.2, 1) both;
+}
+
 /* Stack shadow + hover for the summary card (overrides .index-card shadow) */
 .card-stack {
   box-shadow:

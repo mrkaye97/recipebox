@@ -6,7 +6,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactCardFlip from "react-card-flip";
 import { AddRecipeModal } from "./AddRecipeModal";
 import { api } from "./lib/api/client";
@@ -375,6 +375,105 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
   );
 }
 
+function CardBrowser({ recipes }: { recipes: readonly Recipe[] }) {
+  const [index, setIndex] = useState(0);
+  const [dir, setDir] = useState<1 | -1>(1);
+
+  useEffect(() => {
+    setIndex((i) => Math.min(i, Math.max(0, recipes.length - 1)));
+  }, [recipes.length]);
+
+  const go = useCallback(
+    (delta: number) => {
+      setIndex((i) => {
+        const next = i + delta;
+        if (next < 0 || next >= recipes.length) return i;
+        setDir(delta > 0 ? 1 : -1);
+        return next;
+      });
+    },
+    [recipes.length],
+  );
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") go(-1);
+      else if (e.key === "ArrowRight") go(1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [go]);
+
+  const safeIndex = Math.min(index, recipes.length - 1);
+  const recipe = recipes[safeIndex];
+  const atStart = safeIndex === 0;
+  const atEnd = safeIndex === recipes.length - 1;
+
+  const arrowClass =
+    "flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-cardboard/40 bg-card text-2xl text-ink transition-colors hover:border-cardboard hover:bg-cream-dark disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-cardboard/40 disabled:hover:bg-card";
+
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-6 px-4">
+      <div className="flex w-full items-center justify-center gap-4 sm:gap-8">
+        <button
+          type="button"
+          aria-label="Previous recipe"
+          onClick={() => go(-1)}
+          disabled={atStart}
+          className={arrowClass}
+        >
+          ‹
+        </button>
+
+        <div
+          className="relative w-full max-w-3xl"
+          style={{ aspectRatio: "5 / 3" }}
+        >
+          {recipes.length > 1 && (
+            <>
+              <div
+                className="index-card absolute inset-0"
+                style={{ transform: "translate(11px, 15px) rotate(1.6deg)" }}
+              />
+              <div
+                className="index-card absolute inset-0"
+                style={{ transform: "translate(5px, 7px) rotate(-1deg)" }}
+              />
+            </>
+          )}
+          <div
+            key={safeIndex}
+            className={`absolute inset-0 ${
+              dir > 0 ? "slide-in-right" : "slide-in-left"
+            }`}
+          >
+            <RecipeCard recipe={recipe} />
+          </div>
+        </div>
+
+        <button
+          type="button"
+          aria-label="Next recipe"
+          onClick={() => go(1)}
+          disabled={atEnd}
+          className={arrowClass}
+        >
+          ›
+        </button>
+      </div>
+
+      <div className="flex flex-col items-center gap-1">
+        <p className="font-body text-sm font-medium text-ink-light">
+          {safeIndex + 1} / {recipes.length}
+        </p>
+        <p className="font-body text-xs text-ink-light/60">
+          Use ← → to browse
+        </p>
+      </div>
+    </div>
+  );
+}
+
 const Recipes = ({
   search,
   view,
@@ -442,15 +541,7 @@ const Recipes = ({
     );
   }
 
-  return (
-    <div className="h-full overflow-y-auto px-8 pb-8">
-      <div className="grid grid-cols-1 content-start justify-items-center gap-6 xl:grid-cols-2">
-        {recipes.map((r) => (
-          <RecipeCard recipe={r} key={r.id} />
-        ))}
-      </div>
-    </div>
-  );
+  return <CardBrowser key={`${search}:${view}`} recipes={recipes} />;
 };
 
 const Index = ({
