@@ -229,32 +229,100 @@ body {
   animation: open-reveal 0.45s cubic-bezier(0.2, 0, 0.2, 1) both;
 }
 
+/*
+ * Card-to-card browse transitions. Percentages are relative to the card's
+ * own width so the travel scales with the viewport. The incoming card eases
+ * in with a gentle settle while the outgoing card is dealt off to the side,
+ * giving the feel of flipping through a physical stack of recipe cards.
+ */
+:root {
+  --card-slide-in: cubic-bezier(0.16, 0.84, 0.3, 1);
+  --card-slide-out: cubic-bezier(0.5, 0, 0.75, 0.4);
+}
+
 @keyframes slide-in-right {
   from {
     opacity: 0;
-    transform: translateX(48px) scale(0.97);
+    transform: translateX(58%) rotate(3.5deg) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateX(0) scale(1);
+    transform: translateX(0) rotate(0deg) scale(1);
   }
 }
 .slide-in-right {
-  animation: slide-in-right 0.3s cubic-bezier(0.2, 0, 0.2, 1) both;
+  animation: slide-in-right 0.48s var(--card-slide-in) both;
 }
 
 @keyframes slide-in-left {
   from {
     opacity: 0;
-    transform: translateX(-48px) scale(0.97);
+    transform: translateX(-58%) rotate(-3.5deg) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateX(0) scale(1);
+    transform: translateX(0) rotate(0deg) scale(1);
   }
 }
 .slide-in-left {
-  animation: slide-in-left 0.3s cubic-bezier(0.2, 0, 0.2, 1) both;
+  animation: slide-in-left 0.48s var(--card-slide-in) both;
+}
+
+@keyframes slide-out-left {
+  from {
+    opacity: 1;
+    transform: translateX(0) rotate(0deg) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-52%) rotate(-4.5deg) scale(0.92);
+  }
+}
+.slide-out-left {
+  animation: slide-out-left 0.4s var(--card-slide-out) both;
+}
+
+@keyframes slide-out-right {
+  from {
+    opacity: 1;
+    transform: translateX(0) rotate(0deg) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(52%) rotate(4.5deg) scale(0.92);
+  }
+}
+.slide-out-right {
+  animation: slide-out-right 0.4s var(--card-slide-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide-in-right,
+  .slide-in-left,
+  .slide-out-left,
+  .slide-out-right {
+    animation-duration: 0.01ms;
+  }
+}
+
+/* Shared recipe-card aspect ratio (portrait on mobile so content breathes) */
+.card-aspect {
+  aspect-ratio: 5 / 3;
+}
+
+@media (max-width: 640px) {
+  .card-aspect {
+    aspect-ratio: 3 / 4;
+  }
+  /* Single column of ingredients so lines aren't cramped on a phone */
+  .cramped-content {
+    columns: 1;
+    column-rule: none;
+  }
+  .lined-card {
+    background-position-x: -8px;
+    padding-left: 48px !important;
+  }
 }
 
 /* Stack shadow + hover for the summary card (overrides .index-card shadow) */

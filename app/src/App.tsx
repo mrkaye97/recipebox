@@ -282,7 +282,10 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
   const stop = (e: React.MouseEvent) => e.stopPropagation();
 
   const actionBar = (
-    <div className="flex items-center gap-2 px-6 pb-4 pt-1" onClick={stop}>
+    <div
+      className="flex flex-wrap items-center gap-2 px-5 pb-4 pt-1 sm:px-6"
+      onClick={stop}
+    >
       {isMine ? (
         <>
           <button
@@ -327,8 +330,7 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
 
   return (
     <div
-      className="w-full max-w-3xl cursor-pointer"
-      style={{ aspectRatio: "5 / 3" }}
+      className="h-full w-full cursor-pointer"
       onClick={(e) => {
         e.stopPropagation();
         setIsFlipped(!isFlipped);
@@ -342,11 +344,11 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
         containerStyle={{ height: "100%" }}
       >
         <div className="index-card overflow-hidden flex flex-col h-full">
-          <div className="card-header-line px-6 pt-5 pb-3">
-            <h2 className="handwritten text-3xl font-bold text-ink leading-tight">
+          <div className="card-header-line px-5 pt-4 pb-3 sm:px-6 sm:pt-5">
+            <h2 className="handwritten text-2xl font-bold text-ink leading-tight sm:text-3xl">
               {recipe.name}
             </h2>
-            <p className="handwritten text-lg text-ink-light mt-0.5">
+            <p className="handwritten text-base text-ink-light mt-0.5 sm:text-lg">
               {recipe.author}
               {recipe.cuisine ? ` · ${recipe.cuisine}` : ""}
               {recipe.time_estimate_minutes
@@ -359,11 +361,11 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
         </div>
 
         <div className="index-card overflow-hidden flex flex-col h-full">
-          <div className="card-header-line px-6 pt-5 pb-3">
-            <h2 className="handwritten text-3xl font-bold text-ink leading-tight">
+          <div className="card-header-line px-5 pt-4 pb-3 sm:px-6 sm:pt-5">
+            <h2 className="handwritten text-2xl font-bold text-ink leading-tight sm:text-3xl">
               {recipe.name}
             </h2>
-            <p className="handwritten text-lg text-ink-light mt-0.5">
+            <p className="handwritten text-base text-ink-light mt-0.5 sm:text-lg">
               Instructions
             </p>
           </div>
@@ -386,6 +388,13 @@ const STACK_LAYERS = [
 function CardBrowser({ recipes }: { recipes: readonly Recipe[] }) {
   const [index, setIndex] = useState(0);
   const [dir, setDir] = useState<1 | -1>(1);
+  // The card we're navigating away from. It stays mounted just long enough to
+  // animate off-screen while the new card slides in, then clears itself.
+  const [exiting, setExiting] = useState<{
+    recipe: Recipe;
+    dir: 1 | -1;
+    id: number;
+  } | null>(null);
 
   useEffect(() => {
     setIndex((i) => Math.min(i, Math.max(0, recipes.length - 1)));
@@ -393,14 +402,14 @@ function CardBrowser({ recipes }: { recipes: readonly Recipe[] }) {
 
   const go = useCallback(
     (delta: number) => {
-      setIndex((i) => {
-        const next = i + delta;
-        if (next < 0 || next >= recipes.length) return i;
-        setDir(delta > 0 ? 1 : -1);
-        return next;
-      });
+      const from = Math.min(index, recipes.length - 1);
+      const next = from + delta;
+      if (next < 0 || next >= recipes.length) return;
+      setDir(delta > 0 ? 1 : -1);
+      setExiting({ recipe: recipes[from], dir: delta > 0 ? 1 : -1, id: from });
+      setIndex(next);
     },
-    [recipes.length],
+    [index, recipes],
   );
 
   useEffect(() => {
@@ -418,25 +427,22 @@ function CardBrowser({ recipes }: { recipes: readonly Recipe[] }) {
   const atEnd = safeIndex === recipes.length - 1;
 
   const arrowClass =
-    "flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-cardboard/40 bg-card text-2xl text-ink transition-colors hover:border-cardboard hover:bg-cream-dark disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-cardboard/40 disabled:hover:bg-card";
+    "h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-cardboard/40 bg-card text-2xl text-ink transition-colors hover:border-cardboard hover:bg-cream-dark active:scale-95 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-cardboard/40 disabled:hover:bg-card";
 
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-6 px-4">
+    <div className="flex h-full flex-col items-center justify-center gap-4 px-3 sm:gap-6 sm:px-4">
       <div className="flex w-full items-center justify-center gap-4 sm:gap-8">
         <button
           type="button"
           aria-label="Previous recipe"
           onClick={() => go(-1)}
           disabled={atStart}
-          className={arrowClass}
+          className={`hidden sm:flex ${arrowClass}`}
         >
           ‹
         </button>
 
-        <div
-          className="relative w-full max-w-3xl"
-          style={{ aspectRatio: "5 / 3" }}
-        >
+        <div className="card-aspect relative w-full max-w-3xl">
           {STACK_LAYERS.slice(
             0,
             Math.min(STACK_LAYERS.length, recipes.length - 1),
@@ -447,9 +453,20 @@ function CardBrowser({ recipes }: { recipes: readonly Recipe[] }) {
               style={{ position: "absolute", inset: 0, transform: layer }}
             />
           ))}
+          {exiting && exiting.id !== safeIndex && (
+            <div
+              key={`exit-${exiting.id}`}
+              className={`absolute inset-0 ${
+                exiting.dir > 0 ? "slide-out-left" : "slide-out-right"
+              }`}
+              onAnimationEnd={() => setExiting(null)}
+            >
+              <RecipeCard recipe={exiting.recipe} />
+            </div>
+          )}
           <div
             key={safeIndex}
-            className={`absolute inset-0 ${
+            className={`absolute inset-0 z-10 ${
               dir > 0 ? "slide-in-right" : "slide-in-left"
             }`}
           >
@@ -462,17 +479,42 @@ function CardBrowser({ recipes }: { recipes: readonly Recipe[] }) {
           aria-label="Next recipe"
           onClick={() => go(1)}
           disabled={atEnd}
-          className={arrowClass}
+          className={`hidden sm:flex ${arrowClass}`}
         >
           ›
         </button>
       </div>
 
-      <div className="flex flex-col items-center gap-1">
-        <p className="font-body text-sm font-medium text-ink-light">
+      <div className="flex flex-col items-center gap-3">
+        {/* On mobile the side arrows are hidden to give the card full width, so
+            navigation lives in a dedicated row below the card. */}
+        <div className="flex items-center gap-6 sm:hidden">
+          <button
+            type="button"
+            aria-label="Previous recipe"
+            onClick={() => go(-1)}
+            disabled={atStart}
+            className={`flex ${arrowClass}`}
+          >
+            ‹
+          </button>
+          <p className="font-body text-sm font-medium text-ink-light tabular-nums">
+            {safeIndex + 1} / {recipes.length}
+          </p>
+          <button
+            type="button"
+            aria-label="Next recipe"
+            onClick={() => go(1)}
+            disabled={atEnd}
+            className={`flex ${arrowClass}`}
+          >
+            ›
+          </button>
+        </div>
+        <p className="hidden font-body text-sm font-medium text-ink-light sm:block">
           {safeIndex + 1} / {recipes.length}
         </p>
-        <p className="font-body text-xs text-ink-light/60">
+        <p className="hidden font-body text-xs text-ink-light/60 sm:block">
           Use ← → to browse
         </p>
       </div>
@@ -573,15 +615,15 @@ const Index = ({
 
   return (
     <div className="flex h-screen min-h-0 w-full flex-col overflow-hidden bg-cream">
-      <div className="relative flex shrink-0 flex-wrap items-center justify-between gap-4 border-b-2 border-cardboard/40 px-8 py-6">
+      <div className="relative flex shrink-0 flex-wrap items-center justify-between gap-3 border-b-2 border-cardboard/40 px-4 py-4 sm:gap-4 sm:px-8 sm:py-6">
         <input
           type="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search recipes"
-          className="w-full max-w-md rounded-lg border-2 border-ink/40 bg-card px-4 py-3 text-ink placeholder:text-ink-light/50 focus:outline-none focus:ring-2 focus:ring-cardboard"
+          className="w-full rounded-lg border-2 border-ink/40 bg-card px-4 py-3 text-ink placeholder:text-ink-light/50 focus:outline-none focus:ring-2 focus:ring-cardboard sm:max-w-md"
         />
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto sm:gap-4">
           <label className="flex items-center gap-2 text-sm font-medium text-ink">
             <input
               type="checkbox"
@@ -597,7 +639,7 @@ const Index = ({
 
           <button
             onClick={() => setShowAdd(true)}
-            className="rounded-lg bg-cardboard px-4 py-2 font-body font-semibold text-white transition-colors hover:bg-cardboard-dark"
+            className="ml-auto rounded-lg bg-cardboard px-4 py-2 font-body font-semibold text-white transition-colors hover:bg-cardboard-dark sm:ml-0"
           >
             + Add recipe
           </button>
@@ -615,7 +657,7 @@ const Index = ({
           )}
         </div>
       </div>
-      <div className="min-h-0 flex-1 py-6">
+      <div className="min-h-0 flex-1 py-3 sm:py-6">
         <Recipes
           search={debouncedSearch}
           view={view}
