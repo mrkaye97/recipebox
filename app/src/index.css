@@ -305,15 +305,7 @@ body {
   }
 }
 
-/* Shared recipe-card aspect ratio (portrait on mobile so content breathes) */
-.card-aspect {
-  aspect-ratio: 5 / 3;
-}
-
 @media (max-width: 640px) {
-  .card-aspect {
-    aspect-ratio: 3 / 4;
-  }
   /* Single column of ingredients so lines aren't cramped on a phone */
   .cramped-content {
     columns: 1;

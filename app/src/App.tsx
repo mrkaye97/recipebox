@@ -159,7 +159,7 @@ function Ingredients({ recipe }: { recipe: Recipe }) {
   };
 
   return (
-    <div className="flex-1 overflow-hidden py-4 pr-6 lined-card cramped-content">
+    <div className="flex-1 min-h-0 overflow-y-auto py-4 pr-6 lined-card cramped-content sm:overflow-hidden">
       <h3 className="handwritten text-xl font-semibold text-ink-blue mb-2 underline decoration-card-margin/40 col-span-all">
         Ingredients
       </h3>
@@ -197,7 +197,7 @@ function Instructions({ recipe }: { recipe: Recipe }) {
   );
 
   return (
-    <div className="flex-1 overflow-hidden py-4 pr-6 lined-card cramped-content">
+    <div className="flex-1 min-h-0 overflow-y-auto py-4 pr-6 lined-card cramped-content sm:overflow-hidden">
       <ol className="space-y-1.5">
         {instructions.map((step: Instruction) => (
           <li
@@ -430,8 +430,8 @@ function CardBrowser({ recipes }: { recipes: readonly Recipe[] }) {
     "h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-cardboard/40 bg-card text-2xl text-ink transition-colors hover:border-cardboard hover:bg-cream-dark active:scale-95 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-cardboard/40 disabled:hover:bg-card";
 
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-4 px-3 sm:gap-6 sm:px-4">
-      <div className="flex w-full items-center justify-center gap-4 sm:gap-8">
+    <div className="flex h-full flex-col items-center gap-4 px-3 sm:justify-center sm:gap-6 sm:px-4">
+      <div className="flex w-full min-h-0 flex-1 items-stretch justify-center gap-4 sm:flex-none sm:items-center sm:gap-8">
         <button
           type="button"
           aria-label="Previous recipe"
@@ -442,7 +442,7 @@ function CardBrowser({ recipes }: { recipes: readonly Recipe[] }) {
           ‹
         </button>
 
-        <div className="card-aspect relative w-full max-w-3xl">
+        <div className="relative h-full w-full max-w-3xl sm:h-auto sm:aspect-[5/3]">
           {STACK_LAYERS.slice(
             0,
             Math.min(STACK_LAYERS.length, recipes.length - 1),
