@@ -5,6 +5,7 @@ import { useAuth } from "./lib/auth";
 import type { components } from "./lib/api/v1";
 
 type DietaryRestriction = components["schemas"]["DietaryRestriction"];
+type Recipe = components["schemas"]["src__schemas__Recipe"];
 
 type Tab = "online" | "cookbook" | "manual";
 
@@ -48,7 +49,7 @@ function parseInstructions(raw: string) {
     .map((content, i) => ({ step_number: i + 1, content }));
 }
 
-export function AddRecipeModal({ onClose }: { onClose: () => void }) {
+export function AddRecipeModal({ onClose, onSuccess: onSuccessCallback }: { onClose: () => void; onSuccess?: (recipe: Recipe) => void }) {
   const { authHeaders } = useAuth();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<Tab>("online");
@@ -76,8 +77,9 @@ export function AddRecipeModal({ onClose }: { onClose: () => void }) {
   // Shared
   const [notes, setNotes] = useState("");
 
-  const onSuccess = () => {
+  const onSuccess = (data: Recipe) => {
     queryClient.invalidateQueries({ queryKey: ["recipes"] });
+    onSuccessCallback?.(data);
     onClose();
   };
 

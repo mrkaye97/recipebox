@@ -6,7 +6,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactCardFlip from "react-card-flip";
 import { AddRecipeModal } from "./AddRecipeModal";
 import { SearchBar } from "./SearchBar";
@@ -388,7 +388,7 @@ const STACK_LAYERS = [
   "translate(-3px, 5px) rotate(1.2deg)",
 ];
 
-function CardBrowser({ recipes }: { recipes: readonly Recipe[] }) {
+function CardBrowser({ recipes, jumpToId }: { recipes: readonly Recipe[]; jumpToId?: string | null }) {
   const [index, setIndex] = useState(0);
   const [dir, setDir] = useState<1 | -1>(1);
   // The card we're navigating away from. It stays mounted just long enough to
@@ -398,10 +398,20 @@ function CardBrowser({ recipes }: { recipes: readonly Recipe[] }) {
     dir: 1 | -1;
     id: number;
   } | null>(null);
+  const jumpedRef = useRef<string | null>(null);
 
   useEffect(() => {
     setIndex((i) => Math.min(i, Math.max(0, recipes.length - 1)));
   }, [recipes.length]);
+
+  useEffect(() => {
+    if (!jumpToId || jumpedRef.current === jumpToId) return;
+    const idx = recipes.findIndex((r) => r.id === jumpToId);
+    if (idx === -1) return;
+    jumpedRef.current = jumpToId;
+    setDir(-1);
+    setIndex(idx);
+  }, [jumpToId, recipes]);
 
   const go = useCallback(
     (delta: number) => {
@@ -572,10 +582,12 @@ const Recipes = ({
   search,
   view,
   onFetchingChange,
+  jumpToId,
 }: {
   search: string | undefined;
   view: "mine" | "all";
   onFetchingChange: (isFetching: boolean) => void;
+  jumpToId?: string | null;
 }) => {
   const { authHeaders } = useAuth();
   const parsedSearch = useMemo(() => parseSearch(search ?? ""), [search]);
@@ -639,7 +651,7 @@ const Recipes = ({
     );
   }
 
-  return <CardBrowser key={`${search}:${view}`} recipes={recipes} />;
+  return <CardBrowser key={`${search}:${view}`} recipes={recipes} jumpToId={jumpToId} />;
 };
 
 const Index = ({
@@ -655,6 +667,7 @@ const Index = ({
   const [view, setView] = useState<"mine" | "all">("mine");
   const [isUpdatingRecipes, setIsUpdatingRecipes] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
+  const [addedRecipe, setAddedRecipe] = useState<{ id: string; name: string } | null>(null);
 
   const { data: filterOptions } = useQuery({
     queryKey: ["filter-options"],
@@ -718,10 +731,28 @@ const Index = ({
           search={debouncedSearch}
           view={view}
           onFetchingChange={setIsUpdatingRecipes}
+          jumpToId={addedRecipe?.id}
         />
       </div>
 
-      {showAdd && <AddRecipeModal onClose={() => setShowAdd(false)} />}
+      {showAdd && (
+        <AddRecipeModal
+          onClose={() => setShowAdd(false)}
+          onSuccess={(recipe) => {
+            setAddedRecipe({ id: recipe.id, name: recipe.name });
+            setTimeout(() => setAddedRecipe(null), 5000);
+          }}
+        />
+      )}
+      {addedRecipe && (
+        <div className="fixed bottom-8 right-8 z-50 animate-fade-in-up flex items-center gap-3 rounded-2xl bg-cardboard px-6 py-4 shadow-xl">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/20 text-white font-bold text-base">✓</span>
+          <div>
+            <p className="font-body font-semibold text-white text-base leading-tight">{addedRecipe.name}</p>
+            <p className="font-body text-white/70 text-sm leading-tight">Added to your box</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
