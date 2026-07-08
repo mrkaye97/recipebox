@@ -9,6 +9,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactCardFlip from "react-card-flip";
 import { AddRecipeModal } from "./AddRecipeModal";
+import { SearchBar } from "./SearchBar";
 import { api } from "./lib/api/client";
 import type { components } from "./lib/api/v1";
 import {
@@ -630,11 +631,23 @@ const Index = ({
   token: string;
   onLogout: () => void;
 }) => {
+  const { authHeaders } = useAuth();
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [view, setView] = useState<"mine" | "all">("mine");
   const [isUpdatingRecipes, setIsUpdatingRecipes] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
+
+  const { data: filterOptions } = useQuery({
+    queryKey: ["filter-options"],
+    queryFn: async () => {
+      const { data } = await api.GET("/recipes/filter-options", {
+        headers: authHeaders,
+      });
+      return data;
+    },
+    staleTime: 5 * 60_000,
+  });
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -647,12 +660,9 @@ const Index = ({
   return (
     <div className="flex h-screen min-h-0 w-full flex-col overflow-hidden bg-cream">
       <div className="relative flex shrink-0 flex-wrap items-center justify-between gap-3 border-b-2 border-cardboard/40 px-4 py-4 sm:gap-4 sm:px-8 sm:py-6">
-        <input
-          type="search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search recipes"
-          className="w-full rounded-lg border-2 border-ink/40 bg-card px-4 py-3 text-ink placeholder:text-ink-light/50 focus:outline-none focus:ring-2 focus:ring-cardboard sm:max-w-md"
+        <SearchBar
+          onChange={setSearch}
+          cuisines={filterOptions?.cuisines}
         />
         <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto sm:gap-4">
           <label className="flex items-center gap-2 text-sm font-medium text-ink">

@@ -242,9 +242,9 @@ WHERE
         :p3\\:\\:TEXT IS NULL
         OR r.id @@@ paradedb.parse(:p3\\:\\:TEXT, lenient => true)
     )
-    AND :p4\\:\\:TEXT IS NULL OR r.cuisine = :p4\\:\\:TEXT
-    AND :p5\\:\\:meal IS NULL OR r.meal = :p5\\:\\:meal
-    AND :p6\\:\\:recipe_type IS NULL OR r.type = :p6\\:\\:recipe_type
+    AND (:p4\\:\\:TEXT IS NULL OR r.cuisine = :p4\\:\\:TEXT)
+    AND (:p5\\:\\:meal IS NULL OR r.meal = :p5\\:\\:meal)
+    AND (:p6\\:\\:recipe_type IS NULL OR r.type = :p6\\:\\:recipe_type)
 ORDER BY
     CASE WHEN :p1\\:\\:BOOLEAN THEN
         CASE
