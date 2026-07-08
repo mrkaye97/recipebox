@@ -121,7 +121,7 @@ async def markdown_to_recipe(markdown: str) -> BaseRecipeCreate | None:
     prompt = f"Extract the recipe from the following webpage content:\n\n{content}"
 
     response = await client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-sonnet-4-5",
         max_tokens=4096,
         system=SYSTEM_PROMPT,
         messages=[{"role": "user", "content": prompt}],
@@ -148,7 +148,7 @@ async def image_to_recipe(images: list[bytes]) -> BaseRecipeCreate | None:
     )
 
     response = await client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-sonnet-4-5",
         max_tokens=4096,
         system=SYSTEM_PROMPT,
         messages=[{"role": "user", "content": content}],
