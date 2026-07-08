@@ -141,7 +141,7 @@ WHERE
         sqlc.narg('search')::TEXT IS NULL
         OR r.id @@@ paradedb.parse(sqlc.narg('search')::TEXT, lenient => true)
     )
-    AND (sqlc.narg('cuisine')::TEXT IS NULL OR r.cuisine = sqlc.narg('cuisine')::TEXT)
+    AND (sqlc.narg('cuisine')::TEXT IS NULL OR LOWER(r.cuisine) = LOWER(sqlc.narg('cuisine')::TEXT))
     AND (sqlc.narg('meal')::meal IS NULL OR r.meal = sqlc.narg('meal')::meal)
     AND (sqlc.narg('type')::recipe_type IS NULL OR r.type = sqlc.narg('type')::recipe_type)
 ORDER BY

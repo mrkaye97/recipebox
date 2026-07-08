@@ -437,6 +437,15 @@ function CardBrowser({ recipes }: { recipes: readonly Recipe[] }) {
       <div className="flex w-full min-h-0 flex-1 items-stretch justify-center gap-4 sm:flex-none sm:items-center sm:gap-8">
         <button
           type="button"
+          aria-label="First recipe"
+          onClick={() => go(-safeIndex)}
+          disabled={atStart}
+          className={`hidden sm:flex ${arrowClass}`}
+        >
+          ‹‹
+        </button>
+        <button
+          type="button"
           aria-label="Previous recipe"
           onClick={() => go(-1)}
           disabled={atStart}
@@ -485,6 +494,15 @@ function CardBrowser({ recipes }: { recipes: readonly Recipe[] }) {
           className={`hidden sm:flex ${arrowClass}`}
         >
           ›
+        </button>
+        <button
+          type="button"
+          aria-label="Last recipe"
+          onClick={() => go(recipes.length - 1 - safeIndex)}
+          disabled={atEnd}
+          className={`hidden sm:flex ${arrowClass}`}
+        >
+          ››
         </button>
       </div>
 
@@ -660,10 +678,7 @@ const Index = ({
   return (
     <div className="flex h-screen min-h-0 w-full flex-col overflow-hidden bg-cream">
       <div className="relative flex shrink-0 flex-wrap items-center justify-between gap-3 border-b-2 border-cardboard/40 px-4 py-4 sm:gap-4 sm:px-8 sm:py-6">
-        <SearchBar
-          onChange={setSearch}
-          cuisines={filterOptions?.cuisines}
-        />
+        <SearchBar onChange={setSearch} cuisines={filterOptions?.cuisines} />
         <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto sm:gap-4">
           <label className="flex items-center gap-2 text-sm font-medium text-ink">
             <input
