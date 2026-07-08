@@ -2,7 +2,6 @@ import base64
 import io
 import json
 import re
-from typing import cast
 
 import anthropic
 from aiohttp import ClientSession
@@ -97,7 +96,7 @@ async def extract_recipe_markdown_from_url(url: str) -> str:
         for element in soup.find_all(string=re.compile(pattern, re.I)):
             element.decompose()
 
-    return cast(str, soup.prettify())
+    return soup.prettify()
 
 
 async def agent_result_to_maybe_recipe(

@@ -10,6 +10,7 @@ from src.crud.models import Recipe as DbRecipe
 from src.crud.recipes import (
     AsyncQuerier,
     ListRecipeFilterOptionsRow,
+    ListRecipesParams,
     UpdateRecipeParams,
 )
 from src.crud.sharing import AsyncQuerier as Sharing
@@ -151,15 +152,26 @@ def recipe_row_to_recipe(user_id: UUID, recipe: DbRecipe) -> DbRecipe:
 
 
 async def list_recipes_from_db(
-    user_id: UUID, search: str | None, only_user: bool, db: AsyncQuerier
+    user_id: UUID,
+    search: str | None,
+    only_user: bool,
+    db: AsyncQuerier,
+    cuisine: str | None = None,
+    meal: Meal | None = None,
+    type: RecipeType | None = None,
 ) -> list[Recipe]:
     recipes = [
         recipe_row_to_recipe(user_id, r)
         async for r in db.list_recipes(
-            userid=user_id,
-            onlyuser=only_user,
-            search=search,
-            seasonalingredients=get_seasonal_search_query(),
+            arg=ListRecipesParams(
+                userid=user_id,
+                onlyuser=only_user,
+                search=search,
+                seasonalingredients=get_seasonal_search_query(),
+                cuisine=cuisine,
+                meal=meal,
+                type=type,
+            ),
         )
     ]
 
@@ -168,11 +180,23 @@ async def list_recipes_from_db(
 
 @recipes.get("")
 async def list_recipes(
-    user: User, conn: Connection, search: str | None = None, only_user: bool = False
+    user: User,
+    conn: Connection,
+    search: str | None = None,
+    cuisine: str | None = None,
+    meal: Meal | None = None,
+    type: RecipeType | None = None,
+    only_user: bool = False,
 ) -> list[Recipe]:
     db = AsyncQuerier(conn)
     return await list_recipes_from_db(
-        user_id=user.id, only_user=only_user, db=db, search=search
+        user_id=user.id,
+        only_user=only_user,
+        db=db,
+        search=search,
+        cuisine=cuisine,
+        meal=meal,
+        type=type,
     )
 
 

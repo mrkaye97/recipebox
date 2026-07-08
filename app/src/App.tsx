@@ -10,6 +10,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactCardFlip from "react-card-flip";
 import { AddRecipeModal } from "./AddRecipeModal";
 import { api } from "./lib/api/client";
+import type { components } from "./lib/api/v1";
 import {
   clearToken,
   getStoredToken,
@@ -17,11 +18,12 @@ import {
   storeToken,
   useAuth,
 } from "./lib/auth";
-import type { components } from "./lib/api/v1";
 
 type Recipe = components["schemas"]["src__schemas__Recipe"];
 type Ingredient = components["schemas"]["RecipeIngredient"];
 type Instruction = components["schemas"]["RecipeInstruction"];
+type Meal = components["schemas"]["Meal"];
+type RecipeType = components["schemas"]["RecipeType"];
 
 function AuthScreen({ onAuth }: { onAuth: (token: string) => void }) {
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -522,6 +524,31 @@ function CardBrowser({ recipes }: { recipes: readonly Recipe[] }) {
   );
 }
 
+type ParsedSearch = {
+  search?: string;
+  cuisine?: string;
+  meal?: Meal;
+  type?: RecipeType;
+};
+
+const parseSearch = (search: string): ParsedSearch => {
+  const result: ParsedSearch = {};
+  const regex = /(\w+):([^\s]+)/g;
+  let match;
+  while ((match = regex.exec(search)) !== null) {
+    const key = match[1].toLowerCase();
+    const value = match[2].toLowerCase();
+    if (key === "cuisine") result.cuisine = value;
+    else if (key === "meal") result.meal = value as Meal;
+    else if (key === "type") result.type = value as RecipeType;
+  }
+
+  const cleanedSearch = search.replace(regex, "").trim();
+  if (cleanedSearch) result.search = cleanedSearch;
+
+  return result;
+};
+
 const Recipes = ({
   search,
   view,
@@ -532,6 +559,7 @@ const Recipes = ({
   onFetchingChange: (isFetching: boolean) => void;
 }) => {
   const { authHeaders } = useAuth();
+  const parsedSearch = useMemo(() => parseSearch(search ?? ""), [search]);
 
   const { isLoading, isFetching, data, isError } = useQuery({
     queryKey: ["recipes", { search, view }],
@@ -540,8 +568,11 @@ const Recipes = ({
         headers: authHeaders,
         params: {
           query: {
-            search: search || undefined,
+            search: parsedSearch.search,
             only_user: view === "mine",
+            type: parsedSearch.type,
+            meal: parsedSearch.meal,
+            cuisine: parsedSearch.cuisine,
           },
         },
       });

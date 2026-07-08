@@ -978,8 +978,11 @@ export interface operations {
     readonly list_recipes_recipes_get: {
         readonly parameters: {
             readonly query?: {
+                readonly cuisine?: string | null;
+                readonly meal?: components["schemas"]["Meal"] | null;
                 readonly only_user?: boolean;
                 readonly search?: string | null;
+                readonly type?: components["schemas"]["RecipeType"] | null;
             };
             readonly header?: never;
             readonly path?: never;

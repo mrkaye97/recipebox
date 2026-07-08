@@ -215,7 +215,7 @@ WITH ingredient_seasonality_score AS (
     FROM recipe_ingredient i
     JOIN recipe r ON r.id = i.recipe_id
     WHERE
-        i.id @@@ paradedb.parse(:p4\\:\\:TEXT, lenient => true)
+        i.id @@@ paradedb.parse(:p7\\:\\:TEXT, lenient => true)
         AND r.user_id = :p2\\:\\:UUID
     GROUP BY i.recipe_id
 )
@@ -242,6 +242,9 @@ WHERE
         :p3\\:\\:TEXT IS NULL
         OR r.id @@@ paradedb.parse(:p3\\:\\:TEXT, lenient => true)
     )
+    AND :p4\\:\\:TEXT IS NULL OR r.cuisine = :p4\\:\\:TEXT
+    AND :p5\\:\\:meal IS NULL OR r.meal = :p5\\:\\:meal
+    AND :p6\\:\\:recipe_type IS NULL OR r.type = :p6\\:\\:recipe_type
 ORDER BY
     CASE WHEN :p1\\:\\:BOOLEAN THEN
         CASE
@@ -259,6 +262,16 @@ ORDER BY
     r.updated_at DESC,
     r.id
 """
+
+
+class ListRecipesParams(pydantic.BaseModel):
+    onlyuser: bool
+    userid: uuid.UUID
+    search: str | None
+    cuisine: str | None
+    meal: models.Meal | None
+    type: models.RecipeType | None
+    seasonalingredients: str
 
 
 UPDATE_RECIPE = """-- name: update_recipe \\:one
@@ -535,20 +548,18 @@ class AsyncQuerier:
             )
 
     async def list_recipes(
-        self,
-        *,
-        onlyuser: bool,
-        userid: uuid.UUID,
-        search: str | None,
-        seasonalingredients: str,
+        self, arg: ListRecipesParams
     ) -> AsyncIterator[models.Recipe]:
         result = await self._conn.stream(
             sqlalchemy.text(LIST_RECIPES),
             {
-                "p1": onlyuser,
-                "p2": userid,
-                "p3": search,
-                "p4": seasonalingredients,
+                "p1": arg.onlyuser,
+                "p2": arg.userid,
+                "p3": arg.search,
+                "p4": arg.cuisine,
+                "p5": arg.meal,
+                "p6": arg.type,
+                "p7": arg.seasonalingredients,
             },
         )
         async for row in result:
