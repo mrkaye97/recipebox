@@ -233,6 +233,35 @@ function formatLastMade(iso: string): string {
   return then.toLocaleDateString();
 }
 
+function RecipeSource({ recipe }: { recipe: Recipe }) {
+  const loc = recipe.location?.location;
+  if (!loc) return null;
+
+  if (loc.location === "online") {
+    return (
+      <a
+        href={loc.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={(e) => e.stopPropagation()}
+        className="handwritten text-sm text-ink-blue underline decoration-ink-blue/40 hover:decoration-ink-blue truncate block mt-0.5"
+      >
+        {(() => { try { return new URL(loc.url).hostname.replace(/^www\./, ""); } catch { return loc.url; } })()}
+      </a>
+    );
+  }
+
+  if (loc.location === "cookbook") {
+    return (
+      <p className="handwritten text-sm text-ink-light mt-0.5 italic">
+        {loc.cookbook_name}, p.&nbsp;{loc.page_number}
+      </p>
+    );
+  }
+
+  return null;
+}
+
 function RecipeCard({ recipe }: { recipe: Recipe }) {
   const [isFlipped, setIsFlipped] = useState(false);
   const { authHeaders, userId } = useAuth();
@@ -358,6 +387,7 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
                 ? ` · ${recipe.time_estimate_minutes} min`
                 : ""}
             </p>
+            <RecipeSource recipe={recipe} />
           </div>
           <Ingredients recipe={recipe} />
           {actionBar}
@@ -371,6 +401,7 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
             <p className="handwritten text-base text-ink-light mt-0.5 sm:text-lg">
               Instructions
             </p>
+            <RecipeSource recipe={recipe} />
           </div>
           <Instructions recipe={recipe} />
           {actionBar}
